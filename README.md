@@ -1,4 +1,4 @@
-# alura-tracker
+# Cineminha KronusBoss
 
 ## Project setup
 ```
@@ -22,3 +22,6 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+### Link
+[cine.kronusboss](https://cine.kronusboss.com)
