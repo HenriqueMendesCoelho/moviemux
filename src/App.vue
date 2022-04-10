@@ -1,19 +1,25 @@
 <template>
-  <login-start/>
+  <div class="main">
+    <router-view></router-view>
+  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import LoginInit from "./components/login/LoginInit.vue"
+//import LoginInit from "./components/login/LoginInit.vue"
 
 export default defineComponent({
   name: 'App',
   components: {
-    "login-start": LoginInit
+    //"login-start": LoginInit
   }
 });
 </script>
 
-<style>
-
-</style>
+<style scoped>
+.main {
+  width: 100vw;
+  height: 100vh;
+  background-color: #0b0e14;
+}
+</style>>

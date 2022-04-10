@@ -1,7 +1,7 @@
 <template>
     <div class="main-login">
         <div class="left-login">
-            <h1>Bem-vindo ao cineminha Kronus Boss</h1>
+            <h1>Bem-vindo ao cineminha</h1>
             <img src="../../assets/logo-kronus.png" class="left-img-login" alt="logo" />
         </div>
         <div class="right-login">
@@ -15,7 +15,10 @@
                     <label for="password">Senha</label>
                     <input type="password" name="senha" placeholder="Senha">
                 </div>
-                <button class="btn-login">Login</button>
+                <div class="row">
+                    <router-link :to="{name: 'home'}" style="color:white;">Go to Home</router-link>
+                </div>
+                    <button class="btn-login" type="button">Login</button>
             </div>
         </div>
     </div>
@@ -25,7 +28,7 @@
 import { defineComponent } from "vue"
 
 export default defineComponent({
-
+    
 })
 </script>
 
@@ -33,7 +36,6 @@ export default defineComponent({
 .main-login {
     width: 100vw;
     height: 100vh;
-    background-color: #0b0e14;
     display: flex;
     justify-content: center;
     align-items: center;
