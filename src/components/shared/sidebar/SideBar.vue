@@ -25,6 +25,14 @@
                 <span class="text">ADM</span>
             </router-link>
         </div>
+
+        <div class="flex"></div>
+        <div class="menu">
+            <router-link to="/" class="button">
+                <span class="material-icons">logout</span>
+                <span class="text">Sair</span>
+            </router-link>
+        </div>
     </aside>
 </template>
 
@@ -79,6 +87,10 @@ aside {
                 transition: 0.2s ease-in-out;
             }
         }
+    }
+
+    .flex{
+        flex: 1 1 0;
     }
 
     .menu-toggle-wrap {
