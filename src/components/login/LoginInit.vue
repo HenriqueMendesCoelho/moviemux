@@ -6,44 +6,44 @@
                 class="left-img-login" alt="logo" draggable="false" @click="forgotPass = false, createAccout = false"/>
         </div>
         <div class="right-login">
-                <div class="card-login">
+            <div class="card-login">
 
-                    <h2 v-if="!forgotPass && !createAccout">Login</h2>
-                    <h2 v-else-if="!forgotPass && createAccout">Criar nova conta</h2>
-                    <h2 v-else-if="forgotPass && !createAccout">Recuperação de senha</h2>
-                    <h2 v-else>Error</h2>
+                <h2 v-if="!forgotPass && !createAccout">Login</h2>
+                <h2 v-else-if="!forgotPass && createAccout">Criar nova conta</h2>
+                <h2 v-else-if="forgotPass && !createAccout">Recuperação de senha</h2>
+                <h2 v-else>Error</h2>
 
-                    <div class="textfield">
-                        <label for="user">E-mail</label>
-                        <input type="text" name="email" placeholder="E-mail">
-                        <p v-show="forgotPass">Insira seu e-mail para receber uma nova senha</p>
-                    </div>
-                    <div class="textfield" v-show="!forgotPass">
-                        <label for="password">Senha</label>
-                        <input type="password" name="senha" placeholder="Senha">
-                        <router-link to="/" @click="forgotPass = true, button_text = 'Enviar e-mail'" v-show="!createAccout">
-                            Esqueceu sua senha ?
-                        </router-link>
-                    </div>
-                    <div class="textfield" v-show="!forgotPass && createAccout">
-                        <label for="code">Código do convite</label>
-                        <input type="password" name="code" placeholder="Código">
-                    </div>
-                    <div class="sub-menu-backtologin" v-show="forgotPass || createAccout">
-                        <router-link to="/" @click="createAccout = false, forgotPass = false, button_text='Login'">
-                            Voltar para login
-                        </router-link>
-                    </div>
-                    <button class="btn-login" type="button">{{ button_text }}</button>
-                    <div class="sub-menu-login" v-show="!forgotPass && !createAccout">
-                        Não tem conta ?
-                        <router-link to="/" @click="createAccout = true, button_text = 'Criar'">
-                            Criar conta
-                        </router-link>
-                        <br>
-                    </div>
-                    
+                <div class="textfield">
+                    <label for="user">E-mail</label>
+                    <input type="text" name="email" placeholder="E-mail">
+                    <p v-show="forgotPass">Insira seu e-mail para receber uma nova senha</p>
                 </div>
+                <div class="textfield" v-show="!forgotPass">
+                    <label for="password">Senha</label>
+                    <input type="password" name="senha" placeholder="Senha">
+                    <router-link class="router-link-blue" to="/" @click="forgotPass = true, button_text = 'Enviar e-mail'" v-show="!createAccout">
+                        Esqueceu sua senha ?
+                    </router-link>
+                </div>
+                <div class="textfield" v-show="!forgotPass && createAccout">
+                    <label for="code">Código do convite</label>
+                    <input type="password" name="code" placeholder="Código">
+                </div>
+                <div class="sub-menu-backtologin" v-show="forgotPass || createAccout">
+                    <router-link to="/" @click="createAccout = false, forgotPass = false, button_text='Login'">
+                        Voltar para login
+                    </router-link>
+                </div>
+                <button class="btn-login" type="button">{{ button_text }}</button>
+                <div class="sub-menu-login" v-show="!forgotPass && !createAccout">
+                    Não tem conta ?
+                    <router-link class="router-link-blue" to="/" @click="createAccout = true, button_text = 'Criar'">
+                        Criar conta
+                    </router-link>
+                    <br>
+                </div>
+                
+            </div>
         </div>
     </div>
 </template>
@@ -62,7 +62,7 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .main-login {
     width: 100vw;
     height: 100vh;
@@ -78,16 +78,28 @@ export default defineComponent({
     justify-content: center;
     align-items: center;
     flex-direction: column;
+
+    transition: 0.2s ease-out;
+
+    .left-img-login {
+        cursor: pointer;
+
+        &:hover {
+            box-shadow: 0px 0px 30px -12px var(--primary);
+
+            transition: 0.2s ease-in-out;
+        }
+    }
 }
 
 .left-login > h1 {
     font-size: 2vw;
     margin-bottom: 30px;
-    color: #00f6ff;
+    color: var(--primary);
 }
 
 .left-login > h3 {
-    color: #9bf6f9;
+    color: var(--light-blue);
 }
 
 .left-img-login {
@@ -110,13 +122,13 @@ export default defineComponent({
     align-items: center;
     flex-direction: column;
     padding: 20px 25px;
-    background: #1f2531;
+    background: var(--grey-dark2);
     border-radius: 20px;
-    box-shadow: 0 10px 30px #00000056;
+    box-shadow: 0 10px 30px var(--shadow);
 }
 
 .card-login > h2 {
-    color: #00f6ff;
+    color: var(--primary);
     font-weight: 500;
     margin: 0;
 }
@@ -135,31 +147,31 @@ export default defineComponent({
     border: none;
     border-radius: 10px;
     padding: 10px;
-    background: #293244;
-    color: #f0ffffde;
+    background: var(--grey-mid);
+    color: var(--light-grey2);
     font-size: 12pt;
-    box-shadow: 0 10px 30px #00000056;
+    box-shadow: 0 10px 30px var(--shadow);
     outline: none;
     box-sizing: border-box;
 }
 
 .textfield > label {
-    color: #f0ffffde;
+    color: var(--light-grey2);
     margin-bottom: 10px;
 }
 
 .textfield > input::placeholder {
-    color: #f0ffff94;
+    color: var(--light-grey);
 }
 
 .textfield > a {
-    color: #00f6ff;
+    color: var(--primary);
     align-self: start;
     margin-top: 10px;
 }
 
 .textfield > p {
-    color: #f0ffffde;
+    color: var(--light-grey2);
     margin: 5px 5px;
 }
 
@@ -173,17 +185,33 @@ export default defineComponent({
     text-transform: uppercase;
     font-weight: 700;
     letter-spacing: 1px;
-    color: #1a1f27;
-    background: #00f6ff;
-    box-shadow: 0 10px 30px -12px #00f6ff;
+    color: var(--grey-dark);
+    background: var(--primary);
+    box-shadow: 0 10px 30px -12px var(--primary);
+
+    &:hover {
+        background-color: var(--light-blue);
+        box-shadow: 0 10px 30px -12px var(--light-blue);
+
+        transition: 0.2s ease-out;
+    }
+}
+
+.router-link-blue {
+    &:hover {
+
+        color: var(--light-blue);
+
+        transition: 0.2s ease-out;
+    }
 }
 
 .sub-menu-login {
-    color: #f0ffffde;
+    color: var(--light-grey2);
 }
 
 .sub-menu-login > a {
-    color: #00f6ff;
+    color: var(--primary);
 }
 
 .sub-menu-backtologin {
@@ -194,7 +222,7 @@ export default defineComponent({
 }
 
 .sub-menu-backtologin > a {
-    color: #f0ffffde;
+    color: var(--light-grey2);
 }
 
 @media only screen and (max-width: 950px) {
