@@ -1,49 +1,49 @@
 <template>
     <div class="main-login">
         <div class="left-login">
-            <h1>Bem-vindo ao cineminha</h1>
+            <h1>Bem-vindo ao cineminha!</h1>
             <img src="../../assets/logo-kronus.png" 
                 class="left-img-login" alt="logo" draggable="false" @click="forgotPass = false, createAccout = false"/>
         </div>
         <div class="right-login">
-            <div class="card-login">
+                <div class="card-login">
 
-                <h2 v-if="!forgotPass && !createAccout">Login</h2>
-                <h2 v-else-if="!forgotPass && createAccout">Criar nova conta</h2>
-                <h2 v-else-if="forgotPass && !createAccout">Recuperação de senha</h2>
-                <h2 v-else>Error</h2>
+                    <h2 v-if="!forgotPass && !createAccout">Login</h2>
+                    <h2 v-else-if="!forgotPass && createAccout">Criar nova conta</h2>
+                    <h2 v-else-if="forgotPass && !createAccout">Recuperação de senha</h2>
+                    <h2 v-else>Error</h2>
 
-                <div class="textfield">
-                    <label for="user">E-mail</label>
-                    <input type="text" name="email" placeholder="E-mail">
-                    <p v-show="forgotPass">Insira seu e-mail para receber uma nova senha</p>
+                    <div class="textfield">
+                        <label for="user">E-mail</label>
+                        <input type="text" name="email" placeholder="E-mail">
+                        <p v-show="forgotPass">Insira seu e-mail para receber uma nova senha</p>
+                    </div>
+                    <div class="textfield" v-show="!forgotPass">
+                        <label for="password">Senha</label>
+                        <input type="password" name="senha" placeholder="Senha">
+                        <router-link to="/" @click="forgotPass = true, button_text = 'Enviar e-mail'" v-show="!createAccout">
+                            Esqueceu sua senha ?
+                        </router-link>
+                    </div>
+                    <div class="textfield" v-show="!forgotPass && createAccout">
+                        <label for="code">Código do convite</label>
+                        <input type="password" name="code" placeholder="Código">
+                    </div>
+                    <div class="sub-menu-backtologin" v-show="forgotPass || createAccout">
+                        <router-link to="/" @click="createAccout = false, forgotPass = false, button_text='Login'">
+                            Voltar para login
+                        </router-link>
+                    </div>
+                    <button class="btn-login" type="button">{{ button_text }}</button>
+                    <div class="sub-menu-login" v-show="!forgotPass && !createAccout">
+                        Não tem conta ?
+                        <router-link to="/" @click="createAccout = true, button_text = 'Criar'">
+                            Criar conta
+                        </router-link>
+                        <br>
+                    </div>
+                    
                 </div>
-                <div class="textfield" v-show="!forgotPass">
-                    <label for="password">Senha</label>
-                    <input type="password" name="senha" placeholder="Senha">
-                    <router-link to="/" @click="forgotPass = true, button_text = 'Enviar e-mail'" v-show="!createAccout">
-                        Esqueceu sua senha ?
-                    </router-link>
-                </div>
-                <div class="textfield" v-show="!forgotPass && createAccout">
-                    <label for="code">Código do convite</label>
-                    <input type="password" name="code" placeholder="Código">
-                </div>
-                <div class="sub-menu-backtologin" v-show="forgotPass || createAccout">
-                    <router-link to="/" @click="createAccout = false, forgotPass = false, button_text='Login'">
-                        Voltar para login
-                    </router-link>
-                </div>
-                <button class="btn-login" type="button">{{ button_text }}</button>
-                <div class="sub-menu-login" v-show="!forgotPass && !createAccout">
-                    Não tem conta ?
-                    <router-link to="/" @click="createAccout = true, button_text = 'Criar'">
-                        Criar conta
-                    </router-link>
-                    <br>
-                </div>
-                
-            </div>
         </div>
     </div>
 </template>
@@ -104,7 +104,7 @@ export default defineComponent({
 }
 
 .card-login {
-    width: 60%;
+    width: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -225,5 +225,4 @@ export default defineComponent({
         margin-bottom: 20px;
     }
 }
-
 </style>
