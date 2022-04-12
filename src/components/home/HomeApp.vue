@@ -1,147 +1,159 @@
 <template>
     <main>
-        <div class="main">
-            <div class="last-films">
-
-                <div class="last-filmes-title">
-                    <span class="material-icons" @click="lastFilms_expanded = !lastFilms_expanded">expand_less</span>
-                    <h4>Últimos filmes</h4>
-                </div>
-
-                <div class="card-last-films">
-                    
-                </div>
+        <div class="div-lastfilms" :style="lastFilms_height">
+            <div class="div-title">
+                <span class="material-icons" :style="lastFilms_expanded" @click="isVisibleLastFilms">
+                    expand_less
+                </span>
+                <h4>Últimos Filmes</h4>
             </div>
-
-
-            <div class="all-films">
-
+            <div class="div-cards-lastfilm">
+                <card-app v-for="film in films.slice(0, 5)" :title="film.titulo" :url="film.url" :key="film.id" :id="film.id"/>
             </div>
+        </div>
+        <div class="div-allfilms">
+            <h1>All films</h1>
         </div>
     </main>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import CardApp from "../shared/card/CardApp.vue"
 
 export default defineComponent({
+    components: {
+        "card-app": CardApp
+    },
     data() {
         return {
-            lastFilms_expanded: true,
+            lastFilms_expanded: "transform: rotate(0deg);",
+            lastFilms_height: 'height: 40%;',
             films: [
                 {
-                    titulo_ptbr: "Carros 3",
-                    titulo_us: "Cars 3",
-                    descrição: "Filme de carro bala demais com o relampago marquinhos",
-                    bannerUrl: "https://i.imgur.com/KtO32vW.jpeg",
-                    trailerUrlDub: "https://www.youtube.com/watch?v=BuvJZGLclAU",
-                    trailerUrlLeg: "https://www.youtube.com/watch?v=BuvJZGLclAU",
-                    notas: [
-                        {
-                            user: "Henrique",
-                            nota: 10
-                        }
-                    ]
+                    id: 1,
+                    titulo: "Carros 3",
+                    url: "https://img.elo7.com.br/product/zoom/1B4DF7D/banner-festa-carros-painel.jpg"
                 },
                 {
-                    titulo_ptbr: "Carros 3",
-                    titulo_us: "Cars 3",
-                    descrição: "Filme de carro bala demais com o relampago marquinhos",
-                    bannerUrl: "https://i.imgur.com/KtO32vW.jpeg",
-                    trailerUrlDub: "https://www.youtube.com/watch?v=BuvJZGLclAU",
-                    trailerUrlLeg: "https://www.youtube.com/watch?v=BuvJZGLclAU",
-                    notas: [
-                        {
-                            user: "Henrique",
-                            nota: 10
-                        }
-                    ]
+                    id: 2,
+                    titulo: "Carros 3",
+                    url: "https://img.elo7.com.br/product/zoom/1B4DF7D/banner-festa-carros-painel.jpg"
+                },
+                {
+                    id: 3,
+                    titulo: "Carros 3",
+                    url: "https://img.elo7.com.br/product/zoom/1B4DF7D/banner-festa-carros-painel.jpg"
+                },
+                {
+                    id: 4,
+                    titulo: "Carros 3",
+                    url: "https://img.elo7.com.br/product/zoom/1B4DF7D/banner-festa-carros-painel.jpg"
+                },
+                {
+                    id: 5,
+                    titulo: "Carros 3",
+                    url: "https://media.discordapp.net/attachments/544455631269134347/743880454985482360/unknown.png?width=925&height=671"
+                },
+                {
+                    id: 6,
+                    titulo: "Carros 3",
+                    url: ""
+                },
+                {
+                    id: 7,
+                    titulo: "Carros 3",
+                    url: ""
+                },
+                {
+                    id: 8,
+                    titulo: "Carros 3",
+                    url: ""
                 }
             ]
+        }
+    },
+    methods: {
+        isVisibleLastFilms() {
+            if(this.lastFilms_height == "height: 40%;") {
+                this.lastFilms_height = "height: 8%;";
+            } else {
+                this.lastFilms_height = "height: 40%;";
+            }
+
+            if(this.lastFilms_expanded == "transform: rotate(0deg);") {
+                this.lastFilms_expanded ="transform: rotate(-180deg);";
+            } else {
+                this.lastFilms_expanded = "transform: rotate(0deg);";
+            }
         }
     }
 })
 </script>
 
 <style lang="scss" scoped>
-.main {
-    width: 100%;
-    height: 100%;
-    //border: 5px solid pink;
-    display: flex;
-    flex-direction: column;
-    .last-films {
-        //height: 3.3rem;
-        height: 30%;
-        width: 100%;
+    main {
         display: flex;
         flex-direction: column;
-        //border: 5px solid darkgray;
-        border-radius: 20px;
-        overflow: hidden;
+        margin-top: 1.5rem;
+        margin-left: 1.5rem;
 
-        position: relative;
-        
-        background-color: var(--grey-dark2);
+        border-top-left-radius: 10px;
+        background: var(--grey-dark2);
+        box-shadow: 0 10px 30px var(--shadow);
+        .div-lastfilms {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
 
-        transition: 0.2s ease-out;
-
-        .material-icons{
-            color: var(--light-grey2);
-            font-size: 2rem;
             transition: 0.2s ease-out;
 
-            &:hover {
-                color: var(--primary);
-                cursor: pointer;
-
-                transform: translateY(-0.5rem);
-            }
-        }
-
-        .last-filmes-title {
-            display: flex;
-            height: 15%;
-            margin-top: 10px;
-            //border: 5px solid purple;
-            border-radius: 20px;
-
-            h4 {
-                margin-left: 1rem;
-                color: var(--light-grey2);
-            }
-
-        }
-        .card-last-films {
-            height: 85%;
+            //height: 10%;
             width: 100%;
-            display: flex;
-            //border: 5px solid yellow;
-            
-            border-radius: 20px;
 
-            .icons-card-last-films{
-                height: 100%;
-                width: 5%;
-                border: 5px solid blue;
+            color: var(--light-grey2);
+            border-radius: 10px;
+            background-color: var(--grey-mid);
+            box-shadow: 0 5px 30px var(--shadow);
+
+            .div-title {
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+
+                transition: 0.2s ease-out;
+                
+                border-radius: 10px;
+                border-bottom: 1px solid rgba(255, 255, 255, .2);
+
+                .material-icons{
+                    font-size: 2rem;
+                    color: var(--light-grey2);
+                    margin-right: 15px;
+                    margin-top: 0px;
+
+                    transition: 0.2s ease-out;
+
+                    cursor: pointer;
+
+                    &:hover {
+                        color: var(--primary);
+                        
+                    }
+                }
+
+            }
+
+            .div-cards-lastfilm {
+                display: flex;
+                justify-content: center;
+                overflow: hidden;
+                max-height:100%;
+
+                transition: 0.2s ease-out;
             }
         }
-        
-        @media (max-width: 768px) {
-            height: 40vh;
-            width: auto;
-        }
-    }
 
-    .all-films {
-        height: 70%;
-        width: 100%;
-        //border: 5px solid green;
-
-        @media (max-width: 768px) {
-            height: 56vh;
-            width: auto;
-        }
+        //border: 5px solid black;
     }
-}
 </style>

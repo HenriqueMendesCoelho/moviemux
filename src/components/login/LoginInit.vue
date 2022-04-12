@@ -15,26 +15,26 @@
 
                 <div class="textfield">
                     <label for="user">E-mail</label>
-                    <input type="text" name="email" placeholder="E-mail">
+                    <input type="text" name="email" placeholder="E-mail" v-model="input_email">
                     <p v-show="forgotPass">Insira seu e-mail para receber uma nova senha</p>
                 </div>
                 <div class="textfield" v-show="!forgotPass">
                     <label for="password">Senha</label>
-                    <input type="password" name="senha" placeholder="Senha">
+                    <input type="password" name="senha" placeholder="Senha" v-model="input_pass">
                     <router-link class="router-link-blue" to="/" @click="forgotPass = true, button_text = 'Enviar e-mail'" v-show="!createAccout">
                         Esqueceu sua senha ?
                     </router-link>
                 </div>
                 <div class="textfield" v-show="!forgotPass && createAccout">
                     <label for="code">Código do convite</label>
-                    <input type="password" name="code" placeholder="Código">
+                    <input type="password" name="code" placeholder="Código" v-model="input_code">
                 </div>
                 <div class="sub-menu-backtologin" v-show="forgotPass || createAccout">
                     <router-link to="/" @click="createAccout = false, forgotPass = false, button_text='Login'">
                         Voltar para login
                     </router-link>
                 </div>
-                <button class="btn-login" type="button">{{ button_text }}</button>
+                <button class="btn-login" type="button" @click="routeToLogin">{{ button_text }}</button>
                 <div class="sub-menu-login" v-show="!forgotPass && !createAccout">
                     Não tem conta ?
                     <router-link class="router-link-blue" to="/" @click="createAccout = true, button_text = 'Criar'">
@@ -56,7 +56,15 @@ export default defineComponent({
         return {
             createAccout: false,
             forgotPass: false,
-            button_text: "Login"
+            button_text: "Login",
+            input_pass: "",
+            input_email: "",
+            input_code: ""
+        }
+    },
+    methods: {
+        routeToLogin() {
+            this.$router.push({ name: "home" });
         }
     }
 })
