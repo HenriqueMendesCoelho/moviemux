@@ -15,5 +15,7 @@ export default defineComponent({
 
 
 <style lang="scss" scoped>
-
+    main{
+        margin-left: 6rem;
+    }
 </style>>

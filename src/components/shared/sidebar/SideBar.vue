@@ -62,6 +62,7 @@ export default defineComponent ({
 </script>
 
 <style lang="scss" scoped>
+
 aside {
     display: flex;
     flex-direction: column;
@@ -69,6 +70,11 @@ aside {
     overflow: hidden;
     min-height: 100vh;
     padding: 1rem;
+
+    position: fixed;
+    z-index: 99;
+
+    //top: 0;
 
     background-color: var(--grey-dark2);
     color: var(--light-grey2);

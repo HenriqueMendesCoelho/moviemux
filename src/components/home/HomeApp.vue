@@ -8,11 +8,19 @@
                 <h4>Últimos Filmes</h4>
             </div>
             <div class="div-cards-lastfilm">
-                <card-app v-for="film in films.slice(0, 5)" :title="film.titulo" :url="film.url" :key="film.id" :id="film.id"/>
+                <card-app v-for="film in films.slice(0, 8)" :title="film.titulo" :url="film.url" :key="film.id" :id="film.id" v-show="lastFilms_height == 'height: 40%;'"/>
             </div>
         </div>
         <div class="div-allfilms">
-            <h1>All films</h1>
+            <div class="search-input">
+                <input type="text" name="search" placeholder="Digite..." v-model="imageCheck"/>
+                <button @click="checkImage(imageCheck)" >BUSCAR</button>
+            </div>
+            <div class="container-cards-films">
+                <div class="cards-films" v-for="film in films" :key="film.id">
+                    <img :src="film.url" :alt="film.titulo" draggable="false">
+                </div>
+            </div>
         </div>
     </main>
 </template>
@@ -29,46 +37,106 @@ export default defineComponent({
         return {
             lastFilms_expanded: "transform: rotate(0deg);",
             lastFilms_height: 'height: 40%;',
+            imageCheck: "",
             films: [
                 {
                     id: 1,
-                    titulo: "Carros 3",
-                    url: "https://img.elo7.com.br/product/zoom/1B4DF7D/banner-festa-carros-painel.jpg"
+                    titulo: "X-MEN",
+                    url: "https://i.pinimg.com/564x/39/b1/e2/39b1e25ff4d10111ce777fa8f0fb35c4.jpg"
                 },
                 {
                     id: 2,
-                    titulo: "Carros 3",
-                    url: "https://img.elo7.com.br/product/zoom/1B4DF7D/banner-festa-carros-painel.jpg"
+                    titulo: "Jpolin",
+                    url: "https://i.pinimg.com/564x/e9/2d/fc/e92dfc153392babc282f9da35470c835.jpg"
                 },
                 {
                     id: 3,
-                    titulo: "Carros 3",
-                    url: "https://img.elo7.com.br/product/zoom/1B4DF7D/banner-festa-carros-painel.jpg"
+                    titulo: "Friends with...",
+                    url: "https://i.pinimg.com/564x/fc/b1/02/fcb102c9a43165e9c665892d1c9af070.jpg"
                 },
                 {
                     id: 4,
-                    titulo: "Carros 3",
-                    url: "https://img.elo7.com.br/product/zoom/1B4DF7D/banner-festa-carros-painel.jpg"
+                    titulo: "Aliens",
+                    url: "https://i.pinimg.com/564x/b6/f7/41/b6f741e84097a01a809a179aa4c57843.jpg"
                 },
                 {
                     id: 5,
-                    titulo: "Carros 3",
-                    url: "https://media.discordapp.net/attachments/544455631269134347/743880454985482360/unknown.png?width=925&height=671"
+                    titulo: "Rambo first...",
+                    url: "https://i.pinimg.com/564x/ff/5e/66/ff5e66073290ccca3af13c8b7301dca6.jpg"
                 },
                 {
                     id: 6,
-                    titulo: "Carros 3",
-                    url: ""
+                    titulo: "dunkirk",
+                    url: "https://i.pinimg.com/564x/aa/26/9b/aa269bf3f8e4ae370c95ec1ff6c23b00.jpg"
                 },
                 {
                     id: 7,
-                    titulo: "Carros 3",
-                    url: ""
+                    titulo: "Toretto",
+                    url: "https://i.pinimg.com/564x/f6/d4/69/f6d469ebccf005908fc33999d8430ba6.jpg"
                 },
                 {
                     id: 8,
-                    titulo: "Carros 3",
-                    url: ""
+                    titulo: "Professor an...",
+                    url: "https://i.pinimg.com/564x/e3/ba/87/e3ba8722d5cde587d5eaad9eb65628ca.jpg"
+                },
+                {
+                    id: 9,
+                    titulo: "Professor an...",
+                    url: "https://i.pinimg.com/564x/e3/ba/87/e3ba8722d5cde587d5eaad9eb65628ca.jpg"
+                }
+                ,
+                {
+                    id: 10,
+                    titulo: "Professor an...",
+                    url: "https://i.pinimg.com/564x/e3/ba/87/e3ba8722d5cde587d5eaad9eb65628ca.jpg"
+                }
+                ,
+                {
+                    id: 11,
+                    titulo: "Professor an...",
+                    url: "https://i.pinimg.com/564x/e3/ba/87/e3ba8722d5cde587d5eaad9eb65628ca.jpg"
+                }
+                ,
+                {
+                    id: 12,
+                    titulo: "Professor an...",
+                    url: "https://i.pinimg.com/564x/e3/ba/87/e3ba8722d5cde587d5eaad9eb65628ca.jpg"
+                }
+                ,
+                {
+                    id: 13,
+                    titulo: "Professor an...",
+                    url: "https://i.pinimg.com/564x/e3/ba/87/e3ba8722d5cde587d5eaad9eb65628ca.jpg"
+                }
+                ,
+                {
+                    id: 14,
+                    titulo: "Professor an...",
+                    url: "https://i.pinimg.com/564x/e3/ba/87/e3ba8722d5cde587d5eaad9eb65628ca.jpg"
+                }
+                ,
+                {
+                    id: 15,
+                    titulo: "Professor an...",
+                    url: "https://i.pinimg.com/564x/e3/ba/87/e3ba8722d5cde587d5eaad9eb65628ca.jpg"
+                }
+                ,
+                {
+                    id: 16,
+                    titulo: "Professor an...",
+                    url: "https://i.pinimg.com/564x/e3/ba/87/e3ba8722d5cde587d5eaad9eb65628ca.jpg"
+                }
+                ,
+                {
+                    id: 17,
+                    titulo: "Professor an...",
+                    url: "https://i.pinimg.com/564x/e3/ba/87/e3ba8722d5cde587d5eaad9eb65628ca.jpg"
+                }
+                ,
+                {
+                    id: 18,
+                    titulo: "Professor an...",
+                    url: "https://i.pinimg.com/564x/e3/ba/87/e3ba8722d5cde587d5eaad9eb65628ca.jpg"
                 }
             ]
         }
@@ -86,74 +154,204 @@ export default defineComponent({
             } else {
                 this.lastFilms_expanded = "transform: rotate(0deg);";
             }
+        },
+        checkImage(url: string) { 
+            const img = new Image();
+            img.addEventListener("load", function() {
+                //alert( this.naturalWidth +' '+ this.naturalHeight );
+                if(this.naturalHeight < 360) alert("Altura da imagem deve ser no mínimo 350 pixels")
+            });
+            img.src = url;
         }
-    }
+    },
 })
 </script>
 
 <style lang="scss" scoped>
-    main {
+main {
+    display: flex;
+    flex-direction: column;
+    margin-top: 1.5rem;
+    //margin-left: 1.5rem;
+    margin-left: 6rem;
+    max-width: 100%;
+
+
+    overflow: hidden;
+
+    border-top-left-radius: 10px;
+    background: var(--grey-dark2);
+    box-shadow: 0 10px 30px var(--shadow);
+
+    .div-lastfilms {
         display: flex;
         flex-direction: column;
-        margin-top: 1.5rem;
-        margin-left: 1.5rem;
+        padding: 1rem;
+        overflow: hidden;
+        transition: 0.2s ease-out;
 
-        border-top-left-radius: 10px;
-        background: var(--grey-dark2);
-        box-shadow: 0 10px 30px var(--shadow);
-        .div-lastfilms {
+        max-width: 100%;
+
+
+        //height: 5vh;
+
+        max-height: 40vh;
+
+        color: var(--light-grey2);
+        border-radius: 10px;
+        background-color: var(--grey-mid);
+        box-shadow: 0 5px 30px var(--shadow);
+
+        .div-title {
             display: flex;
-            flex-direction: column;
-            padding: 1rem;
+            justify-content: flex-start;
+            align-items: center;
+
+            max-width: 100%;
 
             transition: 0.2s ease-out;
-
-            //height: 10%;
-            width: 100%;
-
-            color: var(--light-grey2);
+            
             border-radius: 10px;
-            background-color: var(--grey-mid);
-            box-shadow: 0 5px 30px var(--shadow);
+            border-bottom: 1px solid rgba(255, 255, 255, .2);
 
-            .div-title {
-                display: flex;
-                justify-content: flex-start;
-                align-items: center;
-
+            .material-icons{
+                font-size: 2rem;
+                color: var(--light-grey2);
+                margin-right: 15px;
+                margin-top: 0px;
                 transition: 0.2s ease-out;
-                
-                border-radius: 10px;
-                border-bottom: 1px solid rgba(255, 255, 255, .2);
 
-                .material-icons{
-                    font-size: 2rem;
-                    color: var(--light-grey2);
-                    margin-right: 15px;
-                    margin-top: 0px;
+                cursor: pointer;
 
-                    transition: 0.2s ease-out;
-
-                    cursor: pointer;
-
-                    &:hover {
-                        color: var(--primary);
-                        
-                    }
+                &:hover {
+                    color: var(--primary);
+                    
                 }
-
             }
 
-            .div-cards-lastfilm {
-                display: flex;
-                justify-content: center;
-                overflow: hidden;
-                max-height:100%;
+        }
 
-                transition: 0.2s ease-out;
+        .div-cards-lastfilm {
+            display: flex;
+            justify-content: center;
+            overflow: hidden;
+            max-height:100%;
+            
+            transition: 0.2s ease-out;
+
+            @media (max-width: 768px) {
+                flex-direction: column;
+            }
+        }
+    }
+    .div-allfilms {
+        //border: 5px solid pink;
+
+        margin-top: 20px;
+        max-width: 100%;
+
+        flex-direction: column;
+        display: flex;
+        justify-content: flex-start;
+        align-content: center;
+
+        .search-input {
+            max-width: 100%;
+            //border: 5px solid blue;
+            height: 5vh;
+
+            margin-bottom: 20px;
+
+            font-size: 15pt;
+
+            display: flex;
+            align-content: flex-start;
+            justify-content: flex-start;
+
+            input {
+                max-width: 100%;
+                padding: 15px;
+                color: var(--light-grey2);
+                width: 85%;
+                height: 100%;
+                border-top-left-radius: 15px;
+                border-end-start-radius: 15px;
+
+                box-shadow: 0 5px 30px var(--shadow);
+
+                box-sizing: border-box;
+                border: none;
+                outline: none;
+
+                background-color: var(--grey-mid);
+
+                input::placeholder {
+                    max-width: 100%;
+                    color: var(--light-grey2);
+
+                    margin-left: 55px;
+                }
+            }
+
+            button {
+                background-color: var(--dark-alt);
+                width: 15%;
+                border-end-end-radius: 15px;
+                border-start-end-radius: 15px;
+
+                color: var(--light-grey);
+                font-weight: 500;
+
+                &:hover {
+                    background-color: var(--dark-alt2);
+                    border: solid 3px var(--dark-alt);
+                }
             }
         }
 
-        //border: 5px solid black;
+        .container-cards-films {
+            display: inline-block;
+
+            //border: 5px solid green;
+
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+
+            max-width: 100%;
+            height: 100%;
+
+            .cards-films {
+                display: inline-block;
+                //border: 5px solid yellow;
+                max-width: 100%;
+                max-width: 15%;
+
+
+                margin-left: 20px;
+                margin-right: 20px;
+                margin-bottom: 20px;
+
+
+                img {
+                    //border: 5px solid purple;
+                    max-width:100%;
+                    max-height:350px;
+
+                    border-radius: 15px;
+
+                    transition: 0.2s ease-out;
+
+                    box-shadow: 0 5px 30px var(--shadow);
+
+                    &:hover {
+                        transform: scale(1.1);
+
+                        transition: 0.2s ease-out;
+                    }
+                }
+            }
+        }
     }
+}
 </style>

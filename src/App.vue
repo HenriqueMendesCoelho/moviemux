@@ -35,6 +35,7 @@ export default defineComponent({
   --shadow: #00000056;
   --sidebar-width: 300px;
   --dark-alt: #334155;
+  --dark-alt2:rgb(98, 114, 139)5;
 }
 
 * {
@@ -48,6 +49,8 @@ body {
   width: 100vw;
   height: 100vh;
   background-color: var(--grey-dark);
+
+  max-width: 100%;
 }
 
 button {
@@ -69,5 +72,22 @@ button {
       padding-left: 6rem;
     }
   }
+}
+
+::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+::-webkit-scrollbar-track{
+  background-color: var(--grey-mid);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--light-grey2);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--light-grey);
 }
 </style>>

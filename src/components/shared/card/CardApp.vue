@@ -9,7 +9,9 @@
 import { defineComponent } from "vue"
 
 export default defineComponent({
-    props: ['title', 'url']
+    props: ['title', 'url'],
+    methods: {
+    }
 })
 </script>
 
@@ -17,28 +19,42 @@ export default defineComponent({
     .card-lastfilm{
         display: flex;
         flex-direction: column;
-        width: 10vw;
-        max-height:95%;
-        margin: 10px 2rem 0 0;
+        height:100%;
 
-        justify-content: flex-start;
-        align-items: center;
-        overflow: hidden;
+        margin: 0px 30px;
+
+        justify-content: center;
+        align-items: flex-start;
 
         color: black;
-        background: var(--light-grey);
+        //background: var(--light-grey);
         border-radius: 15px;
 
+        transition: 0.2s ease-out;
+
         h6 {
-            font-size: 10pt;
+            font-size: 12pt;
             margin-top: 10px;
+
+            color: var(--light-grey);
+
+            text-transform: uppercase;
         }
 
         img {
-            margin-top: 10px;
             max-width:100%;
             max-height:80%;
             border-radius: 10px;
+
+            &:hover {
+                transform: scale(1.1);
+                transition: 0.2s ease-out;
+
+                cursor: pointer;
+            }
+        }
+        @media (max-width: 768px) {
+            width: 100%;
         }
     }
 </style>
