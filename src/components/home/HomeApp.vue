@@ -106,7 +106,7 @@ export default defineComponent({
                 {
                     id: 13,
                     titulo: "Professor an...",
-                    url: "https://i.pinimg.com/564x/e3/ba/87/e3ba8722d5cde587d5eaad9eb65628ca.jpg"
+                    url: "https://media.fstatic.com/x5p3n0eeoWdJlbDpXd0_ZaJo1cw=/290x478/smart/media/movies/covers/2022/02/no_exit_ver2.jpg"
                 }
                 ,
                 {
@@ -118,7 +118,7 @@ export default defineComponent({
                 {
                     id: 15,
                     titulo: "Professor an...",
-                    url: "https://i.pinimg.com/564x/e3/ba/87/e3ba8722d5cde587d5eaad9eb65628ca.jpg"
+                    url: "https://i.imgur.com/FyuYAxi.jpg"
                 }
                 ,
                 {
@@ -156,10 +156,23 @@ export default defineComponent({
             }
         },
         checkImage(url: string) { 
+            // https://i.imgur.com/fj6Bn7O.png >> Imagem com Altura de 75px e largura de 1200 px
             const img = new Image();
             img.addEventListener("load", function() {
-                //alert( this.naturalWidth +' '+ this.naturalHeight );
-                if(this.naturalHeight < 360) alert("Altura da imagem deve ser no mínimo 350 pixels")
+                let errors;
+                if(this.naturalHeight < 350) errors = "Altura da imagem deve ser no mínimo 350 pixels";
+
+                if(this.naturalWidth > 1100 && errors) {
+                    errors = errors + " e larguradeve ter no máximo 1100 pixels";
+                } else if ( this.naturalWidth > 1100 && !errors) {
+                    errors = "A largura máxima da imgagem é de 1100 pixels";
+                } else if (this.naturalWidth < 550 && errors) {
+                    errors = errors + " e a largura mínima é de 550 pixels";
+                } else if (this.naturalWidth < 550 && !errors) {
+                    errors = errors + "Largura mínima da imagem é de 550 pixels";
+                }
+
+                if(errors) alert(errors);
             });
             img.src = url;
         }
@@ -305,6 +318,8 @@ main {
                 &:hover {
                     background-color: var(--dark-alt2);
                     border: solid 3px var(--dark-alt);
+
+                    color: var(--primary);
                 }
             }
         }
