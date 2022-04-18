@@ -1,6 +1,6 @@
 <template>
     <div class="card-lastfilm">
-        <img :src="url" :alt="title">
+        <img :src="url" :alt="title" draggable="false">
         <h6>{{ title }}</h6>
     </div>
 </template>

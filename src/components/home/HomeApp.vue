@@ -2,7 +2,7 @@
     <main>
         <div class="div-lastfilms" :style="lastFilms_height">
             <div class="div-title">
-                <span class="material-icons" :style="lastFilms_expanded" @click="isVisibleLastFilms">
+                <span class="material-icons" :style="lastFilms_expanded" @click="isVisibleLastFilms" draggable="false">
                     expand_less
                 </span>
                 <h4>Últimos Filmes</h4>
