@@ -1,8 +1,10 @@
 <template>
-    <div class="card-lastfilm">
-        <img :src="url" :alt="title" draggable="false" />
-        <h6>{{ title }}</h6>
-    </div>
+    <transition>
+        <div class="card-lastfilm">
+            <img :src="url" :alt="title" draggable="false" />
+            <h6>{{ title }}</h6>
+        </div>
+    </transition>
 </template>
 
 <script lang="ts">
@@ -38,12 +40,16 @@ export default defineComponent({
         color: var(--light-grey);
 
         text-transform: uppercase;
+
+        transition: 0.2s ease-out;
     }
 
     img {
         max-width: 100%;
         max-height: 80%;
         border-radius: 10px;
+
+        transition: 0.2s ease-out;
 
         &:hover {
             transform: scale(1.1);

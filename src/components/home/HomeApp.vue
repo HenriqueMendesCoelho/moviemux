@@ -2,14 +2,16 @@
     <main>
         <div class="div-lastfilms" :style="lastFilms_height">
             <div class="div-title">
-                <span
-                    class="material-icons"
-                    :style="lastFilms_expanded"
-                    @click="isVisibleLastFilms"
-                    draggable="false"
-                >
-                    expand_less
-                </span>
+                <button>
+                    <span
+                        class="material-icons"
+                        :style="lastFilms_expanded"
+                        @click="isVisibleLastFilms"
+                        draggable="false"
+                    >
+                        expand_less
+                    </span>
+                </button>
                 <h4>Últimos Filmes</h4>
             </div>
             <div class="div-cards-lastfilm">
@@ -44,6 +46,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { mapGetters, mapState } from "vuex";
 import CardApp from "../shared/card/CardApp.vue";
 
 export default defineComponent({
@@ -188,6 +191,9 @@ export default defineComponent({
             img.src = url;
         },
     },
+    computed: {
+        ...mapGetters("Style", ["getMarginSideBar"]),
+    },
 });
 </script>
 
@@ -197,8 +203,10 @@ main {
     flex-direction: column;
     margin-top: 1.5rem;
     //margin-left: 1.5rem;
-    margin-left: 6rem;
+    margin-left: v-bind(getMarginSideBar);
     max-width: 100%;
+
+    transition: 0.2s ease-out;
 
     overflow: hidden;
 
@@ -250,7 +258,6 @@ main {
                 }
             }
         }
-
         .div-cards-lastfilm {
             display: flex;
             justify-content: center;

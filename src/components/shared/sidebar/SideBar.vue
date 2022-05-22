@@ -2,7 +2,11 @@
     <aside :class="`${is_expanded && 'is-expanded'}`">
         <div class="logo">
             <router-link to="/home">
-                <img src="../../../assets/logo-kronus.png" alt="logo" draggable="false"/>
+                <img
+                    src="../../../assets/logo-kronus.png"
+                    alt="logo"
+                    draggable="false"
+                />
             </router-link>
         </div>
 
@@ -28,6 +32,16 @@
 
         <div class="flex"></div>
         <div class="menu">
+            <button
+                class="button disabled"
+                @click="darkModeFunc"
+                disabled="true"
+            >
+                <span class="material-icons" draggable="false">
+                    light_mode
+                </span>
+                <span class="text" draggable="false">Tema</span>
+            </button>
             <router-link to="/" class="button">
                 <span class="material-icons">logout</span>
                 <span class="text">Sair</span>
@@ -37,32 +51,39 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from "vue";
+import { mapActions, mapGetters, mapState } from "vuex";
 
-export default defineComponent ({
+export default defineComponent({
     data() {
         return {
             is_expanded: false,
-            teste: "teste"
-        }
+            teste: "teste",
+        };
     },
     methods: {
-        
         ToggleMenu() {
             this.is_expanded = !this.is_expanded;
-
+            this.ToggleMenuStore();
             localStorage.setItem("is_expanded", this.is_expanded.toString());
-        }
-        
+        },
+        ...mapActions("Style", [
+            "darkModeFunc",
+            "ToggleMenuStore",
+            "setIsExpanded",
+        ]),
     },
-    created() {
-        this.is_expanded = localStorage.getItem("is_expanded") == "true" ? true : false;
-    }
-})
+    beforeMount() {
+        this.is_expanded =
+            localStorage.getItem("is_expanded") == "true" ? true : false;
+    },
+    computed: {
+        ...mapState("Style", ["backgroundColor", "sideBarWidth"]),
+    },
+});
 </script>
 
 <style lang="scss" scoped>
-
 aside {
     display: flex;
     flex-direction: column;
@@ -95,7 +116,7 @@ aside {
         }
     }
 
-    .flex{
+    .flex {
         flex: 1 1 0;
     }
 
@@ -127,7 +148,8 @@ aside {
         }
     }
 
-    h3, .button .text {
+    h3,
+    .button .text {
         opacity: 0;
         transition: 0.3s ease-out;
     }
@@ -142,6 +164,10 @@ aside {
     .menu {
         margin: -1rem;
 
+        button {
+            width: 100%;
+        }
+
         .button {
             display: flex;
             align-items: center;
@@ -150,7 +176,9 @@ aside {
             padding: 0.5rem 1rem;
             transition: 0.2s ease-out;
 
-            .material-icons{
+            cursor: pointer;
+
+            .material-icons {
                 font-size: 2rem;
                 color: var(--light-grey2);
 
@@ -163,11 +191,12 @@ aside {
                 transition: 0.2 ease out;
             }
 
-            &:hover, .router-link-exact-active {
-                
+            &:hover,
+            .router-link-exact-active {
                 background-color: var(--dark-alt);
-                
-                .material-icons, .text {
+
+                .material-icons,
+                .text {
                     color: var(--primary);
                 }
             }
@@ -188,7 +217,8 @@ aside {
             }
         }
 
-        h3, .button .text {
+        h3,
+        .button .text {
             opacity: 1;
         }
 
@@ -198,7 +228,7 @@ aside {
             }
         }
     }
-    
+
     @media (max-width: 768px) {
         position: fixed;
         z-index: 99;

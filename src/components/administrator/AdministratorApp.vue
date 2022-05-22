@@ -152,6 +152,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import CustomAlerts from "@/domain/alerts/CustomAlerts";
+import { mapGetters } from "vuex";
 
 export default defineComponent({
     data() {
@@ -361,12 +362,15 @@ export default defineComponent({
             }, 5000);
         }
     },
+    computed: {
+        ...mapGetters("Style", ["getMarginSideBar"]),
+    },
 });
 </script>
 
 <style lang="scss" scoped>
 main {
-    margin-left: 6rem;
+    margin-left: v-bind(getMarginSideBar);
     margin-top: 1.5rem;
 
     overflow: hidden;
@@ -381,6 +385,8 @@ main {
     background-color: var(--grey-dark2);
     //border: solid 5px pink;
     border-top-left-radius: 10px;
+
+    transition: 0.2s ease-out;
 
     .panel-navigation {
         display: flex;
