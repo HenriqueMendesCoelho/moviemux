@@ -1,5 +1,7 @@
 {
     "github": {
-        "silent": true
+        "silent": true,
+        "public": false,
+        "cleanUrls": true
     }
 }

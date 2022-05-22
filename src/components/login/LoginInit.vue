@@ -2,54 +2,104 @@
     <div class="main-login">
         <div class="left-login">
             <h1>Bem-vindo ao cineminha!</h1>
-            <img src="../../assets/logo-kronus.png" 
-                class="left-img-login" alt="logo" draggable="false" @click="forgotPass = false, createAccout = false"/>
+            <img
+                src="../../assets/logo-kronus.png"
+                class="left-img-login"
+                alt="logo"
+                draggable="false"
+                @click="(forgotPass = false), (createAccout = false)"
+            />
         </div>
         <div class="right-login">
             <div class="card-login">
-
                 <h2 v-if="!forgotPass && !createAccout">Login</h2>
-                <h2 v-else-if="!forgotPass && createAccout">Criar nova conta</h2>
-                <h2 v-else-if="forgotPass && !createAccout">Recuperação de senha</h2>
+                <h2 v-else-if="!forgotPass && createAccout">
+                    Criar nova conta
+                </h2>
+                <h2 v-else-if="forgotPass && !createAccout">
+                    Recuperação de senha
+                </h2>
                 <h2 v-else>Error</h2>
 
                 <div class="textfield">
                     <label for="user">E-mail</label>
-                    <input type="text" name="email" placeholder="E-mail" v-model="input_email">
-                    <p v-show="forgotPass">Insira seu e-mail para receber uma nova senha</p>
+                    <input
+                        type="text"
+                        name="email"
+                        placeholder="E-mail"
+                        v-model="input_email"
+                    />
+                    <p v-show="forgotPass">
+                        Insira seu e-mail para receber uma nova senha
+                    </p>
                 </div>
                 <div class="textfield" v-show="!forgotPass">
                     <label for="password">Senha</label>
-                    <input type="password" name="senha" placeholder="Senha" v-model="input_pass">
-                    <router-link class="router-link-blue" to="/" @click="forgotPass = true, button_text = 'Enviar e-mail'" v-show="!createAccout">
+                    <input
+                        type="password"
+                        name="senha"
+                        placeholder="Senha"
+                        v-model="input_pass"
+                    />
+                    <router-link
+                        class="router-link-blue"
+                        to="/"
+                        @click="
+                            (forgotPass = true), (button_text = 'Enviar e-mail')
+                        "
+                        v-show="!createAccout"
+                    >
                         Esqueceu sua senha ?
                     </router-link>
                 </div>
                 <div class="textfield" v-show="!forgotPass && createAccout">
                     <label for="code">Código do convite</label>
-                    <input type="password" name="code" placeholder="Código" v-model="input_code">
+                    <input
+                        type="password"
+                        name="code"
+                        placeholder="Código"
+                        v-model="input_code"
+                    />
                 </div>
-                <div class="sub-menu-backtologin" v-show="forgotPass || createAccout">
-                    <router-link to="/" @click="createAccout = false, forgotPass = false, button_text='Login'">
+                <div
+                    class="sub-menu-backtologin"
+                    v-show="forgotPass || createAccout"
+                >
+                    <router-link
+                        to="/"
+                        @click="
+                            (createAccout = false),
+                                (forgotPass = false),
+                                (button_text = 'Login')
+                        "
+                    >
                         Voltar para login
                     </router-link>
                 </div>
-                <button class="btn-login" type="button" @click="routeToLogin">{{ button_text }}</button>
-                <div class="sub-menu-login" v-show="!forgotPass && !createAccout">
+                <button class="btn-login" type="button" @click="routeToLogin">
+                    {{ button_text }}
+                </button>
+                <div
+                    class="sub-menu-login"
+                    v-show="!forgotPass && !createAccout"
+                >
                     Não tem conta ?
-                    <router-link class="router-link-blue" to="/" @click="createAccout = true, button_text = 'Criar'">
+                    <router-link
+                        class="router-link-blue"
+                        to="/"
+                        @click="(createAccout = true), (button_text = 'Criar')"
+                    >
                         Criar conta
                     </router-link>
-                    <br>
+                    <br />
                 </div>
-                
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from "vue";
 
 export default defineComponent({
     data() {
@@ -59,15 +109,15 @@ export default defineComponent({
             button_text: "Login",
             input_pass: "",
             input_email: "",
-            input_code: ""
-        }
+            input_code: "",
+        };
     },
     methods: {
         routeToLogin() {
             this.$router.push({ name: "home" });
-        }
-    }
-})
+        },
+    },
+});
 </script>
 
 <style lang="scss" scoped>
@@ -207,7 +257,6 @@ export default defineComponent({
 
 .router-link-blue {
     &:hover {
-
         color: var(--light-blue);
 
         transition: 0.2s ease-out;
@@ -234,16 +283,16 @@ export default defineComponent({
 }
 
 @media only screen and (max-width: 950px) {
-    .card-login{
+    .card-login {
         width: 85%;
     }
 }
 
 @media only screen and (max-width: 768px) {
-    .main-login{
+    .main-login {
         flex-direction: column;
     }
-    .left-login > h1{
+    .left-login > h1 {
         display: none;
     }
     .left-login {
