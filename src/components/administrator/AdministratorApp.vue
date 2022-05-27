@@ -109,13 +109,9 @@
                         v-show="panel_invite_create && !panel_invite_search"
                     >
                         <div class="code-invite">
-                            <h3>{{ invite_created }}</h3>
+                            <h3>{{ randomNumber }}</h3>
                         </div>
-                        <button
-                            class="btn btn-success"
-                            type="submit"
-                            @click="createInvite"
-                        >
+                        <button class="btn btn-success" type="submit">
                             Criar convite
                         </button>
                     </div>
@@ -123,12 +119,10 @@
                         class="panel-create-invite"
                         v-show="!panel_invite_create && panel_invite_search"
                     >
-                        <div
-                            class="div-invites-search"
-                            v-for="invite in invites"
-                            :key="invite.id"
-                        >
-                            <h3>{{ invite.code }}</h3>
+                        <!--v-for="invite in invites"
+                            :key="invite.id"-->
+                        <div class="div-invites-search">
+                            <h3>KB-994949</h3>
                             <div class="flex"></div>
                             <button
                                 class="btn btn-danger"
@@ -153,6 +147,7 @@
 import { defineComponent } from "vue";
 import CustomAlerts from "@/domain/alerts/CustomAlerts";
 import { mapGetters } from "vuex";
+import testService from "../services/testService";
 
 export default defineComponent({
     data() {
@@ -163,138 +158,9 @@ export default defineComponent({
             panel_invite_create: true,
             panel_invite_search: false,
             customAlert: new CustomAlerts(),
-            invite_created: " ",
             loop: false,
-            invites: [
-                {
-                    id: 1,
-                    code: "KB-568233",
-                },
-                {
-                    id: 2,
-                    code: "KB-404742",
-                },
-                {
-                    id: 3,
-                    code: "KB-1087438",
-                },
-                {
-                    id: 4,
-                    code: "KB-1094752",
-                },
-                {
-                    id: 5,
-                    code: "KB-518287",
-                },
-                {
-                    id: 6,
-                    code: "KB-331855",
-                },
-                {
-                    id: 7,
-                    code: "KB-536145",
-                },
-                {
-                    id: 8,
-                    code: "KB-179931",
-                },
-                {
-                    id: 9,
-                    code: "KB-245985",
-                },
-                {
-                    id: 10,
-                    code: "KB-474138",
-                },
-                {
-                    id: 11,
-                    code: "KB-474138",
-                },
-                {
-                    id: 12,
-                    code: "KB-474138",
-                },
-                {
-                    id: 13,
-                    code: "KB-474138",
-                },
-                {
-                    id: 14,
-                    code: "KB-474138",
-                },
-                {
-                    id: 15,
-                    code: "KB-474138",
-                },
-                {
-                    id: 16,
-                    code: "KB-474138",
-                },
-                {
-                    id: 17,
-                    code: "KB-474138",
-                },
-                {
-                    id: 18,
-                    code: "KB-474138",
-                },
-                {
-                    id: 19,
-                    code: "KB-474138",
-                },
-                {
-                    id: 20,
-                    code: "KB-474138",
-                },
-                {
-                    id: 21,
-                    code: "KB-474138",
-                },
-                {
-                    id: 22,
-                    code: "KB-474138",
-                },
-                {
-                    id: 23,
-                    code: "KB-474138",
-                },
-                {
-                    id: 24,
-                    code: "KB-474138",
-                },
-                {
-                    id: 25,
-                    code: "KB-474138",
-                },
-                {
-                    id: 26,
-                    code: "KB-474138",
-                },
-                {
-                    id: 27,
-                    code: "KB-474138",
-                },
-                {
-                    id: 28,
-                    code: "KB-474138",
-                },
-                {
-                    id: 29,
-                    code: "KB-474138",
-                },
-                {
-                    id: 30,
-                    code: "KB-474138",
-                },
-                {
-                    id: 31,
-                    code: "KB-474138",
-                },
-                {
-                    id: 32,
-                    code: "KB-66666",
-                },
-            ],
+            invites: [],
+            invite: {},
         };
     },
     methods: {
@@ -345,14 +211,24 @@ export default defineComponent({
                             });
                     }
                 });
-        },
+        } /*
         createInvite() {
             //API CALL CODE
-            let random = Math.floor(Math.random() * 999999 + 100000);
-            this.invite_created = "KB-" + random;
-        },
+            //let random = Math.floor(Math.random() * 999999 + 100000);
+        },*/,
         deleteInvite() {
             this.customAlert.toastAlert("Convite deletado", "success");
+        },
+        async randomNumber() {
+            return testService
+                .randomNumber()
+                .then((res) => {
+                    return "KB-" + res;
+                })
+                .catch((err) => {
+                    console.log(err);
+                    return;
+                });
         },
     },
     mounted() {

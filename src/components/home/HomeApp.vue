@@ -46,7 +46,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { mapGetters, mapState } from "vuex";
+import { mapGetters } from "vuex";
 import CardApp from "../shared/card/CardApp.vue";
 
 export default defineComponent({

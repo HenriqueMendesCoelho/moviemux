@@ -27,10 +27,12 @@ const movieModule: Module<any, any> = {
         darkModeOn(state: any) {
             state.backgroundColor = "#0b0e14";
         },
+        // eslint-disable-next-line
         collapseMenu(state: any) {
             state.is_expanded = false;
             state.sideBarWidth = "calc(4rem + 32px)";
         },
+        // eslint-disable-next-line
         expandMenu(state: any) {
             state.is_expanded = true;
             state.sideBarWidth = "320px";

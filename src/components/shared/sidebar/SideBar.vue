@@ -33,8 +33,9 @@
         <div class="flex"></div>
         <div class="menu">
             <button
-                class="button disabled"
+                class="button"
                 @click="darkModeFunc"
+                style="opacity: 50%; cursor: not-allowed"
                 disabled="true"
             >
                 <span class="material-icons" draggable="false">
@@ -52,7 +53,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { mapActions, mapGetters, mapState } from "vuex";
+import { mapActions, mapState } from "vuex";
 
 export default defineComponent({
     data() {
