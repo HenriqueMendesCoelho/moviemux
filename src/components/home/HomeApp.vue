@@ -46,8 +46,9 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { mapGetters } from "vuex";
+import { mapState } from "pinia";
 import CardApp from "../shared/card/CardApp.vue";
+import { useStyleStore } from "@/stores/StyleStore";
 
 export default defineComponent({
     components: {
@@ -192,7 +193,7 @@ export default defineComponent({
         },
     },
     computed: {
-        ...mapGetters("Style", ["getMarginSideBar"]),
+        ...mapState(useStyleStore, ["getMarginSideBar"]),
     },
 });
 </script>

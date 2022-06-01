@@ -138,6 +138,7 @@
         <div id="container-search" class="div-container" v-show="panel_searchs">
             <div class="div-panel">
                 <h2>Buscas gerais</h2>
+                <button @click="printaTela">Enviar</button>
             </div>
         </div>
     </main>
@@ -146,8 +147,9 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import CustomAlerts from "@/domain/alerts/CustomAlerts";
-import { mapGetters } from "vuex";
+import { mapState } from "pinia";
 import testService from "../services/testService";
+import { useStyleStore } from "@/stores/StyleStore";
 
 export default defineComponent({
     data() {
@@ -161,6 +163,7 @@ export default defineComponent({
             loop: false,
             invites: [],
             invite: {},
+            ArrayTeste: [],
         };
     },
     methods: {
@@ -230,6 +233,9 @@ export default defineComponent({
                     return;
                 });
         },
+        printaTela() {
+            alert(this.ArrayTeste);
+        },
     },
     mounted() {
         if (this.loop) {
@@ -239,7 +245,7 @@ export default defineComponent({
         }
     },
     computed: {
-        ...mapGetters("Style", ["getMarginSideBar"]),
+        ...mapState(useStyleStore, ["getMarginSideBar"]),
     },
 });
 </script>

@@ -8,8 +8,9 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { mapState } from "vuex";
+import { mapState } from "pinia";
 import SideBar from "./components/shared/sidebar/SideBar.vue";
+import { useStyleStore } from "./stores/StyleStore";
 
 export default defineComponent({
     name: "App",
@@ -25,7 +26,7 @@ export default defineComponent({
         currentRouteName() {
             return this.$route.name;
         },
-        ...mapState("Style", ["backgroundColor"]),
+        ...mapState(useStyleStore, ["backgroundColor"]),
     },
 });
 </script>

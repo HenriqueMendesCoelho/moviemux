@@ -34,7 +34,6 @@
         <div class="menu">
             <button
                 class="button"
-                @click="darkModeFunc"
                 style="opacity: 50%; cursor: not-allowed"
                 disabled="true"
             >
@@ -53,7 +52,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapState } from "pinia";
+import { useStyleStore } from "@/stores/StyleStore";
 
 export default defineComponent({
     data() {
@@ -68,18 +68,14 @@ export default defineComponent({
             this.ToggleMenuStore();
             localStorage.setItem("is_expanded", this.is_expanded.toString());
         },
-        ...mapActions("Style", [
-            "darkModeFunc",
-            "ToggleMenuStore",
-            "setIsExpanded",
-        ]),
+        ...mapActions(useStyleStore, ["ToggleMenuStore", "setIsExpanded"]),
     },
     beforeMount() {
         this.is_expanded =
             localStorage.getItem("is_expanded") == "true" ? true : false;
     },
     computed: {
-        ...mapState("Style", ["backgroundColor", "sideBarWidth"]),
+        ...mapState(useStyleStore, ["backgroundColor", "sideBarWidth"]),
     },
 });
 </script>
