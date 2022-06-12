@@ -15,14 +15,17 @@
         <h4>Últimos Filmes</h4>
       </div>
       <div class="div-cards-lastfilm">
-        <card-app
-          v-for="film in films.slice(0, 8)"
-          :title="film.titulo"
-          :url="film.url"
-          :key="film.id"
-          :id="film.id"
-          v-show="lastFilms_height == 'height: 40%;'"
-        />
+        <div v-for="(movie, index) in movies.slice(0, 8)" :key="index">
+          <router-link :to="{ name: 'movie', params: { id: movie.id } }">
+            <card-app
+              :title="movie.titulo"
+              :url="movie.url"
+              :key="movie.id"
+              :id="movie.id"
+              v-show="lastFilms_height == 'height: 40%;'"
+            />
+          </router-link>
+        </div>
       </div>
     </div>
     <div class="div-allfilms">
@@ -36,8 +39,10 @@
         <button @click="checkImage(imageCheck)">BUSCAR</button>
       </div>
       <div class="container-cards-films">
-        <div class="cards-films" v-for="film in films" :key="film.id">
-          <img :src="film.url" :alt="film.titulo" draggable="false" />
+        <div class="cards-films" v-for="movie in movies" :key="movie.id">
+          <router-link :to="{ name: 'movie', params: { id: movie.id } }">
+            <img :src="movie.url" :alt="movie.titulo" draggable="false" />
+          </router-link>
         </div>
       </div>
     </div>
@@ -60,7 +65,7 @@ export default defineComponent({
       lastFilms_expanded: "transform: rotate(0deg);",
       lastFilms_height: "height: 40%;",
       imageCheck: "",
-      films: [
+      movies: [
         {
           id: 1,
           titulo: "X-MEN",
@@ -205,6 +210,7 @@ main {
   //margin-left: 1.5rem;
   margin-left: v-bind(getMarginSideBar);
   max-width: 100%;
+  height: auto;
 
   transition: 0.2s ease-out;
 

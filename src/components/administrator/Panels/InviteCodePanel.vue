@@ -61,6 +61,7 @@ import { useAdministratorStore } from "@/stores/AdministratorStore";
 import { defineComponent } from "vue-demi";
 import CustomAlerts from "@/domain/alerts/CustomAlerts";
 export default defineComponent({
+  name: "InviteCodePanel",
   data() {
     return {
       customAlert: new CustomAlerts(),

@@ -90,6 +90,7 @@
 import { defineComponent } from "vue";
 
 export default defineComponent({
+  name: "LoginInit",
   data() {
     return {
       createAccout: false,

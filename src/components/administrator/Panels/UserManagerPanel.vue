@@ -45,6 +45,7 @@ import testService from "@/components/services/testService";
 import { defineComponent } from "vue-demi";
 
 export default defineComponent({
+  name: "UserManagerPanel",
   data() {
     return {
       customAlert: new CustomAlerts(),

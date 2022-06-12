@@ -13,6 +13,7 @@ import { mapState } from "pinia";
 import { defineComponent } from "vue-demi";
 
 export default defineComponent({
+  name: "SearchPanel",
   computed: {
     ...mapState(useAdministratorStore, ["AdministratorSelectBar"]),
   },
