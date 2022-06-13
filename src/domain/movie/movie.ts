@@ -1,4 +1,4 @@
-export default class movie {
+export default class Movie {
   [x: string]: string;
 
   constructor(

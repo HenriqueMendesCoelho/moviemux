@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 
-import testService from "@/components/services/testService";
+import TestService from "@/services/TestService";
 
 export const useAdministratorStore = defineStore("AdministratorStore", {
   state: () => {
@@ -19,7 +19,7 @@ export const useAdministratorStore = defineStore("AdministratorStore", {
   },
   actions: {
     async generateRandomNumber() {
-      return await testService.randomNumber;
+      return await TestService.randomNumber;
     },
     setPanelsVisibility(
       panel_access: boolean,

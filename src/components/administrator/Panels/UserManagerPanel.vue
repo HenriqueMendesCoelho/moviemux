@@ -41,7 +41,7 @@
 
 <script lang="ts">
 import CustomAlerts from "@/domain/alerts/CustomAlerts";
-import testService from "@/components/services/testService";
+import TestService from "@/services/TestService";
 import { defineComponent } from "vue-demi";
 
 export default defineComponent({
@@ -96,8 +96,7 @@ export default defineComponent({
         });
     },
     async randomNumber() {
-      return testService
-        .randomNumber()
+      return TestService.randomNumber()
         .then((res) => {
           return "KB-" + res;
         })
