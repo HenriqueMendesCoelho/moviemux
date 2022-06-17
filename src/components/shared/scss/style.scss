@@ -1,0 +1,19 @@
+.input-std {
+  padding: 15px;
+  color: var(--light-grey2);
+
+  box-shadow: 0 5px 30px var(--shadow);
+
+  box-sizing: border-box;
+  border: none;
+  outline: none;
+
+  background-color: var(--grey-mid);
+
+  input::placeholder {
+    max-width: 100%;
+    color: var(--light-grey2);
+
+    margin-left: 55px;
+  }
+}

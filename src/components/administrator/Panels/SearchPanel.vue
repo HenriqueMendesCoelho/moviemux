@@ -20,6 +20,6 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import "@/components/administrator/scss/AdministratorPanel.scss";
 </style>

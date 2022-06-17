@@ -6,13 +6,17 @@
           <span
             class="material-icons"
             :style="lastFilms_expanded"
+            style="font-size: 25pt"
             @click="isVisibleLastFilms"
-            draggable="false"
           >
             expand_less
           </span>
         </button>
         <h4>Últimos Filmes</h4>
+        <div style="flex: 1 1 0"></div>
+        <button>
+          <span class="material-icons" style="font-size: 18pt"> refresh </span>
+        </button>
       </div>
       <div class="div-cards-lastfilm">
         <div v-for="(movie, index) in movies.slice(0, 8)" :key="index">
@@ -36,7 +40,12 @@
           placeholder="Digite..."
           v-model="imageCheck"
         />
-        <button @click="checkImage(imageCheck)">BUSCAR</button>
+        <button class="search-btn" @click="checkImage(imageCheck)">
+          BUSCAR
+        </button>
+        <button class="end-btn">
+          <span class="material-icons" style="font-size: 18pt"> refresh </span>
+        </button>
       </div>
       <div class="container-cards-films">
         <div class="cards-films" v-for="movie in movies" :key="movie.id">
@@ -207,10 +216,10 @@ main {
   display: flex;
   flex-direction: column;
   margin-top: 1.5rem;
-  //margin-left: 1.5rem;
+
   margin-left: v-bind(getMarginSideBar);
   max-width: 100%;
-  height: auto;
+  min-height: 100vh;
 
   transition: 0.2s ease-out;
 
@@ -272,6 +281,11 @@ main {
 
       transition: 0.2s ease-out;
 
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
       @media (max-width: 768px) {
         flex-direction: column;
       }
@@ -305,7 +319,7 @@ main {
         max-width: 100%;
         padding: 15px;
         color: var(--light-grey2);
-        width: 85%;
+        width: 80%;
         height: 100%;
         border-top-left-radius: 15px;
         border-end-start-radius: 15px;
@@ -326,11 +340,24 @@ main {
         }
       }
 
+      .end-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        border-end-end-radius: 15px;
+        border-start-end-radius: 15px;
+
+        width: 5%;
+      }
+
+      .search-btn {
+        width: 15%;
+      }
+
       button {
         background-color: var(--dark-alt);
         width: 15%;
-        border-end-end-radius: 15px;
-        border-start-end-radius: 15px;
 
         color: var(--light-grey);
         font-weight: 500;
@@ -345,8 +372,9 @@ main {
     }
 
     .container-cards-films {
-      display: inline-block;
-
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
       //border: 5px solid green;
 
       justify-content: center;
@@ -354,21 +382,13 @@ main {
       text-align: center;
 
       max-width: 100%;
-      height: 100%;
 
       .cards-films {
-        display: inline-block;
         //border: 5px solid yellow;
-        max-width: 100%;
-        max-width: 15%;
-
-        margin-left: 20px;
-        margin-right: 20px;
-        margin-bottom: 20px;
 
         img {
-          //border: 5px solid purple;
           max-width: 100%;
+          object-fit: cover;
           max-height: 350px;
 
           border-radius: 15px;
