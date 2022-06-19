@@ -10,4 +10,5 @@ export default class Movie {
   director = "";
   trailerBr = "";
   trailerEn = "";
+  image = "";
 }

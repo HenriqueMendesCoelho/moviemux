@@ -20,10 +20,12 @@
         <div class="textfield">
           <label for="user">E-mail</label>
           <input
-            type="text"
+            type="email"
             name="email"
             placeholder="E-mail"
             v-model="input_email"
+            autocomplete="username"
+            id="email"
           />
           <p v-show="forgotPass">
             Insira seu e-mail para receber uma nova senha
@@ -32,19 +34,30 @@
         <div class="textfield" v-show="!forgotPass">
           <label for="password">Senha</label>
           <input
+            v-show="!createAccout"
             type="password"
             name="senha"
             placeholder="Senha"
             v-model="input_pass"
+            autocomplete="current-password"
+            id="current-password"
           />
-          <router-link
-            class="router-link-blue"
-            to="/"
+          <input
+            v-show="createAccout"
+            type="password"
+            name="senha"
+            placeholder="Senha"
+            v-model="input_pass"
+            autocomplete="new-password"
+            id="new-password"
+          />
+          <button
+            class="btn-forgot"
             @click="(forgotPass = true), (button_text = 'Enviar e-mail')"
             v-show="!createAccout"
           >
             Esqueceu sua senha ?
-          </router-link>
+          </button>
         </div>
         <div class="textfield" v-show="!forgotPass && createAccout">
           <label for="code">Código do convite</label>
@@ -56,8 +69,8 @@
           />
         </div>
         <div class="sub-menu-backtologin" v-show="forgotPass || createAccout">
-          <router-link
-            to="/"
+          <button
+            class="btn-back"
             @click="
               (createAccout = false),
                 (forgotPass = false),
@@ -65,20 +78,19 @@
             "
           >
             Voltar para login
-          </router-link>
+          </button>
         </div>
         <button class="btn-login" type="button" @click="routeToLogin">
           {{ button_text }}
         </button>
         <div class="sub-menu-login" v-show="!forgotPass && !createAccout">
           Não tem conta ?
-          <router-link
-            class="router-link-blue"
-            to="/"
+          <button
+            class="btn-forgot"
             @click="(createAccout = true), (button_text = 'Criar')"
           >
             Criar conta
-          </router-link>
+          </button>
           <br />
         </div>
       </div>
@@ -211,12 +223,18 @@ export default defineComponent({
   color: var(--light-grey);
 }
 
-.textfield > a {
+.btn-forgot {
   color: var(--primary);
   align-self: start;
   margin-top: 10px;
+  text-decoration: underline;
 }
 
+.btn-back {
+  color: white;
+  align-self: start;
+  text-decoration: underline;
+}
 .textfield > p {
   color: var(--light-grey2);
   margin: 5px 5px;

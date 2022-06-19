@@ -37,6 +37,7 @@ export default defineComponent({
   --grey-dark: #0b0e14;
   --grey-dark2: #1f2531;
   --grey-mid: #293244;
+  --grey-mid2: #343c4c;
   --light-grey: #f0ffff94;
   --light-grey2: #f0ffffde;
   --light-blue: #9bf6f9;
