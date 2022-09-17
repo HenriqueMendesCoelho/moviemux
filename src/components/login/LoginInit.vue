@@ -99,23 +99,23 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: "LoginInit",
+  name: 'LoginInit',
   data() {
     return {
       createAccout: false,
       forgotPass: false,
-      button_text: "Login",
-      input_pass: "",
-      input_email: "",
-      input_code: "",
+      button_text: 'Login',
+      input_pass: '',
+      input_email: '',
+      input_code: '',
     };
   },
   methods: {
     routeToLogin() {
-      this.$router.push({ name: "home" });
+      this.$router.push({ name: 'home' });
     },
   },
 });
@@ -225,14 +225,14 @@ export default defineComponent({
 
 .btn-forgot {
   color: var(--primary);
-  align-self: start;
+  align-self: flex-start;
   margin-top: 10px;
   text-decoration: underline;
 }
 
 .btn-back {
   color: white;
-  align-self: start;
+  align-self: flex-start;
   text-decoration: underline;
 }
 .textfield > p {

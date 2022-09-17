@@ -87,16 +87,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue-demi";
+import { defineComponent } from 'vue-demi';
 
-import { mapActions, mapState } from "pinia";
-import { useStyleStore } from "../../stores/StyleStore";
-import { useMovieStore } from "@/stores/MovieStore";
+import { mapActions, mapState } from 'pinia';
+import { useStyleStore } from '../../stores/StyleStore';
+import { useMovieStore } from '@/stores/MovieStore';
 
-import SeparatorDiv from "@/components/shared/separator/SeparatorDiv.vue";
+import SeparatorDiv from '@/components/shared/separator/SeparatorDiv.vue';
 
 export default defineComponent({
-  name: "MovieApp",
+  name: 'MovieApp',
   components: {
     SeparatorDiv,
   },
@@ -106,17 +106,17 @@ export default defineComponent({
     };
   },
   computed: {
-    ...mapState(useStyleStore, ["getMarginSideBar"]),
-    ...mapState(useMovieStore, ["selectedMovie"]),
+    ...mapState(useStyleStore, ['getMarginSideBar']),
+    ...mapState(useMovieStore, ['selectedMovie']),
   },
   updated() {
-    if (this.$route.name === "add") {
-      this.idPathParam = "";
+    if (this.$route.name === 'add') {
+      this.idPathParam = '';
       //TODO: Insert code to reset all field of movie store, because in this moment user switch to addMovie
     }
   },
   methods: {
-    ...mapActions(useMovieStore, ["cleanSelectedMovie"]),
+    ...mapActions(useMovieStore, ['cleanSelectedMovie']),
     showUrls() {
       return !this.idPathParam;
     },
@@ -172,8 +172,8 @@ main {
         display: flex;
         flex-wrap: wrap;
 
-        text-align: start;
-        justify-content: start;
+        text-align: flex-start;
+        justify-content: flex-start;
 
         //border: solid 5px blue;
         width: 100%;
