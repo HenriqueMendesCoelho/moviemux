@@ -7,45 +7,52 @@
         <input type="text" name="email" placeholder="Digite..." />
       </div>
       <div class="textfield-buttons textfield-buttons-access">
-        <button
-          class="btn btn-success"
+        <q-btn
+          class="btn"
+          color="positive"
+          label="Promover administrador"
           type="submit"
           @click="apiCall('add_admin')"
-        >
-          Promover administrador
-        </button>
-        <button
+        />
+        <q-btn
           class="btn btn-danger"
           type="submit"
+          color="negative"
+          label="Revogar administrador"
           @click="apiCall('rmv_admin')"
-        >
-          Revogar administrador
-        </button>
+        />
       </div>
       <div class="textfield-buttons textfield-buttons-access">
-        <button class="btn btn-danger" type="submit" @click="apiCall('delete')">
-          Deletar usuário
-        </button>
+        <q-btn
+          class="btn btn-danger"
+          type="submit"
+          color="negative"
+          label="Deletar usuário"
+          @click="apiCall('delete')"
+        />
       </div>
       <div
         class="textfield-buttons textfield-buttons-access"
         @click="apiCall('block')"
       >
-        <button class="btn btn-warning input" type="submit">
-          Bloquear usuário
-        </button>
+        <q-btn
+          class="btn btn-warning input"
+          color="warning"
+          label="Bloquear usuário"
+          type="submit"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import CustomAlerts from "@/domain/alerts/CustomAlerts";
-import TestService from "@/services/TestService";
-import { defineComponent } from "vue-demi";
+import CustomAlerts from '@/domain/alerts/CustomAlerts';
+import TestService from '@/services/TestService';
+import { defineComponent } from 'vue-demi';
 
 export default defineComponent({
-  name: "UserManagerPanel",
+  name: 'UserManagerPanel',
   data() {
     return {
       customAlert: new CustomAlerts(),
@@ -53,42 +60,42 @@ export default defineComponent({
   },
   methods: {
     apiCall(type: string) {
-      let phrase1 = "";
-      let phrase2 = "";
+      let phrase1 = '';
+      let phrase2 = '';
 
-      if (type == "block") {
-        phrase1 = "Confirma o bloqueio";
-        phrase2 = "bloqueado";
-      } else if (type == "delete") {
-        phrase1 = "Confirma a exclusão";
-        phrase2 = "excluído";
-      } else if (type == "add_admin") {
-        phrase1 = "Confirma a promoção";
-        phrase2 = "promovido";
-      } else if (type == "rmv_admin") {
-        phrase1 = "Confirma o rebaixamento";
-        phrase2 = "rebaixado";
+      if (type == 'block') {
+        phrase1 = 'Confirma o bloqueio';
+        phrase2 = 'bloqueado';
+      } else if (type == 'delete') {
+        phrase1 = 'Confirma a exclusão';
+        phrase2 = 'excluído';
+      } else if (type == 'add_admin') {
+        phrase1 = 'Confirma a promoção';
+        phrase2 = 'promovido';
+      } else if (type == 'rmv_admin') {
+        phrase1 = 'Confirma o rebaixamento';
+        phrase2 = 'rebaixado';
       }
 
       this.customAlert
-        .customAlert("", phrase1 + " do usuário ?", true, "")
+        .customAlert('', phrase1 + ' do usuário ?', true, '')
         .then((result) => {
           if (result.isConfirmed) {
             this.customAlert
-              .inputConfirm("Insira a sua senha", "Senha", "Insira a senha...")
+              .inputConfirm('Insira a sua senha', 'Senha', 'Insira a senha...')
               .then((result) => {
                 if (!result.dismiss) {
                   //INSERT API CODE
-                  result.value == "123" /*INSERT API VALIDATION*/
+                  result.value == '123' /*INSERT API VALIDATION*/
                     ? this.customAlert.toastAlert(
-                        "Usuário " + phrase2,
-                        "success"
+                        'Usuário ' + phrase2,
+                        'success'
                       )
                     : this.customAlert.customAlert(
-                        "Senha incorreta",
-                        "",
+                        'Senha incorreta',
+                        '',
                         false,
-                        "error"
+                        'error'
                       );
                 }
               });
@@ -98,7 +105,7 @@ export default defineComponent({
     async randomNumber() {
       return TestService.randomNumber()
         .then((res) => {
-          return "KB-" + res;
+          return 'KB-' + res;
         })
         .catch((err) => {
           console.log(err);
@@ -110,5 +117,5 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "@/components/administrator/SCSS/AdministratorPanel.scss";
+@import '@/components/administrator/SCSS/AdministratorPanel.scss';
 </style>

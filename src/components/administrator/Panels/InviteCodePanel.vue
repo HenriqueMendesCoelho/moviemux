@@ -31,7 +31,12 @@
           <div class="code-invite">
             <h3>KB-564545</h3>
           </div>
-          <button class="btn btn-success" type="submit">Criar convite</button>
+          <q-btn
+            class="btn btn-success"
+            type="submit"
+            color="positive"
+            label="Criar convite"
+          />
         </div>
         <div
           class="panel-create-invite"
@@ -56,29 +61,29 @@
 </template>
 
 <script lang="ts">
-import { mapActions, mapState } from "pinia";
-import { useAdministratorStore } from "@/stores/AdministratorStore";
-import { defineComponent } from "vue-demi";
-import CustomAlerts from "@/domain/alerts/CustomAlerts";
+import { mapActions, mapState } from 'pinia';
+import { useAdministratorStore } from '@/stores/AdministratorStore';
+import { defineComponent } from 'vue-demi';
+import CustomAlerts from '@/domain/alerts/CustomAlerts';
 export default defineComponent({
-  name: "InviteCodePanel",
+  name: 'InviteCodePanel',
   data() {
     return {
       customAlert: new CustomAlerts(),
     };
   },
   computed: {
-    ...mapState(useAdministratorStore, ["InviteCodePanel"]),
+    ...mapState(useAdministratorStore, ['InviteCodePanel']),
   },
   methods: {
-    ...mapActions(useAdministratorStore, ["setInvitePanelsVisibility"]),
+    ...mapActions(useAdministratorStore, ['setInvitePanelsVisibility']),
     deleteInvite() {
-      this.customAlert.toastAlert("Convite deletado", "success");
+      this.customAlert.toastAlert('Convite deletado', 'success');
     },
   },
 });
 </script>
 
 <style lang="scss" scoped>
-@import "@/components/administrator/scss/AdministratorPanel.scss";
+@import '@/components/administrator/scss/AdministratorPanel.scss';
 </style>

@@ -59,58 +59,58 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import { mapState } from "pinia";
-import CardApp from "../shared/card/CardApp.vue";
-import { useStyleStore } from "@/stores/StyleStore";
-import { useMovieStore } from "@/stores/MovieStore";
+import { defineComponent } from 'vue';
+import { mapState } from 'pinia';
+import CardApp from '../shared/card/CardApp.vue';
+import { useStyleStore } from '@/stores/StyleStore';
+import { useMovieStore } from '@/stores/MovieStore';
 
 export default defineComponent({
-  name: "HomeApp",
+  name: 'HomeApp',
   components: {
-    "card-app": CardApp,
+    'card-app': CardApp,
   },
   data() {
     return {
-      lastFilms_expanded: "transform: rotate(0deg);",
-      lastFilms_height: "height: 40%;",
-      imageCheck: "",
+      lastFilms_expanded: 'transform: rotate(0deg);',
+      lastFilms_height: 'height: 40%;',
+      imageCheck: '',
     };
   },
   computed: {
-    ...mapState(useStyleStore, ["getMarginSideBar"]),
-    ...mapState(useMovieStore, ["allMovies"]),
+    ...mapState(useStyleStore, ['getMarginSideBar']),
+    ...mapState(useMovieStore, ['allMovies']),
   },
   methods: {
     isVisibleLastFilms() {
-      if (this.lastFilms_height == "height: 40%;") {
-        this.lastFilms_height = "height: 8%;";
+      if (this.lastFilms_height == 'height: 40%;') {
+        this.lastFilms_height = 'height: 8%;';
       } else {
-        this.lastFilms_height = "height: 40%;";
+        this.lastFilms_height = 'height: 40%;';
       }
 
-      if (this.lastFilms_expanded == "transform: rotate(0deg);") {
-        this.lastFilms_expanded = "transform: rotate(-180deg);";
+      if (this.lastFilms_expanded == 'transform: rotate(0deg);') {
+        this.lastFilms_expanded = 'transform: rotate(-180deg);';
       } else {
-        this.lastFilms_expanded = "transform: rotate(0deg);";
+        this.lastFilms_expanded = 'transform: rotate(0deg);';
       }
     },
     checkImage(url: string) {
       // https://i.imgur.com/fj6Bn7O.png >> Imagem com Altura de 75px e largura de 1200 px
       const img = new Image();
-      img.addEventListener("load", function () {
+      img.addEventListener('load', function () {
         let errors;
         if (this.naturalHeight < 350)
-          errors = "Altura da imagem deve ser no mínimo 350 pixels";
+          errors = 'Altura da imagem deve ser no mínimo 350 pixels';
 
         if (this.naturalWidth > 1100 && errors) {
-          errors = errors + " e larguradeve ter no máximo 1100 pixels";
+          errors = errors + ' e larguradeve ter no máximo 1100 pixels';
         } else if (this.naturalWidth > 1100 && !errors) {
-          errors = "A largura máxima da imgagem é de 1100 pixels";
+          errors = 'A largura máxima da imgagem é de 1100 pixels';
         } else if (this.naturalWidth < 550 && errors) {
-          errors = errors + " e a largura mínima é de 550 pixels";
+          errors = errors + ' e a largura mínima é de 550 pixels';
         } else if (this.naturalWidth < 550 && !errors) {
-          errors = errors + "Largura mínima da imagem é de 550 pixels";
+          errors = errors + 'Largura mínima da imagem é de 550 pixels';
         }
 
         if (errors) alert(errors);
