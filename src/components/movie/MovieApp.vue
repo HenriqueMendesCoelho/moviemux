@@ -15,10 +15,10 @@
           color="primary"
           text-color="white"
           label="Editar"
-          :disable="false"
+          :disable="cantEdit()"
           @click="isEditing = !isEditing"
         />
-        <q-tooltip v-if="false">
+        <q-tooltip v-if="cantEdit()">
           O filme não foi cadastrado por você
         </q-tooltip>
       </div>
@@ -56,7 +56,7 @@
               label="Título PT-BR"
               style="background-color: #343c4c"
               dark
-              :readonly="false"
+              :readonly="!isRegisterOrEditing()"
             />
           </div>
           <div class="col-12 q-mt-xs">
@@ -67,6 +67,7 @@
               label="Título EN"
               style="background-color: #343c4c"
               dark
+              :readonly="!isRegisterOrEditing()"
             />
           </div>
           <div class="col-12 q-mt-xs">
@@ -77,6 +78,7 @@
               label="Ano de lançamento"
               style="background-color: #343c4c"
               dark
+              :readonly="!isRegisterOrEditing()"
             />
           </div>
           <div class="col-12 q-mt-xs">
@@ -87,6 +89,7 @@
               label="Diretor"
               style="background-color: #343c4c"
               dark
+              :readonly="!isRegisterOrEditing()"
             />
           </div>
           <div class="col-12 q-mt-xs">
@@ -97,7 +100,7 @@
               label="URL da Imagem"
               style="background-color: #343c4c"
               dark
-              v-if="showInputsRegister()"
+              v-if="isRegisterOrEditing()"
             />
           </div>
           <div class="col-12 q-mt-xs">
@@ -108,7 +111,7 @@
               label="URL do trailer dublado"
               style="background-color: #343c4c"
               dark
-              v-if="showInputsRegister()"
+              v-if="isRegisterOrEditing()"
             />
           </div>
           <div class="col-12 q-mt-xs">
@@ -119,7 +122,7 @@
               label="URL do trailer legendado"
               style="background-color: #343c4c"
               dark
-              v-if="showInputsRegister()"
+              v-if="isRegisterOrEditing()"
             />
           </div>
         </div>
@@ -138,9 +141,10 @@
               style="background-color: #343c4c"
               dark
               type="textarea"
+              :readonly="!isRegisterOrEditing()"
             />
           </div>
-          <div class="col-6 q-pl-xs" v-if="!showInputsRegister()">
+          <div class="col-6 q-pl-xs" v-if="!isRegisterOrEditing()">
             <TableNoHeader :title="'Notas'" :height="200" />
           </div>
         </div>
@@ -153,10 +157,7 @@
             <h6>Trailer Dublado</h6>
             <VideoEmbedded :url="selectedMovie.trailerBr" />
           </div>
-          <div
-            v-if="selectedMovie.trailerBr && selectedMovie.trailerEn"
-            style="border-left: solid 1px rgba(189, 195, 199, 0.15)"
-          ></div>
+          <SeparatorDivLineSolidVertical />
           <div class="column items-center">
             <h6>Trailer Legendado</h6>
             <VideoEmbedded :url="selectedMovie.trailerEn" />
@@ -164,7 +165,7 @@
         </div>
       </div>
       <SeparatorDivSolidLine />
-      <div class="row justify-center" v-if="showInputsRegister()">
+      <div class="row justify-center" v-if="isRegisterOrEditing()">
         <div class="col-2">
           <q-btn
             style="width: 100%"
@@ -200,6 +201,7 @@ import { useMovieStore } from '@/stores/MovieStore';
 import TableNoHeader from '@/components/shared/tables/TableStylized.vue';
 import SeparatorDiv from '@/components/shared/separator/SeparatorDiv.vue';
 import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';
+import SeparatorDivLineSolidVertical from '../shared/separator/SeparatorDivLineSolidVertical.vue';
 import VideoEmbedded from './videoEmbedded/VideoEmbedded.vue';
 
 export default defineComponent({
@@ -208,6 +210,7 @@ export default defineComponent({
     SeparatorDiv,
     TableNoHeader,
     SeparatorDivSolidLine,
+    SeparatorDivLineSolidVertical,
     VideoEmbedded,
   },
   data() {
@@ -229,7 +232,7 @@ export default defineComponent({
   },
   methods: {
     ...mapActions(useMovieStore, ['resetStoreMovie']),
-    showInputsRegister() {
+    isRegisterOrEditing() {
       if (!this.idPathParam) {
         return true;
       }
@@ -251,6 +254,9 @@ export default defineComponent({
         return;
       }
       this.resetStoreMovie();
+    },
+    cantEdit() {
+      return false;
     },
   },
 });
