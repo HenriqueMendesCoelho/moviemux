@@ -26,6 +26,10 @@
         <span class="material-icons">admin_panel_settings</span>
         <span class="text">ADM</span>
       </router-link>
+      <router-link to="/profile" class="button">
+        <span class="material-icons">person</span>
+        <span class="text">PERFIL</span>
+      </router-link>
       <router-link to="/add" class="button">
         <span class="material-icons">add</span>
         <span class="text">ADICIONAR</span>
@@ -51,32 +55,32 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import { mapActions, mapState } from "pinia";
-import { useStyleStore } from "@/stores/StyleStore";
+import { defineComponent } from 'vue';
+import { mapActions, mapState } from 'pinia';
+import { useStyleStore } from '@/stores/StyleStore';
 
 export default defineComponent({
-  name: "SideBar",
+  name: 'SideBar',
   data() {
     return {
       is_expanded: false,
-      teste: "teste",
+      teste: 'teste',
     };
   },
   computed: {
-    ...mapState(useStyleStore, ["backgroundColor", "sideBarWidth"]),
+    ...mapState(useStyleStore, ['backgroundColor', 'sideBarWidth']),
   },
   methods: {
     ToggleMenu() {
       this.is_expanded = !this.is_expanded;
       this.ToggleMenuStore();
-      localStorage.setItem("is_expanded", this.is_expanded.toString());
+      localStorage.setItem('is_expanded', this.is_expanded.toString());
     },
-    ...mapActions(useStyleStore, ["ToggleMenuStore", "setIsExpanded"]),
+    ...mapActions(useStyleStore, ['ToggleMenuStore', 'setIsExpanded']),
   },
   beforeMount() {
     this.is_expanded =
-      localStorage.getItem("is_expanded") == "true" ? true : false;
+      localStorage.getItem('is_expanded') == 'true' ? true : false;
   },
 });
 </script>

@@ -1,5 +1,38 @@
 <template>
   <main>
+    <div class="row" v-if="showTopButtons()">
+      <div class="q-ml-md">
+        <q-btn
+          style="background-color: #343c4c"
+          text-color="white"
+          round
+          icon="refresh"
+        />
+      </div>
+      <div class="q-ml-md" v-if="!isEditing">
+        <q-btn
+          style="width: 100%"
+          color="primary"
+          text-color="white"
+          label="Editar"
+          :disable="false"
+          @click="isEditing = !isEditing"
+        />
+        <q-tooltip v-if="false">
+          O filme não foi cadastrado por você
+        </q-tooltip>
+      </div>
+      <div class="q-ml-md">
+        <q-btn
+          v-if="true"
+          style="width: 100%"
+          color="red"
+          text-color="white"
+          label="Deletar"
+        />
+      </div>
+      <SeparatorDivSolidLine />
+    </div>
     <div class="container-main">
       <div class="container-infos-img">
         <img
@@ -12,97 +45,176 @@
           draggable="false"
         />
 
-        <div class="movie-infos-inputs">
+        <div class="row movie-infos-inputs">
           <h2>Informações</h2>
           <SeparatorDiv />
-          <label for="tituloPTBR">Título PT-BR</label>
-          <input
-            type="text"
-            name="tituloPTBR"
-            placeholder="Título"
-            v-model="selectedMovie.titleBr"
-          />
-          <label for="tituloEN">Título EN</label>
-          <input
-            type="text"
-            name="tituloEN"
-            placeholder="Título"
-            v-model="selectedMovie.titleEn"
-          />
-          <label for="Ano">Ano de lançamento</label>
-          <input
-            type="text"
-            name="Ano"
-            placeholder="Ano"
-            v-model="selectedMovie.year"
-          />
-          <label for="Diretor">Diretor</label>
-          <input
-            type="text"
-            name="Diretor"
-            placeholder="Diretor"
-            v-model="selectedMovie.director"
-          />
-          <label for="url" v-show="showUrls()">URL da Imagem</label>
-          <input
-            type="text"
-            name="url"
-            placeholder="Url"
-            v-model="selectedMovie.image"
-            v-show="showUrls()"
-          />
-          <label for="url1" v-show="showUrls()">URL do trailer dublado</label>
-          <input
-            type="text"
-            name="url1"
-            placeholder="Url"
-            v-model="selectedMovie.trailerBr"
-            v-show="showUrls()"
-          />
-          <label for="url2" v-show="showUrls()">URL do trailer legendado</label>
-          <input
-            type="text"
-            name="url2"
-            placeholder="Url"
-            v-model="selectedMovie.trailerEn"
-            v-show="showUrls()"
-          />
-          <label for="description">Descrição - Sinopse</label>
-          <textarea
-            name="description"
-            id="description"
-            rows="5"
-            placeholder="Descrição"
-            maxlength="1000"
-            v-model="selectedMovie.description"
-          ></textarea>
+          <div class="col-12">
+            <q-input
+              standout="text-white "
+              outlined
+              v-model="selectedMovie.titleBr"
+              label="Título PT-BR"
+              style="background-color: #343c4c"
+              dark
+              :readonly="false"
+            />
+          </div>
+          <div class="col-12 q-mt-xs">
+            <q-input
+              standout="text-white "
+              outlined
+              v-model="selectedMovie.titleEn"
+              label="Título EN"
+              style="background-color: #343c4c"
+              dark
+            />
+          </div>
+          <div class="col-12 q-mt-xs">
+            <q-input
+              standout="text-white "
+              outlined
+              v-model="selectedMovie.year"
+              label="Ano de lançamento"
+              style="background-color: #343c4c"
+              dark
+            />
+          </div>
+          <div class="col-12 q-mt-xs">
+            <q-input
+              standout="text-white "
+              outlined
+              v-model="selectedMovie.director"
+              label="Diretor"
+              style="background-color: #343c4c"
+              dark
+            />
+          </div>
+          <div class="col-12 q-mt-xs">
+            <q-input
+              standout="text-white "
+              outlined
+              v-model="selectedMovie.image"
+              label="URL da Imagem"
+              style="background-color: #343c4c"
+              dark
+              v-if="showInputsRegister()"
+            />
+          </div>
+          <div class="col-12 q-mt-xs">
+            <q-input
+              standout="text-white "
+              outlined
+              v-model="selectedMovie.trailerBr"
+              label="URL do trailer dublado"
+              style="background-color: #343c4c"
+              dark
+              v-if="showInputsRegister()"
+            />
+          </div>
+          <div class="col-12 q-mt-xs">
+            <q-input
+              standout="text-white "
+              outlined
+              v-model="selectedMovie.trailerEn"
+              label="URL do trailer legendado"
+              style="background-color: #343c4c"
+              dark
+              v-if="showInputsRegister()"
+            />
+          </div>
         </div>
       </div>
+      <SeparatorDivSolidLine />
       <div class="container-notes-trailers">
-        <div class="movie-notes"></div>
-        <div class="movie-trailers"></div>
+        <div class="row movie-notes justify-center q-px-lg">
+          <div class="div-textarea col-6 q-pr-xs">
+            <q-input
+              standout="text-white "
+              outlined
+              v-model="selectedMovie.description"
+              input-style="resize: none;"
+              rows="9"
+              label="Descrição - Sinopse"
+              style="background-color: #343c4c"
+              dark
+              type="textarea"
+            />
+          </div>
+          <div class="col-6 q-pl-xs" v-if="!showInputsRegister()">
+            <TableNoHeader :title="'Notas'" :height="200" />
+          </div>
+        </div>
+        <div
+          class="row movie-trailers justify-center"
+          v-if="selectedMovie.trailerBr || selectedMovie.trailerEn"
+        >
+          <SeparatorDivSolidLine />
+          <div class="column items-center">
+            <h6>Trailer Dublado</h6>
+            <VideoEmbedded :url="selectedMovie.trailerBr" />
+          </div>
+          <div
+            v-if="selectedMovie.trailerBr && selectedMovie.trailerEn"
+            style="border-left: solid 1px rgba(189, 195, 199, 0.15)"
+          ></div>
+          <div class="column items-center">
+            <h6>Trailer Legendado</h6>
+            <VideoEmbedded :url="selectedMovie.trailerEn" />
+          </div>
+        </div>
+      </div>
+      <SeparatorDivSolidLine />
+      <div class="row justify-center" v-if="showInputsRegister()">
+        <div class="col-2">
+          <q-btn
+            style="width: 100%"
+            color="positive"
+            text-color="white"
+            label="Salvar"
+            :disable="false"
+            @click="isEditing = !isEditing"
+          />
+        </div>
+        <div class="col-2 q-ml-md">
+          <q-btn
+            style="width: 100%"
+            color="red"
+            text-color="white"
+            label="Cancelar"
+            :disable="false"
+            @click="cancel()"
+          />
+        </div>
       </div>
     </div>
   </main>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue-demi';
+import { defineComponent } from 'vue';
 
 import { mapActions, mapState } from 'pinia';
-import { useStyleStore } from '../../stores/StyleStore';
+import { useStyleStore } from '@/stores/StyleStore';
 import { useMovieStore } from '@/stores/MovieStore';
 
+import TableNoHeader from '@/components/shared/tables/TableStylized.vue';
 import SeparatorDiv from '@/components/shared/separator/SeparatorDiv.vue';
+import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';
+import VideoEmbedded from './videoEmbedded/VideoEmbedded.vue';
 
 export default defineComponent({
   name: 'MovieApp',
   components: {
     SeparatorDiv,
+    TableNoHeader,
+    SeparatorDivSolidLine,
+    VideoEmbedded,
   },
   data() {
     return {
       idPathParam: this.$route.params.id,
+      notesVisible: true,
+      isEditing: false,
     };
   },
   computed: {
@@ -116,9 +228,29 @@ export default defineComponent({
     }
   },
   methods: {
-    ...mapActions(useMovieStore, ['cleanSelectedMovie']),
-    showUrls() {
-      return !this.idPathParam;
+    ...mapActions(useMovieStore, ['resetStoreMovie']),
+    showInputsRegister() {
+      if (!this.idPathParam) {
+        return true;
+      }
+      if (this.idPathParam && this.isEditing) {
+        return true;
+      }
+      return false;
+    },
+    showTopButtons() {
+      return this.$route.name === 'movie';
+    },
+    save() {
+      return;
+    },
+    cancel() {
+      this.isEditing = false;
+      if (this.idPathParam) {
+        //TODO: Chamar api para pegar dados novamente pelo id do path
+        return;
+      }
+      this.resetStoreMovie();
     },
   },
 });
@@ -152,18 +284,11 @@ main {
 
     .container-infos-img {
       display: flex;
-      height: 70vh;
-
+      height: 60vh;
       overflow: hidden;
-
-      //background-color: var(--grey-mid);
-
-      //border: solid 5px green;
-
       padding: 15px 15px;
 
       img {
-        //border: solid 5px rosybrown;
         border-radius: 20px;
         height: 100%;
       }
@@ -171,62 +296,24 @@ main {
       .movie-infos-inputs {
         display: flex;
         flex-wrap: wrap;
-
         text-align: flex-start;
         justify-content: flex-start;
-
-        //border: solid 5px blue;
         width: 100%;
         height: 100%;
         margin-left: 10px;
-
         overflow-y: auto;
-
-        //padding-top: 15px;
-        //padding-bottom: 10px;
         padding-right: 10px;
-
-        input {
-          color: var(--light-grey2);
-          width: 100%;
-          //height: 10%;
-          border-radius: 8px;
-          margin-bottom: 15px;
-          padding: 15px;
-
-          box-shadow: 0 5px 30px var(--shadow);
-
-          box-sizing: border-box;
-          border: none;
-          outline: none;
-
-          background-color: var(--grey-mid2);
-
-          input::placeholder {
-            max-width: 100%;
-            color: var(--light-grey2);
-          }
-        }
-
-        textarea {
-          padding: 15px;
-          color: var(--light-grey2);
-          width: 100%;
-          border-radius: 8px;
-
-          box-shadow: 0 5px 30px var(--shadow);
-
-          box-sizing: border-box;
-          border: none;
-          outline: none;
-
-          background-color: var(--grey-mid2);
-        }
       }
     }
     .container-notes-trailers {
       //border: solid 5px yellow;
       height: auto;
+      .div-textarea {
+        overflow: hidden;
+        max-height: 200px;
+
+        transition: 0.2s ease-in-out;
+      }
     }
   }
 }
