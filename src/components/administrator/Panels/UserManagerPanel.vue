@@ -1,7 +1,7 @@
 <template>
   <div id="container-access" class="div-container">
     <div class="div-panel">
-      <h2>Gerencimento de conta de usuário</h2>
+      <h3>Gerencimento de conta de usuário</h3>
       <div class="textfield textfield-access">
         <label for="email">E-mail usuário alvo</label>
         <input type="text" name="email" placeholder="Digite..." />

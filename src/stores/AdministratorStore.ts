@@ -1,11 +1,11 @@
-import { defineStore } from "pinia";
+import { defineStore } from 'pinia';
 
-import TestService from "@/services/TestService";
+import TestService from '@/services/TestService';
 
-export const useAdministratorStore = defineStore("AdministratorStore", {
+export const useAdministratorStore = defineStore('AdministratorStore', {
   state: () => {
     return {
-      inviteCode: "",
+      inviteCode: '',
       AdministratorSelectBar: {
         panel_access: true,
         panel_invite: false,

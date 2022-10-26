@@ -7,7 +7,7 @@
             class="material-icons"
             :style="lastFilms_expanded"
             style="font-size: 25pt"
-            @click="isVisibleLastFilms"
+            @click="toggleVisibleLastFilms()"
           >
             expand_less
           </span>
@@ -18,17 +18,18 @@
           <span class="material-icons" style="font-size: 18pt"> refresh </span>
         </button>
       </div>
-      <div class="div-cards-lastfilm">
-        <div v-for="(movie, index) in allMovies.slice(0, 8)" :key="index">
-          <router-link :to="{ name: 'movie', params: { id: movie.id } }">
-            <card-app
-              :title="movie.titulo"
-              :url="movie.url"
-              :key="movie.id"
-              :id="movie.id"
-              v-show="lastFilms_height == 'height: 40%;'"
-            />
-          </router-link>
+      <div class="container-lastmovies" v-auto-animate>
+        <div class="div-cards-lastfilm" v-if="isVisibleLastFilms">
+          <div v-for="(movie, index) in allMovies.slice(0, 8)" :key="index">
+            <router-link :to="{ name: 'movie', params: { id: movie.id } }">
+              <card-app
+                :title="movie.titulo"
+                :url="movie.url"
+                :key="movie.id"
+                :id="movie.id"
+              />
+            </router-link>
+          </div>
         </div>
       </div>
     </div>
@@ -47,7 +48,7 @@
           <span class="material-icons" style="font-size: 18pt"> refresh </span>
         </button>
       </div>
-      <div class="container-cards-films">
+      <div class="container-cards-films" v-auto-animate>
         <div class="cards-films" v-for="movie in allMovies" :key="movie.id">
           <router-link :to="{ name: 'movie', params: { id: movie.id } }">
             <img :src="movie.url" :alt="movie.titulo" draggable="false" />
@@ -70,11 +71,15 @@ export default defineComponent({
   components: {
     'card-app': CardApp,
   },
+  setup() {
+    document.title = 'Cineminha - Home';
+  },
   data() {
     return {
       lastFilms_expanded: 'transform: rotate(0deg);',
       lastFilms_height: 'height: 40%;',
       imageCheck: '',
+      isVisibleLastFilms: true,
     };
   },
   computed: {
@@ -82,12 +87,8 @@ export default defineComponent({
     ...mapState(useMovieStore, ['allMovies']),
   },
   methods: {
-    isVisibleLastFilms() {
-      if (this.lastFilms_height == 'height: 40%;') {
-        this.lastFilms_height = 'height: 8%;';
-      } else {
-        this.lastFilms_height = 'height: 40%;';
-      }
+    toggleVisibleLastFilms() {
+      this.isVisibleLastFilms = !this.isVisibleLastFilms;
 
       if (this.lastFilms_expanded == 'transform: rotate(0deg);') {
         this.lastFilms_expanded = 'transform: rotate(-180deg);';
@@ -149,8 +150,8 @@ main {
     max-width: 100%;
 
     //height: 5vh;
-
-    max-height: 40vh;
+    height: 40vh;
+    max-height: 480px;
 
     color: var(--light-grey2);
     border-radius: 10px;
@@ -164,7 +165,7 @@ main {
 
       max-width: 100%;
 
-      transition: 0.2s ease-out;
+      //transition: 0.2s ease-out;
 
       border-radius: 10px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -183,21 +184,24 @@ main {
         }
       }
     }
-    .div-cards-lastfilm {
-      display: flex;
-      justify-content: center;
+
+    .container-lastmovies {
+      height: 100%;
       overflow: hidden;
-      max-height: 100%;
 
-      transition: 0.2s ease-out;
+      .div-cards-lastfilm {
+        display: flex;
+        justify-content: center;
+        height: 100%;
 
-      a {
-        text-decoration: none;
-        color: inherit;
-      }
+        a {
+          text-decoration: none;
+          color: inherit;
+        }
 
-      @media (max-width: 768px) {
-        flex-direction: column;
+        @media (max-width: 768px) {
+          flex-direction: column;
+        }
       }
     }
   }

@@ -7,26 +7,31 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import { mapState } from "pinia";
-import SideBar from "./components/shared/sidebar/SideBar.vue";
-import { useStyleStore } from "./stores/StyleStore";
+import { defineComponent } from 'vue';
+import { mapState } from 'pinia';
+import SideBar from './components/shared/sidebar/SideBar.vue';
+import { useStyleStore } from './stores/StyleStore';
 
 export default defineComponent({
-  name: "App",
+  name: 'App',
   data() {
     return {
-      back: "",
+      back: '',
     };
   },
   components: {
-    "side-bar": SideBar,
+    'side-bar': SideBar,
   },
   computed: {
     currentRouteName() {
       return this.$route.name;
     },
-    ...mapState(useStyleStore, ["backgroundColor"]),
+    ...mapState(useStyleStore, ['backgroundColor']),
+  },
+  methods: {
+    isDark() {
+      return false;
+    },
   },
 });
 </script>
@@ -51,7 +56,7 @@ export default defineComponent({
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Fira sans", sans-serif;
+  font-family: 'Fira sans', sans-serif;
   font-size: 12pt;
 }
 

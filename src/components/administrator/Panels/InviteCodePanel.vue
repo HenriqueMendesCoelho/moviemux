@@ -1,7 +1,7 @@
 <template>
   <div id="container-invite" class="div-container">
     <div id="div-panel-invite" class="div-panel">
-      <h2>Convites</h2>
+      <h3>Convites</h3>
       <div class="container-subpanel-invite">
         <div class="textfield-buttons textfield-buttons-invites">
           <button
@@ -29,7 +29,7 @@
           "
         >
           <div class="code-invite">
-            <h3>KB-564545</h3>
+            <h4>KB-564545</h4>
           </div>
           <q-btn
             class="btn btn-success"
@@ -48,7 +48,7 @@
           <!--v-for="invite in invites"
                             :key="invite.id"-->
           <div class="div-invites-search">
-            <h3>KB-994949</h3>
+            <h4>KB-994949</h4>
             <div class="flex"></div>
             <button class="btn btn-danger" @click="deleteInvite">
               DELETAR

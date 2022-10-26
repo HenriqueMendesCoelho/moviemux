@@ -50,7 +50,8 @@
           <SeparatorDiv />
           <div class="col-12">
             <q-input
-              standout="text-white "
+              standout="text-info"
+              color="info"
               outlined
               v-model="selectedMovie.titleBr"
               label="Título PT-BR"
@@ -61,7 +62,8 @@
           </div>
           <div class="col-12 q-mt-xs">
             <q-input
-              standout="text-white "
+              standout="text-info"
+              color="info"
               outlined
               v-model="selectedMovie.titleEn"
               label="Título EN"
@@ -72,7 +74,8 @@
           </div>
           <div class="col-12 q-mt-xs">
             <q-input
-              standout="text-white "
+              standout="text-info"
+              color="info"
               outlined
               v-model="selectedMovie.year"
               label="Ano de lançamento"
@@ -83,7 +86,8 @@
           </div>
           <div class="col-12 q-mt-xs">
             <q-input
-              standout="text-white "
+              standout="text-info"
+              color="info"
               outlined
               v-model="selectedMovie.director"
               label="Diretor"
@@ -94,7 +98,8 @@
           </div>
           <div class="col-12 q-mt-xs">
             <q-input
-              standout="text-white "
+              standout="text-info"
+              color="info"
               outlined
               v-model="selectedMovie.image"
               label="URL da Imagem"
@@ -105,7 +110,8 @@
           </div>
           <div class="col-12 q-mt-xs">
             <q-input
-              standout="text-white "
+              standout="text-info"
+              color="info"
               outlined
               v-model="selectedMovie.trailerBr"
               label="URL do trailer dublado"
@@ -116,7 +122,8 @@
           </div>
           <div class="col-12 q-mt-xs">
             <q-input
-              standout="text-white "
+              standout="text-info"
+              color="info"
               outlined
               v-model="selectedMovie.trailerEn"
               label="URL do trailer legendado"
@@ -132,7 +139,8 @@
         <div class="row movie-notes justify-center q-px-lg">
           <div class="div-textarea col-6 q-pr-xs">
             <q-input
-              standout="text-white "
+              standout="text-info"
+              color="info"
               outlined
               v-model="selectedMovie.description"
               input-style="resize: none;"
@@ -222,12 +230,22 @@ export default defineComponent({
   },
   computed: {
     ...mapState(useStyleStore, ['getMarginSideBar']),
-    ...mapState(useMovieStore, ['selectedMovie']),
+    ...mapState(useMovieStore, ['selectedMovie', 'allMovies']),
+  },
+  mounted() {
+    if (this.$route.name === 'add') {
+      document.title = 'Cineminha - Cadastrar Filme';
+    } else {
+      document.title = `Cineminha - Filme ${this.idPathParam}`;
+    }
   },
   updated() {
     if (this.$route.name === 'add') {
       this.idPathParam = '';
-      //TODO: Insert code to reset all field of movie store, because in this moment user switch to addMovie
+      this.resetStoreMovie();
+      document.title = 'Cineminha - Cadastrar Filme';
+    } else {
+      document.title = `Cineminha - Filme ${this.idPathParam}`;
     }
   },
   methods: {
