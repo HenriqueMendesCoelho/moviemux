@@ -6,13 +6,20 @@
           <h2 style="color: white">Meu Perfil</h2>
         </div>
       </div>
-      <div class="panel-profile col-10 q-mt-xl">
+      <div
+        class="panel-profile q-mt-xl"
+        :class="$q.platform.is.mobile ? 'col-12' : 'col-10'"
+      >
         <SelectPanelBar />
         <div
-          class="PanelmyData row q-pt-xl justify-center"
+          class="PanelmyData row justify-center"
+          :class="$q.platform.is.mobile ? 'q-pt-xs' : 'q-pt-xl'"
           v-if="ProfileSelectBar.PanelMyData"
         >
-          <div class="col-8 q-mt-md">
+          <div
+            class="q-mt-md"
+            :class="$q.platform.is.mobile ? 'col-12' : 'col-8'"
+          >
             <q-input
               standout="text-info"
               color="info"
@@ -23,7 +30,10 @@
               dark
             />
           </div>
-          <div class="col-8 q-mt-md">
+          <div
+            class="q-mt-md"
+            :class="$q.platform.is.mobile ? 'col-12' : 'col-8'"
+          >
             <q-input
               standout="text-info"
               color="info"
@@ -34,7 +44,10 @@
               dark
             />
           </div>
-          <div class="col-8 q-mt-md">
+          <div
+            class="q-mt-md"
+            :class="$q.platform.is.mobile ? 'col-12' : 'col-8'"
+          >
             <q-input
               standout="text-info"
               color="info"
@@ -46,9 +59,12 @@
               :readonly="true"
             />
           </div>
-          <div class="col-8 q-mt-md q-mb-xl">
+          <div
+            class="q-mt-md q-mb-xl"
+            :class="$q.platform.is.mobile ? 'col-12' : 'col-8'"
+          >
             <div class="row">
-              <div class="col-6 q-pr-sm">
+              <div :class="$q.platform.is.mobile ? 'col-12' : 'col-6 q-pr-sm'">
                 <q-input
                   square
                   filled
@@ -60,7 +76,11 @@
                   :readonly="true"
                 />
               </div>
-              <div class="col-6 q-pl-sm">
+              <div
+                :class="
+                  $q.platform.is.mobile ? 'col-12 q-mt-md' : 'col-6 q-pl-sm'
+                "
+              >
                 <q-input
                   square
                   filled
@@ -174,6 +194,10 @@ main {
   border-top-left-radius: 10px;
   background: var(--grey-dark2);
   box-shadow: 0 10px 30px var(--shadow);
+
+  @media (max-width: 768px) {
+    margin-left: calc(4rem + 32px);
+  }
 
   .panel-profile {
     background: var(--grey-mid);

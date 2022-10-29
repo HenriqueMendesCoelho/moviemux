@@ -1,7 +1,7 @@
 <template v-if="convertedUrl">
   <div class="q-mx-lg">
     <iframe
-      width="560"
+      :width="width"
       height="315"
       :src="convertedUrl"
       title="YouTube video player"
@@ -21,6 +21,10 @@ export default defineComponent({
     url: {
       type: String,
       required: true,
+    },
+    width: {
+      type: String,
+      default: '560',
     },
   },
   data() {

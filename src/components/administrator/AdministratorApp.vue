@@ -62,5 +62,9 @@ export default defineComponent({
 @import '@/components/administrator/scss/AdministratorPanel.scss';
 main {
   margin-left: v-bind(getMarginSideBar);
+
+  @media (max-width: 768px) {
+    margin-left: calc(4rem + 32px);
+  }
 }
 </style>

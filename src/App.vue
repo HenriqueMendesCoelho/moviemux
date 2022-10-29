@@ -87,7 +87,7 @@ button {
     padding: 1rem;
 
     @media (max-width: 768px) {
-      padding-left: 6rem;
+      padding-left: 0.8rem;
     }
   }
 }

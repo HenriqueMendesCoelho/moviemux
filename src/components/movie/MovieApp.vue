@@ -1,13 +1,8 @@
 <template>
   <main>
-    <div class="row" v-if="showTopButtons()">
+    <div :class="$q.platform.is.mobile ? 'column q-gutter-y-md' : 'row'" v-if="showTopButtons()">
       <div class="q-ml-md">
-        <q-btn
-          style="background-color: #343c4c"
-          text-color="white"
-          round
-          icon="refresh"
-        />
+        <q-btn style="background-color: #343c4c" text-color="white" round icon="refresh" />
       </div>
       <div class="q-ml-md" v-if="!isEditing">
         <q-btn
@@ -18,18 +13,10 @@
           :disable="cantEdit()"
           @click="isEditing = !isEditing"
         />
-        <q-tooltip v-if="cantEdit()">
-          O filme não foi cadastrado por você
-        </q-tooltip>
+        <q-tooltip v-if="cantEdit()"> O filme não foi cadastrado por você </q-tooltip>
       </div>
       <div class="q-ml-md">
-        <q-btn
-          v-if="true"
-          style="width: 100%"
-          color="red"
-          text-color="white"
-          label="Deletar"
-        />
+        <q-btn v-if="true" style="width: 100%" color="red" text-color="white" label="Deletar" />
       </div>
       <SeparatorDivSolidLine />
     </div>
@@ -46,7 +33,7 @@
         />
 
         <div class="row movie-infos-inputs">
-          <h2>Informações</h2>
+          <p class="paragrafy-title-info">Informações</p>
           <SeparatorDiv />
           <div class="col-12">
             <q-input
@@ -137,7 +124,7 @@
       <SeparatorDivSolidLine />
       <div class="container-notes-trailers">
         <div class="row movie-notes justify-center q-px-lg">
-          <div class="div-textarea col-6 q-pr-xs">
+          <div class="div-textarea col-6 q-pr-xs mobile-movie-notes">
             <q-input
               standout="text-info"
               color="info"
@@ -152,29 +139,28 @@
               :readonly="!isRegisterOrEditing()"
             />
           </div>
-          <div class="col-6 q-pl-xs" v-if="!isRegisterOrEditing()">
+          <div class="col-6 q-pl-xs mobile-movie-notes" v-if="!isRegisterOrEditing()">
             <TableNoHeader :title="'Notas'" :height="200" />
           </div>
         </div>
-        <div
-          class="row movie-trailers justify-center"
-          v-if="selectedMovie.trailerBr || selectedMovie.trailerEn"
-        >
+        <div class="row movie-trailers justify-center" v-if="selectedMovie.trailerBr || selectedMovie.trailerEn">
           <SeparatorDivSolidLine />
-          <div class="column items-center">
+          <div class="column items-center" v-if="selectedMovie.trailerBr">
             <h6>Trailer Dublado</h6>
-            <VideoEmbedded :url="selectedMovie.trailerBr" />
+            <VideoEmbedded :width="$q.platform.is.mobile ? '100%' : '560px'" :url="selectedMovie.trailerBr" />
           </div>
-          <SeparatorDivLineSolidVertical />
-          <div class="column items-center">
+          <SeparatorDivLineSolidVertical
+            v-if="!$q.platform.is.mobile && selectedMovie.trailerBr && selectedMovie.trailerEn"
+          />
+          <div class="column items-center" v-if="selectedMovie.trailerEn">
             <h6>Trailer Legendado</h6>
-            <VideoEmbedded :url="selectedMovie.trailerEn" />
+            <VideoEmbedded :width="$q.platform.is.mobile ? '100%' : '560px'" :url="selectedMovie.trailerEn" />
           </div>
         </div>
       </div>
       <SeparatorDivSolidLine />
       <div class="row justify-center" v-if="isRegisterOrEditing()">
-        <div class="col-2">
+        <div :class="$q.platform.is.mobile ? 'col-4' : 'col-2'">
           <q-btn
             style="width: 100%"
             color="positive"
@@ -184,7 +170,7 @@
             @click="isEditing = !isEditing"
           />
         </div>
-        <div class="col-2 q-ml-md">
+        <div :class="$q.platform.is.mobile ? 'col-4 q-ml-md' : 'col-2 q-ml-md'">
           <q-btn
             style="width: 100%"
             color="red"
@@ -242,7 +228,6 @@ export default defineComponent({
   updated() {
     if (this.$route.name === 'add') {
       this.idPathParam = '';
-      this.resetStoreMovie();
       document.title = 'Cineminha - Cadastrar Filme';
     } else {
       document.title = `Cineminha - Filme ${this.idPathParam}`;
@@ -297,6 +282,10 @@ main {
   background: var(--grey-dark2);
   box-shadow: 0 10px 30px var(--shadow);
 
+  @media (max-width: 768px) {
+    margin-left: calc(4rem + 32px);
+  }
+
   .container-main {
     display: flex;
     flex-direction: column;
@@ -315,6 +304,24 @@ main {
       img {
         border-radius: 20px;
         height: 100%;
+
+        @media (max-width: 768px) {
+          height: auto;
+        }
+      }
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        height: auto;
+        padding: 0px;
+      }
+
+      .paragrafy-title-info {
+        font-size: 50pt;
+
+        @media (max-width: 768px) {
+          font-size: x-large;
+        }
       }
 
       .movie-infos-inputs {
@@ -332,11 +339,40 @@ main {
     .container-notes-trailers {
       //border: solid 5px yellow;
       height: auto;
-      .div-textarea {
-        overflow: hidden;
-        max-height: 200px;
 
-        transition: 0.2s ease-in-out;
+      .movie-notes {
+        @media (max-width: 768px) {
+          padding: 0px;
+        }
+
+        .div-textarea {
+          overflow: hidden;
+          max-height: 200px;
+
+          transition: 0.2s ease-in-out;
+
+          @media (max-width: 768px) {
+            padding: 0px;
+            min-width: 100%;
+          }
+        }
+
+        .mobile-movie-notes {
+          margin-top: 20px;
+
+          @media (max-width: 768px) {
+            width: 100%;
+            justify-content: center;
+            align-content: center;
+          }
+        }
+      }
+
+      .movie-trailers {
+        @media (max-width: 768px) {
+          max-width: 100%;
+          overflow: hidden;
+        }
       }
     }
   }

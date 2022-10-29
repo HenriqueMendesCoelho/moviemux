@@ -13,6 +13,7 @@
           >
             Meus dados
             <span
+              v-if="!$q.platform.is.mobile"
               class="material-icons"
               style="transform: translateY(-3px) scale(1.3)"
             >
@@ -31,6 +32,7 @@
           >
             Segurança
             <span
+              v-if="!$q.platform.is.mobile"
               class="material-icons"
               style="transform: translateY(-3px) scale(1.3)"
             >
@@ -85,12 +87,20 @@ button {
   border-top-left-radius: 15px;
   border-end-start-radius: 15px;
   border-right: 1px solid rgba(255, 255, 255, 0.2);
+
+  @media (max-width: 768px) {
+    height: 3rem;
+  }
 }
 
 .btn-right-bordered {
   border-end-end-radius: 15px;
   border-start-end-radius: 15px;
   border-left: 1px solid rgba(255, 255, 255, 0.2);
+
+  @media (max-width: 768px) {
+    height: 3rem;
+  }
 }
 
 .active {

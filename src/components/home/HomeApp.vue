@@ -118,6 +118,9 @@ export default defineComponent({
       });
       img.src = url;
     },
+    marginSmartphone() {
+      return this.getMarginSideBar;
+    },
   },
 });
 </script>
@@ -129,6 +132,7 @@ main {
   margin-top: 1.5rem;
 
   margin-left: v-bind(getMarginSideBar);
+
   max-width: 100%;
   min-height: 100vh;
 
@@ -139,6 +143,10 @@ main {
   border-top-left-radius: 10px;
   background: var(--grey-dark2);
   box-shadow: 0 10px 30px var(--shadow);
+
+  @media (max-width: 768px) {
+    margin-left: calc(4rem + 32px);
+  }
 
   .div-lastfilms {
     display: flex;
@@ -157,6 +165,10 @@ main {
     border-radius: 10px;
     background-color: var(--grey-mid);
     box-shadow: 0 5px 30px var(--shadow);
+
+    @media (max-width: 768px) {
+      display: none;
+    }
 
     .div-title {
       display: flex;
@@ -213,27 +225,30 @@ main {
 
     flex-direction: column;
     display: flex;
-    justify-content: flex-start;
-    align-content: center;
+    align-items: center;
+    justify-content: center;
+
+    @media (max-width: 768px) {
+      min-width: 100%;
+    }
 
     .search-input {
       max-width: 100%;
       //border: 5px solid blue;
       height: 5vh;
-
+      width: 100%;
       margin-bottom: 20px;
 
       font-size: 15pt;
 
       display: flex;
-      align-content: flex-start;
-      justify-content: flex-start;
-
+      overflow: hidden;
+      //border: 5px solid green;
       input {
         max-width: 100%;
         padding: 15px;
         color: var(--light-grey2);
-        width: 80%;
+        width: 85%;
         height: 100%;
         border-top-left-radius: 15px;
         border-end-start-radius: 15px;
@@ -246,6 +261,11 @@ main {
 
         background-color: var(--grey-mid);
 
+        @media (max-width: 768px) {
+          min-width: 60%;
+          max-width: 60%;
+        }
+
         input::placeholder {
           max-width: 100%;
           color: var(--light-grey2);
@@ -255,14 +275,15 @@ main {
       }
 
       .end-btn {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
         border-end-end-radius: 15px;
         border-start-end-radius: 15px;
 
         width: 5%;
+
+        @media (max-width: 768px) {
+          min-width: 15%;
+          max-width: 15%;
+        }
       }
 
       .search-btn {
@@ -275,6 +296,11 @@ main {
 
         color: var(--light-grey);
         font-weight: 500;
+
+        @media (max-width: 768px) {
+          min-width: 25%;
+          max-width: 25%;
+        }
 
         &:hover {
           background-color: var(--dark-alt2);
