@@ -31,16 +31,8 @@
           @click="apiCall('delete')"
         />
       </div>
-      <div
-        class="textfield-buttons textfield-buttons-access"
-        @click="apiCall('block')"
-      >
-        <q-btn
-          class="btn btn-warning input"
-          color="warning"
-          label="Bloquear usuário"
-          type="submit"
-        />
+      <div class="textfield-buttons textfield-buttons-access" @click="apiCall('block')">
+        <q-btn class="btn btn-warning input" color="warning" label="Bloquear usuário" type="submit" />
       </div>
     </div>
   </div>
@@ -49,7 +41,7 @@
 <script lang="ts">
 import CustomAlerts from '@/domain/alerts/CustomAlerts';
 import TestService from '@/services/TestService';
-import { defineComponent } from 'vue-demi';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
   name: 'UserManagerPanel',
@@ -77,30 +69,18 @@ export default defineComponent({
         phrase2 = 'rebaixado';
       }
 
-      this.customAlert
-        .customAlert('', phrase1 + ' do usuário ?', true, '')
-        .then((result) => {
-          if (result.isConfirmed) {
-            this.customAlert
-              .inputConfirm('Insira a sua senha', 'Senha', 'Insira a senha...')
-              .then((result) => {
-                if (!result.dismiss) {
-                  //INSERT API CODE
-                  result.value == '123' /*INSERT API VALIDATION*/
-                    ? this.customAlert.toastAlert(
-                        'Usuário ' + phrase2,
-                        'success'
-                      )
-                    : this.customAlert.customAlert(
-                        'Senha incorreta',
-                        '',
-                        false,
-                        'error'
-                      );
-                }
-              });
-          }
-        });
+      this.customAlert.customAlert('', phrase1 + ' do usuário ?', true, '').then((result) => {
+        if (result.isConfirmed) {
+          this.customAlert.inputConfirm('Insira a sua senha', 'Senha', 'Insira a senha...').then((result) => {
+            if (!result.dismiss) {
+              //INSERT API CODE
+              result.value == '123' /*INSERT API VALIDATION*/
+                ? this.customAlert.toastAlert('Usuário ' + phrase2, 'success')
+                : this.customAlert.customAlert('Senha incorreta', '', false, 'error');
+            }
+          });
+        }
+      });
     },
     async randomNumber() {
       return TestService.randomNumber()
@@ -117,5 +97,5 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import '@/components/administrator/SCSS/AdministratorPanel.scss';
+@import '@/components/administrator/scss/AdministratorPanel.scss';
 </style>

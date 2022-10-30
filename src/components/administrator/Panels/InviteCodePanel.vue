@@ -23,36 +23,23 @@
         </div>
         <div
           class="panel-create-invite"
-          v-show="
-            InviteCodePanel.panel_invite_create &&
-            !InviteCodePanel.panel_invite_search
-          "
+          v-show="InviteCodePanel.panel_invite_create && !InviteCodePanel.panel_invite_search"
         >
           <div class="code-invite">
             <h4>KB-564545</h4>
           </div>
-          <q-btn
-            class="btn btn-success"
-            type="submit"
-            color="positive"
-            label="Criar convite"
-          />
+          <q-btn class="btn btn-success" type="submit" color="positive" label="Criar convite" />
         </div>
         <div
           class="panel-create-invite"
-          v-show="
-            !InviteCodePanel.panel_invite_create &&
-            InviteCodePanel.panel_invite_search
-          "
+          v-show="!InviteCodePanel.panel_invite_create && InviteCodePanel.panel_invite_search"
         >
           <!--v-for="invite in invites"
                             :key="invite.id"-->
           <div class="div-invites-search">
             <h4>KB-994949</h4>
             <div class="flex"></div>
-            <button class="btn btn-danger" @click="deleteInvite">
-              DELETAR
-            </button>
+            <button class="btn btn-danger" @click="deleteInvite">DELETAR</button>
           </div>
         </div>
       </div>
@@ -63,7 +50,7 @@
 <script lang="ts">
 import { mapActions, mapState } from 'pinia';
 import { useAdministratorStore } from '@/stores/AdministratorStore';
-import { defineComponent } from 'vue-demi';
+import { defineComponent } from 'vue';
 import CustomAlerts from '@/domain/alerts/CustomAlerts';
 export default defineComponent({
   name: 'InviteCodePanel',

@@ -7,10 +7,7 @@
     >
       Gerencimento usuários
     </button>
-    <button
-      :class="{ active: AdministratorSelectBar.panel_invite }"
-      @click="setPanelsVisibility(false, true, false)"
-    >
+    <button :class="{ active: AdministratorSelectBar.panel_invite }" @click="setPanelsVisibility(false, true, false)">
       Códigos de convite
     </button>
     <button
@@ -24,18 +21,18 @@
 </template>
 
 <script lang="ts">
-import { useAdministratorStore } from "@/stores/AdministratorStore";
-import { mapActions, mapState } from "pinia";
+import { useAdministratorStore } from '@/stores/AdministratorStore';
+import { mapActions, mapState } from 'pinia';
 export default {
   computed: {
-    ...mapState(useAdministratorStore, ["AdministratorSelectBar"]),
+    ...mapState(useAdministratorStore, ['AdministratorSelectBar']),
   },
   methods: {
-    ...mapActions(useAdministratorStore, ["setPanelsVisibility"]),
+    ...mapActions(useAdministratorStore, ['setPanelsVisibility']),
   },
 };
 </script>
 
 <style lang="scss" scoped>
-@import "@/components/administrator/scss/AdministratorPanel.scss";
+@import '@/components/administrator/scss/AdministratorPanel.scss';
 </style>

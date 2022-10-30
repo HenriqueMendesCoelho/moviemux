@@ -212,6 +212,7 @@ export default defineComponent({
       idPathParam: this.$route.params.id,
       notesVisible: true,
       isEditing: false,
+      alreadyEditing: false,
     };
   },
   computed: {
@@ -219,6 +220,7 @@ export default defineComponent({
     ...mapState(useMovieStore, ['selectedMovie', 'allMovies']),
   },
   mounted() {
+    this.resetStoreMovie();
     if (this.$route.name === 'add') {
       document.title = 'Cineminha - Cadastrar Filme';
     } else {
@@ -227,7 +229,11 @@ export default defineComponent({
   },
   updated() {
     if (this.$route.name === 'add') {
+      if (!this.alreadyEditing) this.resetStoreMovie();
+
+      this.alreadyEditing = true;
       this.idPathParam = '';
+
       document.title = 'Cineminha - Cadastrar Filme';
     } else {
       document.title = `Cineminha - Filme ${this.idPathParam}`;
