@@ -1,7 +1,5 @@
 FROM arm64v8/node:18-alpine as build-stage
 
-RUN npm install -g http-server
-
 WORKDIR /app
 
 COPY package*.json ./
