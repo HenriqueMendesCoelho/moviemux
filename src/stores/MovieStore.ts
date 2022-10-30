@@ -1,4 +1,4 @@
-import Movie from '@/domain/movie/Movie';
+import Movie from '../domain/movie/Movie';
 import { defineStore } from 'pinia';
 
 export const useMovieStore = defineStore('MovieStore', {
