@@ -6,20 +6,14 @@
           <h2 style="color: white">Meu Perfil</h2>
         </div>
       </div>
-      <div
-        class="panel-profile q-mt-xl"
-        :class="$q.platform.is.mobile ? 'col-12' : 'col-10'"
-      >
+      <div class="panel-profile q-mt-xl" :class="$q.platform.is.mobile ? 'col-12' : 'col-10'">
         <SelectPanelBar />
         <div
           class="PanelmyData row justify-center"
           :class="$q.platform.is.mobile ? 'q-pt-xs' : 'q-pt-xl'"
           v-if="ProfileSelectBar.PanelMyData"
         >
-          <div
-            class="q-mt-md"
-            :class="$q.platform.is.mobile ? 'col-12' : 'col-8'"
-          >
+          <div class="q-mt-md" :class="$q.platform.is.mobile ? 'col-12' : 'col-8'">
             <q-input
               standout="text-info"
               color="info"
@@ -30,10 +24,7 @@
               dark
             />
           </div>
-          <div
-            class="q-mt-md"
-            :class="$q.platform.is.mobile ? 'col-12' : 'col-8'"
-          >
+          <div class="q-mt-md" :class="$q.platform.is.mobile ? 'col-12' : 'col-8'">
             <q-input
               standout="text-info"
               color="info"
@@ -44,10 +35,7 @@
               dark
             />
           </div>
-          <div
-            class="q-mt-md"
-            :class="$q.platform.is.mobile ? 'col-12' : 'col-8'"
-          >
+          <div class="q-mt-md" :class="$q.platform.is.mobile ? 'col-12' : 'col-8'">
             <q-input
               standout="text-info"
               color="info"
@@ -59,10 +47,7 @@
               :readonly="true"
             />
           </div>
-          <div
-            class="q-mt-md q-mb-xl"
-            :class="$q.platform.is.mobile ? 'col-12' : 'col-8'"
-          >
+          <div class="q-mt-md q-mb-xl" :class="$q.platform.is.mobile ? 'col-12' : 'col-8'">
             <div class="row">
               <div :class="$q.platform.is.mobile ? 'col-12' : 'col-6 q-pr-sm'">
                 <q-input
@@ -76,11 +61,7 @@
                   :readonly="true"
                 />
               </div>
-              <div
-                :class="
-                  $q.platform.is.mobile ? 'col-12 q-mt-md' : 'col-6 q-pl-sm'
-                "
-              >
+              <div :class="$q.platform.is.mobile ? 'col-12 q-mt-md' : 'col-6 q-pl-sm'">
                 <q-input
                   square
                   filled
@@ -96,11 +77,8 @@
             </div>
           </div>
         </div>
-        <div
-          class="PanelSecurity row q-pt-xl justify-center"
-          v-if="ProfileSelectBar.PanelSecurity"
-        >
-          <div class="col-8 q-mt-md">
+        <div class="PanelSecurity row q-pt-xl justify-center" v-if="ProfileSelectBar.PanelSecurity">
+          <div class="q-mt-md" :class="$q.platform.is.mobile ? 'col-12' : 'col-8'">
             <q-input
               standout="text-info"
               color="info"
@@ -109,9 +87,10 @@
               label="Senha atual"
               style="background-color: #343c4c"
               dark
+              type="password"
             />
           </div>
-          <div class="col-8 q-mt-md">
+          <div class="q-mt-md" :class="$q.platform.is.mobile ? 'col-12' : 'col-8'">
             <q-input
               standout="text-info"
               color="info"
@@ -120,9 +99,10 @@
               label="Nova Senha"
               style="background-color: #343c4c"
               dark
+              type="password"
             />
           </div>
-          <div class="col-8 q-mt-md q-mb-xl">
+          <div class="q-mt-md q-mb-xl" :class="$q.platform.is.mobile ? 'col-12' : 'col-8'">
             <q-input
               standout="text-info"
               color="info"
@@ -131,6 +111,7 @@
               label="Confirme Nova Senha"
               style="background-color: #343c4c"
               dark
+              type="password"
             />
           </div>
         </div>
