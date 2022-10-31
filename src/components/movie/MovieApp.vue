@@ -69,6 +69,7 @@
               style="background-color: #343c4c"
               dark
               :readonly="!isRegisterOrEditing()"
+              mask="####"
             />
           </div>
           <div class="col-12 q-mt-xs">
@@ -198,6 +199,8 @@ import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLin
 import SeparatorDivLineSolidVertical from '../shared/separator/SeparatorDivLineSolidVertical.vue';
 import VideoEmbedded from './videoEmbedded/VideoEmbedded.vue';
 
+import CustomAlerts from '@/domain/alerts/CustomAlerts';
+
 export default defineComponent({
   name: 'MovieApp',
   components: {
@@ -206,6 +209,12 @@ export default defineComponent({
     SeparatorDivSolidLine,
     SeparatorDivLineSolidVertical,
     VideoEmbedded,
+  },
+  setup() {
+    const customAlert = new CustomAlerts();
+    return {
+      customAlert,
+    };
   },
   data() {
     return {
@@ -257,12 +266,18 @@ export default defineComponent({
       return;
     },
     cancel() {
-      this.isEditing = false;
-      if (this.idPathParam) {
-        //TODO: Chamar api para pegar dados novamente pelo id do path
-        return;
-      }
-      this.resetStoreMovie();
+      this.customAlert
+        .customAlert('Deseja mesmo cancelar?', 'Todos os dados preenchidos serão apagados', true, '')
+        .then((res) => {
+          if (res.isConfirmed) {
+            this.isEditing = false;
+            if (this.idPathParam) {
+              //TODO: Chamar api para pegar dados novamente pelo id do path
+              return;
+            }
+            this.resetStoreMovie();
+          }
+        });
     },
     cantEdit() {
       return false;
