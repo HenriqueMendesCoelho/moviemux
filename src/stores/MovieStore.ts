@@ -96,6 +96,11 @@ export const useMovieStore = defineStore('MovieStore', {
           titulo: 'Professor an...',
           url: 'https://i.pinimg.com/564x/e3/ba/87/e3ba8722d5cde587d5eaad9eb65628ca.jpg',
         },
+        {
+          id: 19,
+          titulo: 'Amogus',
+          url: 'https://gifs.eco.br/wp-content/uploads/2022/06/gifs-de-among-us-0.gif',
+        },
       ],
     };
   },

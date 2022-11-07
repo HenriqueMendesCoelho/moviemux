@@ -23,4 +23,5 @@ app.use(router);
 app.use(autoAnimatePlugin);
 app.use(VueSweetalert2);
 app.use(createPinia());
+
 app.mount('#app');
