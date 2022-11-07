@@ -1,7 +1,7 @@
 <template>
   <!--<body :style="{ background: backgroundColor }">-->
   <div class="main-app">
-    <side-bar v-show="$route.name != 'login'" />
+    <side-bar v-if="showSideBar()" />
     <router-view></router-view>
   </div>
 </template>
@@ -31,6 +31,9 @@ export default defineComponent({
   methods: {
     isDark() {
       return false;
+    },
+    showSideBar() {
+      return this.$route.meta.sideBar;
     },
   },
 });
