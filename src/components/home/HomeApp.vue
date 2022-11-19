@@ -1,13 +1,12 @@
 <template>
   <main>
-    <div class="div-lastfilms" :style="lastFilms_height">
+    <div class="div-lastfilms">
       <div class="div-title">
         <button>
           <span
-            class="material-icons"
-            :style="lastFilms_expanded"
+            :class="`material-icons ${!isVisibleLastFilms && 'last-films-toggle'}`"
             style="font-size: 25pt"
-            @click="toggleVisibleLastFilms()"
+            @click="isVisibleLastFilms = !isVisibleLastFilms"
           >
             expand_less
           </span>
@@ -15,19 +14,15 @@
         <h4>Últimos Filmes</h4>
         <div style="flex: 1 1 0"></div>
         <button>
-          <span class="material-icons" style="font-size: 18pt"> refresh </span>
+          <span class="material-icons rf_icon" style="font-size: 18pt"> refresh </span>
         </button>
       </div>
       <div class="container-lastmovies" v-auto-animate>
         <div class="div-cards-lastfilm" v-if="isVisibleLastFilms">
           <div v-for="(movie, index) in allMovies.slice(0, 8)" :key="index">
+            <ContextMenuHome :movieId="movie.id" />
             <router-link :to="{ name: 'movie', params: { id: movie.id } }">
-              <card-app
-                :title="movie.titulo"
-                :url="movie.url"
-                :key="movie.id"
-                :id="movie.id"
-              />
+              <CardApp :title="movie.titulo" :url="movie.url" :key="movie.id" :id="movie.id" />
             </router-link>
           </div>
         </div>
@@ -35,21 +30,15 @@
     </div>
     <div class="div-allfilms">
       <div class="search-input">
-        <input
-          type="text"
-          name="search"
-          placeholder="Digite..."
-          v-model="imageCheck"
-        />
-        <button class="search-btn" @click="checkImage(imageCheck)">
-          BUSCAR
-        </button>
+        <input type="text" name="search" placeholder="Digite..." v-model="imageCheck" />
+        <button class="search-btn" @click="checkImage(imageCheck)">BUSCAR</button>
         <button class="end-btn">
           <span class="material-icons" style="font-size: 18pt"> refresh </span>
         </button>
       </div>
       <div class="container-cards-films" v-auto-animate>
         <div class="cards-films" v-for="movie in allMovies" :key="movie.id">
+          <ContextMenuHome :deleteEnable="true" :movieId="movie.id" />
           <router-link :to="{ name: 'movie', params: { id: movie.id } }">
             <img :src="movie.url" :alt="movie.titulo" draggable="false" />
           </router-link>
@@ -62,17 +51,43 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapState } from 'pinia';
+import { useQuasar } from 'quasar';
+
 import CardApp from '../shared/card/CardApp.vue';
+import ContextMenuHome from './ContextMenuHome/ContextMenuHome.vue';
+
 import { useStyleStore } from '@/stores/StyleStore';
 import { useMovieStore } from '@/stores/MovieStore';
+
+import imageUtils from '@/utils/imageUtils';
 
 export default defineComponent({
   name: 'HomeApp',
   components: {
-    'card-app': CardApp,
+    CardApp,
+    ContextMenuHome,
   },
   setup() {
     document.title = 'Cineminha - Home';
+
+    const $q = useQuasar();
+
+    return {
+      showError(msg: string) {
+        $q.notify({
+          type: 'negative',
+          message: msg,
+          position: 'bottom',
+        });
+      },
+      showMessage(msg: string) {
+        $q.notify({
+          type: 'positive',
+          message: msg,
+          position: 'center',
+        });
+      },
+    };
   },
   data() {
     return {
@@ -87,39 +102,22 @@ export default defineComponent({
     ...mapState(useMovieStore, ['allMovies']),
   },
   methods: {
-    toggleVisibleLastFilms() {
-      this.isVisibleLastFilms = !this.isVisibleLastFilms;
-
-      if (this.lastFilms_expanded == 'transform: rotate(0deg);') {
-        this.lastFilms_expanded = 'transform: rotate(-180deg);';
-      } else {
-        this.lastFilms_expanded = 'transform: rotate(0deg);';
-      }
-    },
-    checkImage(url: string) {
+    async checkImage(url: string) {
       // https://i.imgur.com/fj6Bn7O.png >> Imagem com Altura de 75px e largura de 1200 px
-      const img = new Image();
-      img.addEventListener('load', function () {
-        let errors;
-        if (this.naturalHeight < 350)
-          errors = 'Altura da imagem deve ser no mínimo 350 pixels';
 
-        if (this.naturalWidth > 1100 && errors) {
-          errors = errors + ' e larguradeve ter no máximo 1100 pixels';
-        } else if (this.naturalWidth > 1100 && !errors) {
-          errors = 'A largura máxima da imgagem é de 1100 pixels';
-        } else if (this.naturalWidth < 550 && errors) {
-          errors = errors + ' e a largura mínima é de 550 pixels';
-        } else if (this.naturalWidth < 550 && !errors) {
-          errors = errors + 'Largura mínima da imagem é de 550 pixels';
+      try {
+        const img = await imageUtils.checkImageSizeByUrl(url);
+
+        if (!img.imgOk) {
+          this.showError(
+            'A imagem deve ter no mínimo 350px de altura e no max 1200px e de largura no mínimo 550px e no max 1100px.'
+          );
+          return;
         }
-
-        if (errors) alert(errors);
-      });
-      img.src = url;
-    },
-    marginSmartphone() {
-      return this.getMarginSideBar;
+        this.showMessage('Imagem OK!');
+      } catch {
+        this.showError('Insira uma url válida para a imagem');
+      }
     },
   },
 });
@@ -158,7 +156,7 @@ main {
     max-width: 100%;
 
     //height: 5vh;
-    height: 40vh;
+    height: 40%;
     max-height: 480px;
 
     color: var(--light-grey2);
@@ -168,6 +166,16 @@ main {
 
     @media (max-width: 768px) {
       display: none;
+    }
+
+    .last-films-toggle {
+      transform: rotate(-180deg);
+    }
+
+    .rf_icon {
+      &:hover {
+        transform: scale(1.2);
+      }
     }
 
     .div-title {
