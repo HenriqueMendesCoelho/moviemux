@@ -18,10 +18,12 @@ const router = createRouter({
 });
 
 const app = createApp(App);
-app.use(Quasar, quasarUserOptions);
+
 app.use(router);
+app.use(createPinia());
+
+app.use(Quasar, quasarUserOptions);
 app.use(autoAnimatePlugin);
 app.use(VueSweetalert2);
-app.use(createPinia());
 
 app.mount('#app');
