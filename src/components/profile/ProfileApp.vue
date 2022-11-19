@@ -36,16 +36,34 @@
             />
           </div>
           <div class="q-mt-md" :class="$q.platform.is.mobile ? 'col-12' : 'col-8'">
-            <q-input
-              standout="text-info"
-              color="info"
-              outlined
-              v-model="myData.accessProfile"
-              label="Perfil de Acesso"
-              style="background-color: #343c4c"
-              dark
-              :readonly="true"
-            />
+            <div class="row">
+              <div :class="$q.platform.is.mobile ? 'col-12' : 'col-6 q-pr-sm'">
+                <q-input
+                  square
+                  filled
+                  standout="text-info"
+                  color="info"
+                  v-model="myData.accessProfile"
+                  label="Perfil de Acesso"
+                  style="background-color: #343c4c"
+                  dark
+                  :readonly="true"
+                />
+              </div>
+              <div :class="$q.platform.is.mobile ? 'col-12' : 'col-6 q-pl-sm'">
+                <q-input
+                  square
+                  filled
+                  standout="text-info"
+                  color="info"
+                  :model-value="myData.dtCreated.toLocaleString('pt-br')"
+                  label="Data criação da conta"
+                  style="background-color: #343c4c"
+                  dark
+                  :readonly="true"
+                />
+              </div>
+            </div>
           </div>
           <div class="q-mt-md q-mb-xl" :class="$q.platform.is.mobile ? 'col-12' : 'col-8'">
             <div class="row">
@@ -146,10 +164,14 @@ export default defineComponent({
         name: '',
         email: '',
         accessProfile: 'ADMIN',
+        dtCreated: new Date(Date.now()),
         qtdMovies: 10,
         qtdNotes: 10,
       },
     };
+  },
+  mounted() {
+    console.log(this.myData.dtCreated);
   },
   computed: {
     ...mapState(useStyleStore, ['getMarginSideBar']),
