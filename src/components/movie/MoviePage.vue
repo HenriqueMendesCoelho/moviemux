@@ -1,5 +1,5 @@
 <template>
-  <main>
+  <ContainerMain>
     <div :class="$q.platform.is.mobile ? 'column q-gutter-y-md' : 'row'" v-if="showTopButtons()">
       <div class="q-ml-md">
         <q-btn style="background-color: #343c4c" text-color="white" round icon="refresh" />
@@ -183,7 +183,7 @@
         </div>
       </div>
     </div>
-  </main>
+  </ContainerMain>
 </template>
 
 <script lang="ts">
@@ -193,6 +193,7 @@ import { mapActions, mapState } from 'pinia';
 import { useStyleStore } from '@/stores/StyleStore';
 import { useMovieStore } from '@/stores/MovieStore';
 
+import ContainerMain from '../shared/ContainerMain/ContainerMain.vue';
 import TableNoHeader from '@/components/shared/tables/TableStylized.vue';
 import SeparatorDiv from '@/components/shared/separator/SeparatorDiv.vue';
 import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';
@@ -204,6 +205,7 @@ import CustomAlerts from '@/domain/alerts/CustomAlerts';
 export default defineComponent({
   name: 'MovieApp',
   components: {
+    ContainerMain,
     SeparatorDiv,
     TableNoHeader,
     SeparatorDivSolidLine,
@@ -287,113 +289,92 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-main {
+.container-main {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  height: auto;
 
-  margin-top: 1.5rem;
-  margin-left: v-bind(getMarginSideBar);
-
-  max-width: 100%;
-  min-height: calc(100vh - 1.5rem);
-
-  transition: 0.2s ease-out;
-
-  border-top-left-radius: 10px;
+  color: white;
   background: var(--grey-dark2);
-  box-shadow: 0 10px 30px var(--shadow);
 
-  @media (max-width: 768px) {
-    margin-left: calc(4rem + 32px);
-  }
-
-  .container-main {
+  .container-infos-img {
     display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
+    height: 60vh;
+    overflow: hidden;
+    padding: 15px 15px;
 
-    color: white;
-    background: var(--grey-dark2);
-
-    .container-infos-img {
-      display: flex;
-      height: 60vh;
-      overflow: hidden;
-      padding: 15px 15px;
-
-      img {
-        border-radius: 20px;
-        height: 100%;
-
-        @media (max-width: 768px) {
-          height: auto;
-        }
-      }
+    img {
+      border-radius: 20px;
+      height: 100%;
 
       @media (max-width: 768px) {
-        flex-direction: column;
         height: auto;
+      }
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      height: auto;
+      padding: 0px;
+    }
+
+    .paragrafy-title-info {
+      font-size: 50pt;
+
+      @media (max-width: 768px) {
+        font-size: x-large;
+      }
+    }
+
+    .movie-infos-inputs {
+      display: flex;
+      flex-wrap: wrap;
+      text-align: flex-start;
+      justify-content: flex-start;
+      width: 100%;
+      height: 100%;
+      margin-left: 10px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+  }
+  .container-notes-trailers {
+    //border: solid 5px yellow;
+    height: auto;
+
+    .movie-notes {
+      @media (max-width: 768px) {
         padding: 0px;
       }
 
-      .paragrafy-title-info {
-        font-size: 50pt;
+      .div-textarea {
+        overflow: hidden;
+        max-height: 200px;
 
-        @media (max-width: 768px) {
-          font-size: x-large;
-        }
-      }
+        transition: 0.2s ease-in-out;
 
-      .movie-infos-inputs {
-        display: flex;
-        flex-wrap: wrap;
-        text-align: flex-start;
-        justify-content: flex-start;
-        width: 100%;
-        height: 100%;
-        margin-left: 10px;
-        overflow-y: auto;
-        padding-right: 10px;
-      }
-    }
-    .container-notes-trailers {
-      //border: solid 5px yellow;
-      height: auto;
-
-      .movie-notes {
         @media (max-width: 768px) {
           padding: 0px;
-        }
-
-        .div-textarea {
-          overflow: hidden;
-          max-height: 200px;
-
-          transition: 0.2s ease-in-out;
-
-          @media (max-width: 768px) {
-            padding: 0px;
-            min-width: 100%;
-          }
-        }
-
-        .mobile-movie-notes {
-          margin-top: 20px;
-
-          @media (max-width: 768px) {
-            width: 100%;
-            justify-content: center;
-            align-content: center;
-          }
+          min-width: 100%;
         }
       }
 
-      .movie-trailers {
+      .mobile-movie-notes {
+        margin-top: 20px;
+
         @media (max-width: 768px) {
-          max-width: 100%;
-          overflow: hidden;
+          width: 100%;
+          justify-content: center;
+          align-content: center;
         }
+      }
+    }
+
+    .movie-trailers {
+      @media (max-width: 768px) {
+        max-width: 100%;
+        overflow: hidden;
       }
     }
   }

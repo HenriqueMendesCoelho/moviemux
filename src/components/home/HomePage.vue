@@ -1,5 +1,5 @@
 <template>
-  <main>
+  <ContainerMain>
     <div class="div-lastfilms">
       <div class="div-title">
         <button>
@@ -45,7 +45,7 @@
         </div>
       </div>
     </div>
-  </main>
+  </ContainerMain>
 </template>
 
 <script lang="ts">
@@ -53,6 +53,7 @@ import { defineComponent } from 'vue';
 import { mapState } from 'pinia';
 import { useQuasar } from 'quasar';
 
+import ContainerMain from '../shared/ContainerMain/ContainerMain.vue';
 import CardApp from '../shared/card/CardApp.vue';
 import ContextMenuHome from './ContextMenuHome/ContextMenuHome.vue';
 
@@ -64,6 +65,7 @@ import imageUtils from '@/utils/imageUtils';
 export default defineComponent({
   name: 'HomeApp',
   components: {
+    ContainerMain,
     CardApp,
     ContextMenuHome,
   },
@@ -124,232 +126,209 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-main {
+.div-lastfilms {
   display: flex;
   flex-direction: column;
-  margin-top: 1.5rem;
-
-  margin-left: v-bind(getMarginSideBar);
-
-  max-width: 100%;
-  min-height: 100vh;
-
+  padding: 1rem;
+  overflow: hidden;
   transition: 0.2s ease-out;
 
-  overflow: hidden;
+  max-width: 100%;
 
-  border-top-left-radius: 10px;
-  background: var(--grey-dark2);
-  box-shadow: 0 10px 30px var(--shadow);
+  //height: 5vh;
+  height: 40%;
+  max-height: 480px;
+
+  color: var(--light-grey2);
+  border-radius: 10px;
+  background-color: var(--grey-mid);
+  box-shadow: 0 5px 30px var(--shadow);
 
   @media (max-width: 768px) {
-    margin-left: calc(4rem + 32px);
+    display: none;
   }
 
-  .div-lastfilms {
-    display: flex;
-    flex-direction: column;
-    padding: 1rem;
-    overflow: hidden;
-    transition: 0.2s ease-out;
+  .last-films-toggle {
+    transform: rotate(-180deg);
+  }
 
-    max-width: 100%;
-
-    //height: 5vh;
-    height: 40%;
-    max-height: 480px;
-
-    color: var(--light-grey2);
-    border-radius: 10px;
-    background-color: var(--grey-mid);
-    box-shadow: 0 5px 30px var(--shadow);
-
-    @media (max-width: 768px) {
-      display: none;
-    }
-
-    .last-films-toggle {
-      transform: rotate(-180deg);
-    }
-
-    .rf_icon {
-      &:hover {
-        transform: scale(1.2);
-      }
-    }
-
-    .div-title {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-
-      max-width: 100%;
-
-      //transition: 0.2s ease-out;
-
-      border-radius: 10px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-
-      .material-icons {
-        font-size: 2rem;
-        color: var(--light-grey2);
-        margin-right: 15px;
-        margin-top: 0px;
-        transition: 0.2s ease-out;
-
-        cursor: pointer;
-
-        &:hover {
-          color: var(--primary);
-        }
-      }
-    }
-
-    .container-lastmovies {
-      height: 100%;
-      overflow: hidden;
-
-      .div-cards-lastfilm {
-        display: flex;
-        justify-content: center;
-        height: 100%;
-
-        a {
-          text-decoration: none;
-          color: inherit;
-        }
-
-        @media (max-width: 768px) {
-          flex-direction: column;
-        }
-      }
+  .rf_icon {
+    &:hover {
+      transform: scale(1.2);
     }
   }
-  .div-allfilms {
-    //border: 5px solid pink;
 
-    margin-top: 20px;
-    max-width: 100%;
-
-    flex-direction: column;
+  .div-title {
     display: flex;
+    justify-content: flex-start;
     align-items: center;
-    justify-content: center;
 
-    @media (max-width: 768px) {
-      min-width: 100%;
+    max-width: 100%;
+
+    //transition: 0.2s ease-out;
+
+    border-radius: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+
+    .material-icons {
+      font-size: 2rem;
+      color: var(--light-grey2);
+      margin-right: 15px;
+      margin-top: 0px;
+      transition: 0.2s ease-out;
+
+      cursor: pointer;
+
+      &:hover {
+        color: var(--primary);
+      }
+    }
+  }
+
+  .container-lastmovies {
+    height: 100%;
+    overflow: hidden;
+
+    .div-cards-lastfilm {
+      display: flex;
+      justify-content: center;
+      height: 100%;
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+      }
+    }
+  }
+}
+.div-allfilms {
+  //border: 5px solid pink;
+
+  margin-top: 20px;
+  max-width: 100%;
+
+  flex-direction: column;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: 768px) {
+    min-width: 100%;
+  }
+
+  .search-input {
+    max-width: 100%;
+    //border: 5px solid blue;
+    height: 5vh;
+    width: 100%;
+    margin-bottom: 20px;
+
+    font-size: 15pt;
+
+    display: flex;
+    overflow: hidden;
+    //border: 5px solid green;
+    input {
+      max-width: 100%;
+      padding: 15px;
+      color: var(--light-grey2);
+      width: 85%;
+      height: 100%;
+      border-top-left-radius: 15px;
+      border-end-start-radius: 15px;
+
+      box-shadow: 0 5px 30px var(--shadow);
+
+      box-sizing: border-box;
+      border: none;
+      outline: none;
+
+      background-color: var(--grey-mid);
+
+      @media (max-width: 768px) {
+        min-width: 60%;
+        max-width: 60%;
+      }
+
+      input::placeholder {
+        max-width: 100%;
+        color: var(--light-grey2);
+
+        margin-left: 55px;
+      }
     }
 
-    .search-input {
-      max-width: 100%;
-      //border: 5px solid blue;
-      height: 5vh;
-      width: 100%;
-      margin-bottom: 20px;
+    .end-btn {
+      border-end-end-radius: 15px;
+      border-start-end-radius: 15px;
 
-      font-size: 15pt;
+      width: 5%;
 
-      display: flex;
-      overflow: hidden;
-      //border: 5px solid green;
-      input {
+      @media (max-width: 768px) {
+        min-width: 15%;
+        max-width: 15%;
+      }
+    }
+
+    .search-btn {
+      width: 15%;
+    }
+
+    button {
+      background-color: var(--dark-alt);
+      width: 15%;
+
+      color: var(--light-grey);
+      font-weight: 500;
+
+      @media (max-width: 768px) {
+        min-width: 25%;
+        max-width: 25%;
+      }
+
+      &:hover {
+        background-color: var(--dark-alt2);
+        border: solid 3px var(--dark-alt);
+
+        color: var(--primary);
+      }
+    }
+  }
+
+  .container-cards-films {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    //border: 5px solid green;
+
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    max-width: 100%;
+
+    .cards-films {
+      //border: 5px solid yellow;
+
+      img {
         max-width: 100%;
-        padding: 15px;
-        color: var(--light-grey2);
-        width: 85%;
-        height: 100%;
-        border-top-left-radius: 15px;
-        border-end-start-radius: 15px;
+        object-fit: cover;
+        max-height: 350px;
+
+        border-radius: 15px;
+
+        transition: 0.2s ease-out;
 
         box-shadow: 0 5px 30px var(--shadow);
 
-        box-sizing: border-box;
-        border: none;
-        outline: none;
-
-        background-color: var(--grey-mid);
-
-        @media (max-width: 768px) {
-          min-width: 60%;
-          max-width: 60%;
-        }
-
-        input::placeholder {
-          max-width: 100%;
-          color: var(--light-grey2);
-
-          margin-left: 55px;
-        }
-      }
-
-      .end-btn {
-        border-end-end-radius: 15px;
-        border-start-end-radius: 15px;
-
-        width: 5%;
-
-        @media (max-width: 768px) {
-          min-width: 15%;
-          max-width: 15%;
-        }
-      }
-
-      .search-btn {
-        width: 15%;
-      }
-
-      button {
-        background-color: var(--dark-alt);
-        width: 15%;
-
-        color: var(--light-grey);
-        font-weight: 500;
-
-        @media (max-width: 768px) {
-          min-width: 25%;
-          max-width: 25%;
-        }
-
         &:hover {
-          background-color: var(--dark-alt2);
-          border: solid 3px var(--dark-alt);
-
-          color: var(--primary);
-        }
-      }
-    }
-
-    .container-cards-films {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-      //border: 5px solid green;
-
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-
-      max-width: 100%;
-
-      .cards-films {
-        //border: 5px solid yellow;
-
-        img {
-          max-width: 100%;
-          object-fit: cover;
-          max-height: 350px;
-
-          border-radius: 15px;
+          transform: scale(1.1);
 
           transition: 0.2s ease-out;
-
-          box-shadow: 0 5px 30px var(--shadow);
-
-          &:hover {
-            transform: scale(1.1);
-
-            transition: 0.2s ease-out;
-          }
         }
       }
     }

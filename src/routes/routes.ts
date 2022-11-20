@@ -1,6 +1,6 @@
 import LoginInit from '@/components/login/LoginInit.vue';
-import HomeApp from '@/components/home/HomeApp.vue';
-import MovieApp from '@/components/movie/MovieApp.vue';
+import HomeApp from '@/components/home/HomePage.vue';
+import MovieApp from '@/components/movie/MoviePage.vue';
 
 export const routes = [
   { path: '/', name: 'login', component: LoginInit, title: 'Login', meta: { sideBar: false } },
