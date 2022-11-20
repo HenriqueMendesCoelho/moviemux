@@ -1,19 +1,19 @@
 <template>
-  <main>
+  <ContainerMain>
     <div class="row q-mt-xl justify-center">
       <div class="row col-10 justify-center">
         <div>
           <h2 style="color: white">Meu Perfil</h2>
         </div>
       </div>
-      <div class="panel-profile q-mt-xl" :class="$q.platform.is.mobile ? 'col-12' : 'col-10'">
+      <div class="panel-profile q-mt-xl" :class="isMobile ? 'col-12' : 'col-10'">
         <SelectPanelBar />
         <div
           class="PanelmyData row justify-center"
-          :class="$q.platform.is.mobile ? 'q-pt-xs' : 'q-pt-xl'"
+          :class="isMobile ? 'q-pt-xs' : 'q-pt-xl'"
           v-if="ProfileSelectBar.PanelMyData"
         >
-          <div class="q-mt-md" :class="$q.platform.is.mobile ? 'col-12' : 'col-8'">
+          <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
             <q-input
               standout="text-info"
               color="info"
@@ -24,7 +24,7 @@
               dark
             />
           </div>
-          <div class="q-mt-md" :class="$q.platform.is.mobile ? 'col-12' : 'col-8'">
+          <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
             <q-input
               standout="text-info"
               color="info"
@@ -35,9 +35,9 @@
               dark
             />
           </div>
-          <div class="q-mt-md" :class="$q.platform.is.mobile ? 'col-12' : 'col-8'">
+          <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
             <div class="row">
-              <div :class="$q.platform.is.mobile ? 'col-12' : 'col-6 q-pr-sm'">
+              <div :class="isMobile ? 'col-12' : 'col-6 q-pr-sm'">
                 <q-input
                   square
                   filled
@@ -50,7 +50,7 @@
                   :readonly="true"
                 />
               </div>
-              <div :class="$q.platform.is.mobile ? 'col-12' : 'col-6 q-pl-sm'">
+              <div :class="isMobile ? 'col-12' : 'col-6 q-pl-sm'">
                 <q-input
                   square
                   filled
@@ -65,9 +65,9 @@
               </div>
             </div>
           </div>
-          <div class="q-mt-md q-mb-xl" :class="$q.platform.is.mobile ? 'col-12' : 'col-8'">
+          <div class="q-mt-md q-mb-xl" :class="isMobile ? 'col-12' : 'col-8'">
             <div class="row">
-              <div :class="$q.platform.is.mobile ? 'col-12' : 'col-6 q-pr-sm'">
+              <div :class="isMobile ? 'col-12' : 'col-6 q-pr-sm'">
                 <q-input
                   square
                   filled
@@ -79,7 +79,7 @@
                   :readonly="true"
                 />
               </div>
-              <div :class="$q.platform.is.mobile ? 'col-12 q-mt-md' : 'col-6 q-pl-sm'">
+              <div :class="isMobile ? 'col-12 q-mt-md' : 'col-6 q-pl-sm'">
                 <q-input
                   square
                   filled
@@ -96,7 +96,7 @@
           </div>
         </div>
         <div class="PanelSecurity row q-pt-xl justify-center" v-if="ProfileSelectBar.PanelSecurity">
-          <div class="q-mt-md" :class="$q.platform.is.mobile ? 'col-12' : 'col-8'">
+          <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
             <q-input
               standout="text-info"
               color="info"
@@ -108,7 +108,7 @@
               type="password"
             />
           </div>
-          <div class="q-mt-md" :class="$q.platform.is.mobile ? 'col-12' : 'col-8'">
+          <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
             <q-input
               standout="text-info"
               color="info"
@@ -120,7 +120,7 @@
               type="password"
             />
           </div>
-          <div class="q-mt-md q-mb-xl" :class="$q.platform.is.mobile ? 'col-12' : 'col-8'">
+          <div class="q-mt-md q-mb-xl" :class="isMobile ? 'col-12' : 'col-8'">
             <q-input
               standout="text-info"
               color="info"
@@ -135,7 +135,7 @@
         </div>
       </div>
     </div>
-  </main>
+  </ContainerMain>
 </template>
 
 <script lang="ts">
@@ -145,6 +145,7 @@ import { mapState } from 'pinia';
 import { useStyleStore } from '@/stores/StyleStore';
 import { useProfileStore } from '@/stores/ProfileStore';
 
+import ContainerMain from '../shared/ContainerMain/ContainerMain.vue';
 import SelectPanelBar from '@/components/profile/selectPanelBar/SelectPanelProfileBar.vue';
 
 //:class="{ active: AdministratorSelectBar.panel_access }"
@@ -152,6 +153,7 @@ import SelectPanelBar from '@/components/profile/selectPanelBar/SelectPanelProfi
 export default defineComponent({
   name: 'ProfileApp',
   components: {
+    ContainerMain,
     SelectPanelBar,
   },
   setup() {
@@ -176,38 +178,19 @@ export default defineComponent({
   computed: {
     ...mapState(useStyleStore, ['getMarginSideBar']),
     ...mapState(useProfileStore, ['ProfileSelectBar']),
+    isMobile() {
+      return this.$q.platform.is.mobile;
+    },
   },
 });
 </script>
 
 <style lang="scss">
-main {
-  display: flex;
-  flex-direction: column;
-  margin-top: 1.5rem;
+.panel-profile {
+  background: var(--grey-mid);
+  height: auto;
+  border-radius: 15px;
 
-  margin-left: v-bind(getMarginSideBar);
-  max-width: 100%;
-  min-height: 100vh;
-
-  transition: 0.2s ease-out;
-
-  overflow: hidden;
-
-  border-top-left-radius: 10px;
-  background: var(--grey-dark2);
-  box-shadow: 0 10px 30px var(--shadow);
-
-  @media (max-width: 768px) {
-    margin-left: calc(4rem + 32px);
-  }
-
-  .panel-profile {
-    background: var(--grey-mid);
-    height: auto;
-    border-radius: 15px;
-
-    box-shadow: 0 5px 10px var(--shadow);
-  }
+  box-shadow: 0 5px 10px var(--shadow);
 }
 </style>
