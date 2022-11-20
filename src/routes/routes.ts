@@ -8,7 +8,7 @@ export const routes = [
   {
     path: '/adm',
     name: 'adm',
-    component: () => import('@/components/administrator/AdministratorApp.vue'),
+    component: () => import('@/components/administrator/AdministratorPage.vue'),
     title: 'Administrator',
     meta: { sideBar: true },
   },
@@ -17,7 +17,7 @@ export const routes = [
   {
     path: '/profile',
     name: 'profile',
-    component: () => import('@/components/profile/ProfileApp.vue'),
+    component: () => import('@/components/profile/ProfilePage.vue'),
     title: 'Profile',
     meta: { sideBar: true },
   },
