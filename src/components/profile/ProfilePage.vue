@@ -178,7 +178,7 @@ export default defineComponent({
   computed: {
     ...mapState(useStyleStore, ['getMarginSideBar']),
     ...mapState(useProfileStore, ['ProfileSelectBar']),
-    isMobile() {
+    isMobile(): boolean | undefined {
       return this.$q.platform.is.mobile;
     },
   },

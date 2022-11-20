@@ -54,7 +54,7 @@ export default defineComponent({
   computed: {
     ...mapState(useStyleStore, ['getMarginSideBar']),
 
-    isMobile() {
+    isMobile(): boolean | undefined {
       return this.$q.platform.is.mobile;
     },
   },

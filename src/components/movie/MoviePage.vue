@@ -1,6 +1,6 @@
 <template>
   <ContainerMain>
-    <div :class="$q.platform.is.mobile ? 'column q-gutter-y-md' : 'row'" v-if="showTopButtons()">
+    <div :class="isMobile ? 'column q-gutter-y-md' : 'row'" v-if="showTopButtons()">
       <div class="q-ml-md">
         <q-btn style="background-color: #343c4c" text-color="white" round icon="refresh" />
       </div>
@@ -148,20 +148,18 @@
           <SeparatorDivSolidLine />
           <div class="column items-center" v-if="selectedMovie.trailerBr">
             <h6>Trailer Dublado</h6>
-            <VideoEmbedded :width="$q.platform.is.mobile ? '100%' : '560px'" :url="selectedMovie.trailerBr" />
+            <VideoEmbedded :width="isMobile ? '100%' : '560px'" :url="selectedMovie.trailerBr" />
           </div>
-          <SeparatorDivLineSolidVertical
-            v-if="!$q.platform.is.mobile && selectedMovie.trailerBr && selectedMovie.trailerEn"
-          />
+          <SeparatorDivLineSolidVertical v-if="!isMobile && selectedMovie.trailerBr && selectedMovie.trailerEn" />
           <div class="column items-center" v-if="selectedMovie.trailerEn">
             <h6>Trailer Legendado</h6>
-            <VideoEmbedded :width="$q.platform.is.mobile ? '100%' : '560px'" :url="selectedMovie.trailerEn" />
+            <VideoEmbedded :width="isMobile ? '100%' : '560px'" :url="selectedMovie.trailerEn" />
           </div>
         </div>
       </div>
       <SeparatorDivSolidLine />
       <div class="row justify-center" v-if="isRegisterOrEditing()">
-        <div :class="$q.platform.is.mobile ? 'col-4' : 'col-2'">
+        <div :class="isMobile ? 'col-4' : 'col-2'">
           <q-btn
             style="width: 100%"
             color="positive"
@@ -171,7 +169,7 @@
             @click="isEditing = !isEditing"
           />
         </div>
-        <div :class="$q.platform.is.mobile ? 'col-4 q-ml-md' : 'col-2 q-ml-md'">
+        <div :class="isMobile ? 'col-4 q-ml-md' : 'col-2 q-ml-md'">
           <q-btn
             style="width: 100%"
             color="red"
@@ -188,7 +186,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-
 import { mapActions, mapState } from 'pinia';
 import { useStyleStore } from '@/stores/StyleStore';
 import { useMovieStore } from '@/stores/MovieStore';
@@ -201,9 +198,10 @@ import SeparatorDivLineSolidVertical from '../shared/separator/SeparatorDivLineS
 import VideoEmbedded from './videoEmbedded/VideoEmbedded.vue';
 
 import CustomAlerts from '@/domain/alerts/CustomAlerts';
+import { RouteRecordName } from 'vue-router';
 
 export default defineComponent({
-  name: 'MovieApp',
+  name: 'MoviePage',
   components: {
     ContainerMain,
     SeparatorDiv,
@@ -229,17 +227,26 @@ export default defineComponent({
   computed: {
     ...mapState(useStyleStore, ['getMarginSideBar']),
     ...mapState(useMovieStore, ['selectedMovie', 'allMovies']),
+    routeName(): RouteRecordName | null | undefined {
+      return this.$route.name;
+    },
+    routeIDPath(): string | string[] {
+      return this.$route.params.id;
+    },
+    isMobile(): boolean | undefined {
+      return this.$q.platform.is.mobile;
+    },
   },
   mounted() {
     this.resetStoreMovie();
-    if (this.$route.name === 'add') {
+    if (this.routeName === 'add') {
       document.title = 'Cineminha - Cadastrar Filme';
     } else {
-      document.title = `Cineminha - Filme ${this.idPathParam}`;
+      document.title = `Cineminha - Filme ${this.routeIDPath}`;
     }
   },
   updated() {
-    if (this.$route.name === 'add') {
+    if (this.routeName === 'add') {
       if (!this.alreadyEditing) this.resetStoreMovie();
 
       this.alreadyEditing = true;
@@ -247,22 +254,22 @@ export default defineComponent({
 
       document.title = 'Cineminha - Cadastrar Filme';
     } else {
-      document.title = `Cineminha - Filme ${this.idPathParam}`;
+      document.title = `Cineminha - Filme ${this.routeIDPath}`;
     }
   },
   methods: {
     ...mapActions(useMovieStore, ['resetStoreMovie']),
     isRegisterOrEditing() {
-      if (!this.idPathParam) {
+      if (!this.routeIDPath) {
         return true;
       }
-      if (this.idPathParam && this.isEditing) {
+      if (this.routeIDPath && this.isEditing) {
         return true;
       }
       return false;
     },
     showTopButtons() {
-      return this.$route.name === 'movie';
+      return this.routeName === 'movie';
     },
     save() {
       return;
@@ -283,6 +290,9 @@ export default defineComponent({
     },
     cantEdit() {
       return false;
+    },
+    copyMovieURL(url?: string) {
+      if (url) navigator.clipboard.writeText(url);
     },
   },
 });
