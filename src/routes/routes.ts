@@ -21,11 +21,10 @@ export const routes = [
     title: 'Profile',
     meta: { sideBar: true },
   },
-  //{ path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
-    component: () => import('@/components/NotFound/NotFound.vue'),
+    component: () => import('@/components/notFound/NotFound.vue'),
     meta: { sideBar: false },
   },
 ];
