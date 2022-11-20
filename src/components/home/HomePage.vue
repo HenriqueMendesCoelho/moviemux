@@ -53,9 +53,9 @@ import { defineComponent } from 'vue';
 import { mapState } from 'pinia';
 import { useQuasar } from 'quasar';
 
-import ContainerMain from '../shared/ContainerMain/ContainerMain.vue';
+import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import CardApp from '../shared/card/CardApp.vue';
-import ContextMenuHome from './ContextMenuHome/ContextMenuHome.vue';
+import ContextMenuHome from './contextMenuHome/ContextMenuHome.vue';
 
 import { useStyleStore } from '@/stores/StyleStore';
 import { useMovieStore } from '@/stores/MovieStore';

@@ -190,7 +190,7 @@ import { mapActions, mapState } from 'pinia';
 import { useStyleStore } from '@/stores/StyleStore';
 import { useMovieStore } from '@/stores/MovieStore';
 
-import ContainerMain from '../shared/ContainerMain/ContainerMain.vue';
+import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import TableNoHeader from '@/components/shared/tables/TableStylized.vue';
 import SeparatorDiv from '@/components/shared/separator/SeparatorDiv.vue';
 import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';

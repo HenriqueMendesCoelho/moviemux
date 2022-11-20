@@ -20,7 +20,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 
-import ContextMenu from '@/components/shared/ContextMenu/ContextMenu.vue';
+import ContextMenu from '@/components/shared/contextMenu/ContextMenu.vue';
 
 export default defineComponent({
   name: 'ContextMenuHome',

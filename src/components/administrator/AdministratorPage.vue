@@ -33,7 +33,7 @@
 import { defineComponent } from 'vue';
 import { mapState } from 'pinia';
 
-import ContainerMain from '../shared/ContainerMain/ContainerMain.vue';
+import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import UserTabAdministrator from './userTab/UserTabAdministrator.vue';
 import ListUserTabAdministrator from './listUserTab/ListUserTabAdministrator.vue';
 import InviteUserTabAdmiminstrator from './inviteTab/InviteUserTabAdministrator.vue';

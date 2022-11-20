@@ -145,7 +145,7 @@ import { mapState } from 'pinia';
 import { useStyleStore } from '@/stores/StyleStore';
 import { useProfileStore } from '@/stores/ProfileStore';
 
-import ContainerMain from '../shared/ContainerMain/ContainerMain.vue';
+import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import SelectPanelBar from '@/components/profile/selectPanelBar/SelectPanelProfileBar.vue';
 
 //:class="{ active: AdministratorSelectBar.panel_access }"
