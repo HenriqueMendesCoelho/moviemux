@@ -62,7 +62,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-::v-deep .q-tab__label {
+:deep(.q-tab__label) {
   font-size: 12pt;
 }
 
