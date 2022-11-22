@@ -8,93 +8,10 @@
       </div>
       <div class="panel-profile q-mt-xl" :class="isMobile ? 'col-12' : 'col-10'">
         <SelectPanelBar />
-        <div
-          class="PanelmyData row justify-center"
-          :class="isMobile ? 'q-pt-xs' : 'q-pt-xl'"
-          v-if="ProfileSelectBar.PanelMyData"
-        >
-          <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
-            <q-input
-              standout="text-info"
-              color="info"
-              outlined
-              v-model="myData.name"
-              label="Nome"
-              style="background-color: #343c4c"
-              dark
-            />
-          </div>
-          <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
-            <q-input
-              standout="text-info"
-              color="info"
-              outlined
-              v-model="myData.email"
-              label="Email"
-              style="background-color: #343c4c"
-              dark
-            />
-          </div>
-          <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
-            <div class="row">
-              <div :class="isMobile ? 'col-12' : 'col-6 q-pr-sm'">
-                <q-input
-                  square
-                  filled
-                  standout="text-info"
-                  color="info"
-                  v-model="myData.accessProfile"
-                  label="Perfil de Acesso"
-                  style="background-color: #343c4c"
-                  dark
-                  :readonly="true"
-                />
-              </div>
-              <div :class="isMobile ? 'col-12' : 'col-6 q-pl-sm'">
-                <q-input
-                  square
-                  filled
-                  standout="text-info"
-                  color="info"
-                  :model-value="myData.dtCreated.toLocaleString('pt-br')"
-                  label="Data criação da conta"
-                  style="background-color: #343c4c"
-                  dark
-                  :readonly="true"
-                />
-              </div>
-            </div>
-          </div>
-          <div class="q-mt-md q-mb-xl" :class="isMobile ? 'col-12' : 'col-8'">
-            <div class="row">
-              <div :class="isMobile ? 'col-12' : 'col-6 q-pr-sm'">
-                <q-input
-                  square
-                  filled
-                  standout="text-info"
-                  color="info"
-                  v-model="myData.qtdMovies"
-                  label="Quantidade de filmes cadastrados"
-                  dark
-                  :readonly="true"
-                />
-              </div>
-              <div :class="isMobile ? 'col-12 q-mt-md' : 'col-6 q-pl-sm'">
-                <q-input
-                  square
-                  filled
-                  standout="text-info"
-                  color="info"
-                  v-model="myData.qtdNotes"
-                  label="Quantidade de notas cadastrados"
-                  dark
-                  :readonly="true"
-                  draggable="false"
-                />
-              </div>
-            </div>
-          </div>
+        <div :class="isMobile ? 'q-pt-xs' : 'q-pt-xl'">
+          <PanelUserInfo v-if="ProfileSelectBar.PanelMyData" v-model="myData" />
         </div>
+
         <div class="PanelSecurity row q-pt-xl justify-center" v-if="ProfileSelectBar.PanelSecurity">
           <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
             <q-input
@@ -147,6 +64,7 @@ import { useProfileStore } from '@/stores/ProfileStore';
 
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import SelectPanelBar from '@/components/profile/selectPanelBar/SelectPanelProfileBar.vue';
+import PanelUserInfo from '../shared/panelUserInfo/PanelUserInfo.vue';
 
 //:class="{ active: AdministratorSelectBar.panel_access }"
 
@@ -155,6 +73,7 @@ export default defineComponent({
   components: {
     ContainerMain,
     SelectPanelBar,
+    PanelUserInfo,
   },
   setup() {
     document.title = 'Cineminha - Meu Perfil';
@@ -171,9 +90,6 @@ export default defineComponent({
         qtdNotes: 10,
       },
     };
-  },
-  mounted() {
-    console.log(this.myData.dtCreated);
   },
   computed: {
     ...mapState(useStyleStore, ['getMarginSideBar']),
