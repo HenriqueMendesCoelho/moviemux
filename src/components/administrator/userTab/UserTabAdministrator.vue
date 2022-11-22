@@ -22,7 +22,7 @@
 import { defineComponent } from 'vue';
 
 import PanelUserInfo from '@/components/shared/panelUserInfo/PanelUserInfo.vue';
-import InputText from '@/components/shared/InputText/InputText.vue';
+import InputText from '@/components/shared/inputText/InputText.vue';
 
 export default defineComponent({
   name: 'UserTabAdministrator',
