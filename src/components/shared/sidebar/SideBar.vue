@@ -1,15 +1,10 @@
 <template>
   <aside :class="`${is_expanded && 'is-expanded'}`">
-    <div class="logo">
+    <div class="row logo">
       <router-link to="/home">
-        <img
-          src="../../../assets/logo-kronus.png"
-          alt="logo"
-          draggable="false"
-        />
+        <img src="../../../assets/logo-kronus.png" alt="logo" draggable="false" style="z-index: 99" />
       </router-link>
     </div>
-
     <div class="menu-toggle-wrap">
       <button class="menu-toggle" @click="ToggleMenu">
         <span class="material-icons"> keyboard_double_arrow_right </span>
@@ -38,11 +33,7 @@
 
     <div class="flex"></div>
     <div class="menu">
-      <button
-        class="button"
-        style="opacity: 50%; cursor: not-allowed"
-        disabled="true"
-      >
+      <button class="button" style="opacity: 50%; cursor: not-allowed" disabled="true">
         <span class="material-icons" draggable="false"> light_mode </span>
         <span class="text" draggable="false">Tema</span>
       </button>
@@ -79,8 +70,7 @@ export default defineComponent({
     ...mapActions(useStyleStore, ['ToggleMenuStore', 'setIsExpanded']),
   },
   beforeMount() {
-    this.is_expanded =
-      localStorage.getItem('is_expanded') == 'true' ? true : false;
+    this.is_expanded = localStorage.getItem('is_expanded') == 'true' ? true : false;
   },
 });
 </script>
@@ -95,7 +85,7 @@ aside {
   padding: 1rem;
 
   position: fixed;
-  z-index: 99;
+  z-index: 10;
 
   //top: 0;
 
@@ -105,10 +95,11 @@ aside {
   transition: 0.2s ease-out;
   .logo {
     margin-bottom: 1rem;
-
+    width: 3rem;
+    z-index: 5;
     img {
-      width: 3rem;
       border-radius: 50%;
+      width: 100%;
 
       &:hover {
         box-shadow: 0px 0px 10px 1px var(--primary);
@@ -125,7 +116,7 @@ aside {
   .menu-toggle-wrap {
     display: flex;
     justify-content: flex-end;
-    margin-bottom: 1rem;
+    //margin-bottom: 1rem;
 
     position: relative;
     top: 0;
