@@ -42,7 +42,7 @@
               outlined
               v-model="selectedMovie.titleBr"
               label="Título PT-BR"
-              style="background-color: #343c4c"
+              style="background-color: var(--grey-mid2)"
               dark
               :readonly="!isRegisterOrEditing()"
             />
@@ -54,7 +54,7 @@
               outlined
               v-model="selectedMovie.titleEn"
               label="Título EN"
-              style="background-color: #343c4c"
+              style="background-color: var(--grey-mid2)"
               dark
               :readonly="!isRegisterOrEditing()"
             />
@@ -66,7 +66,7 @@
               outlined
               v-model="selectedMovie.year"
               label="Ano de lançamento"
-              style="background-color: #343c4c"
+              style="background-color: var(--grey-mid2)"
               dark
               :readonly="!isRegisterOrEditing()"
               mask="####"
@@ -79,7 +79,7 @@
               outlined
               v-model="selectedMovie.director"
               label="Diretor"
-              style="background-color: #343c4c"
+              style="background-color: var(--grey-mid2)"
               dark
               :readonly="!isRegisterOrEditing()"
             />
@@ -91,7 +91,7 @@
               outlined
               v-model="selectedMovie.image"
               label="URL da Imagem"
-              style="background-color: #343c4c"
+              style="background-color: var(--grey-mid2)"
               dark
               v-if="isRegisterOrEditing()"
             />
@@ -103,7 +103,7 @@
               outlined
               v-model="selectedMovie.trailerBr"
               label="URL do trailer dublado"
-              style="background-color: #343c4c"
+              style="background-color: var(--grey-mid2)"
               dark
               v-if="isRegisterOrEditing()"
             />
@@ -115,7 +115,7 @@
               outlined
               v-model="selectedMovie.trailerEn"
               label="URL do trailer legendado"
-              style="background-color: #343c4c"
+              style="background-color: var(--grey-mid2)"
               dark
               v-if="isRegisterOrEditing()"
             />
