@@ -1,7 +1,9 @@
 <template>
   <div class="row justify-center q-gutter-y-md">
+    <h5>Gerenciamento do usuário</h5>
+    <SeparatorDivLineSolid />
     <div class="col-10 q-mt-md">
-      <InputText :label="'E-mail usuário alvo'" v-model="email" :required="true" :customRules="rules" />
+      <InputText :label="'E-mail usuário alvo'" v-model="email" :required="false" :dense="true" />
     </div>
     <div class="col-6 q-pt-md">
       <q-btn-group>
@@ -23,25 +25,19 @@ import { defineComponent } from 'vue';
 
 import PanelUserInfo from '@/components/shared/panelUserInfo/PanelUserInfo.vue';
 import InputText from '@/components/shared/inputText/InputText.vue';
+import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
 
 export default defineComponent({
   name: 'UserTabAdministrator',
   components: {
     PanelUserInfo,
     InputText,
+    SeparatorDivLineSolid,
   },
   data() {
     return {
       email: '',
     };
-  },
-  methods: {
-    rules() {
-      if (this.email === 'test') {
-        return 'O valor não pode ser igual test';
-      }
-      return true;
-    },
   },
 });
 </script>
