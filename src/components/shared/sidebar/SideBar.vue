@@ -16,22 +16,22 @@
       <router-link to="/home" class="button">
         <span class="material-icons">home</span>
         <span class="text" v-if="showTextsSideBar">Home</span>
-        <q-tooltip anchor="center right" v-if="!isExpanded">Home</q-tooltip>
+        <q-tooltip anchor="center right" v-if="!isExpanded" :delay="500">Home</q-tooltip>
       </router-link>
       <router-link to="/adm" class="button" v-if="isAdmin()">
         <span class="material-icons">admin_panel_settings</span>
         <span class="text" v-if="showTextsSideBar">Painel ADM</span>
-        <q-tooltip anchor="center right" v-if="!isExpanded">Painel ADM</q-tooltip>
+        <q-tooltip anchor="center right" v-if="!isExpanded" :delay="500">Painel ADM</q-tooltip>
       </router-link>
       <router-link to="/profile" class="button">
         <span class="material-icons">person</span>
         <span class="text" v-if="showTextsSideBar">PERFIL</span>
-        <q-tooltip anchor="center right" v-if="!isExpanded">PERFIL</q-tooltip>
+        <q-tooltip anchor="center right" v-if="!isExpanded" :delay="500">PERFIL</q-tooltip>
       </router-link>
       <router-link to="/add" class="button">
         <span class="material-icons">add</span>
         <span class="text" v-if="showTextsSideBar" id="textAddMovie">ADICIONAR FILME</span>
-        <q-tooltip anchor="center right" :offset="[30, 0]" v-if="!isExpanded">ADICIONAR FILME</q-tooltip>
+        <q-tooltip anchor="center right" :offset="[30, 0]" v-if="!isExpanded" :delay="500">ADICIONAR FILME</q-tooltip>
       </router-link>
     </div>
 
