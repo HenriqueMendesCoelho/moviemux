@@ -78,7 +78,7 @@
             />
           </div>
           <div class="col-6 q-pl-xs mobile-movie-notes" v-if="!isRegisterOrEditing()">
-            <TableNoHeader :title="'Notas'" style="max-height: 200px" :columns="columns" :rows="mock" />
+            <TableEditDelete :title="'Notas'" style="max-height: 200px" :columns="columns" :rows="mock" />
           </div>
         </div>
         <div class="row movie-trailers justify-center" v-if="selectedMovie.trailerBr || selectedMovie.trailerEn">
@@ -116,7 +116,7 @@ import { RouteRecordName } from 'vue-router';
 import type { QTableProps } from 'quasar';
 
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
-import TableNoHeader from '@/components/shared/tables/TableEditDelete.vue';
+import TableEditDelete from '@/components/shared/tables/TableEditDelete.vue';
 import SeparatorDiv from '@/components/shared/separator/SeparatorDiv.vue';
 import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';
 import SeparatorDivLineSolidVertical from '../shared/separator/SeparatorDivLineSolidVertical.vue';
@@ -130,7 +130,7 @@ export default defineComponent({
   components: {
     ContainerMain,
     SeparatorDiv,
-    TableNoHeader,
+    TableEditDelete,
     SeparatorDivSolidLine,
     SeparatorDivLineSolidVertical,
     VideoEmbedded,
