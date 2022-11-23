@@ -36,89 +36,25 @@
           <p class="paragrafy-title-info">Informações</p>
           <SeparatorDiv />
           <div class="col-12">
-            <q-input
-              standout="text-info"
-              color="info"
-              outlined
-              v-model="selectedMovie.titleBr"
-              label="Título PT-BR"
-              style="background-color: var(--grey-mid2)"
-              dark
-              :readonly="!isRegisterOrEditing()"
-            />
+            <InputText :label="'Título PT-BR'" v-model="selectedMovie.titleBr" :readOnly="!isRegisterOrEditing()" />
           </div>
-          <div class="col-12 q-mt-xs">
-            <q-input
-              standout="text-info"
-              color="info"
-              outlined
-              v-model="selectedMovie.titleEn"
-              label="Título EN"
-              style="background-color: var(--grey-mid2)"
-              dark
-              :readonly="!isRegisterOrEditing()"
-            />
+          <div class="col-12">
+            <InputText :label="'Título EN'" v-model="selectedMovie.titleEn" :readOnly="!isRegisterOrEditing()" />
           </div>
-          <div class="col-12 q-mt-xs">
-            <q-input
-              standout="text-info"
-              color="info"
-              outlined
-              v-model="selectedMovie.year"
-              label="Ano de lançamento"
-              style="background-color: var(--grey-mid2)"
-              dark
-              :readonly="!isRegisterOrEditing()"
-              mask="####"
-            />
+          <div class="col-12">
+            <InputText :label="'Ano de lançamento'" v-model="selectedMovie.year" :readOnly="!isRegisterOrEditing()" :mask="'####'" />
           </div>
-          <div class="col-12 q-mt-xs">
-            <q-input
-              standout="text-info"
-              color="info"
-              outlined
-              v-model="selectedMovie.director"
-              label="Diretor"
-              style="background-color: var(--grey-mid2)"
-              dark
-              :readonly="!isRegisterOrEditing()"
-            />
+          <div class="col-12">
+            <InputText :label="'Diretor'" v-model="selectedMovie.director" :readOnly="!isRegisterOrEditing()" />
           </div>
-          <div class="col-12 q-mt-xs">
-            <q-input
-              standout="text-info"
-              color="info"
-              outlined
-              v-model="selectedMovie.image"
-              label="URL da Imagem"
-              style="background-color: var(--grey-mid2)"
-              dark
-              v-if="isRegisterOrEditing()"
-            />
+          <div class="col-12">
+            <InputText :label="'URL da Imagem'" v-model="selectedMovie.image" :readOnly="!isRegisterOrEditing()" />
           </div>
-          <div class="col-12 q-mt-xs">
-            <q-input
-              standout="text-info"
-              color="info"
-              outlined
-              v-model="selectedMovie.trailerBr"
-              label="URL do trailer dublado"
-              style="background-color: var(--grey-mid2)"
-              dark
-              v-if="isRegisterOrEditing()"
-            />
+          <div class="col-12">
+            <InputText :label="'URL do trailer dublado'" v-model="selectedMovie.trailerBr" :readOnly="!isRegisterOrEditing()" />
           </div>
-          <div class="col-12 q-mt-xs">
-            <q-input
-              standout="text-info"
-              color="info"
-              outlined
-              v-model="selectedMovie.trailerEn"
-              label="URL do trailer legendado"
-              style="background-color: var(--grey-mid2)"
-              dark
-              v-if="isRegisterOrEditing()"
-            />
+          <div class="col-12">
+            <InputText :label="'URL do trailer legendado'" v-model="selectedMovie.trailerEn" :readOnly="!isRegisterOrEditing()" />
           </div>
         </div>
       </div>
@@ -134,14 +70,15 @@
               input-style="resize: none;"
               rows="9"
               label="Descrição - Sinopse"
-              style="background-color: #343c4c"
+              bg-color="grey-1"
               dark
               type="textarea"
               :readonly="!isRegisterOrEditing()"
+              :rules="[(val) => !!val || '*Obrigatório']"
             />
           </div>
           <div class="col-6 q-pl-xs mobile-movie-notes" v-if="!isRegisterOrEditing()">
-            <TableNoHeader :title="'Notas'" :height="200" />
+            <TableNoHeader :title="'Notas'" style="max-height: 200px" :columns="columns" :rows="mock" />
           </div>
         </div>
         <div class="row movie-trailers justify-center" v-if="selectedMovie.trailerBr || selectedMovie.trailerEn">
@@ -160,24 +97,10 @@
       <SeparatorDivSolidLine />
       <div class="row justify-center" v-if="isRegisterOrEditing()">
         <div :class="isMobile ? 'col-4' : 'col-2'">
-          <q-btn
-            style="width: 100%"
-            color="positive"
-            text-color="white"
-            label="Salvar"
-            :disable="false"
-            @click="isEditing = !isEditing"
-          />
+          <q-btn style="width: 100%" color="positive" text-color="white" label="Salvar" :disable="false" @click="isEditing = !isEditing" />
         </div>
         <div :class="isMobile ? 'col-4 q-ml-md' : 'col-2 q-ml-md'">
-          <q-btn
-            style="width: 100%"
-            color="red"
-            text-color="white"
-            label="Cancelar"
-            :disable="false"
-            @click="cancel()"
-          />
+          <q-btn style="width: 100%" color="red" text-color="white" label="Cancelar" :disable="false" @click="cancel()" />
         </div>
       </div>
     </div>
@@ -189,16 +112,18 @@ import { defineComponent } from 'vue';
 import { mapActions, mapState } from 'pinia';
 import { useStyleStore } from '@/stores/StyleStore';
 import { useMovieStore } from '@/stores/MovieStore';
+import { RouteRecordName } from 'vue-router';
+import type { QTableProps } from 'quasar';
 
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
-import TableNoHeader from '@/components/shared/tables/TableStylized.vue';
+import TableNoHeader from '@/components/shared/tables/TableEditDelete.vue';
 import SeparatorDiv from '@/components/shared/separator/SeparatorDiv.vue';
 import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';
 import SeparatorDivLineSolidVertical from '../shared/separator/SeparatorDivLineSolidVertical.vue';
 import VideoEmbedded from './videoEmbedded/VideoEmbedded.vue';
+import InputText from '../shared/inputText/InputText.vue';
 
 import CustomAlerts from '@/domain/alerts/CustomAlerts';
-import { RouteRecordName } from 'vue-router';
 
 export default defineComponent({
   name: 'MoviePage',
@@ -209,11 +134,41 @@ export default defineComponent({
     SeparatorDivSolidLine,
     SeparatorDivLineSolidVertical,
     VideoEmbedded,
+    InputText,
   },
   setup() {
     const customAlert = new CustomAlerts();
+
+    const columns: QTableProps['columns'] = [
+      {
+        name: 'nome',
+        label: 'Nome',
+        field: 'name',
+        align: 'left',
+      },
+      {
+        name: 'nota',
+        label: 'Nota',
+        field: 'note',
+        align: 'center',
+      },
+      {
+        name: 'data',
+        label: 'Data',
+        field: 'data',
+        align: 'center',
+      },
+      {
+        name: 'actions',
+        label: 'Ações',
+        field: '',
+        align: 'center',
+      },
+    ];
+
     return {
       customAlert,
+      columns,
     };
   },
   data() {
@@ -222,6 +177,23 @@ export default defineComponent({
       notesVisible: true,
       isEditing: false,
       alreadyEditing: false,
+      mock: [
+        {
+          name: 'Henrique',
+          note: 9,
+          data: '18/09/2022 19:50:55',
+        },
+        {
+          name: 'Yuri Boga',
+          note: 7,
+          data: '18/09/2022 19:50:55',
+        },
+        {
+          name: 'Juan Boga',
+          note: 7,
+          data: '18/09/2022 19:50:55',
+        },
+      ],
     };
   },
   computed: {
@@ -275,18 +247,16 @@ export default defineComponent({
       return;
     },
     cancel() {
-      this.customAlert
-        .customAlert('Deseja mesmo cancelar?', 'Todos os dados preenchidos serão apagados', true, '')
-        .then((res) => {
-          if (res.isConfirmed) {
-            this.isEditing = false;
-            if (this.idPathParam) {
-              //TODO: Chamar api para pegar dados novamente pelo id do path
-              return;
-            }
-            this.resetStoreMovie();
+      this.customAlert.customAlert('Deseja mesmo cancelar?', 'Todos os dados preenchidos serão apagados', true, '').then((res) => {
+        if (res.isConfirmed) {
+          this.isEditing = false;
+          if (this.idPathParam) {
+            //TODO: Chamar api para pegar dados novamente pelo id do path
+            return;
           }
-        });
+          this.resetStoreMovie();
+        }
+      });
     },
     cantEdit() {
       return false;

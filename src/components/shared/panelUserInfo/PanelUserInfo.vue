@@ -1,28 +1,10 @@
 <template>
   <div class="row justify-center">
     <div :class="isMobile ? 'col-12' : 'col-8'">
-      <q-input
-        standout="text-info"
-        color="info"
-        outlined
-        v-model="user.name"
-        label="Nome"
-        style="background-color: #343c4c"
-        dark
-        :readonly="allReadOnly"
-      />
+      <InputText :label="'Nome'" v-model="user.name" :readOnly="true" />
     </div>
     <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
-      <q-input
-        standout="text-info"
-        color="info"
-        outlined
-        v-model="user.email"
-        label="Email"
-        style="background-color: #343c4c"
-        dark
-        :readonly="allReadOnly"
-      />
+      <InputText :label="'Email'" v-model="user.email" :readOnly="true" />
     </div>
     <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
       <div class="row">
@@ -89,6 +71,8 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
 
+import InputText from '@/components/shared/inputText/InputText.vue';
+
 type userProp = {
   name: string;
   email: string;
@@ -110,6 +94,7 @@ export default defineComponent({
       default: false,
     },
   },
+  components: { InputText },
   data() {
     return {
       user: {
