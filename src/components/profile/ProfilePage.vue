@@ -7,49 +7,22 @@
         </div>
       </div>
       <div class="panel-profile q-mt-xl" :class="isMobile ? 'col-12' : 'col-10'">
-        <SelectPanelBar />
-        <div :class="isMobile ? 'q-pt-xs' : 'q-pt-xl'">
-          <PanelUserInfo v-if="ProfileSelectBar.PanelMyData" v-model="myData" />
-        </div>
-
-        <div class="PanelSecurity row q-pt-xl justify-center" v-if="ProfileSelectBar.PanelSecurity">
-          <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
-            <q-input
-              standout="text-info"
-              color="info"
-              outlined
-              v-model="myData.name"
-              label="Senha atual"
-              style="background-color: #343c4c"
-              dark
-              type="password"
-            />
-          </div>
-          <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
-            <q-input
-              standout="text-info"
-              color="info"
-              outlined
-              v-model="myData.name"
-              label="Nova Senha"
-              style="background-color: #343c4c"
-              dark
-              type="password"
-            />
-          </div>
-          <div class="q-mt-md q-mb-xl" :class="isMobile ? 'col-12' : 'col-8'">
-            <q-input
-              standout="text-info"
-              color="info"
-              outlined
-              v-model="myData.name"
-              label="Confirme Nova Senha"
-              style="background-color: #343c4c"
-              dark
-              type="password"
-            />
-          </div>
-        </div>
+        <q-tabs v-model="tab" class="tabs-selector" active-color="info" indicator-color="info" align="justify" dense>
+          <q-tab :class="isMobile ? '' : 'tab-style-right'" name="myData" label="Meus Dados" icon="badge" />
+          <q-tab :class="isMobile ? '' : 'tab-style-right'" name="security" label="Segurança" icon="lock" />
+        </q-tabs>
+        <q-tab-panels v-model="tab" animated class="tabs q-pt-md">
+          <q-tab-panel name="myData">
+            <div class="row justify-center" :class="isMobile ? 'q-pt-xs' : 'q-pt-md'">
+              <h5>Alteração dados pessoais</h5>
+              <SeparatorDivLineSolid />
+              <PanelUserInfo class="q-mt-md" v-model="myData" />
+            </div>
+          </q-tab-panel>
+          <q-tab-panel name="security">
+            <PanelSecurityProfile />
+          </q-tab-panel>
+        </q-tab-panels>
       </div>
     </div>
   </ContainerMain>
@@ -60,11 +33,11 @@ import { defineComponent } from 'vue';
 import { mapState } from 'pinia';
 
 import { useStyleStore } from '@/stores/StyleStore';
-import { useProfileStore } from '@/stores/ProfileStore';
 
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
-import SelectPanelBar from '@/components/profile/selectPanelBar/SelectPanelProfileBar.vue';
 import PanelUserInfo from '../shared/panelUserInfo/PanelUserInfo.vue';
+import PanelSecurityProfile from './panelSecurityProfile/PanelSecurityProfile.vue';
+import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
 
 //:class="{ active: AdministratorSelectBar.panel_access }"
 
@@ -72,8 +45,9 @@ export default defineComponent({
   name: 'ProfileApp',
   components: {
     ContainerMain,
-    SelectPanelBar,
     PanelUserInfo,
+    PanelSecurityProfile,
+    SeparatorDivLineSolid,
   },
   setup() {
     document.title = 'Cineminha - Meu Perfil';
@@ -81,6 +55,7 @@ export default defineComponent({
   data() {
     return {
       changePanels: true,
+      tab: 'myData',
       myData: {
         name: '',
         email: '',
@@ -93,7 +68,6 @@ export default defineComponent({
   },
   computed: {
     ...mapState(useStyleStore, ['getMarginSideBar']),
-    ...mapState(useProfileStore, ['ProfileSelectBar']),
     isMobile(): boolean | undefined {
       return this.$q.platform.is.mobile;
     },
@@ -102,11 +76,30 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-.panel-profile {
-  background: var(--grey-mid);
-  height: auto;
-  border-radius: 15px;
+:deep(.q-tab__label) {
+  font-size: 12pt;
+}
 
+.tabs-selector {
+  //background: var(--grey-mid);
+  background-color: var(--dark-alt);
+  color: white;
   box-shadow: 0 5px 10px var(--shadow);
+  border-top-right-radius: 15px;
+  border-top-left-radius: 15px;
+  font-size: x-large;
+  //border: 1px solid white;
+
+  .tab-style-right {
+    border-right: 3px solid var(--grey-mid);
+  }
+}
+
+.tabs {
+  background: var(--grey-mid);
+  color: white;
+  box-shadow: 0 5px 10px var(--shadow);
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
 }
 </style>
