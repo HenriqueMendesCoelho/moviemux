@@ -9,11 +9,17 @@
     dark
     :rules="[getRules]"
     reactive-rules
+    :readonly="readOnly"
+    hide-bottom-space
+    :dense="dense"
+    :type="type"
+    :mask="mask"
   />
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import type { QInputProps } from 'quasar';
+import { defineComponent, PropType, ref } from 'vue';
 
 //style="background-color: var(--grey-mid2)"
 export default defineComponent({
@@ -34,6 +40,22 @@ export default defineComponent({
     customRules: {
       type: Function,
       required: false,
+    },
+    readOnly: {
+      type: Boolean,
+      default: false,
+    },
+    dense: {
+      type: Boolean,
+      default: false,
+    },
+    type: {
+      type: String as PropType<QInputProps['type']>,
+      default: 'text',
+    },
+    mask: {
+      type: String as PropType<QInputProps['mask']>,
+      default: undefined,
     },
   },
   setup() {
@@ -80,5 +102,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style lang="scss" scoped></style>
