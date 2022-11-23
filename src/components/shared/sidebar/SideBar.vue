@@ -1,5 +1,5 @@
 <template>
-  <aside :class="`${is_expanded && 'is-expanded'}`">
+  <aside :class="`${isExpanded && 'is-expanded'}`">
     <div class="row logo">
       <router-link to="/home">
         <img src="../../../assets/logo-kronus.png" alt="logo" draggable="false" style="z-index: 99" />
@@ -15,19 +15,23 @@
     <div class="menu">
       <router-link to="/home" class="button">
         <span class="material-icons">home</span>
-        <span class="text">Home</span>
+        <span class="text" v-if="showTextsSideBar">Home</span>
+        <q-tooltip anchor="center right" v-if="!isExpanded">Home</q-tooltip>
       </router-link>
-      <router-link to="/adm" class="button">
+      <router-link to="/adm" class="button" v-if="isAdmin()">
         <span class="material-icons">admin_panel_settings</span>
-        <span class="text">ADM</span>
+        <span class="text" v-if="showTextsSideBar">Painel ADM</span>
+        <q-tooltip anchor="center right" v-if="!isExpanded">Painel ADM</q-tooltip>
       </router-link>
       <router-link to="/profile" class="button">
         <span class="material-icons">person</span>
-        <span class="text">PERFIL</span>
+        <span class="text" v-if="showTextsSideBar">PERFIL</span>
+        <q-tooltip anchor="center right" v-if="!isExpanded">PERFIL</q-tooltip>
       </router-link>
       <router-link to="/add" class="button">
         <span class="material-icons">add</span>
-        <span class="text">ADICIONAR</span>
+        <span class="text" v-if="showTextsSideBar" id="textAddMovie">ADICIONAR FILME</span>
+        <q-tooltip anchor="center right" :offset="[30, 0]" v-if="!isExpanded">ADICIONAR FILME</q-tooltip>
       </router-link>
     </div>
 
@@ -54,23 +58,39 @@ export default defineComponent({
   name: 'SideBar',
   data() {
     return {
-      is_expanded: false,
-      teste: 'teste',
+      isExpanded: false,
+      showTextsSideBar: false,
     };
   },
   computed: {
     ...mapState(useStyleStore, ['backgroundColor', 'sideBarWidth']),
   },
   methods: {
-    ToggleMenu() {
-      this.is_expanded = !this.is_expanded;
-      this.ToggleMenuStore();
-      localStorage.setItem('is_expanded', this.is_expanded.toString());
-    },
     ...mapActions(useStyleStore, ['ToggleMenuStore', 'setIsExpanded']),
+    ToggleMenu() {
+      this.isExpanded = !this.isExpanded;
+      this.ToggleMenuStore();
+      localStorage.setItem('is_expanded', this.isExpanded.toString());
+    },
+    isAdmin() {
+      //TODO
+      return true;
+    },
   },
   beforeMount() {
-    this.is_expanded = localStorage.getItem('is_expanded') == 'true' ? true : false;
+    this.isExpanded = localStorage.getItem('is_expanded') == 'true' ? true : false;
+  },
+  watch: {
+    isExpanded(val) {
+      if (val) {
+        setTimeout(() => {
+          this.showTextsSideBar = true;
+          return;
+        }, 80);
+      }
+      this.showTextsSideBar = false;
+      return;
+    },
   },
 });
 </script>
