@@ -2,6 +2,7 @@
   <q-input
     ref="inputRef"
     standout="text-info"
+    color="grey-1"
     bg-color="grey-1"
     outlined
     v-model="text"
@@ -14,6 +15,7 @@
     :dense="dense"
     :type="type"
     :mask="mask"
+    clearable
   />
 </template>
 

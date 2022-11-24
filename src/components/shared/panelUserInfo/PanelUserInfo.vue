@@ -68,7 +68,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" scoped>
 import { defineComponent, PropType } from 'vue';
 
 import InputText from '@/components/shared/inputText/InputText.vue';

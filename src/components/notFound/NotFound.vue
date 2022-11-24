@@ -30,7 +30,7 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 main {
   height: 100vh;
   h1 {

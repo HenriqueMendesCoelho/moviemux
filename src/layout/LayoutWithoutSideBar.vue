@@ -1,6 +1,6 @@
 <template>
   <main>
-    <router-view />
+    <router-view></router-view>
   </main>
 </template>
 
@@ -14,7 +14,6 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 main {
-  height: calc(100vh - 1rem);
-  padding: 1rem;
+  height: 100vh;
 }
 </style>

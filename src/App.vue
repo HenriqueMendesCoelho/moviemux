@@ -6,31 +6,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapState } from 'pinia';
-import { useStyleStore } from './stores/StyleStore';
-
 export default defineComponent({
   name: 'App',
-  data() {
-    return {
-      back: '',
-    };
-  },
-
-  computed: {
-    currentRouteName() {
-      return this.$route.name;
-    },
-    ...mapState(useStyleStore, ['backgroundColor']),
-  },
-  methods: {
-    isDark() {
-      return false;
-    },
-    showSideBar() {
-      return this.$route.meta.sideBar;
-    },
-  },
 });
 </script>
 
@@ -61,8 +38,6 @@ export default defineComponent({
 body {
   width: 100vw;
   height: 100vh;
-  //background-color: var(--grey-dark);
-  //background-color: v-bind(backgroundColor);
 
   max-width: 100%;
   overflow-x: hidden;
@@ -78,7 +53,7 @@ button {
 
 .main-app {
   display: flex;
-  background-color: v-bind(backgroundColor);
+  background-color: var(--grey-dark);
 
   main {
     flex: 1 1 0;

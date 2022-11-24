@@ -50,7 +50,7 @@ export default defineComponent({
     SeparatorDivLineSolid,
   },
   setup() {
-    document.title = 'Cineminha - Meu Perfil';
+    document.title = 'Cineminha - Meu Dados';
   },
   data() {
     return {
@@ -72,10 +72,18 @@ export default defineComponent({
       return this.$q.platform.is.mobile;
     },
   },
+  watch: {
+    tab(val) {
+      if (val !== 'myData') {
+        document.title = 'Cineminha - Segurança';
+        return;
+      }
+    },
+  },
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 :deep(.q-tab__label) {
   font-size: 12pt;
 }

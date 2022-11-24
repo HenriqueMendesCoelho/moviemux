@@ -1,19 +1,17 @@
-import LoginInit from '@/components/login/LoginPage.vue';
+import LoginPage from '@/components/login/LoginPage.vue';
 import HomeApp from '@/components/home/HomePage.vue';
 import MovieApp from '@/components/movie/MoviePage.vue';
 
 export const routes = [
   {
     path: '/',
-
     component: () => import('@/layout/LayoutWithoutSideBar.vue'),
-    children: [{ path: '', component: LoginInit, title: 'Login' }],
+    children: [{ path: '', component: LoginPage, name: 'login' }],
   },
   {
     path: '/home',
-    name: 'home',
     component: () => import('@/layout/LayoutWithSideBar.vue'),
-    children: [{ path: '', component: HomeApp, name: 'login' }],
+    children: [{ path: '', component: HomeApp, name: 'home' }],
   },
   {
     path: '/adm',
@@ -37,7 +35,7 @@ export const routes = [
   },
   {
     path: '/:pathMatch(.*)*',
-    name: 'NotFound',
-    component: () => import('@/components/notFound/NotFound.vue'),
+    component: () => import('@/layout/LayoutWithoutSideBar.vue'),
+    children: [{ path: '', component: () => import('@/components/notFound/NotFound.vue'), name: 'NotFound' }],
   },
 ];

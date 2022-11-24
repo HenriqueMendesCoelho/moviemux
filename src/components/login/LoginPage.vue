@@ -1,15 +1,18 @@
 <template>
   <main>
+    <LoginAnimation />
     <div class="row items-center" style="height: 100%">
       <div class="col-6">
         <div class="row justify-center">
-          <img src="@/assets/logo-kronus.png" class="left-img-login" alt="logo" draggable="false" />
+          <h2 style="color: white">Bem-vindo ao Cineminha!</h2>
+          <SeparatorDivLineSolid class="q-my-md" style="opacity: 60%" />
+          <img src="@/assets/logo-kronus.png" class="left-img-login" alt="logo" draggable="false" @click="tab = 'login'" />
+          <div class="col-12" />
+          <p class="q-mt-xl" style="font-size: smaller; color: white">Provided by Kronus Platform</p>
         </div>
       </div>
       <div class="col-6">
-        <q-dialog v-model="login" allow-focus-outside>
-          <img src="@/assets/logo-kronus.png" class="left-img-login" alt="logo" draggable="false" />
-        </q-dialog>
+        <FormLogin v-model="tab" />
       </div>
     </div>
   </main>
@@ -18,8 +21,18 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 
+import FormLogin from './FormLogin.vue';
+import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue';
+
 export default defineComponent({
   name: 'LoginPage',
+  components: {
+    FormLogin,
+    SeparatorDivLineSolid,
+  },
+  setup() {
+    document.title = 'Cineminha - Login';
+  },
   data() {
     return {
       login: true,
@@ -27,6 +40,7 @@ export default defineComponent({
       input_pass: '',
       input_email: '',
       input_code: '',
+      tab: 'login',
     };
   },
   methods: {
@@ -40,7 +54,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 main {
   height: 100%;
-
+  overflow: hidden;
   .left-img-login {
     border-radius: 50%;
 
@@ -48,6 +62,22 @@ main {
       box-shadow: 0px 0px 30px -12px var(--primary);
       transition: 0.2s ease-in-out;
     }
+  }
+
+  $total: 500; // total particles
+  $orb-size: 100px;
+  $particle-size: 2px;
+  $time: 14s;
+  $base-hue: 0; // change for diff colors (180 is nice)
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    background: #0b0e14;
+    overflow: hidden; // no scrollbars..
   }
 }
 </style>
