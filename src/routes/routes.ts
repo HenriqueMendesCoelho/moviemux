@@ -1,30 +1,43 @@
-import LoginInit from '@/components/login/LoginInit.vue';
+import LoginInit from '@/components/login/LoginPage.vue';
 import HomeApp from '@/components/home/HomePage.vue';
 import MovieApp from '@/components/movie/MoviePage.vue';
 
 export const routes = [
-  { path: '/', name: 'login', component: LoginInit, title: 'Login', meta: { sideBar: false } },
-  { path: '/home', name: 'home', component: HomeApp, title: 'Home', meta: { sideBar: true } },
+  {
+    path: '/',
+
+    component: () => import('@/layout/LayoutWithoutSideBar.vue'),
+    children: [{ path: '', component: LoginInit, title: 'Login' }],
+  },
+  {
+    path: '/home',
+    name: 'home',
+    component: () => import('@/layout/LayoutWithSideBar.vue'),
+    children: [{ path: '', component: HomeApp, name: 'login' }],
+  },
   {
     path: '/adm',
-    name: 'adm',
-    component: () => import('@/components/administrator/AdministratorPage.vue'),
-    title: 'Administrator',
-    meta: { sideBar: true },
+    component: () => import('@/layout/LayoutWithSideBar.vue'),
+    children: [{ path: '', component: () => import('@/components/administrator/AdministratorPage.vue'), name: 'adm' }],
   },
-  { path: '/movie/:id', name: 'movie', component: MovieApp, title: 'Movie', meta: { sideBar: true } },
-  { path: '/add', name: 'add', component: MovieApp, title: 'AddMovie', meta: { sideBar: true } },
+  {
+    path: '/movie/:id',
+    component: () => import('@/layout/LayoutWithSideBar.vue'),
+    children: [{ path: '', component: MovieApp, name: 'movie' }],
+  },
+  {
+    path: '/add',
+    component: () => import('@/layout/LayoutWithSideBar.vue'),
+    children: [{ path: '', component: MovieApp, name: 'add' }],
+  },
   {
     path: '/profile',
-    name: 'profile',
-    component: () => import('@/components/profile/ProfilePage.vue'),
-    title: 'Profile',
-    meta: { sideBar: true },
+    component: () => import('@/layout/LayoutWithSideBar.vue'),
+    children: [{ path: '', component: () => import('@/components/profile/ProfilePage.vue'), name: 'profile' }],
   },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('@/components/notFound/NotFound.vue'),
-    meta: { sideBar: false },
   },
 ];

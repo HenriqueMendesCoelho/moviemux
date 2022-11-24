@@ -7,10 +7,11 @@ import { routes } from './routes/routes';
 import { createPinia } from 'pinia';
 
 import VueSweetalert2 from 'vue-sweetalert2';
-import 'sweetalert2/dist/sweetalert2.min.css';
 import { Quasar } from 'quasar';
 import quasarUserOptions from './quasar-user-options';
 import { autoAnimatePlugin } from '@formkit/auto-animate/vue';
+
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 const router = createRouter({
   history: createWebHistory(),

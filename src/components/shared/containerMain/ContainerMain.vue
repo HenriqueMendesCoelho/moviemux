@@ -1,5 +1,5 @@
 <template>
-  <main><slot></slot></main>
+  <div class="container-m"><slot></slot></div>
 </template>
 
 <script>
@@ -18,15 +18,20 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-main {
+.container-m {
   display: flex;
   flex-direction: column;
 
   margin-left: v-bind(getMarginSideBar);
-  margin-top: 1.5rem;
+  padding: 2rem;
+  margin-top: 2rem;
 
-  min-height: calc(100vh - 1.5rem);
+  $width: calc(v-bind(getMarginSideBar));
+
   max-width: 100%;
+  min-width: calc(100vw - $width);
+
+  min-height: calc(100vh - 2rem);
 
   border-top-left-radius: 10px;
   background: var(--grey-dark2);
@@ -34,7 +39,7 @@ main {
 
   transition: 0.2s ease-out;
 
-  overflow: hidden;
+  overflow: none;
 
   @media (max-width: 768px) {
     margin-left: calc(4rem + 32px);

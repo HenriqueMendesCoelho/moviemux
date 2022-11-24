@@ -1,7 +1,5 @@
 <template>
-  <!--<body :style="{ background: backgroundColor }">-->
   <div class="main-app">
-    <side-bar v-if="showSideBar()" />
     <router-view></router-view>
   </div>
 </template>
@@ -9,7 +7,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapState } from 'pinia';
-import SideBar from './components/shared/sidebar/SideBar.vue';
 import { useStyleStore } from './stores/StyleStore';
 
 export default defineComponent({
@@ -19,9 +16,7 @@ export default defineComponent({
       back: '',
     };
   },
-  components: {
-    'side-bar': SideBar,
-  },
+
   computed: {
     currentRouteName() {
       return this.$route.name;
@@ -70,6 +65,7 @@ body {
   //background-color: v-bind(backgroundColor);
 
   max-width: 100%;
+  overflow-x: hidden;
 }
 
 button {
@@ -82,13 +78,10 @@ button {
 
 .main-app {
   display: flex;
-
   background-color: v-bind(backgroundColor);
 
   main {
     flex: 1 1 0;
-    padding: 1rem;
-
     @media (max-width: 768px) {
       padding-left: 0.8rem;
     }

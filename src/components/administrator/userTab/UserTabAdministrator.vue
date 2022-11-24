@@ -37,9 +37,8 @@ export default defineComponent({
   data() {
     return {
       email: '',
+      pass: '',
     };
   },
 });
 </script>
-
-<style lang="scss"></style>
