@@ -11,7 +11,7 @@
           <q-tab :class="isMobile ? '' : 'tab-style-right'" name="myData" label="Meus Dados" icon="badge" />
           <q-tab :class="isMobile ? '' : 'tab-style-right'" name="security" label="Segurança" icon="lock" />
         </q-tabs>
-        <q-tab-panels v-model="tab" animated class="tabs q-pt-md">
+        <q-tab-panels v-model="tab" animated class="tabs q-pt-md" style="min-height: 470px">
           <q-tab-panel name="myData">
             <div class="row justify-center" :class="isMobile ? 'q-pt-xs' : 'q-pt-md'">
               <h5>Alteração dados pessoais</h5>

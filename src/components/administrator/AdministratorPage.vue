@@ -13,7 +13,7 @@
           <q-tab name="invite" label="Gerencimento de Convite" />
         </q-tabs>
 
-        <q-tab-panels v-model="tab" animated class="tabs q-pt-sm">
+        <q-tab-panels v-model="tab" animated class="tabs q-pt-sm" style="min-height: 580px">
           <q-tab-panel name="users">
             <UserTabAdministrator />
           </q-tab-panel>
