@@ -1,24 +1,32 @@
 <template>
   <div class="row justify-center">
-    <q-card class="form-login col-6" style="border-radius: 15px">
+    <q-card class="form-login col-6" style="border-radius: 15px; min-width: 550px">
       <q-card-section class="row justify-center">
         <q-tab-panels v-model="tab" class="tabs col-12" animated style="min-height: 430px">
           <q-tab-panel name="login" class="row justify-center">
             <h3>Login</h3>
             <SeparatorDivLineSolid />
             <div class="col-10 justify-center">
-              <q-input label="E-mail" v-model="email" color="cyan-14" bg-color="grey-2" dark :type="'email'" />
+              <q-input label="E-mail" v-model="email" color="cyan-14" bg-color="grey-2" dark :type="'email'">
+                <template v-slot:append>
+                  <q-icon name="mail" />
+                </template>
+              </q-input>
             </div>
             <div class="col-10 justify-center q-mt-md">
-              <q-input label="Senha" v-model="password" type="password" color="cyan-14" bg-color="grey-2" dark />
+              <q-input label="Senha" v-model="password" :type="visibilityPass ? 'text' : 'password'" color="cyan-14" bg-color="grey-2" dark
+                ><template v-slot:append>
+                  <q-icon name="visibility" v-if="!visibilityPass" @click="visibilityPass = !visibilityPass" />
+                  <q-icon name="visibility_off" v-if="visibilityPass" @click="visibilityPass = !visibilityPass" /></template
+              ></q-input>
               <button class="btn-underline q-mt-md" @click="tab = 'forgot'">Esqueceu sua senha ?</button>
             </div>
-            <div class="col-10 q-mt-md">
-              <q-btn class="btn-login" label="login" @click="login()" color="cyan-14" text-color="black" style="width: 100%" />
+            <div class="col-10 q-mt-xl">
+              <q-btn class="btn-login" label="login" @click="actionLogin()" color="cyan-14" text-color="black" style="width: 100%" />
             </div>
             <div class="col-12 row justify-center q-mt-md">
-              <div class="row">
-                <p style="color: white">Não tem conta ? <button class="btn-underline" @click="tab = 'create'">Criar Conta</button></p>
+              <div class="row" v-if="createAccount">
+                <p style="color: white">Não tem conta ? <button class="btn-underline" @click="tab = 'create'">Criar agora</button></p>
               </div>
             </div>
           </q-tab-panel>
@@ -26,18 +34,29 @@
           <q-tab-panel name="forgot" class="row justify-center">
             <h3>Recuperação de conta</h3>
             <SeparatorDivLineSolid />
-            <div class="col-10 justify-center">
-              <q-input label="E-mail" v-model="email" color="cyan-14" bg-color="grey-2" dark :type="'email'" />
-              <p style="color: white" class="q-mt-sm">Insira seu e-mail para seguir com a recuperação.</p>
+            <div class="col-10">
+              <q-input
+                label="E-mail"
+                v-model="email"
+                color="cyan-14"
+                bg-color="grey-2"
+                dark
+                :type="'email'"
+                hint="Insira seu e-mail para seguir com a recuperação"
+              >
+                <template v-slot:append>
+                  <q-icon name="mail" />
+                </template>
+              </q-input>
             </div>
-            <div class="col-10 justify-center">
-              <button class="btn-underline q-mt-md" style="color: white" @click="tab = 'login'">Volta para login</button>
+            <div class="col-10 q-mt-xl">
+              <button class="btn-underline" style="color: white" @click="tab = 'login'">Volta para login</button>
             </div>
-            <div class="col-10 q-mt-xs">
+            <div class="col-10">
               <q-btn class="btn-login" label="Enviar E-mail" color="cyan-14" text-color="black" style="width: 100%" />
             </div>
-            <div class="col-12 row justify-center q-mt-md">
-              <div class="row">
+            <div class="col-12 row justify-center">
+              <div class="row" v-if="createAccount">
                 <p style="color: white">Não tem conta ? <button class="btn-underline" @click="tab = 'create'">Criar Conta</button></p>
               </div>
             </div>
@@ -47,23 +66,54 @@
             <h3>Criar nova conta</h3>
             <SeparatorDivLineSolid />
             <div class="col-10 justify-center">
-              <q-input label="E-mail" v-model="email" color="cyan-14" bg-color="grey-2" dark :type="'email'" />
+              <q-input label="E-mail" v-model="email" color="cyan-14" bg-color="grey-2" dark :type="'email'"
+                ><template v-slot:append> <q-icon name="mail" /> </template
+              ></q-input>
             </div>
-            <div class="col-5 justify-center q-pr-md">
-              <q-input label="Senha" v-model="password" type="password" color="cyan-14" bg-color="grey-2" dark />
-            </div>
-            <div class="col-5 justify-center q-pl-md">
-              <q-input label="Repita a senha" v-model="newPassword" type="password" color="cyan-14" bg-color="grey-2" dark />
-            </div>
+            <q-input
+              class="col-5 justify-center q-pr-md"
+              label="Senha"
+              v-model="password"
+              :type="visibilityPass ? 'text' : 'password'"
+              color="cyan-14"
+              bg-color="grey-2"
+              dark
+              ><template v-slot:append>
+                <q-icon name="visibility" v-if="!visibilityPass" @click="visibilityPass = !visibilityPass" />
+                <q-icon name="visibility_off" v-if="visibilityPass" @click="visibilityPass = !visibilityPass" /></template
+            ></q-input>
+            <q-input
+              class="col-5 justify-center q-pl-md"
+              label="Repita a senha"
+              v-model="newPassword"
+              :type="visibilityNewPass ? 'text' : 'password'"
+              color="cyan-14"
+              bg-color="grey-2"
+              dark
+              ><template v-slot:append>
+                <q-icon name="visibility" v-if="!visibilityNewPass" @click="visibilityNewPass = !visibilityNewPass" />
+                <q-icon name="visibility_off" v-if="visibilityNewPass" @click="visibilityNewPass = !visibilityNewPass" /></template
+            ></q-input>
             <div class="col-10 justify-center">
-              <q-input label="Convite" v-model="invite" type="password" color="cyan-14" bg-color="grey-2" dark />
-              <p style="color: white" class="q-mt-sm">É necessário ter um convite para prosseguir.</p>
+              <q-input
+                label="Convite"
+                v-model="invite"
+                type="password"
+                color="cyan-14"
+                bg-color="grey-2"
+                dark
+                hint="É necessário ter um convite para prosseguir."
+              >
+                <template v-slot:append>
+                  <q-icon name="label_important" />
+                </template>
+              </q-input>
+            </div>
+            <div class="col-10 q-mt-xl">
+              <q-btn class="btn-login" label="Criar conta" color="cyan-14" text-color="black" style="width: 100%" />
             </div>
             <div class="col-10 justify-center">
               <button class="btn-underline q-mt-md" style="color: white" @click="tab = 'login'">Volta para login</button>
-            </div>
-            <div class="col-10 q-my-sm">
-              <q-btn class="btn-login" label="Enviar E-mail" color="cyan-14" text-color="black" style="width: 100%" />
             </div>
           </q-tab-panel>
         </q-tab-panels>
@@ -83,6 +133,14 @@ export default defineComponent({
       type: String,
       default: 'login',
     },
+    actionLogin: {
+      type: Function,
+      required: true,
+    },
+    createAccount: {
+      type: Boolean,
+      default: true,
+    },
   },
   emits: ['update:modelValue'],
   components: {
@@ -95,6 +153,8 @@ export default defineComponent({
       password: '',
       newPassword: '',
       invite: '',
+      visibilityPass: false,
+      visibilityNewPass: false,
     };
   },
   methods: {
