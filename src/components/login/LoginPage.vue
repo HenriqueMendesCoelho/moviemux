@@ -8,11 +8,11 @@
           <SeparatorDivLineSolid class="q-my-md" style="opacity: 60%" />
           <img src="@/assets/logo-kronus.png" class="left-img-login" alt="logo" draggable="false" @click="tab = 'login'" />
           <div class="col-12" />
-          <p class="q-mt-xl" style="font-size: smaller; color: white">Provided by Kronus Platform</p>
+          <p class="q-mt-xl" style="font-size: smaller; color: white">Powered by Kronus Platform</p>
         </div>
       </div>
       <div class="col-6">
-        <FormLogin v-model="tab" />
+        <FormLogin v-model="tab" :actionLogin="login" />
       </div>
     </div>
   </main>
@@ -35,7 +35,6 @@ export default defineComponent({
   },
   data() {
     return {
-      login: true,
       button_text: 'Login',
       input_pass: '',
       input_email: '',
@@ -46,6 +45,9 @@ export default defineComponent({
   methods: {
     routeToLogin() {
       this.$router.push({ name: 'home' });
+    },
+    login() {
+      this.$router.push('/home');
     },
   },
 });
@@ -62,22 +64,6 @@ main {
       box-shadow: 0px 0px 30px -12px var(--primary);
       transition: 0.2s ease-in-out;
     }
-  }
-
-  $total: 500; // total particles
-  $orb-size: 100px;
-  $particle-size: 2px;
-  $time: 14s;
-  $base-hue: 0; // change for diff colors (180 is nice)
-
-  html,
-  body {
-    height: 100%;
-  }
-
-  body {
-    background: #0b0e14;
-    overflow: hidden; // no scrollbars..
   }
 }
 </style>
