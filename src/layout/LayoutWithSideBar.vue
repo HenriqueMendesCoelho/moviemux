@@ -21,12 +21,6 @@ export default defineComponent({
   computed: {
     ...mapState(useLoginStore, ['isLoged']),
   },
-  mounted() {
-    setTimeout(() => {
-      this.isLoged = true;
-      return;
-    }, 8000);
-  },
   methods: {
     login() {
       //Chamar api e salvar token
