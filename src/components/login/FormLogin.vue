@@ -1,20 +1,27 @@
 <template>
   <div class="row justify-center">
-    <q-card class="form-login col-6" style="border-radius: 15px; min-width: 550px">
+    <q-card class="form-login col-5" style="border-radius: 15px; min-width: 550px">
       <q-card-section class="row justify-center">
         <q-tab-panels v-model="tab" class="tabs col-12" animated style="min-height: 430px">
           <q-tab-panel name="login" class="row justify-center">
             <h3>Login</h3>
             <SeparatorDivLineSolid />
             <div class="col-10 justify-center">
-              <q-input label="E-mail" v-model="email" color="cyan-14" bg-color="grey-2" dark :type="'email'">
+              <q-input name="username" label="E-mail" v-model="email" color="cyan-14" bg-color="grey-2" dark :type="'email'">
                 <template v-slot:append>
                   <q-icon name="mail" />
                 </template>
               </q-input>
             </div>
             <div class="col-10 justify-center q-mt-md">
-              <q-input label="Senha" v-model="password" :type="visibilityPass ? 'text' : 'password'" color="cyan-14" bg-color="grey-2" dark
+              <q-input
+                name="password"
+                label="Senha"
+                v-model="password"
+                :type="visibilityPass ? 'text' : 'password'"
+                color="cyan-14"
+                bg-color="grey-2"
+                dark
                 ><template v-slot:append>
                   <q-icon name="visibility" v-if="!visibilityPass" @click="visibilityPass = !visibilityPass" />
                   <q-icon name="visibility_off" v-if="visibilityPass" @click="visibilityPass = !visibilityPass" /></template
