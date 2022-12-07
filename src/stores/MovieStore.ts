@@ -108,8 +108,5 @@ export const useMovieStore = defineStore('MovieStore', {
     resetStoreMovie() {
       this.selectedMovie = new Movie();
     },
-    getMovieById(id: number) {
-      this.allMovies.find((m) => m.id === id);
-    },
   },
 });
