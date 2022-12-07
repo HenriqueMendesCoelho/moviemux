@@ -112,7 +112,6 @@ import { defineComponent } from 'vue';
 import { mapActions, mapState } from 'pinia';
 import { useStyleStore } from '@/stores/StyleStore';
 import { useMovieStore } from '@/stores/MovieStore';
-import { RouteRecordName } from 'vue-router';
 import type { QTableProps } from 'quasar';
 
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
@@ -124,6 +123,7 @@ import VideoEmbedded from './videoEmbedded/VideoEmbedded.vue';
 import InputText from '../shared/inputText/InputText.vue';
 
 import CustomAlerts from '@/domain/alerts/CustomAlerts';
+import { RouteRecordName } from 'vue-router';
 
 export default defineComponent({
   name: 'MoviePage',
