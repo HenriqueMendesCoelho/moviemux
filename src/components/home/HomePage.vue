@@ -1,6 +1,7 @@
 <template>
   <ContainerMain>
-    <div class="div-lastfilms">
+    <h4 style="color: white" v-if="!allMovies.length">Não há nenhum filme ainda...</h4>
+    <div class="div-lastfilms" v-if="allMovies.length">
       <div class="div-title">
         <button>
           <span
@@ -21,14 +22,12 @@
         <div class="div-cards-lastfilm" v-if="isVisibleLastFilms">
           <div v-for="(movie, index) in allMovies.slice(0, 8)" :key="index">
             <ContextMenuHome :movieId="movie.id" />
-            <router-link :to="{ name: 'movie', params: { id: movie.id } }">
-              <CardApp :title="movie.titulo" :url="movie.url" :key="movie.id" :id="movie.id" />
-            </router-link>
+            <CardImageMovie style="height: 100%" :id="movie.id" :title="movie.titulo" :url="movie.url" :height="cardSize" />
           </div>
         </div>
       </div>
     </div>
-    <div class="div-allfilms">
+    <div class="div-allfilms" v-if="allMovies.length">
       <div class="search-input">
         <input type="text" name="search" placeholder="Digite..." v-model="imageCheck" />
         <button class="search-btn" @click="checkImage(imageCheck)">BUSCAR</button>
@@ -39,9 +38,7 @@
       <div class="container-cards-films" v-auto-animate>
         <div class="cards-films" v-for="movie in allMovies" :key="movie.id">
           <ContextMenuHome :deleteEnable="true" :movieId="movie.id" />
-          <router-link :to="{ name: 'movie', params: { id: movie.id } }">
-            <img :src="movie.url" :alt="movie.titulo" draggable="false" />
-          </router-link>
+          <CardImageMovie :id="movie.id" :title="movie.titulo" :url="movie.url" :height="350" :spaced="false" />
         </div>
       </div>
     </div>
@@ -54,8 +51,8 @@ import { mapState } from 'pinia';
 import { useQuasar } from 'quasar';
 
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
-import CardApp from '../shared/card/CardApp.vue';
 import ContextMenuHome from './contextMenuHome/ContextMenuHome.vue';
+import CardImageMovie from './cardImageMovie/CardImageMovie.vue';
 
 import { useStyleStore } from '@/stores/StyleStore';
 import { useMovieStore } from '@/stores/MovieStore';
@@ -66,8 +63,8 @@ export default defineComponent({
   name: 'HomeApp',
   components: {
     ContainerMain,
-    CardApp,
     ContextMenuHome,
+    CardImageMovie,
   },
   setup() {
     document.title = 'Cineminha - Home';
@@ -102,6 +99,17 @@ export default defineComponent({
   computed: {
     ...mapState(useStyleStore, ['getMarginSideBar']),
     ...mapState(useMovieStore, ['allMovies']),
+    cardSize(): number {
+      const screenWidth = window.screen.height;
+      console.log(screenWidth);
+      if (screenWidth <= 1440 && screenWidth > 1080) {
+        return 300;
+      }
+      if (screenWidth <= 1080 && screenWidth > 900) {
+        return 250;
+      }
+      return 150;
+    },
   },
   methods: {
     async checkImage(url: string) {
@@ -111,15 +119,16 @@ export default defineComponent({
         const img = await imageUtils.checkImageSizeByUrl(url);
 
         if (!img.imgOk) {
-          this.showError(
-            'A imagem deve ter no mínimo 350px de altura e no max 1200px e de largura no mínimo 550px e no max 1100px.'
-          );
+          this.showError('A imagem deve ter no mínimo 350px de altura e no max 1200px e de largura no mínimo 550px e no max 1100px.');
           return;
         }
         this.showMessage('Imagem OK!');
       } catch {
         this.showError('Insira uma url válida para a imagem');
       }
+    },
+    pushToMovie(id: number): void {
+      this.$router.push({ name: 'movie', params: { id: id } });
     },
   },
 });
@@ -201,6 +210,7 @@ export default defineComponent({
 
       @media (max-width: 768px) {
         flex-direction: column;
+        overflow-y: scroll;
       }
     }
   }
@@ -314,7 +324,7 @@ export default defineComponent({
     .cards-films {
       //border: 5px solid yellow;
 
-      img {
+      .img-movies {
         max-width: 100%;
         object-fit: cover;
         max-height: 350px;
