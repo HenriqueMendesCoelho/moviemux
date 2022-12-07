@@ -32,7 +32,6 @@ export default defineComponent({
   padding: 0;
   box-sizing: border-box;
   font-family: 'Fira sans', sans-serif;
-  font-size: 12pt;
 }
 
 body {
@@ -80,4 +79,3 @@ button {
   background-color: var(--light-grey);
 }
 </style>
->
