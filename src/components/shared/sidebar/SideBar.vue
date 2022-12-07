@@ -16,22 +16,22 @@
       <router-link to="/home" class="button">
         <span class="material-icons">home</span>
         <span class="text" v-if="showTextsSideBar">Home</span>
-        <q-tooltip anchor="center right" v-if="!isExpanded" :delay="500">Home</q-tooltip>
+        <CustomTooltip anchor="center right" v-if="!isExpanded" :delay="500">HOME</CustomTooltip>
       </router-link>
       <router-link to="/adm" class="button" v-if="isAdmin()">
         <span class="material-icons">admin_panel_settings</span>
         <span class="text" v-if="showTextsSideBar">Painel ADM</span>
-        <q-tooltip anchor="center right" v-if="!isExpanded" :delay="500">Painel ADM</q-tooltip>
+        <CustomTooltip anchor="center right" :offset="[30, 0]" v-if="!isExpanded" :delay="500">PAINEL ADM</CustomTooltip>
       </router-link>
       <router-link to="/profile" class="button">
         <span class="material-icons">person</span>
         <span class="text" v-if="showTextsSideBar">PERFIL</span>
-        <q-tooltip anchor="center right" v-if="!isExpanded" :delay="500">PERFIL</q-tooltip>
+        <CustomTooltip anchor="center right" v-if="!isExpanded" :delay="500">PERFIL</CustomTooltip>
       </router-link>
       <router-link to="/add" class="button">
         <span class="material-icons">add</span>
         <span class="text" v-if="showTextsSideBar" id="textAddMovie">ADICIONAR FILME</span>
-        <q-tooltip anchor="center right" :offset="[30, 0]" v-if="!isExpanded" :delay="500">ADICIONAR FILME</q-tooltip>
+        <CustomTooltip anchor="center right" :offset="[50, 0]" v-if="!isExpanded" :delay="500">ADICIONAR FILME</CustomTooltip>
       </router-link>
     </div>
 
@@ -54,8 +54,13 @@ import { defineComponent } from 'vue';
 import { mapActions, mapState } from 'pinia';
 import { useStyleStore } from '@/stores/StyleStore';
 
+import CustomTooltip from '../customTooltip/CustomTooltip.vue';
+
 export default defineComponent({
   name: 'SideBar',
+  components: {
+    CustomTooltip,
+  },
   data() {
     return {
       isExpanded: false,
