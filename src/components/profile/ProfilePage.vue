@@ -7,14 +7,14 @@
         </div>
       </div>
       <div class="panel-profile q-mt-xl" :class="isMobile ? 'col-12' : 'col-10'">
-        <q-tabs v-model="tab" class="tabs-selector" active-color="info" indicator-color="info" align="justify" dense>
+        <q-tabs v-model="tab" class="tabs-selector" active-color="cyan-14" indicator-color="cyan-14" align="justify" dense>
           <q-tab :class="isMobile ? '' : 'tab-style-right'" name="myData" label="Meus Dados" icon="badge" />
           <q-tab :class="isMobile ? '' : 'tab-style-right'" name="security" label="Segurança" icon="lock" />
         </q-tabs>
         <q-tab-panels v-model="tab" animated class="tabs q-pt-md" style="min-height: 470px">
           <q-tab-panel name="myData">
             <div class="row justify-center" :class="isMobile ? 'q-pt-xs' : 'q-pt-md'">
-              <h5>Alteração dados pessoais</h5>
+              <h5>Dados pessoais</h5>
               <SeparatorDivLineSolid />
               <PanelUserInfo class="q-mt-md" v-model="myData" />
             </div>
@@ -39,8 +39,6 @@ import PanelUserInfo from '../shared/panelUserInfo/PanelUserInfo.vue';
 import PanelSecurityProfile from './panelSecurityProfile/PanelSecurityProfile.vue';
 import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
 
-//:class="{ active: AdministratorSelectBar.panel_access }"
-
 export default defineComponent({
   name: 'ProfileApp',
   components: {
@@ -54,7 +52,6 @@ export default defineComponent({
   },
   data() {
     return {
-      changePanels: true,
       tab: 'myData',
       myData: {
         name: '',
@@ -63,6 +60,7 @@ export default defineComponent({
         dtCreated: new Date(Date.now()),
         qtdMovies: 10,
         qtdNotes: 10,
+        notifications: true,
       },
     };
   },
