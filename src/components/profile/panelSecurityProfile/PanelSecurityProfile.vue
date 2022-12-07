@@ -1,5 +1,5 @@
 <template>
-  <div class="PanelSecurity row q-pt-md justify-center">
+  <div class="row q-pt-md justify-center">
     <h5>Alteração de senha</h5>
     <SeparatorDivLineSolid />
     <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
@@ -35,13 +35,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style lang="scss" scoped>
-.panel-profile {
-  background: var(--grey-mid);
-  height: auto;
-  border-radius: 15px;
-
-  box-shadow: 0 5px 10px var(--shadow);
-}
-</style>
