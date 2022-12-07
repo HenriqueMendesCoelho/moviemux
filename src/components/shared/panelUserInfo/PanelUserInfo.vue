@@ -1,7 +1,20 @@
 <template>
   <div class="row justify-center">
-    <div :class="isMobile ? 'col-12' : 'col-8'">
-      <InputText :label="'Nome'" v-model="user.name" :readOnly="true" />
+    <div class="row col-8">
+      <div :class="isMobile ? 'col-12' : 'col-11'">
+        <InputText :label="'Nome'" v-model="user.name" :readOnly="allReadOnly" />
+      </div>
+      <div :class="isMobile ? 'col-12' : 'col'">
+        <q-toggle
+          size="xl"
+          v-model="user.notifications"
+          color="cyan-14"
+          checked-icon="notifications"
+          unchecked-icon="notifications_off"
+          :disable="allReadOnly"
+        />
+        <CustomTooltip anchor="bottom middle" :delay="500" style="font-size: 10pt">Notificações por e-mail</CustomTooltip>
+      </div>
     </div>
     <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
       <InputText :label="'Email'" v-model="user.email" :readOnly="true" />
@@ -18,7 +31,7 @@
             label="Perfil de Acesso"
             style="background-color: #343c4c"
             dark
-            :readonly="true"
+            :readonly="allReadOnly"
           />
         </div>
         <div :class="isMobile ? 'col-12' : 'col-6 q-pl-sm'">
@@ -31,7 +44,7 @@
             label="Data criação da conta"
             style="background-color: #343c4c"
             dark
-            :readonly="true"
+            :readonly="allReadOnly"
           />
         </div>
       </div>
@@ -47,7 +60,7 @@
             v-model="user.qtdMovies"
             label="Quantidade de filmes cadastrados"
             dark
-            :readonly="true"
+            :readonly="allReadOnly"
           />
         </div>
         <div :class="isMobile ? 'col-12 q-mt-md' : 'col-6 q-pl-sm'">
@@ -59,7 +72,7 @@
             v-model="user.qtdNotes"
             label="Quantidade de notas cadastrados"
             dark
-            :readonly="true"
+            :readonly="allReadOnly"
             draggable="false"
           />
         </div>
@@ -72,6 +85,7 @@
 import { defineComponent, PropType } from 'vue';
 
 import InputText from '@/components/shared/inputText/InputText.vue';
+import CustomTooltip from '@/components/shared/customTooltip/CustomTooltip.vue';
 
 type userProp = {
   name: string;
@@ -80,6 +94,7 @@ type userProp = {
   dtCreated: Date;
   qtdMovies: number;
   qtdNotes: number;
+  notifications: boolean;
 };
 
 export default defineComponent({
@@ -94,7 +109,7 @@ export default defineComponent({
       default: false,
     },
   },
-  components: { InputText },
+  components: { InputText, CustomTooltip },
   data() {
     return {
       user: {
@@ -104,6 +119,7 @@ export default defineComponent({
         dtCreated: new Date(),
         qtdMovies: 0,
         qtdNotes: 0,
+        notifications: false,
       } as userProp,
     };
   },
@@ -124,6 +140,7 @@ export default defineComponent({
       this.user.dtCreated = this.modelValue?.dtCreated ?? new Date();
       this.user.qtdMovies = this.modelValue?.qtdMovies ?? 0;
       this.user.qtdNotes = this.modelValue?.qtdNotes ?? 0;
+      this.user.notifications = this.modelValue?.notifications ?? false;
     },
   },
   watch: {
