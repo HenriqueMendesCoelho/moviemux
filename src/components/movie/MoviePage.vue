@@ -122,7 +122,6 @@ import SeparatorDivLineSolidVertical from '../shared/separator/SeparatorDivLineS
 import VideoEmbedded from './videoEmbedded/VideoEmbedded.vue';
 import InputText from '../shared/inputText/InputText.vue';
 
-import CustomAlerts from '@/domain/alerts/CustomAlerts';
 import { RouteRecordName } from 'vue-router';
 
 export default defineComponent({
@@ -137,8 +136,6 @@ export default defineComponent({
     InputText,
   },
   setup() {
-    const customAlert = new CustomAlerts();
-
     const columns: QTableProps['columns'] = [
       {
         name: 'nome',
@@ -167,7 +164,6 @@ export default defineComponent({
     ];
 
     return {
-      customAlert,
       columns,
     };
   },
@@ -247,16 +243,13 @@ export default defineComponent({
       return;
     },
     cancel() {
-      this.customAlert.customAlert('Deseja mesmo cancelar?', 'Todos os dados preenchidos serão apagados', true, '').then((res) => {
-        if (res.isConfirmed) {
-          this.isEditing = false;
-          if (this.idPathParam) {
-            //TODO: Chamar api para pegar dados novamente pelo id do path
-            return;
-          }
-          this.resetStoreMovie();
-        }
-      });
+      //TODO:FAZER POP UP PARA CONFIRMAR O CANCELAMENTO DO CADASTRAMENTO
+      this.isEditing = false;
+      if (this.idPathParam) {
+        //TODO: Chamar api para pegar dados novamente pelo id do path
+        return;
+      }
+      this.resetStoreMovie();
     },
     cantEdit() {
       return false;
