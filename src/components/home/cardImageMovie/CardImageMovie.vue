@@ -66,6 +66,8 @@ export default defineComponent({
     max-width: 100%;
     object-fit: cover;
 
+    image-rendering: optimizeSpeed;
+
     border-radius: 15px;
 
     transition: 0.2s ease-out;
