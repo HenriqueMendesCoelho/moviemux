@@ -84,14 +84,13 @@ export default defineComponent({
       return true;
     },
     getRules(): boolean | string {
-      let result = true;
       if (typeof this.defaultRules() == 'string') {
         return this.defaultRules();
       }
       if (typeof this.getCustomRules() == 'string') {
         return this.getCustomRules();
       }
-      return result;
+      return true;
     },
   },
   watch: {
