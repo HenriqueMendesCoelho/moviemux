@@ -14,7 +14,7 @@
         </button>
         <h4>Últimos Filmes</h4>
         <div style="flex: 1 1 0"></div>
-        <button>
+        <button @click="showMessage('teste')">
           <span class="material-icons rf_icon" style="font-size: 18pt"> refresh </span>
         </button>
       </div>
@@ -35,11 +35,14 @@
           <span class="material-icons" style="font-size: 18pt"> refresh </span>
         </button>
       </div>
-      <div class="container-cards-films" v-auto-animate>
+      <q-infinite-scroll class="container-cards-films" @load="onLoad" :offset="10">
         <div class="cards-films" v-for="movie in allMovies" :key="movie.id">
           <ContextMenuHome :deleteEnable="true" :movieId="movie.id" />
           <CardImageMovie :id="movie.id" :title="movie.titulo" :url="movie.url" :height="350" :spaced="false" />
         </div>
+      </q-infinite-scroll>
+      <div class="row justify-center q-my-md" v-if="loading">
+        <q-spinner color="cyan-14" size="50px" />
       </div>
     </div>
   </ContainerMain>
@@ -94,14 +97,18 @@ export default defineComponent({
       lastFilms_height: 'height: 40%;',
       imageCheck: '',
       isVisibleLastFilms: true,
+      pageLoading: 1,
+      loading: false,
     };
+  },
+  mounted() {
+    this.pageLoading = 0;
   },
   computed: {
     ...mapState(useStyleStore, ['getMarginSideBar']),
     ...mapState(useMovieStore, ['allMovies']),
     cardSize(): number {
       const screenWidth = window.screen.height;
-      console.log(screenWidth);
       if (screenWidth <= 1440 && screenWidth > 1080) {
         return 300;
       }
@@ -129,6 +136,19 @@ export default defineComponent({
     },
     pushToMovie(id: number): void {
       this.$router.push({ name: 'movie', params: { id: id } });
+    },
+    onLoad(index: number, done: (stop?: boolean) => void): void {
+      if (this.pageLoading >= 3) {
+        done(true);
+        return;
+      }
+      this.loading = true;
+      setTimeout(() => {
+        this.allMovies.push(...this.allMovies);
+        this.pageLoading += 1;
+        done();
+        this.loading = false;
+      }, 2000);
     },
   },
 });
