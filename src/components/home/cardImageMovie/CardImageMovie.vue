@@ -3,12 +3,18 @@
     <img
       :class="`${spaced && 'spaced'}`"
       @click="pushToMovie(id)"
-      class="img-movies"
       :src="url"
       :alt="title"
       draggable="false"
       :style="`max-height: ${height}px;`"
     />
+    <div class="row hover-text" v-if="!footer">
+      <div class="col-9">{{ getTitle(23) }}</div>
+      <div class="col-3 div-note" :style="`background-color: ${getBackgroudColorNotes()}`">{{ note }}</div>
+    </div>
+  </div>
+  <div v-if="footer" style="text-align: center">
+    {{ getTitle(28) }}
   </div>
 </template>
 
@@ -38,16 +44,49 @@ export default defineComponent({
       type: Boolean,
       default: true,
     },
+    footer: {
+      type: Boolean,
+      default: false,
+    },
+    note: {
+      type: Number,
+    },
   },
   methods: {
     pushToMovie(id: number): void {
       this.$router.push({ name: 'movie', params: { id: id } });
     },
+    getTitle(size: number): string | void {
+      if (this.title.length > size) {
+        return `${this.title.slice(0, size - 3)}...`;
+      }
+
+      return this.title;
+    },
+    getBackgroudColorNotes(): string {
+      //grey
+      if (!this.note) {
+        return 'rgba(120, 120, 120, 0.4)';
+      }
+      //red
+      if (this.note <= 5) {
+        return 'rgb(255, 0, 0, 0.4)';
+      }
+      //gold
+      if (this.note > 5 && this.note <= 7) {
+        return 'rgb(255, 165, 0, 0.4)';
+      }
+      //green
+      if (this.note > 7) {
+        return 'rgb(0, 255, 0, 0.4)';
+      }
+      return '';
+    },
   },
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .container {
   /* topo | direita | inferior | esquerda */
   .spaced {
@@ -73,11 +112,33 @@ export default defineComponent({
     transition: 0.2s ease-out;
 
     box-shadow: 0 5px 30px var(--shadow);
+  }
 
-    &:hover {
+  &:hover {
+    .hover-text {
+      opacity: 1;
+    }
+
+    img {
       transform: scale(1.1);
 
       transition: 0.2s ease-out;
+    }
+  }
+
+  .hover-text {
+    transition: 0.5s ease;
+    opacity: 0;
+    position: relative;
+    top: -4rem;
+    color: white;
+    font-size: 14pt;
+    background-color: rgb(41, 50, 68, 0.8);
+    border-radius: 15px;
+
+    .div-note {
+      border-top-right-radius: 15px;
+      border-bottom-right-radius: 15px;
     }
   }
 }

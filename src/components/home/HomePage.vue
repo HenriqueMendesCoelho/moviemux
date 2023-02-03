@@ -22,7 +22,7 @@
         <div class="div-cards-lastfilm" v-if="isVisibleLastFilms">
           <div v-for="(movie, index) in allMovies.slice(0, 8)" :key="index">
             <ContextMenuHome :movieId="movie.id" />
-            <CardImageMovie style="height: 100%" :id="movie.id" :title="movie.titulo" :url="movie.url" :height="cardSize" />
+            <CardImageMovie style="height: 100%" :id="movie.id" :title="movie.titulo" :url="movie.url" :height="cardSize" :footer="true" />
           </div>
         </div>
       </div>
@@ -38,7 +38,7 @@
       <q-infinite-scroll class="container-cards-films" @load="onLoad" :offset="10">
         <div class="cards-films" v-for="movie in allMovies" :key="movie.id">
           <ContextMenuHome :deleteEnable="true" :movieId="movie.id" />
-          <CardImageMovie :id="movie.id" :title="movie.titulo" :url="movie.url" :height="350" :spaced="false" />
+          <CardImageMovie :id="movie.id" :title="movie.titulo" :url="movie.url" :note="movie.note" :height="350" :spaced="false" />
         </div>
       </q-infinite-scroll>
       <div class="row justify-center q-my-md" v-if="loading">
