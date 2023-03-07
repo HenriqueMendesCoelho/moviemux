@@ -9,8 +9,8 @@
       :style="`max-height: ${height}px;`"
     />
     <div class="row hover-text" v-if="!footer">
-      <div class="col-9">{{ getTitle(23) }}</div>
-      <div class="col-3 div-note" :style="`background-color: ${getBackgroudColorNotes()}`">{{ note }}</div>
+      <div class="col-10">{{ getTitle(25) }}</div>
+      <div class="col-2 div-note" :style="`background-color: ${getBackgroudColorNotes()}`">{{ note }}</div>
     </div>
   </div>
   <div v-if="footer" style="text-align: center">
@@ -116,6 +116,7 @@ export default defineComponent({
 
   &:hover {
     .hover-text {
+      transition-delay: 400ms;
       opacity: 1;
     }
 
