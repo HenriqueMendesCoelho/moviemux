@@ -11,6 +11,11 @@ router.beforeEach((to, from, next) => {
   const loginStore = useUserStore();
   const user = loginStore.user;
 
+  const token = localStorage.getItem('auth-kb');
+  if (token) {
+    loginStore.decodeToken(token);
+  }
+
   if (!to.name) {
     next({ name: 'login' });
     return;

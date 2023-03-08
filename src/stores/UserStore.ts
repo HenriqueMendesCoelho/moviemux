@@ -19,31 +19,26 @@ export const useUserStore = defineStore('UserStore', {
     };
   },
   getters: {
-    lifeTimeSession(): number {
-      if (this.user.isLoged) {
-        const until = new Date(this.user.expirationToken).getTime();
-        const dateNow = Date.now();
+    timeToExpire(): number {
+      const until = this.user.expirationToken;
+      const dateNow = Math.floor(Date.now() / 1000);
 
-        const diff = until - dateNow;
+      const diff = until - dateNow;
 
-        return diff > 0 ? Math.floor(diff / 1000 / 60) : 0;
-      }
-      return 0;
+      const result = diff > 0 ? Math.floor(diff / 60) : 0;
+
+      return result;
     },
     sessionIsCloseToExpire(): boolean | null {
       if (!this.user.isLoged) {
         return null;
       }
 
-      const timeToExpire = this.lifeTimeSession;
-
-      return timeToExpire <= 10;
+      return this.timeToExpire <= 10;
     },
   },
   actions: {
     async login(payload: { email: string; password: string }): Promise<void> {
-      const url = `${BASE_URL}/login`;
-      console.log(url);
       try {
         const res = await axios.post(`${BASE_URL}/login`, payload);
         const responsePayload = res.data;
@@ -52,7 +47,6 @@ export const useUserStore = defineStore('UserStore', {
         localStorage.setItem('auth-kb', token);
         this.user.isLoged = true;
         this.showDialogLogin = false;
-        this.user.expirationToken = new Date(responsePayload.expires).getTime();
         this.decodeToken(token);
 
         return Promise.resolve();
@@ -78,6 +72,10 @@ export const useUserStore = defineStore('UserStore', {
       this.user.name = tokenPayload.name;
       this.user.roles = tokenPayload.roles;
       this.user.username = tokenPayload.aud;
+      this.user.expirationToken = tokenPayload.exp;
+      if (this.timeToExpire > 0) {
+        this.user.isLoged = true;
+      }
     },
   },
 });
