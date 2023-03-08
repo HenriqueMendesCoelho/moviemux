@@ -1,7 +1,7 @@
 <template>
   <SideBar />
   <router-view />
-  <DialogLogin v-model="isLoged" :actionLogin="login" />
+  <DialogLogin v-model="showDialogLogin" :actionLogin="login" />
 </template>
 
 <script lang="ts">
@@ -19,12 +19,12 @@ export default defineComponent({
     DialogLogin,
   },
   computed: {
-    ...mapState(useLoginStore, ['isLoged']),
+    ...mapState(useLoginStore, ['user', 'showDialogLogin']),
   },
   methods: {
     login() {
       //Chamar api e salvar token
-      this.isLoged = false;
+      this.user.isLoged = false;
     },
   },
 });

@@ -1,41 +1,73 @@
 import LoginPage from '@/components/login/LoginPage.vue';
 import HomeApp from '@/components/home/HomePage.vue';
-import MovieApp from '@/components/movie/MoviePage.vue';
 
 export const routes = [
   {
-    path: '/',
+    path: '',
     component: () => import('@/layout/LayoutWithoutSideBar.vue'),
-    children: [{ path: '', component: LoginPage, name: 'login' }],
+    children: [
+      {
+        path: '',
+        component: LoginPage,
+        name: 'login',
+        meta: {
+          roles: ['UNSECURE'],
+        },
+      },
+      {
+        path: '/:pathMatch(.*)*',
+        component: () => import('@/components/notFound/NotFound.vue'),
+        name: 'notFound',
+        meta: {
+          roles: ['UNSECURE'],
+        },
+      },
+    ],
   },
   {
-    path: '/home',
+    path: '',
     component: () => import('@/layout/LayoutWithSideBar.vue'),
-    children: [{ path: '', component: HomeApp, name: 'home' }],
-  },
-  {
-    path: '/adm',
-    component: () => import('@/layout/LayoutWithSideBar.vue'),
-    children: [{ path: '', component: () => import('@/components/administrator/AdministratorPage.vue'), name: 'adm' }],
-  },
-  {
-    path: '/movie/:id',
-    component: () => import('@/layout/LayoutWithSideBar.vue'),
-    children: [{ path: '', component: MovieApp, name: 'movie' }],
-  },
-  {
-    path: '/add',
-    component: () => import('@/layout/LayoutWithSideBar.vue'),
-    children: [{ path: '', component: MovieApp, name: 'add' }],
-  },
-  {
-    path: '/profile',
-    component: () => import('@/layout/LayoutWithSideBar.vue'),
-    children: [{ path: '', component: () => import('@/components/profile/ProfilePage.vue'), name: 'profile' }],
-  },
-  {
-    path: '/:pathMatch(.*)*',
-    component: () => import('@/layout/LayoutWithoutSideBar.vue'),
-    children: [{ path: '', component: () => import('@/components/notFound/NotFound.vue'), name: 'NotFound' }],
+    children: [
+      {
+        path: '/home',
+        component: HomeApp,
+        name: 'home',
+        meta: {
+          roles: ['ROLE_ADM', 'ROLE_USER'],
+        },
+      },
+      {
+        path: '/adm',
+        component: () => import('@/components/administrator/AdministratorPage.vue'),
+        name: 'adm',
+        meta: {
+          roles: ['ROLE_ADM'],
+        },
+      },
+      {
+        path: '/movie/:id',
+        component: () => import('@/components/movie/MoviePage.vue'),
+        name: 'movie',
+        meta: {
+          roles: ['ROLE_ADM', 'ROLE_USER'],
+        },
+      },
+      {
+        path: '/add',
+        component: () => import('@/components/movie/MoviePage.vue'),
+        name: 'add',
+        meta: {
+          roles: ['ROLE_ADM', 'ROLE_USER'],
+        },
+      },
+      {
+        path: '/profile',
+        component: () => import('@/components/profile/ProfilePage.vue'),
+        name: 'profile',
+        meta: {
+          roles: ['ROLE_ADM', 'ROLE_USER'],
+        },
+      },
+    ],
   },
 ];
