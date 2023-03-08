@@ -1,4 +1,4 @@
-import { useLoginStore } from '@/stores/LoginStore';
+import { useUserStore } from '@/stores/UserStore';
 import { createRouter, createWebHistory } from 'vue-router';
 import { routes } from './routes';
 
@@ -8,7 +8,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const loginStore = useLoginStore();
+  const loginStore = useUserStore();
   const user = loginStore.user;
 
   if (!to.name) {

@@ -8,7 +8,8 @@
 import { defineComponent } from 'vue';
 import { mapState } from 'pinia';
 
-import { useLoginStore } from '@/stores/LoginStore';
+import { useUserStore } from '@/stores/UserStore';
+
 import SideBar from '@/components/shared/sidebar/SideBar.vue';
 import DialogLogin from '@/components/login/DialogLogin.vue';
 
@@ -19,7 +20,7 @@ export default defineComponent({
     DialogLogin,
   },
   computed: {
-    ...mapState(useLoginStore, ['user', 'showDialogLogin']),
+    ...mapState(useUserStore, ['user', 'showDialogLogin']),
   },
   methods: {
     login() {

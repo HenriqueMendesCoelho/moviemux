@@ -2,12 +2,22 @@
   <div class="row justify-center">
     <q-card class="form-login col-5" style="border-radius: 15px; min-width: 550px">
       <q-card-section class="row justify-center">
-        <q-tab-panels v-model="tab" class="tabs col-12" animated style="min-height: 430px">
+        <q-tab-panels v-model="tab" class="tabs col-12" animated style="min-height: 460px">
           <q-tab-panel name="login" class="row justify-center">
             <h3>Login</h3>
             <SeparatorDivLineSolid />
             <div class="col-10 justify-center">
-              <q-input name="username" label="E-mail" v-model="email" color="cyan-14" bg-color="grey-2" dark :type="'email'">
+              <q-input
+                ref="inputEmailRef"
+                name="username"
+                label="E-mail"
+                v-model="email"
+                color="cyan-14"
+                bg-color="grey-2"
+                dark
+                :type="'email'"
+                :rules="[(val) => !!val]"
+              >
                 <template v-slot:append>
                   <q-icon name="mail" />
                 </template>
@@ -15,6 +25,7 @@
             </div>
             <div class="col-10 justify-center q-mt-md">
               <q-input
+                ref="inputPasswordRef"
                 name="password"
                 label="Senha"
                 v-model="password"
@@ -22,6 +33,7 @@
                 color="cyan-14"
                 bg-color="grey-2"
                 dark
+                :rules="[(val) => !!val]"
                 ><template v-slot:append>
                   <q-icon name="visibility" v-if="!visibilityPass" @click="visibilityPass = !visibilityPass" />
                   <q-icon name="visibility_off" v-if="visibilityPass" @click="visibilityPass = !visibilityPass" /></template
@@ -29,7 +41,7 @@
               <button class="btn-underline q-mt-md" @click="tab = 'forgot'">Esqueceu sua senha ?</button>
             </div>
             <div class="col-10 q-mt-xl">
-              <q-btn class="btn-login" label="login" @click="actionLogin()" color="cyan-14" text-color="black" style="width: 100%" />
+              <q-btn class="btn-login" label="login" @click="login()" color="cyan-14" text-color="black" style="width: 100%" />
             </div>
             <div class="col-12 row justify-center q-mt-md">
               <div class="row" v-if="createAccount">
@@ -125,12 +137,18 @@
           </q-tab-panel>
         </q-tab-panels>
       </q-card-section>
+      <q-inner-loading :showing="loading" label="Aguarde..." color="cyan-14" label-class="text-white" :dark="true" />
     </q-card>
   </div>
 </template>
 
 <script lang="ts" scoped>
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
+import { useQuasar } from 'quasar';
+import { mapActions } from 'pinia';
+
+import { useUserStore } from '@/stores/UserStore';
+
 import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue';
 
 export default defineComponent({
@@ -139,10 +157,6 @@ export default defineComponent({
     modelValue: {
       type: String,
       default: 'login',
-    },
-    actionLogin: {
-      type: Function,
-      required: true,
     },
     createAccount: {
       type: Boolean,
@@ -153,6 +167,26 @@ export default defineComponent({
   components: {
     SeparatorDivLineSolid,
   },
+  setup() {
+    const $q = useQuasar();
+
+    // eslint-disable-next-line
+    const inputEmailRef = ref<any>(null);
+    // eslint-disable-next-line
+    const inputPasswordRef = ref<any>(null);
+
+    return {
+      inputEmailRef,
+      inputPasswordRef,
+      showError(msg: string) {
+        $q.notify({
+          type: 'negative',
+          message: msg,
+          position: 'bottom',
+        });
+      },
+    };
+  },
   data() {
     return {
       tab: 'login',
@@ -162,17 +196,43 @@ export default defineComponent({
       invite: '',
       visibilityPass: false,
       visibilityNewPass: false,
+      loading: false,
     };
   },
   methods: {
+    ...mapActions(useUserStore, { signIn: 'login' }),
     resetData() {
       this.email = '';
       this.password = '';
       this.newPassword = '';
       this.invite = '';
     },
-    login() {
-      this.$router.push('/home');
+    async login() {
+      if (this.hasErrors()) {
+        return;
+      }
+
+      try {
+        this.loading = true;
+        await this.signIn({ email: this.email, password: this.password });
+        this.$router.push('/home');
+      } catch {
+        this.showError('Error ao fazer login, tente novamente mais tarde!');
+      } finally {
+        this.loading = false;
+      }
+    },
+    hasErrors() {
+      let hasErrors = false;
+      if (this.inputEmailRef) {
+        this.inputEmailRef.validate();
+        hasErrors = this.inputEmailRef.hasError;
+      }
+      if (this.inputPasswordRef) {
+        this.inputPasswordRef.validate();
+        hasErrors = this.inputEmailRef.hasError;
+      }
+      return hasErrors;
     },
   },
   watch: {
