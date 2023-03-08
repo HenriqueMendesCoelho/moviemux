@@ -10,7 +10,7 @@
         <span class="material-icons"> keyboard_double_arrow_right </span>
       </button>
     </div>
-
+    <p v-if="showTextsSideBar">Olá, {{ user.name }}</p>
     <h3>Menu</h3>
     <div class="menu">
       <router-link to="/home" class="button">
@@ -41,7 +41,7 @@
         <span class="material-icons" draggable="false"> light_mode </span>
         <span class="text" draggable="false">Tema</span>
       </button>
-      <router-link to="/" class="button">
+      <router-link @click="logout" to="/" class="button">
         <span class="material-icons">logout</span>
         <span class="text">Sair</span>
       </router-link>
@@ -52,6 +52,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { mapActions, mapState } from 'pinia';
+
+import { useUserStore } from '@/stores/UserStore';
 import { useStyleStore } from '@/stores/StyleStore';
 
 import CustomTooltip from '../customTooltip/CustomTooltip.vue';
@@ -69,6 +71,7 @@ export default defineComponent({
   },
   computed: {
     ...mapState(useStyleStore, ['backgroundColor', 'sideBarWidth']),
+    ...mapState(useUserStore, ['user']),
   },
   methods: {
     ...mapActions(useStyleStore, ['ToggleMenuStore', 'setIsExpanded']),
@@ -80,6 +83,9 @@ export default defineComponent({
     isAdmin() {
       //TODO
       return true;
+    },
+    logout() {
+      localStorage.clear();
     },
   },
   beforeMount() {
@@ -177,6 +183,10 @@ aside {
     font-size: 1rem;
     margin-bottom: 1rem;
     text-transform: uppercase;
+  }
+
+  p {
+    color: var(--light-grey2);
   }
 
   .menu {
