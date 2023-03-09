@@ -1,6 +1,6 @@
 <template>
   <q-dialog v-model="visible" persistent>
-    <FormLogin :actionLogin="actionLogin" :createAccount="false" />
+    <FormLogin :createAccount="false" />
   </q-dialog>
 </template>
 
@@ -15,10 +15,6 @@ export default defineComponent({
     modelValue: {
       type: Boolean,
       default: false,
-    },
-    actionLogin: {
-      type: Function,
-      required: true,
     },
   },
   components: {
