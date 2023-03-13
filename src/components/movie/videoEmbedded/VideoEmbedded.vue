@@ -1,13 +1,19 @@
 <template>
-  <div class="row movie-trailers justify-center" v-if="moviePage.selectedMovie.trailerBr || moviePage.selectedMovie.trailerEn">
-    <div class="column items-center" v-if="moviePage.selectedMovie.trailerBr">
+  <SeparatorDivSolidLine v-if="moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer" />
+  <div
+    class="row movie-trailers justify-center"
+    v-if="moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer"
+  >
+    <div class="column items-center" v-if="moviePage.selectedMovie.portuguese_url_trailer">
       <h6>Trailer Dublado</h6>
-      <IframeVideo :width="width" :url="moviePage.selectedMovie.trailerBr" />
+      <IframeVideo :width="width" :url="moviePage.selectedMovie.portuguese_url_trailer" />
     </div>
-    <SeparatorDivLineSolidVertical v-if="showSeparationBar && moviePage.selectedMovie.trailerBr && moviePage.selectedMovie.trailerEn" />
-    <div class="column items-center" v-if="moviePage.selectedMovie.trailerEn">
+    <SeparatorDivLineSolidVertical
+      v-if="showSeparationBar && moviePage.selectedMovie.portuguese_url_trailer && moviePage.selectedMovie.english_url_trailer"
+    />
+    <div class="column items-center" v-if="moviePage.selectedMovie.english_url_trailer">
       <h6>Trailer Legendado</h6>
-      <IframeVideo :width="width" :url="moviePage.selectedMovie.trailerEn" />
+      <IframeVideo :width="width" :url="moviePage.selectedMovie.english_url_trailer" />
     </div>
   </div>
 </template>
@@ -19,11 +25,12 @@ import { mapState } from 'pinia';
 import { useMovieStore } from '@/stores/MovieStore';
 
 import IframeVideo from './iframeVideo/IframeVideo.vue';
+import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';
 import SeparatorDivLineSolidVertical from '@/components/shared/separator/SeparatorDivLineSolidVertical.vue';
 
 export default defineComponent({
   name: 'VideoEmbedded',
-  components: { IframeVideo, SeparatorDivLineSolidVertical },
+  components: { IframeVideo, SeparatorDivSolidLine, SeparatorDivLineSolidVertical },
   props: {
     width: {
       type: String,

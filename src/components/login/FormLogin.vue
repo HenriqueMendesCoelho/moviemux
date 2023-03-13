@@ -41,7 +41,7 @@
               <button class="btn-underline q-mt-md" @click="tab = 'forgot'">Esqueceu sua senha ?</button>
             </div>
             <div class="col-10 q-mt-xl">
-              <q-btn class="btn-login" label="login" @click="login()" color="cyan-14" text-color="black" style="width: 100%" />
+              <q-btn class="btn-login" label="entrar" @click="login()" color="cyan-14" text-color="black" style="width: 100%" />
             </div>
             <div class="col-12 row justify-center q-mt-md">
               <div class="row" v-if="createAccount">

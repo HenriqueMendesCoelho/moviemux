@@ -33,7 +33,7 @@ export default defineComponent({
     },
     modelValue: {
       type: String,
-      required: true,
+      required: false,
     },
     required: {
       type: Boolean,
@@ -98,7 +98,7 @@ export default defineComponent({
       this.$emit('update:modelValue', this.text);
     },
     modelValue() {
-      this.text = this.modelValue;
+      this.text = this.modelValue || '';
     },
   },
 });

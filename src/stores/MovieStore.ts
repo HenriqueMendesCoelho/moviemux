@@ -7,7 +7,8 @@ export const useMovieStore = defineStore('MovieStore', {
       moviePage: {
         id: '',
         isEditing: false,
-        selectedMovie: {} as Movie,
+        selectedMovie: new Movie(),
+        showImportMovieDialog: false,
       },
 
       allMovies: [

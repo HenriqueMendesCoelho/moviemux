@@ -1,37 +1,46 @@
 <template>
   <div class="container-infos-img">
     <img
-      :src="
-        moviePage.selectedMovie.image
-          ? moviePage.selectedMovie.image
-          : 'https://cdn.discordapp.com/attachments/713552377348882434/987853775450566666/unknown.png'
-      "
-      :alt="moviePage.selectedMovie.titleEn ? moviePage.selectedMovie.titleEn : 'placeholder'"
+      :src="moviePage.selectedMovie.url_image || 'https://cdn.discordapp.com/attachments/713552377348882434/987853775450566666/unknown.png'"
+      :alt="moviePage.selectedMovie.portuguese_title || 'img'"
       draggable="false"
     />
     <div class="row movie-infos-inputs">
       <p class="paragrafy-title-info">Informações</p>
       <SeparatorDiv />
       <div class="col-12">
-        <InputText :label="'Título PT-BR'" v-model="moviePage.selectedMovie.titleBr" :readOnly="!isRegisterOrEditing" />
+        <InputText :label="'Título PT-BR'" v-model="moviePage.selectedMovie.portuguese_title" :readOnly="!isRegisterOrEditing" />
       </div>
       <div class="col-12">
-        <InputText :label="'Título EN'" v-model="moviePage.selectedMovie.titleEn" :readOnly="!isRegisterOrEditing" />
+        <InputText :label="'Título EN'" v-model="moviePage.selectedMovie.english_title" :readOnly="!isRegisterOrEditing" />
       </div>
       <div class="col-12">
-        <InputText :label="'Ano de lançamento'" v-model="moviePage.selectedMovie.year" :readOnly="!isRegisterOrEditing" :mask="'####'" />
+        <InputText
+          :label="'Ano de lançamento'"
+          v-model="moviePage.selectedMovie.release_date"
+          :readOnly="!isRegisterOrEditing"
+          :mask="'##/##/####'"
+        />
       </div>
       <div class="col-12">
         <InputText :label="'Diretor'" v-model="moviePage.selectedMovie.director" :readOnly="!isRegisterOrEditing" />
       </div>
       <div class="col-12">
-        <InputText :label="'URL da Imagem'" v-model="moviePage.selectedMovie.image" :readOnly="!isRegisterOrEditing" />
+        <InputText :label="'URL da Imagem'" v-model="moviePage.selectedMovie.url_image" :readOnly="!isRegisterOrEditing" />
       </div>
       <div class="col-12">
-        <InputText :label="'URL do trailer dublado'" v-model="moviePage.selectedMovie.trailerBr" :readOnly="!isRegisterOrEditing" />
+        <InputText
+          :label="'URL do trailer dublado'"
+          v-model="moviePage.selectedMovie.portuguese_url_trailer"
+          :readOnly="!isRegisterOrEditing"
+        />
       </div>
       <div class="col-12">
-        <InputText :label="'URL do trailer legendado'" v-model="moviePage.selectedMovie.trailerEn" :readOnly="!isRegisterOrEditing" />
+        <InputText
+          :label="'URL do trailer legendado'"
+          v-model="moviePage.selectedMovie.english_url_trailer"
+          :readOnly="!isRegisterOrEditing"
+        />
       </div>
     </div>
   </div>

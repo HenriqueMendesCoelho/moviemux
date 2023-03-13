@@ -1,14 +1,16 @@
 export default class Movie {
-  //[keys: string]: any;
-
-  id = 0;
-  titleBr = "";
-  titleEn = "";
-  description = "";
-  notes = [];
-  year = "";
-  director = "";
-  trailerBr = "";
-  trailerEn = "";
-  image = "";
+  constructor(
+    public id?: string,
+    public tmdb_id?: number,
+    public portuguese_title?: string,
+    public english_title?: string,
+    public original_title?: string,
+    public director?: string,
+    public url_image?: string,
+    public portuguese_url_trailer?: string,
+    public english_url_trailer?: string,
+    public description?: string,
+    public genres?: Array<number>,
+    public release_date?: string
+  ) {}
 }

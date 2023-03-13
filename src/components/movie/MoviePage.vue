@@ -8,7 +8,6 @@
       <FormVideo :isRegisterOrEditing="isRegisterOrEditing()" />
       <SeparatorDivSolidLine />
       <NotesDescription :isRegisterOrEditing="isRegisterOrEditing()" />
-      <SeparatorDivSolidLine v-if="moviePage.selectedMovie.trailerBr || moviePage.selectedMovie.trailerEn" />
       <VideoEmbedded :width="isMobile ? '100%' : '560px'" />
       <div class="row justify-center" v-if="isRegisterOrEditing()">
         <SeparatorDivSolidLine />
@@ -27,6 +26,7 @@
         </div>
       </div>
     </div>
+    <ImportMovie :visible="moviePage.showImportMovieDialog" />
   </ContainerMain>
 </template>
 
@@ -44,6 +44,7 @@ import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLin
 import VideoEmbedded from './videoEmbedded/VideoEmbedded.vue';
 import SuperiorButtonsMovie from './superiorButtonsMovie/SuperiorButtonsMovie.vue';
 import NotesDescription from './notesDescriptionMovie/NotesDescription.vue';
+import ImportMovie from './importMovie/ImportMovie.vue';
 
 export default defineComponent({
   name: 'MoviePage',
@@ -54,6 +55,7 @@ export default defineComponent({
     SuperiorButtonsMovie,
     FormVideo,
     NotesDescription,
+    ImportMovie,
   },
   data() {
     return {

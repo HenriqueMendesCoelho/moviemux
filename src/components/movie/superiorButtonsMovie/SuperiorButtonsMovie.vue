@@ -19,7 +19,14 @@
     </div>
   </div>
   <div :class="showTopButtons() ? 'col-2 offset-md-4' : 'col-2 offset-md-10'">
-    <q-btn style="width: 100%" color="primary" text-color="white" label="Importar do TMDB" v-if="showBtnImport()" />
+    <q-btn
+      @click="moviePage.showImportMovieDialog = !moviePage.showImportMovieDialog"
+      style="width: 100%"
+      color="primary"
+      text-color="white"
+      label="Importar do TMDB"
+      v-if="showBtnImport()"
+    />
   </div>
 </template>
 
