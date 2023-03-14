@@ -36,9 +36,6 @@ export default defineComponent({
       return '';
     },
   },
-  updated() {
-    console.log('AQUIIII ' + this.url);
-  },
   methods: {
     getUrlConverted(url: string) {
       const split = url.split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/);
