@@ -1,3 +1,3 @@
 export type ConfirmDialogRefType = {
-  dialog: (title: string, message: string, persisstent?: boolean) => void;
+  dialog: (message: string, title?: string, ok?: string, cancel?: string, persisstent?: boolean) => void;
 };

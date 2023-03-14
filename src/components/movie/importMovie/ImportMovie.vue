@@ -169,7 +169,7 @@ export default defineComponent({
       }
     },
     showConfirmDialog(movie: MovieFoundByName['results'][0]) {
-      this.confirmDialogRef?.dialog('Confirme sua importação', `Você quer mesmo importar o filme ${movie.title}?`);
+      this.confirmDialogRef?.dialog(`Você quer mesmo importar o filme ${movie.title}?`, 'Confirme sua importação', 'Sim');
       this.movieId = movie.id;
     },
   },

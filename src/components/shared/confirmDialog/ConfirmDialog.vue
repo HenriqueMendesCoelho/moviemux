@@ -1,26 +1,36 @@
+<template>
+  <div></div>
+</template>
 <script lang="ts">
 import { defineComponent } from 'vue';
 
 export default defineComponent({
   name: 'ConfirmDialog',
-  emits: ['Ok', 'Cancel'],
+  emits: ['ok', 'cancel'],
   methods: {
-    dialog(title = 'Confirme', message: string, persisstent = true) {
+    dialog(message: string, title = 'Confirme', ok = 'Ok', cancel = 'Cancelar', persisstent = true) {
       this.$q
         .dialog({
           dark: true,
           title: title,
           message: message,
-          cancel: true,
           persistent: persisstent,
           color: 'cyan-14',
           class: 'dialog-container',
+          ok: {
+            label: ok,
+            flat: true,
+          },
+          cancel: {
+            label: cancel,
+            flat: true,
+          },
         })
         .onOk(() => {
-          this.$emit('Ok');
+          this.$emit('ok');
         })
         .onCancel(() => {
-          this.$emit('Cancel');
+          this.$emit('cancel');
         });
     },
   },
