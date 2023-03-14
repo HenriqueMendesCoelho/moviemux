@@ -11,6 +11,6 @@ export default class Movie {
     public english_url_trailer?: string,
     public description?: string,
     public genres?: Array<number>,
-    public release_date?: string
+    public release_date?: Date
   ) {}
 }

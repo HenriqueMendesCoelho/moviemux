@@ -17,7 +17,8 @@
       <div class="col-12">
         <InputText
           :label="'Ano de lançamento'"
-          v-model="moviePage.selectedMovie.release_date"
+          :modelValue="moviePage.selectedMovie.release_date?.toLocaleDateString()"
+          @change="moviePage.selectedMovie.release_date = new Date($event)"
           :readOnly="!isRegisterOrEditing"
           :mask="'##/##/####'"
         />
