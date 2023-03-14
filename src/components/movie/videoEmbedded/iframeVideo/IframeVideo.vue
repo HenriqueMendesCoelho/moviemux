@@ -30,7 +30,6 @@ export default defineComponent({
   computed: {
     convertedUrl() {
       if (this.url) {
-        console.log(this.url);
         return this.getUrlConverted(this.url);
       }
       return '';
