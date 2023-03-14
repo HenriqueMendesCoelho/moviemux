@@ -22,7 +22,7 @@
         <div class="div-cards-lastfilm" v-if="isVisibleLastFilms">
           <div v-for="(movie, index) in allMovies.slice(0, 8)" :key="index">
             <ContextMenuHome :movieId="movie.id" />
-            <CardImageMovie style="height: 100%" :id="movie.id" :title="movie.titulo" :url="movie.url" :height="cardSize" :footer="true" />
+            <CardImageMovie :id="movie.id" :title="movie.titulo" :url="movie.url" :height="cardSize" :footer="true" />
           </div>
         </div>
       </div>
