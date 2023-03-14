@@ -9,7 +9,7 @@
         <span class="material-icons" style="font-size: 25pt"> open_in_new </span>
         <q-item-section class="q-pl-sm">Abrir em nova guia</q-item-section>
       </q-item>
-      <q-item clickable @click="deleteMovie(movieId)" v-close-popup v-if="deleteEnable">
+      <q-item clickable @click="deleteMovie()" v-close-popup v-if="deleteEnable">
         <span class="material-icons" style="font-size: 25pt"> delete </span>
         <q-item-section class="q-pl-sm">Excluir</q-item-section>
       </q-item>
@@ -48,9 +48,7 @@ export default defineComponent({
       const w = window.open(url);
       if (w) w.focus();
     },
-    deleteMovie(id?: number) {
-      //TODO
-      console.log('TODO delete movie' + id);
+    deleteMovie() {
       return;
     },
   },
