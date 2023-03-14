@@ -25,6 +25,7 @@
               spinner-color="cyan-14"
               v-for="movie in movies"
               :key="movie.id"
+              @click="showConfirmDialog(movie)"
             >
               <div class="absolute-bottom text-h6">{{ movie.title }}</div>
             </q-img>
@@ -35,24 +36,58 @@
         </div>
       </q-card-section>
     </q-card>
+    <ConfirmDialog ref="confirmDialogRef" @ok="importMovie" />
   </q-dialog>
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
+import { useQuasar } from 'quasar';
 import { mapState } from 'pinia';
 
 import { useMovieStore } from '@/stores/MovieStore';
+
+import { ConfirmDialogRefType } from '@/components/shared/confirmDialog/types/ConfirmDialogType';
+import { MovieFoundByName } from '@/types/movie/MovieType';
 
 import KitService from '@/services/KitService';
 
 import InputText from '@/components/shared/inputText/InputText.vue';
 import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';
-import { MovieFoundByName } from '@/types/movie/MovieType';
 import Movie from '@/domain/movie/movie';
+import ConfirmDialog from '@/components/shared/confirmDialog/ConfirmDialog.vue';
 
 export default defineComponent({
   name: 'ImportMovie',
-  components: { InputText, SeparatorDivSolidLine },
+  components: { InputText, SeparatorDivSolidLine, ConfirmDialog },
+  setup() {
+    const $q = useQuasar();
+    const confirmDialogRef = ref<ConfirmDialogRefType>();
+    return {
+      confirmDialogRef,
+      showLoading() {
+        $q.loading.show({
+          spinnerColor: 'cyan-14',
+        });
+      },
+      hideLoading() {
+        $q.loading.hide();
+      },
+      showSuccess(msg: string) {
+        $q.notify({
+          type: 'positive',
+          message: msg,
+          position: 'bottom',
+        });
+      },
+      showError(msg: string) {
+        $q.notify({
+          type: 'negative',
+          message: msg,
+          position: 'bottom',
+        });
+      },
+    };
+  },
   data() {
     return {
       page: 1,
@@ -60,7 +95,7 @@ export default defineComponent({
       loading: false,
       movies: [] as MovieFoundByName['results'],
       text: '',
-      showConfirmDialog: false,
+      movieId: 0,
     };
   },
   computed: {
@@ -100,18 +135,16 @@ export default defineComponent({
       done();
       this.loading = false;
     },
-    getImageUrl(path?: string) {
+    getImageUrl(path?: string, size = 'w342') {
       if (!path) {
         return require('../../../assets/no-image.png');
       }
-
-      const urlBase = 'https://image.tmdb.org/t/p/w342';
-
-      return `${urlBase}/${path}`;
+      return `${process.env.VUE_APP_TMDB_IMAGE_BASE}/${size}${path}`;
     },
-    async importMovie(id: number) {
+    async importMovie() {
       try {
-        const res = await KitService.summary({ tmdb_id: id });
+        this.showLoading();
+        const res = await KitService.summary({ tmdb_id: this.movieId });
         this.moviePage.selectedMovie = new Movie(
           '',
           res.tmdb_id,
@@ -119,17 +152,25 @@ export default defineComponent({
           res.english_title,
           res.original_title,
           res.director,
-          res.url_image_portuguese,
+          this.getImageUrl(res.url_image_portuguese || res.url_image_english, 'w780'),
           res.portuguese_url_trailer,
           res.english_url_trailer,
           res.description,
           [],
-          new Date(res.release_date || new Date()).toLocaleDateString()
+          new Date(res.release_date || new Date())
         );
         this.moviePage.showImportMovieDialog = false;
+        this.showSuccess('Filme importado com sucesso');
       } catch {
+        this.showError('Erro ao importar filme');
         return;
+      } finally {
+        this.hideLoading();
       }
+    },
+    showConfirmDialog(movie: MovieFoundByName['results'][0]) {
+      this.confirmDialogRef?.dialog('Confirme sua importação', `Você quer mesmo importar o filme ${movie.title}?`);
+      this.movieId = movie.id;
     },
   },
   watch: {
