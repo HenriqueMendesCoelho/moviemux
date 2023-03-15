@@ -10,6 +10,7 @@ export const useUserStore = defineStore('UserStore', {
   state: () => {
     return {
       user: {
+        id: '',
         name: '',
         username: '',
         roles: [''],
@@ -70,10 +71,12 @@ export const useUserStore = defineStore('UserStore', {
 
       const tokenPayload = jwtDecode(token) as tokenPayload;
 
+      this.user.id = tokenPayload.id;
       this.user.name = tokenPayload.name;
       this.user.roles = tokenPayload.roles;
       this.user.username = tokenPayload.aud;
       this.user.expirationToken = tokenPayload.exp;
+
       if (this.timeToExpire > 0) {
         this.user.isLoged = true;
       }

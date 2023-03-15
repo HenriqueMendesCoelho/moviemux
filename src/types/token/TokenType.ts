@@ -4,4 +4,5 @@ export type tokenPayload = {
   aud: string;
   name: string;
   roles: Array<string>;
+  id: string;
 };
