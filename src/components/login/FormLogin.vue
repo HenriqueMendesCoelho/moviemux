@@ -149,6 +149,8 @@ import { mapActions } from 'pinia';
 
 import { useUserStore } from '@/stores/UserStore';
 
+import { InputValidateRefType } from '../shared/inputText/types/InputValidateRefType';
+
 import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue';
 
 export default defineComponent({
@@ -170,10 +172,8 @@ export default defineComponent({
   setup() {
     const $q = useQuasar();
 
-    // eslint-disable-next-line
-    const inputEmailRef = ref<any>(null);
-    // eslint-disable-next-line
-    const inputPasswordRef = ref<any>(null);
+    const inputEmailRef = ref<InputValidateRefType>();
+    const inputPasswordRef = ref<InputValidateRefType>();
 
     return {
       inputEmailRef,
@@ -230,7 +230,7 @@ export default defineComponent({
       }
       if (this.inputPasswordRef) {
         this.inputPasswordRef.validate();
-        hasErrors = this.inputEmailRef.hasError;
+        hasErrors = this.inputPasswordRef.hasError;
       }
       return hasErrors;
     },
