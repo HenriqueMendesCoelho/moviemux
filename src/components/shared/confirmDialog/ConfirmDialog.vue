@@ -8,7 +8,15 @@ export default defineComponent({
   name: 'ConfirmDialog',
   emits: ['ok', 'cancel'],
   methods: {
-    dialog(message: string, title = 'Confirme', ok = 'Ok', cancel = 'Cancelar', persisstent = true) {
+    dialog(
+      message: string,
+      focus: 'ok' | 'cancel' | 'none' = 'ok',
+      title = 'Confirme',
+      ok = 'Ok',
+      cancel = 'Cancelar',
+      persisstent = true
+    ) {
+      window.scrollTo(0, 0);
       this.$q
         .dialog({
           dark: true,
@@ -25,6 +33,8 @@ export default defineComponent({
             label: cancel,
             flat: true,
           },
+          seamless: false,
+          focus,
         })
         .onOk(() => {
           this.$emit('ok');
