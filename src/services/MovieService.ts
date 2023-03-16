@@ -6,20 +6,53 @@ const API_MOVIE = `${BASE_URL}/api/movie`;
 
 export default {
   async getMovie(id: string) {
-    return axios.get(`${API_MOVIE}/${id}`);
+    try {
+      const res = await axios.get(`${API_MOVIE}/${id}`);
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);
+    }
   },
   async getMovieSummary(id: string) {
-    return axios.get(`${API_MOVIE}/tmdb/${id}/summary`);
+    try {
+      const res = await axios.get(`${API_MOVIE}/tmdb/${id}/summary`);
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);
+    }
   },
   async getMoviesByName(payload: { query: string }) {
     const params = StringUtils.getStringParams(payload);
-    return axios.get(`${API_MOVIE}/tmdb?${params}`);
+    try {
+      const res = await axios.get(`${API_MOVIE}/tmdb?${params}`);
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
+  async getMoviesGenres(): Promise<Array<{ id: number; name: string }>> {
+    try {
+      const res = await axios.get(`${API_MOVIE}/genre`);
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);
+    }
   },
   async listMoviesPageable(page: number) {
-    return axios.get(`${API_MOVIE}/list?page=${page}&sort=portugueseTitle,cres&size=50`);
+    try {
+      const res = await axios.get(`${API_MOVIE}/list?page=${page}&sort=portugueseTitle,cres&size=50`);
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);
+    }
   },
   async listMoviesByTitlePageable(payload: { page: number; title: string }) {
     const params = StringUtils.getStringParams(payload);
-    return axios.get(`${API_MOVIE}/list?page=${params}&size=50`);
+    try {
+      const res = await axios.get(`${API_MOVIE}/list?page=${params}&size=50`);
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);
+    }
   },
 };
