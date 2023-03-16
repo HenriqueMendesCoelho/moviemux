@@ -118,8 +118,6 @@ aside {
   position: fixed;
   z-index: 10;
 
-  //top: 0;
-
   background-color: var(--grey-dark2);
   color: var(--light-grey2);
 
