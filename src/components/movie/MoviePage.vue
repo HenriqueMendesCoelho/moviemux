@@ -6,7 +6,7 @@
     </div>
     <div class="container-main">
       <FormMovie ref="formMovieRef" :isRegisterOrEditing="isRegisterOrEditing()" />
-      <NotesDescription :isRegisterOrEditing="isRegisterOrEditing()" />
+      <MovieNotesTable :isRegisterOrEditing="isRegisterOrEditing()" />
       <VideoEmbedded :width="isMobile ? '100%' : '560px'" />
       <div class="row justify-center" v-if="isRegisterOrEditing()">
         <SeparatorDivSolidLine />
@@ -45,7 +45,7 @@ import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';
 import VideoEmbedded from './videoEmbedded/VideoEmbedded.vue';
 import SuperiorButtonsMovie from './superiorButtonsMovie/SuperiorButtonsMovie.vue';
-import NotesDescription from './notesDescriptionMovie/NotesDescription.vue';
+import MovieNotesTable from './notesDescriptionMovie/MovieNotesTable.vue';
 import ImportMovie from './importMovie/ImportMovie.vue';
 import ConfirmDialog from '@/components/shared/confirmDialog/ConfirmDialog.vue';
 
@@ -57,7 +57,7 @@ export default defineComponent({
     VideoEmbedded,
     SuperiorButtonsMovie,
     FormMovie,
-    NotesDescription,
+    MovieNotesTable,
     ImportMovie,
     ConfirmDialog,
   },
