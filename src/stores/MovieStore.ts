@@ -9,6 +9,7 @@ export const useMovieStore = defineStore('MovieStore', {
         isEditing: false,
         selectedMovie: new Movie(),
         showImportMovieDialog: false,
+        genres: [] as Array<{ id: number; name: string }>,
       },
 
       allMovies: [
@@ -130,8 +131,19 @@ export const useMovieStore = defineStore('MovieStore', {
     };
   },
   actions: {
-    resetStoreMovie() {
+    async resetStoreMovie() {
       this.moviePage.selectedMovie = new Movie();
+    },
+    selectedMovieHasAnyFieldFilled() {
+      let result = false;
+      let field: keyof typeof this.moviePage.selectedMovie;
+      for (field in this.moviePage.selectedMovie) {
+        if (this.moviePage.selectedMovie[field]) {
+          result = true;
+          continue;
+        }
+      }
+      return result;
     },
   },
 });

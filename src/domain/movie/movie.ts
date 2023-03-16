@@ -2,6 +2,7 @@ export default class Movie {
   constructor(
     public id?: string,
     public tmdb_id?: number,
+    public imdbId?: string,
     public portuguese_title?: string,
     public english_title?: string,
     public original_title?: string,
@@ -10,7 +11,10 @@ export default class Movie {
     public portuguese_url_trailer?: string,
     public english_url_trailer?: string,
     public description?: string,
-    public genres?: Array<number>,
+    public genres?: Array<{
+      id: number;
+      name: string;
+    }>,
     public release_date?: Date
   ) {}
 }
