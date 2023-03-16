@@ -26,12 +26,13 @@
       text-color="white"
       label="Importar do TMDB"
       v-if="showBtnImport()"
+      :disable="selectedMovieHasAnyFieldFilled()"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { mapState } from 'pinia';
+import { mapActions, mapState } from 'pinia';
 import { defineComponent } from 'vue';
 import { RouteRecordName } from 'vue-router';
 
@@ -49,6 +50,7 @@ export default defineComponent({
     },
   },
   methods: {
+    ...mapActions(useMovieStore, ['selectedMovieHasAnyFieldFilled']),
     showBtnImport() {
       if (this.routeName === 'add') {
         return true;
