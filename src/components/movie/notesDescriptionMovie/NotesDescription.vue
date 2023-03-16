@@ -1,22 +1,6 @@
 <template>
+  <SeparatorDivSolidLine v-if="!isRegisterOrEditing" />
   <div class="row movie-notes justify-center q-px-lg">
-    <div class="div-textarea col-6 q-pr-xs mobile-movie-notes">
-      <q-input
-        class="q-my-xs"
-        standout="text-info"
-        color="info"
-        outlined
-        v-model="moviePage.selectedMovie.description"
-        input-style="resize: none;"
-        rows="9"
-        label="Descrição - Sinopse"
-        bg-color="grey-1"
-        dark
-        type="textarea"
-        :readonly="!isRegisterOrEditing"
-        :rules="[(val) => !!val || '*Obrigatório']"
-      />
-    </div>
     <div class="col-6 q-pl-xs mobile-movie-notes" v-if="!isRegisterOrEditing">
       <TableEditDelete :title="'Notas'" style="max-height: 200px" :columns="columns" :rows="mock" />
     </div>
@@ -24,16 +8,18 @@
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue';
-import type { QTableProps } from 'quasar';
 import { mapState } from 'pinia';
+
+import type { QTableProps } from 'quasar';
 
 import { useMovieStore } from '@/stores/MovieStore';
 
 import TableEditDelete from '@/components/shared/tables/TableEditDelete.vue';
+import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';
 
 export default defineComponent({
   name: 'NotesDescription',
-  components: { TableEditDelete },
+  components: { TableEditDelete, SeparatorDivSolidLine },
   props: {
     isRegisterOrEditing: {
       type: Boolean,
@@ -100,16 +86,6 @@ export default defineComponent({
 .movie-notes {
   @media (max-width: 768px) {
     padding: 0px;
-  }
-
-  .div-textarea {
-    overflow: hidden;
-    transition: 0.2s ease-in-out;
-
-    @media (max-width: 768px) {
-      padding: 0px;
-      min-width: 100%;
-    }
   }
 
   .mobile-movie-notes {
