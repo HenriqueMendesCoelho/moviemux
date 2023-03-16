@@ -59,6 +59,11 @@ import ConfirmDialog from '@/components/shared/confirmDialog/ConfirmDialog.vue';
 export default defineComponent({
   name: 'ImportMovie',
   components: { InputText, SeparatorDivSolidLine, ConfirmDialog },
+  props: {
+    moviePathId: {
+      type: [String, Array],
+    },
+  },
   setup() {
     const $q = useQuasar();
     const confirmDialogRef = ref<ConfirmDialogRefType>();
@@ -148,15 +153,16 @@ export default defineComponent({
         this.moviePage.selectedMovie = new Movie(
           '',
           res.tmdb_id,
+          res.imdb_id,
           res.portuguese_title,
           res.english_title,
           res.original_title,
           res.director,
-          this.getImageUrl(res.url_image_portuguese || res.url_image_english, 'w780'),
+          this.getImageUrl(res.url_image_portuguese || res.url_image_english, 'w500'),
           res.portuguese_url_trailer,
           res.english_url_trailer,
           res.description,
-          [],
+          this.getGenres(res.genres),
           new Date(res.release_date || new Date())
         );
         this.moviePage.showImportMovieDialog = false;
@@ -169,14 +175,27 @@ export default defineComponent({
       }
     },
     showConfirmDialog(movie: MovieFoundByName['results'][0]) {
-      this.confirmDialogRef?.dialog(`Você quer mesmo importar o filme ${movie.title}?`, 'Confirme sua importação', 'Sim');
+      this.confirmDialogRef?.dialog(`Você quer mesmo importar o filme ${movie.title}?`, 'ok', 'Confirme sua importação', 'Sim');
       this.movieId = movie.id;
+    },
+    getGenres(genres?: Array<string>): Array<{ id: number; name: string }> {
+      if (!genres?.length) {
+        return [];
+      }
+
+      const genresStore = [...this.moviePage.genres];
+
+      return genresStore.filter((g) => genres.some((gR) => g.name === gR));
     },
   },
   watch: {
-    showImportMovieDialog() {
+    showImportMovieDialog(val) {
       this.movies = [];
       this.text = '';
+
+      if (val) {
+        window.scrollTo(0, 0);
+      }
     },
   },
 });
