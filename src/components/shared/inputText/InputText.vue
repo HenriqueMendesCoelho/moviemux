@@ -1,6 +1,6 @@
 <template>
   <q-input
-    ref="inputRef"
+    ref="inputTextRef"
     standout="text-info"
     color="grey-1"
     bg-color="grey-1"
@@ -8,7 +8,7 @@
     v-model="text"
     :label="label"
     dark
-    :rules="[getRules]"
+    :rules="[defaultRules, getCustomRules]"
     reactive-rules
     :readonly="readOnly"
     hide-bottom-space
@@ -23,7 +23,8 @@
 import type { QInputProps } from 'quasar';
 import { defineComponent, PropType, ref } from 'vue';
 
-//style="background-color: var(--grey-mid2)"
+import { InputValidateRefType } from './types/InputValidateRefType';
+
 export default defineComponent({
   name: 'InputText',
   props: {
@@ -37,11 +38,14 @@ export default defineComponent({
     },
     required: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     customRules: {
-      type: Function,
-      required: false,
+      type: [Boolean, String],
+      default: true,
+    },
+    customRulesText: {
+      type: String,
     },
     readOnly: {
       type: Boolean,
@@ -61,9 +65,9 @@ export default defineComponent({
     },
   },
   setup() {
-    const inputRef = ref(null);
+    const inputTextRef = ref<InputValidateRefType>();
     return {
-      inputRef,
+      inputTextRef,
     };
   },
   data() {
@@ -74,23 +78,33 @@ export default defineComponent({
   emits: ['update:modelValue'],
   methods: {
     defaultRules(): boolean | string {
-      if (!this.required) return true;
+      if (!this.required) {
+        return true;
+      }
       return this.text ? true : '*Obrigatório';
     },
-    getCustomRules() {
-      if (this.customRules) {
-        return this.customRules();
+    getCustomRules(): boolean | string {
+      if (this.customRulesText) {
+        return this.customRules ? true : this.customRulesText;
       }
-      return true;
+
+      return this.customRules;
     },
-    getRules(): boolean | string {
-      if (typeof this.defaultRules() == 'string') {
-        return this.defaultRules();
+    getRules(): Array<boolean | string> {
+      return [this.defaultRules(), this.getCustomRules()];
+    },
+    hasErrors(): boolean {
+      let hasErrors = false;
+      if (this.inputTextRef) {
+        this.inputTextRef.validate();
+        hasErrors = this.inputTextRef?.hasError;
       }
-      if (typeof this.getCustomRules() == 'string') {
-        return this.getCustomRules();
+      return hasErrors;
+    },
+    resetValidation(): void {
+      if (this.inputTextRef) {
+        this.inputTextRef.resetValidation();
       }
-      return true;
     },
   },
   watch: {
