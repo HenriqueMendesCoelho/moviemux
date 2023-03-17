@@ -12,8 +12,30 @@ $negative: #c10015;
 $info: #31ccec;
 $warning: #f2c037;
 
-$grey-1: #343c4c;
-$grey-2: #293244;
-$cyan-14: #00f6ff;
+$grey-mid: #293244;
+
+.bg-kb-primary {
+  background: #00f6ff !important;
+}
+
+.text-kb-primary {
+  color: #00f6ff !important;
+}
+
+.bg-grey-mid {
+  background: #293244 !important;
+}
+
+.text-grey-mid {
+  color: #293244 !important;
+}
+
+.bg-grey-mid2 {
+  background: #343c4c !important;
+}
+
+.text-grey-mid2 {
+  color: #343c4c !important;
+}
 
 @import '~quasar-variables-styl';
