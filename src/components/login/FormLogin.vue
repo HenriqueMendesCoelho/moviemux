@@ -12,8 +12,8 @@
                 name="username"
                 label="E-mail"
                 v-model="email"
-                color="cyan-14"
-                bg-color="grey-2"
+                color="kb-primary"
+                bg-color="grey-mid"
                 dark
                 :type="'email'"
                 :rules="[(val) => !!val]"
@@ -30,8 +30,8 @@
                 label="Senha"
                 v-model="password"
                 :type="visibilityPass ? 'text' : 'password'"
-                color="cyan-14"
-                bg-color="grey-2"
+                color="kb-primary"
+                bg-color="grey-mid"
                 dark
                 :rules="[(val) => !!val]"
                 ><template v-slot:append>
@@ -41,7 +41,7 @@
               <button class="btn-underline q-mt-md" @click="tab = 'forgot'">Esqueceu sua senha ?</button>
             </div>
             <div class="col-10 q-mt-xl">
-              <q-btn class="btn-login" label="entrar" @click="login()" color="cyan-14" text-color="black" style="width: 100%" />
+              <q-btn class="btn-login" label="entrar" @click="login()" color="kb-primary" text-color="black" style="width: 100%" />
             </div>
             <div class="col-12 row justify-center q-mt-md">
               <div class="row" v-if="createAccount">
@@ -57,8 +57,8 @@
               <q-input
                 label="E-mail"
                 v-model="email"
-                color="cyan-14"
-                bg-color="grey-2"
+                color="kb-primary"
+                bg-color="grey-mid"
                 dark
                 :type="'email'"
                 hint="Insira seu e-mail para seguir com a recuperação"
@@ -72,7 +72,7 @@
               <button class="btn-underline" style="color: white" @click="tab = 'login'">Volta para login</button>
             </div>
             <div class="col-10">
-              <q-btn class="btn-login" label="Enviar E-mail" color="cyan-14" text-color="black" style="width: 100%" />
+              <q-btn class="btn-login" label="Enviar E-mail" color="kb-primary" text-color="black" style="width: 100%" />
             </div>
             <div class="col-12 row justify-center">
               <div class="row" v-if="createAccount">
@@ -84,52 +84,66 @@
           <q-tab-panel name="create" class="row justify-center">
             <h3>Criar nova conta</h3>
             <SeparatorDivLineSolid />
-            <div class="col-10 justify-center">
-              <q-input label="E-mail" v-model="email" color="cyan-14" bg-color="grey-2" dark :type="'email'"
-                ><template v-slot:append> <q-icon name="mail" /> </template
-              ></q-input>
-            </div>
             <q-input
-              class="col-5 justify-center q-pr-md"
+              class="col-10 justify-center"
+              label="E-mail"
+              v-model="email"
+              color="kb-primary"
+              bg-color="grey-mid"
+              dark
+              :type="'email'"
+              ><template v-slot:append> <q-icon name="mail" /> </template
+            ></q-input>
+            <q-input
+              class="col-5 justify-center q-pr-sm"
               label="Senha"
               v-model="password"
               :type="visibilityPass ? 'text' : 'password'"
-              color="cyan-14"
-              bg-color="grey-2"
+              color="kb-primary"
+              bg-color="grey-mid"
               dark
               ><template v-slot:append>
                 <q-icon name="visibility" v-if="!visibilityPass" @click="visibilityPass = !visibilityPass" />
                 <q-icon name="visibility_off" v-if="visibilityPass" @click="visibilityPass = !visibilityPass" /></template
             ></q-input>
             <q-input
-              class="col-5 justify-center q-pl-md"
+              class="col-5 justify-center q-pl-sm"
               label="Repita a senha"
               v-model="newPassword"
               :type="visibilityNewPass ? 'text' : 'password'"
-              color="cyan-14"
-              bg-color="grey-2"
+              color="kb-primary"
+              bg-color="grey-mid"
               dark
               ><template v-slot:append>
                 <q-icon name="visibility" v-if="!visibilityNewPass" @click="visibilityNewPass = !visibilityNewPass" />
                 <q-icon name="visibility_off" v-if="visibilityNewPass" @click="visibilityNewPass = !visibilityNewPass" /></template
             ></q-input>
-            <div class="col-10 justify-center">
-              <q-input
-                label="Convite"
-                v-model="invite"
-                type="password"
-                color="cyan-14"
-                bg-color="grey-2"
-                dark
-                hint="É necessário ter um convite para prosseguir."
-              >
-                <template v-slot:append>
-                  <q-icon name="label_important" />
-                </template>
-              </q-input>
-            </div>
+            <q-input
+              class="col-5 justify-center q-pr-sm"
+              label="Nickname"
+              v-model="nickname"
+              color="kb-primary"
+              bg-color="grey-mid"
+              dark
+              :type="'email'"
+              ><template v-slot:append> <q-icon name="badge" /> </template
+            ></q-input>
+            <q-input
+              class="col-5 justify-center q-pl-sm"
+              label="Convite"
+              v-model="invite"
+              type="password"
+              color="kb-primary"
+              bg-color="grey-mid"
+              dark
+              hint="É necessário ter um convite para prosseguir."
+            >
+              <template v-slot:append>
+                <q-icon name="label_important" />
+              </template>
+            </q-input>
             <div class="col-10 q-mt-xl">
-              <q-btn class="btn-login" label="Criar conta" color="cyan-14" text-color="black" style="width: 100%" />
+              <q-btn class="btn-login" label="Criar conta" color="kb-primary" text-color="black" style="width: 100%" @click="create" />
             </div>
             <div class="col-10 justify-center">
               <button class="btn-underline q-mt-md" style="color: white" @click="tab = 'login'">Volta para login</button>
@@ -137,7 +151,7 @@
           </q-tab-panel>
         </q-tab-panels>
       </q-card-section>
-      <q-inner-loading :showing="loading" label="Aguarde..." color="cyan-14" label-class="text-white" :dark="true" />
+      <q-inner-loading :showing="loading" label="Aguarde..." color="kb-primary" label-class="text-white" :dark="true" />
     </q-card>
   </div>
 </template>
@@ -152,6 +166,7 @@ import { useUserStore } from '@/stores/UserStore';
 import { InputValidateRefType } from '../shared/inputText/types/InputValidateRefType';
 
 import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue';
+import UserService from '@/services/UserService';
 
 export default defineComponent({
   nome: 'FormForm',
@@ -194,6 +209,7 @@ export default defineComponent({
       password: '',
       newPassword: '',
       invite: '',
+      nickname: '',
       visibilityPass: false,
       visibilityNewPass: false,
       loading: false,
@@ -233,6 +249,20 @@ export default defineComponent({
         hasErrors = this.inputPasswordRef.hasError;
       }
       return hasErrors;
+    },
+    async create() {
+      try {
+        await UserService.create({ name: this.nickname, email: this.email, password: this.password, invite_code: this.invite });
+        this.tab = 'login';
+        // eslint-disable-next-line
+      } catch (error: any) {
+        console.log(error);
+        if (error.response.data.message === 'invite is not valid') {
+          this.showError('O convite é inválido');
+          return;
+        }
+        this.showError('Erro ao criar conta');
+      }
     },
   },
   watch: {

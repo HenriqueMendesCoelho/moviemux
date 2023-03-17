@@ -5,6 +5,11 @@ const API_USER = `${BASE_URL}/api/user`;
 
 export default {
   async create(payload: { name: string; email: string; password: string; invite_code: string }) {
-    return axios.post(`${API_USER}`, payload);
+    try {
+      await axios.post(`${API_USER}`, payload);
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
   },
 };
