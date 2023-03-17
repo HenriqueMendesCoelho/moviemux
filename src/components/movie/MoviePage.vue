@@ -6,12 +6,19 @@
     </div>
     <div class="container-main">
       <FormMovie ref="formMovieRef" :isRegisterOrEditing="isRegisterOrEditing()" />
-      <MovieNotesTable :isRegisterOrEditing="isRegisterOrEditing()" />
+      <MovieNotesTable :isRegisterOrEditing="isRegisterOrEditing()" :movie-id="routeIDPath" />
       <VideoEmbedded :width="isMobile ? '100%' : '560px'" />
       <div class="row justify-center" v-if="isRegisterOrEditing()">
         <SeparatorDivSolidLine />
         <div :class="isMobile ? 'col-4' : 'col-2'">
-          <q-btn style="width: 100%" color="positive" text-color="white" label="Salvar" :disable="false" @click="save()" />
+          <q-btn
+            style="width: 100%"
+            color="positive"
+            text-color="white"
+            label="Salvar"
+            :disable="false"
+            @click="showNotifyMovie('10', '10')"
+          />
         </div>
         <div :class="isMobile ? 'col-4 q-ml-md' : 'col-2 q-ml-md'">
           <q-btn
@@ -26,13 +33,14 @@
       </div>
     </div>
     <ImportMovie :visible="moviePage.showImportMovieDialog" :moviePathId="routeIDPath" />
-    <ConfirmDialog ref="confirmDialogRef" @ok="cancel()" />
+    <ConfirmDialog ref="confirmDialogRef" @ok="save()" />
   </ContainerMain>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { RouteRecordName } from 'vue-router';
+import { useQuasar } from 'quasar';
 import { mapActions, mapState } from 'pinia';
 
 import { useStyleStore } from '@/stores/StyleStore';
@@ -40,14 +48,17 @@ import { useMovieStore } from '@/stores/MovieStore';
 
 import { ConfirmDialogRefType } from '../shared/confirmDialog/types/ConfirmDialogType';
 
+import MovieService from '@/services/MovieService';
+
 import FormMovie from './formMovie/FormMovie.vue';
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';
 import VideoEmbedded from './videoEmbedded/VideoEmbedded.vue';
 import SuperiorButtonsMovie from './superiorButtonsMovie/SuperiorButtonsMovie.vue';
-import MovieNotesTable from './notesDescriptionMovie/MovieNotesTable.vue';
+import MovieNotesTable from './movieNotesTable/MovieNotesTable.vue';
 import ImportMovie from './importMovie/ImportMovie.vue';
 import ConfirmDialog from '@/components/shared/confirmDialog/ConfirmDialog.vue';
+import Movie from '@/domain/movie/movie';
 
 export default defineComponent({
   name: 'MoviePage',
@@ -62,15 +73,37 @@ export default defineComponent({
     ConfirmDialog,
   },
   setup() {
+    const $q = useQuasar();
     const confirmDialogRef = ref<ConfirmDialogRefType>();
     const formMovieRef = ref<{
       hasErrors: () => boolean;
       resetValidation: () => void;
     }>();
-
     return {
       confirmDialogRef,
       formMovieRef,
+      showLoading() {
+        $q.loading.show({
+          spinnerColor: 'kb-primary',
+        });
+      },
+      hideLoading() {
+        $q.loading.hide();
+      },
+      showSuccess(msg: string) {
+        $q.notify({
+          type: 'positive',
+          message: msg,
+          position: 'bottom',
+        });
+      },
+      showError(msg: string) {
+        $q.notify({
+          type: 'negative',
+          message: msg,
+          position: 'bottom',
+        });
+      },
     };
   },
   data() {
@@ -93,35 +126,54 @@ export default defineComponent({
       return this.$q.platform.is.mobile;
     },
   },
-  mounted() {
-    this.resetStoreMovie();
-    if (this.routeName === 'add') {
-      document.title = 'Cineminha - Cadastrar Filme';
-    } else {
-      document.title = `Cineminha - Filme ${this.routeIDPath}`;
-    }
+  async mounted() {
+    this.resetForm();
+    await this.loadMovie();
   },
   updated() {
     if (this.routeName === 'add') {
-      if (!this.alreadyEditing) this.resetStoreMovie();
+      if (!this.alreadyEditing) {
+        this.resetForm();
+      }
       this.alreadyEditing = true;
       this.idPathParam = '';
-      document.title = 'Cineminha - Cadastrar Filme';
-    } else {
-      document.title = `Cineminha - Filme ${this.routeIDPath}`;
     }
+    this.setDocumentTitle();
   },
   methods: {
     ...mapActions(useMovieStore, ['resetStoreMovie', 'selectedMovieHasAnyFieldFilled']),
     showTopButtons() {
       return this.routeName === 'movie';
     },
-    save() {
+    async save() {
       if (this.formMovieRef?.hasErrors()) {
         return;
       }
-      this.moviePage.isEditing = !this.moviePage.isEditing;
-      return;
+      const movie = { ...this.moviePage.selectedMovie };
+      const request = { ...this.moviePage.selectedMovie, genres: movie.genres?.map((g) => g.id) };
+      if (!request) {
+        return;
+      }
+
+      try {
+        this.showLoading();
+        let res: Movie;
+        if (request.id) {
+          this.moviePage.isEditing = !this.moviePage.isEditing;
+          res = await MovieService.updateMovie(request);
+          this.moviePage.selectedMovie = res;
+        } else {
+          window.scrollTo(0, 0);
+          res = await MovieService.createMovie(request);
+          this.resetForm();
+          this.showNotifyMovie(res.portuguese_title, res.id);
+        }
+        this.showSuccess('Filme foi salvo com sucesso');
+      } catch {
+        this.showError('Erro ao salvar filme');
+      } finally {
+        this.hideLoading();
+      }
     },
     showConfirmDialogCancel() {
       this.confirmDialogRef?.dialog(
@@ -131,10 +183,12 @@ export default defineComponent({
         'Sim'
       );
     },
-    async cancel() {
+    resetForm() {
       this.moviePage.isEditing = false;
-      await this.resetStoreMovie();
-      this.formMovieRef?.resetValidation();
+      this.resetStoreMovie();
+      setTimeout(() => {
+        this.formMovieRef?.resetValidation();
+      }, 300);
     },
     cantEdit() {
       return false;
@@ -152,6 +206,41 @@ export default defineComponent({
         return true;
       }
       return false;
+    },
+    setDocumentTitle() {
+      if (this.routeName === 'add') {
+        document.title = 'Cineminha - Cadastrar Filme';
+      } else {
+        document.title = `Cineminha - Filme ${this.moviePage.selectedMovie.portuguese_title}`;
+      }
+    },
+    async loadMovie() {
+      if (this.routeIDPath) {
+        const res = await MovieService.getMovie(this.routeIDPath.toString());
+        this.moviePage.selectedMovie = res;
+      }
+      this.setDocumentTitle();
+    },
+    showNotifyMovie(movieTitle?: string, movieId?: string) {
+      if (!movieTitle || !movieId) {
+        return;
+      }
+      this.$q.notify({
+        progress: true,
+        message: `Acesse o filme '${movieTitle}' que acabou de cadastrar!`,
+        multiLine: true,
+        position: 'top',
+        color: 'grey-mid2',
+        actions: [
+          {
+            label: 'Acessar',
+            color: 'kb-primary',
+            handler: () => {
+              this.$router.push(`/movie/${movieId}`);
+            },
+          },
+        ],
+      });
     },
   },
 });

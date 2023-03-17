@@ -22,8 +22,8 @@
             :required="true"
           />
           <InputText
+            v-if="() => moviePage.selectedMovie.original_title || isRegisterOrEditing"
             ref="inputTextOriginalTitleRef"
-            v-if="moviePage.selectedMovie.original_title"
             class="col"
             :label="'Título Original'"
             v-model="moviePage.selectedMovie.original_title"
@@ -43,7 +43,7 @@
             ref="inputTextReleaseDateRef"
             class="col-2"
             :label="'Ano de lançamento'"
-            :modelValue="moviePage.selectedMovie.release_date?.toLocaleDateString()"
+            :modelValue="moviePage.selectedMovie.release_date ? new Date(moviePage.selectedMovie.release_date).toLocaleDateString() : ''"
             @change="moviePage.selectedMovie.release_date = new Date($event)"
             :readOnly="!isRegisterOrEditing"
             :mask="'##/##/####'"
@@ -62,11 +62,12 @@
             input-style="resize: none;"
             rows="9"
             label="Descrição - Sinopse"
-            bg-color="grey-1"
+            bg-color="grey-mid2"
             dark
             type="textarea"
             :readonly="!isRegisterOrEditing"
             :rules="[(val) => !!val || '*Obrigatório']"
+            :lazy-rules="true"
           />
           <div class="col-5 row">
             <q-select
@@ -78,7 +79,7 @@
               label="Generos"
               standout="text-info"
               color="info"
-              bg-color="grey-1"
+              bg-color="grey-mid2"
               dark
               :multiple="true"
               popup-content-style="background-color: #1f2531"
@@ -86,6 +87,8 @@
               clearable
               :rules="[(val) => !!val?.length]"
               hideBottomSpace
+              :readonly="!isRegisterOrEditing"
+              :lazy-rules="true"
             />
             <InputText
               ref="inputTextTmdbIdRef"
@@ -96,7 +99,7 @@
               type="number"
               :readonly="true"
             />
-            <InputText class="col-12" :label="'Imdb ID'" v-model="moviePage.selectedMovie.imdbId" :readOnly="!isRegisterOrEditing" />
+            <InputText class="col-12" :label="'Imdb ID'" v-model="moviePage.selectedMovie.imdb_id" :readOnly="!isRegisterOrEditing" />
           </div>
         </div>
 
@@ -108,6 +111,7 @@
             :label="'URL da Imagem'"
             v-model="moviePage.selectedMovie.url_image"
             :readOnly="!isRegisterOrEditing"
+            :required="true"
           />
           <InputText
             ref="inputTextUrlTrailerBrRef"
@@ -139,10 +143,11 @@ import { mapState } from 'pinia';
 
 import { useMovieStore } from '@/stores/MovieStore';
 
+import { InputTextRefType, InputValidateRefType } from '@/components/shared/inputText/types/InputValidateRefType';
+
 import MovieService from '@/services/MovieService';
 
 import InputText from '@/components/shared/inputText/InputText.vue';
-import { InputTextRefType, InputValidateRefType } from '@/components/shared/inputText/types/InputValidateRefType';
 
 export default defineComponent({
   name: 'FormVideo',

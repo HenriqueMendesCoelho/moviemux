@@ -35,3 +35,32 @@ export type MovieFoundByName = {
   total_pages: number;
   total_results: number;
 };
+
+export type MovieNoteType = {
+  note: number;
+  createdAt: Date;
+  updatedAt: Date;
+  user: UserMovieNoteType;
+};
+
+export type UserMovieNoteType = {
+  id: string;
+  name: string;
+};
+
+export type MovieRequestType = {
+  id?: string;
+  tmdb_id?: number;
+  imdbId?: string;
+  portuguese_title?: string;
+  english_title?: string;
+  original_title?: string;
+  director?: string;
+  url_image?: string;
+  portuguese_url_trailer?: string;
+  english_url_trailer?: string;
+  description?: string;
+  genres?: number[];
+  release_date?: Date;
+  notes?: MovieNoteType[];
+};

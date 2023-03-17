@@ -1,11 +1,13 @@
-import Movie from '@/domain/movie/movie';
 import { defineStore } from 'pinia';
+
+import Movie from '@/domain/movie/movie';
+import { useUserStore } from './UserStore';
+import { MovieNoteType } from '@/types/movie/MovieType';
 
 export const useMovieStore = defineStore('MovieStore', {
   state: () => {
     return {
       moviePage: {
-        id: '',
         isEditing: false,
         selectedMovie: new Movie(),
         showImportMovieDialog: false,
@@ -130,8 +132,14 @@ export const useMovieStore = defineStore('MovieStore', {
       ],
     };
   },
+  getters: {
+    isUserAlreadyVoted(): boolean {
+      const userStore = useUserStore();
+      return this.moviePage.selectedMovie.notes?.some((n) => n.user.id === userStore.user.id) ? true : false;
+    },
+  },
   actions: {
-    async resetStoreMovie() {
+    resetStoreMovie() {
       this.moviePage.selectedMovie = new Movie();
     },
     selectedMovieHasAnyFieldFilled() {
@@ -144,6 +152,17 @@ export const useMovieStore = defineStore('MovieStore', {
         }
       }
       return result;
+    },
+    removeNoteFromStore(id: string) {
+      const notes = this.moviePage.selectedMovie.notes;
+      if (!notes?.length) {
+        return;
+      }
+      const note = notes?.find((n) => n.user.id === id) as MovieNoteType;
+      const index = notes?.indexOf(note);
+      if (typeof index === 'number') {
+        this.moviePage.selectedMovie.notes?.splice(index, 1);
+      }
     },
   },
 });

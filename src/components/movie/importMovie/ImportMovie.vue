@@ -11,18 +11,18 @@
         <SeparatorDivSolidLine class="q-mb-xl" />
         <div class="col-4 q-mr-md"><InputText dense :label="'Título Do Filme'" v-model="text" /></div>
         <div class="col-4">
-          <q-btn style="width: 100%" color="cyan-14" text-color="black" label="Pesquisar" :disable="false" @click="firstSearch" />
+          <q-btn style="width: 100%" color="kb-primary" text-color="black" label="Pesquisar" :disable="false" @click="firstSearch" />
         </div>
+        <SeparatorDivSolidLine />
       </q-card-section>
       <q-separator />
       <q-card-section class="scroll" style="max-height: 60vh" v-if="movies?.length">
-        <SeparatorDivSolidLine class="q-mb-xl" />
-        <div>
+        <div class="q-mt-md">
           <q-infinite-scroll class="row justify-center scroll" @load="onLoad" :offset="1">
             <q-img
               class="image-search col-3 q-mx-md q-mb-md"
               :src="getImageUrl(movie.poster_path)"
-              spinner-color="cyan-14"
+              spinner-color="kb-primary"
               v-for="movie in movies"
               :key="movie.id"
               @click="showConfirmDialog(movie)"
@@ -32,7 +32,7 @@
           </q-infinite-scroll>
         </div>
         <div class="col-12 row justify-center q-my-md" v-if="loading">
-          <q-spinner color="cyan-14" size="50px" />
+          <q-spinner color="kb-primary" size="50px" />
         </div>
       </q-card-section>
     </q-card>
@@ -71,7 +71,7 @@ export default defineComponent({
       confirmDialogRef,
       showLoading() {
         $q.loading.show({
-          spinnerColor: 'cyan-14',
+          spinnerColor: 'kb-primary',
         });
       },
       hideLoading() {
@@ -80,6 +80,13 @@ export default defineComponent({
       showSuccess(msg: string) {
         $q.notify({
           type: 'positive',
+          message: msg,
+          position: 'bottom',
+        });
+      },
+      showWarning(msg: string) {
+        $q.notify({
+          type: 'warning',
           message: msg,
           position: 'bottom',
         });

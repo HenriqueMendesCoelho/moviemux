@@ -5,39 +5,39 @@
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'ConfirmDialog',
+  name: 'ConfirmDialogPrompt',
   emits: ['ok', 'cancel'],
   methods: {
-    dialog(
-      message: string,
-      focus: 'ok' | 'cancel' | 'none' = 'ok',
-      title = 'Confirme',
-      ok = 'Ok',
-      cancel = 'Cancelar',
-      persisstent = true
-    ) {
+    dialog() {
       window.scrollTo(0, 0);
       this.$q
         .dialog({
           dark: true,
-          title: title,
-          message: message,
-          persistent: persisstent,
+          message: 'Insira uma nota de 0 a 10',
+          persistent: false,
           color: 'kb-primary',
           class: 'dialog-container',
+          prompt: {
+            model: '',
+            type: 'number',
+            isValid: (val) => parseInt(val) >= 0 && parseInt(val) <= 10,
+            min: '0',
+            max: '10',
+            step: '1',
+          },
           ok: {
-            label: ok,
+            label: 'Cadastrar',
             flat: true,
           },
           cancel: {
-            label: cancel,
+            label: 'Cancelar',
             flat: true,
           },
           seamless: false,
-          focus,
+          focus: 'ok',
         })
-        .onOk(() => {
-          this.$emit('ok');
+        .onOk((data) => {
+          this.$emit('ok', data);
         })
         .onCancel(() => {
           this.$emit('cancel');

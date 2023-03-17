@@ -2,20 +2,20 @@
   <q-input
     ref="inputTextRef"
     standout="text-info"
-    color="grey-1"
-    bg-color="grey-1"
+    color="grey-mid2"
+    bg-color="grey-mid2"
     outlined
     v-model="text"
     :label="label"
     dark
     :rules="[defaultRules, getCustomRules]"
-    reactive-rules
     :readonly="readOnly"
     hide-bottom-space
     :dense="dense"
     :type="type"
     :mask="mask"
     clearable
+    :lazy-rules="true"
   />
 </template>
 

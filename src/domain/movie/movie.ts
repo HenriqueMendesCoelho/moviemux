@@ -1,8 +1,10 @@
+import { MovieNoteType } from '@/types/movie/MovieType';
+
 export default class Movie {
   constructor(
     public id?: string,
     public tmdb_id?: number,
-    public imdbId?: string,
+    public imdb_id?: string,
     public portuguese_title?: string,
     public english_title?: string,
     public original_title?: string,
@@ -15,6 +17,7 @@ export default class Movie {
       id: number;
       name: string;
     }>,
-    public release_date?: Date
+    public release_date?: Date,
+    public notes?: MovieNoteType[]
   ) {}
 }
