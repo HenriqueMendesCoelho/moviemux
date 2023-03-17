@@ -7,7 +7,7 @@
         </div>
       </div>
       <div class="panel-profile q-mt-xl" :class="isMobile ? 'col-12' : 'col-10'">
-        <q-tabs v-model="tab" class="tabs-selector" active-color="cyan-14" indicator-color="cyan-14" align="justify" dense>
+        <q-tabs v-model="tab" class="tabs-selector" active-color="kb-primary" indicator-color="kb-primary" align="justify" dense>
           <q-tab :class="isMobile ? '' : 'tab-style-right'" name="myData" label="Meus Dados" icon="badge" />
           <q-tab :class="isMobile ? '' : 'tab-style-right'" name="security" label="Segurança" icon="lock" />
         </q-tabs>

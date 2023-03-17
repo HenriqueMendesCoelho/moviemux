@@ -8,7 +8,7 @@
         <q-toggle
           size="xl"
           v-model="user.notifications"
-          color="cyan-14"
+          color="kb-primary"
           checked-icon="notifications"
           unchecked-icon="notifications_off"
           :disable="allReadOnly"

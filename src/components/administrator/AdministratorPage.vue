@@ -7,7 +7,7 @@
         </div>
       </div>
       <div :class="isMobile ? 'col-12 q-my-xl' : 'col-10 q-my-xl'">
-        <q-tabs v-model="tab" class="tabs-selector" active-color="cyan-14" indicator-color="cyan-14" align="justify">
+        <q-tabs v-model="tab" class="tabs-selector" active-color="kb-primary" indicator-color="kb-primary" align="justify">
           <q-tab :class="isMobile ? '' : 'tab-style-right'" name="users" label="Gerenciamento Usuário" />
           <q-tab :class="isMobile ? '' : 'tab-style-right'" name="listUsers" label="Lista de Usuários" />
           <q-tab name="invite" label="Gerencimento de Convite" />

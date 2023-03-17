@@ -42,7 +42,7 @@
         </div>
       </q-infinite-scroll>
       <div class="row justify-center q-my-md" v-if="loading">
-        <q-spinner color="cyan-14" size="50px" />
+        <q-spinner color="kb-primary" size="50px" />
       </div>
     </div>
   </ContainerMain>
