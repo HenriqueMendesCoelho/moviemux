@@ -1,6 +1,6 @@
 <template>
   <div class="row justify-center form-movie items-center q-mx-md">
-    <img class="q-mx-xl q-py-xs" :src="getImageAndAlt()[0]" :alt="getImageAndAlt()[1]" draggable="false" />
+    <img class="q-mx-xl q-py-xs" :src="getImageAndAlt()[0]" :alt="getImageAndAlt()[1]" draggable="false" @contextmenu.prevent />
     <div class="col q-ml-xl">
       <div class="row q-col-gutter-y-md">
         <div class="col-12 text-h2">Informações</div>
@@ -50,7 +50,6 @@
             :required="true"
           />
         </div>
-
         <div class="col-12 row q-col-gutter-sm">
           <q-input
             ref="qInputDescriptionRef"
@@ -103,7 +102,7 @@
           </div>
         </div>
 
-        <div class="col-12 row q-gutter-sm">
+        <div class="col-12 row q-col-gutter-sm">
           <div class="col-12 text-h5">Urls</div>
           <InputText
             ref="inputTextUrlImageRef"
@@ -131,6 +130,14 @@
             :customRules="!!(moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer)"
             :customRulesText="'É necessário ter url do trailer dublado ou legendado'"
           />
+        </div>
+        <div class="col-12 row q-col-gutter-sm q-mt-xs" v-if="moviePage.selectedMovie.notes?.length">
+          <div class="col-12 text-h5">Nota</div>
+          <div class="col-12 q-pl-xs">
+            <q-chip size="xl" square :color="getChipColor()[0]" text-color="white" :icon-right="getChipColor()[1]">
+              {{ getNoteAverage() }}
+            </q-chip>
+          </div>
         </div>
       </div>
     </div>
@@ -269,6 +276,43 @@ export default defineComponent({
       this.inputTextUrlImageRef?.resetValidation();
       this.inputTextUrlTrailerBrRef?.resetValidation();
       this.inputTextUrlTrailerEnRef?.resetValidation();
+    },
+    getNoteAverage() {
+      if (!this.moviePage.selectedMovie?.notes?.length) {
+        return 0;
+      }
+      let sum = 0;
+      let count = 0;
+      for (const note of this.moviePage.selectedMovie.notes) {
+        sum += note.note;
+        count++;
+      }
+      return sum / count;
+    },
+    getChipColor() {
+      const averageNote = this.getNoteAverage();
+
+      if (averageNote === null || averageNote === undefined) {
+        return ['grey', 'sym_o_star', 'white'];
+      }
+
+      if (averageNote <= 5) {
+        return ['negative', 'sym_o_star'];
+      }
+
+      if (averageNote > 5 && averageNote <= 7) {
+        return ['orange', 'star_half'];
+      }
+
+      if (averageNote > 7 && averageNote <= 9) {
+        return ['positive', 'star'];
+      }
+
+      if (averageNote === 10) {
+        return ['kb-primary', 'hotel_class'];
+      }
+
+      return ['grey', 'sym_o_star'];
     },
   },
 });
