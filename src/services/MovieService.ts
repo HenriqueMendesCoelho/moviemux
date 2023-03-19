@@ -1,7 +1,7 @@
 import axios from 'axios';
 import StringUtils from '@/utils/stringUtils';
 
-import { MovieFoundByName, MovieNoteType, MovieRequestType, MovieSummaryTypeKit } from '@/types/movie/MovieType';
+import { MovieFoundByName, MovieNoteType, MoviePageableType, MovieRequestType, MovieSummaryTypeKit } from '@/types/movie/MovieType';
 import Movie from '@/domain/movie/movie';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;
@@ -36,18 +36,17 @@ export default {
       return Promise.reject(error);
     }
   },
-  async listMoviesPageable(page: number) {
+  async listMoviesPageable(page: number, sort = 'portugueseTitle,cres', size = 50): Promise<MoviePageableType> {
     try {
-      const res = await axios.get(`${API_MOVIE}/list?page=${page}&sort=portugueseTitle,cres&size=50`);
+      const res = await axios.get(`${API_MOVIE}/list?page=${page}&sort=${sort}&size=${size}`);
       return res.data;
     } catch (error) {
       return Promise.reject(error);
     }
   },
-  async listMoviesByTitlePageable(payload: { page: number; title: string }) {
-    const params = StringUtils.getStringParams(payload);
+  async listMoviesByTitlePageable(page: number, title: string, size = 50): Promise<MoviePageableType> {
     try {
-      const res = await axios.get(`${API_MOVIE}/list?page=${params}&size=50`);
+      const res = await axios.get(`${API_MOVIE}?page=${page}&query=${title}&size=${size}`);
       return res.data;
     } catch (error) {
       return Promise.reject(error);

@@ -26,7 +26,7 @@ export default defineComponent({
   name: 'ContextMenuHome',
   props: {
     movieId: {
-      type: Number,
+      type: String,
       required: true,
     },
     deleteEnable: {
@@ -38,12 +38,12 @@ export default defineComponent({
     ContextMenu,
   },
   methods: {
-    copyMovie(id?: number) {
+    copyMovie(id?: string) {
       const url = `${window.location.origin}/movie/${id}`;
       navigator.clipboard.writeText(url);
       return url ? url : '';
     },
-    openNewMovieTab(id?: number) {
+    openNewMovieTab(id?: string) {
       const url: string = this.copyMovie(id);
       const w = window.open(url);
       if (w) w.focus();

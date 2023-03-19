@@ -1,97 +1,91 @@
 <template>
-  <ContainerMain>
-    <LastMovies />
-    <AllMovies />
-  </ContainerMain>
+  <div class="div-allfilms">
+    <div class="search-input">
+      <input type="text" name="search" placeholder="Digite..." v-model="searchText" />
+      <button class="search-btn" @click="search()">BUSCAR</button>
+      <button class="end-btn" @click="refreshSearch()">
+        <span class="material-icons" style="font-size: 18pt"> refresh </span>
+      </button>
+    </div>
+    <q-infinite-scroll class="container-cards-films" @load="onLoad" :offset="10">
+      <div class="cards-films" v-for="movie in movies" :key="movie.id">
+        <CardImageAllMovies :movie="movie" />
+      </div>
+    </q-infinite-scroll>
+    <div class="row justify-center q-my-md" v-if="loading">
+      <q-spinner color="kb-primary" size="50px" />
+    </div>
+  </div>
 </template>
-
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapState } from 'pinia';
-import { useQuasar } from 'quasar';
 
-import ContainerMain from '../shared/containerMain/ContainerMain.vue';
-import LastMovies from './lastMovies/LastMovies.vue';
-import AllMovies from './allMovies/AllMovies.vue';
+import Movie from '@/domain/movie/movie';
 
-import { useStyleStore } from '@/stores/StyleStore';
-
-import imageUtils from '@/utils/imageUtils';
+import CardImageAllMovies from './cardImageAllMovies/CardImageAllMovies.vue';
+import MovieService from '@/services/MovieService';
 
 export default defineComponent({
-  name: 'HomeApp',
-  components: {
-    ContainerMain,
-    LastMovies,
-    AllMovies,
-  },
-  setup() {
-    document.title = 'Cineminha - Home';
-
-    const $q = useQuasar();
-
-    return {
-      showError(msg: string) {
-        $q.notify({
-          type: 'negative',
-          message: msg,
-          position: 'bottom',
-        });
-      },
-      showMessage(msg: string) {
-        $q.notify({
-          type: 'positive',
-          message: msg,
-          position: 'center',
-        });
-      },
-    };
-  },
+  name: 'AllMovies',
+  components: { CardImageAllMovies },
   data() {
     return {
-      lastFilms_expanded: 'transform: rotate(0deg);',
-      lastFilms_height: 'height: 40%;',
-      imageCheck: '',
-      isVisibleLastFilms: true,
-      pageLoading: 1,
+      movies: [] as Movie[],
       loading: false,
+      pagesFouded: 2,
+      page: 1,
+      searchText: '',
     };
   },
   mounted() {
-    this.pageLoading = 0;
-  },
-  computed: {
-    ...mapState(useStyleStore, ['getMarginSideBar']),
-    cardSize(): number {
-      const screenWidth = window.screen.height;
-      if (screenWidth <= 1440 && screenWidth > 1080) {
-        return 300;
-      }
-      if (screenWidth <= 1080 && screenWidth > 900) {
-        return 250;
-      }
-      return 150;
-    },
+    this.loading = false;
+    this.pagesFouded = 2;
+    this.page = 1;
   },
   methods: {
-    async checkImage(url: string) {
-      try {
-        const img = await imageUtils.checkImageSizeByUrl(url);
-
-        if (!img.imgOk) {
-          this.showError('A imagem deve ter no mínimo 350px de altura e no max 1200px e de largura no mínimo 550px e no max 1100px.');
-          return;
-        }
-        this.showMessage('Imagem OK!');
-      } catch {
-        this.showError('Insira uma url válida para a imagem');
+    async search() {
+      this.pagesFouded = 2;
+      this.page = 1;
+      const res = await this.searchMoviePageable();
+      this.movies = res;
+      this.loading = false;
+    },
+    async onLoad(index: number, done: (stop?: boolean) => void) {
+      if (this.page >= this.pagesFouded) {
+        done(true);
+        return;
       }
+      const result = await this.searchMoviePageable();
+      this.page += 1;
+      this.movies.push(...result);
+      done();
+      this.loading = false;
+    },
+    async searchMoviePageable() {
+      if (this.searchText) {
+        const res = await MovieService.listMoviesByTitlePageable(this.page, this.searchText);
+        this.pagesFouded = res.total_pages;
+        if (this.page >= this.pagesFouded) {
+          this.loading = true;
+        }
+
+        return res.content;
+      } else {
+        const res = await MovieService.listMoviesPageable(this.page, 'portugueseTitle,asc');
+        if (this.page >= this.pagesFouded) {
+          this.loading = true;
+        }
+        return res.content;
+      }
+    },
+    async refreshSearch() {
+      this.searchText = '';
+      await this.search();
     },
   },
 });
 </script>
-
-<style lang="scss" scoped>
+<style lang="scss">
 .div-allfilms {
   //border: 5px solid pink;
 

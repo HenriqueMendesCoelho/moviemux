@@ -1,3 +1,5 @@
+import Movie from '@/domain/movie/movie';
+
 export type MovieSummaryTypeKit = {
   tmdb_id?: number;
   imdb_id?: string;
@@ -63,4 +65,33 @@ export type MovieRequestType = {
   genres?: number[];
   release_date?: Date;
   notes?: MovieNoteType[];
+};
+
+export type MoviePageableType = {
+  content: Movie[];
+  pageable: {
+    sort: {
+      empty: boolean;
+      sorted: boolean;
+      unsorted: boolean;
+    };
+    offset: number;
+    page_number: number;
+    page_size: number;
+    unpaged: boolean;
+    paged: boolean;
+  };
+  last: boolean;
+  total_elements: boolean;
+  total_pages: number;
+  size: number;
+  number: number;
+  sort: {
+    empty: boolean;
+    sorted: boolean;
+    unsorted: boolean;
+  };
+  number_of_elements: boolean;
+  first: boolean;
+  empty: boolean;
 };
