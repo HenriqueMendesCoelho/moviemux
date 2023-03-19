@@ -165,35 +165,6 @@ export default defineComponent({
   data() {
     return {
       loading: false,
-      mock: [
-        {
-          user: {
-            id: '50c0ab50-b726-499e-a71a-d63aed21ded2',
-            name: 'Henrique',
-          },
-          note: 9,
-          created_at: new Date(),
-          updated_at: new Date(),
-        },
-        {
-          user: {
-            id: 2,
-            name: 'Yuri Boga',
-          },
-          note: 7,
-          created_at: new Date(),
-          updated_at: new Date(),
-        },
-        {
-          user: {
-            id: 3,
-            name: 'Juan Boga',
-          },
-          note: 8,
-          created_at: new Date(),
-          updated_at: new Date(),
-        },
-      ],
     };
   },
   computed: {
@@ -213,8 +184,8 @@ export default defineComponent({
     },
     async createNote(note: string) {
       const noteConverted = parseInt(note);
-      if (!noteConverted) {
-        return;
+      if (typeof noteConverted !== 'number') {
+        return false;
       }
 
       try {
@@ -275,7 +246,7 @@ export default defineComponent({
     },
     ruleInputNote(val: string) {
       const noteConvertedToNumber = parseInt(val);
-      if (!noteConvertedToNumber) {
+      if (typeof noteConvertedToNumber !== 'number') {
         return false;
       }
 
@@ -283,7 +254,7 @@ export default defineComponent({
     },
     rulePopUp(val: string) {
       const noteConvertedToNumber = parseInt(val);
-      if (!noteConvertedToNumber) {
+      if (typeof noteConvertedToNumber !== 'number') {
         return false;
       }
 
