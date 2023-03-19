@@ -11,14 +11,7 @@
       <div class="row justify-center" v-if="isRegisterOrEditing()">
         <SeparatorDivSolidLine />
         <div :class="isMobile ? 'col-4' : 'col-2'">
-          <q-btn
-            style="width: 100%"
-            color="positive"
-            text-color="white"
-            label="Salvar"
-            :disable="false"
-            @click="showNotifyMovie('10', '10')"
-          />
+          <q-btn style="width: 100%" color="positive" text-color="white" label="Salvar" :disable="false" @click="save()" />
         </div>
         <div :class="isMobile ? 'col-4 q-ml-md' : 'col-2 q-ml-md'">
           <q-btn
@@ -33,7 +26,7 @@
       </div>
     </div>
     <ImportMovie :visible="moviePage.showImportMovieDialog" :moviePathId="routeIDPath" />
-    <ConfirmDialog ref="confirmDialogRef" @ok="save()" />
+    <ConfirmDialog ref="confirmDialogRef" @ok="resetForm()" />
   </ContainerMain>
 </template>
 
@@ -115,7 +108,7 @@ export default defineComponent({
   },
   computed: {
     ...mapState(useStyleStore, ['getMarginSideBar']),
-    ...mapState(useMovieStore, ['moviePage', 'allMovies']),
+    ...mapState(useMovieStore, ['moviePage']),
     routeName(): RouteRecordName | null | undefined {
       return this.$route.name;
     },
@@ -130,7 +123,7 @@ export default defineComponent({
     this.resetForm();
     await this.loadMovie();
   },
-  updated() {
+  async updated() {
     if (this.routeName === 'add') {
       if (!this.alreadyEditing) {
         this.resetForm();
@@ -138,6 +131,7 @@ export default defineComponent({
       this.alreadyEditing = true;
       this.idPathParam = '';
     }
+    await this.loadMovie();
     this.setDocumentTitle();
   },
   methods: {
