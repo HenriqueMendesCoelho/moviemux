@@ -256,7 +256,6 @@ export default defineComponent({
         this.tab = 'login';
         // eslint-disable-next-line
       } catch (error: any) {
-        console.log(error);
         if (error.response.data.message === 'invite is not valid') {
           this.showError('O convite é inválido');
           return;
