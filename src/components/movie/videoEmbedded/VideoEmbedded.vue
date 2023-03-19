@@ -42,7 +42,7 @@ export default defineComponent({
     },
   },
   computed: {
-    ...mapState(useMovieStore, ['moviePage', 'allMovies']),
+    ...mapState(useMovieStore, ['moviePage']),
   },
 });
 </script>
