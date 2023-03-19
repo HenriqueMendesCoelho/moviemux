@@ -20,14 +20,18 @@ export default {
       }
     );
 
-    axios.interceptors.response.use((response) => {
-      if (response.status === 403) {
-        const userStore = useUserStore();
-        userStore.showDialogLogin = true;
-        userStore.user.isLoged = false;
+    axios.interceptors.response.use(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        if (error.response.status === 403) {
+          const userStore = useUserStore();
+          userStore.showDialogLogin = true;
+          userStore.user.isLoged = false;
+        }
+        return Promise.reject(error);
       }
-
-      return response;
-    });
+    );
   },
 };
