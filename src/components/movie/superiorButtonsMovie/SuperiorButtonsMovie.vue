@@ -1,24 +1,16 @@
-<template v-if="convertedUrl">
+<template>
   <div class="col-6 row" v-if="showTopButtons()">
     <div class="q-ml-md">
       <q-btn style="background-color: #343c4c" text-color="white" round icon="refresh" />
     </div>
-    <div class="q-ml-md" v-if="!moviePage.isEditing">
-      <q-btn
-        style="width: 100%"
-        color="primary"
-        text-color="white"
-        label="Editar"
-        :disable="cantEdit()"
-        @click="moviePage.isEditing = !moviePage.isEditing"
-      />
-      <q-tooltip v-if="cantEdit()"> O filme não foi cadastrado por você </q-tooltip>
+    <div class="q-ml-md" v-if="showEditAndDeleteButton()">
+      <q-btn style="width: 100%" color="primary" text-color="white" label="Editar" @click="moviePage.isEditing = !moviePage.isEditing" />
     </div>
-    <div class="q-ml-md">
+    <div class="q-ml-md" v-if="showEditAndDeleteButton()">
       <q-btn v-if="true" style="width: 100%" color="red" text-color="white" label="Deletar" />
     </div>
   </div>
-  <div :class="showTopButtons() ? 'col-2 offset-md-4' : 'col-2 offset-md-10'">
+  <div :class="routeName === 'movie' ? 'col-2 offset-md-4' : 'col-2 offset-md-10'">
     <q-btn
       @click="moviePage.showImportMovieDialog = !moviePage.showImportMovieDialog"
       style="width: 100%"
@@ -37,6 +29,7 @@ import { defineComponent } from 'vue';
 import { RouteRecordName } from 'vue-router';
 
 import { useMovieStore } from '@/stores/MovieStore';
+import { useUserStore } from '@/stores/UserStore';
 
 export default defineComponent({
   name: 'SuperiorButtonsMovie',
@@ -45,6 +38,7 @@ export default defineComponent({
   },
   computed: {
     ...mapState(useMovieStore, ['moviePage']),
+    ...mapState(useUserStore, ['user']),
     routeName(): RouteRecordName | null | undefined {
       return this.$route.name;
     },
@@ -63,6 +57,15 @@ export default defineComponent({
     },
     showTopButtons() {
       return this.routeName === 'movie';
+    },
+    showEditAndDeleteButton() {
+      if (this.moviePage.isEditing) {
+        return false;
+      }
+
+      if (this.user.id === this.moviePage.selectedMovie.user_id || this.user.roles.includes('ADM')) {
+        return true;
+      }
     },
   },
 });
