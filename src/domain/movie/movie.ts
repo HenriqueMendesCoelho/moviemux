@@ -18,6 +18,7 @@ export default class Movie {
       name: string;
     }>,
     public release_date?: Date,
-    public notes?: MovieNoteType[]
+    public notes?: MovieNoteType[],
+    public user_id?: string
   ) {}
 }
