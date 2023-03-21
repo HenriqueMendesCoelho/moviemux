@@ -12,7 +12,7 @@
       </button>
       <h4>Últimos Filmes</h4>
       <div style="flex: 1 1 0"></div>
-      <button>
+      <button @click="loadLastMovies()">
         <span class="material-icons rf_icon" style="font-size: 18pt"> refresh </span>
       </button>
     </div>
@@ -74,7 +74,6 @@ export default defineComponent({
 
   max-width: 100%;
 
-  height: auto;
   max-height: 480px;
 
   color: var(--light-grey2);
@@ -84,16 +83,6 @@ export default defineComponent({
 
   @media (max-width: 768px) {
     display: none;
-  }
-
-  .v-enter-active,
-  .v-leave-active {
-    transition: opacity 0.5s ease;
-  }
-
-  .v-enter-from,
-  .v-leave-to {
-    opacity: 0;
   }
 
   .last-films-toggle {

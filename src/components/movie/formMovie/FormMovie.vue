@@ -116,19 +116,23 @@
             ref="inputTextUrlTrailerBrRef"
             class="col"
             :label="'URL do trailer dublado'"
-            v-model="moviePage.selectedMovie.portuguese_url_trailer"
+            :model-value="moviePage.selectedMovie.portuguese_url_trailer"
+            @change="changeTrailerPortuguese"
             :readOnly="!isRegisterOrEditing"
             :customRules="!!(moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer)"
             :customRulesText="'É necessário ter url do trailer dublado ou legendado'"
+            :hint="isRegisterOrEditing ? 'Insira a url do youtube ou key do video' : ''"
           />
           <InputText
             ref="inputTextUrlTrailerEnRef"
             class="col"
             :label="'URL do trailer legendado'"
-            v-model="moviePage.selectedMovie.english_url_trailer"
+            :model-value="moviePage.selectedMovie.english_url_trailer"
+            @change="changeTrailerEnglish"
             :readOnly="!isRegisterOrEditing"
             :customRules="!!(moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer)"
             :customRulesText="'É necessário ter url do trailer dublado ou legendado'"
+            :hint="isRegisterOrEditing ? 'Insira a url do youtube ou key do video' : ''"
           />
         </div>
         <div class="col-12 row q-col-gutter-sm q-mt-xs" v-if="moviePage.selectedMovie.notes?.length">
@@ -146,6 +150,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
+import { useQuasar } from 'quasar';
 import { mapState } from 'pinia';
 
 import { useMovieStore } from '@/stores/MovieStore';
@@ -153,6 +158,7 @@ import { useMovieStore } from '@/stores/MovieStore';
 import { InputTextRefType, InputValidateRefType } from '@/components/shared/inputText/types/InputValidateRefType';
 
 import MovieService from '@/services/MovieService';
+import imageUtils from '@/utils/imageUtils';
 
 import InputText from '@/components/shared/inputText/InputText.vue';
 
@@ -165,6 +171,7 @@ export default defineComponent({
     },
   },
   setup() {
+    const $q = useQuasar();
     const inputTextPortugueseTitleRef = ref<InputTextRefType>();
     const inputTextEnglishTitleRef = ref<InputTextRefType>();
     const inputTextOriginalTitleRef = ref<InputTextRefType>();
@@ -189,6 +196,13 @@ export default defineComponent({
       inputTextUrlImageRef,
       inputTextUrlTrailerBrRef,
       inputTextUrlTrailerEnRef,
+      showError(msg: string) {
+        $q.notify({
+          type: 'negative',
+          message: msg,
+          position: 'center',
+        });
+      },
     };
   },
   data() {
@@ -199,6 +213,9 @@ export default defineComponent({
   },
   computed: {
     ...mapState(useMovieStore, ['moviePage']),
+    urlImage() {
+      return this.moviePage.selectedMovie.url_image;
+    },
   },
   async mounted() {
     await this.loadGenres();
@@ -313,6 +330,43 @@ export default defineComponent({
       }
 
       return ['grey', 'sym_o_star'];
+    },
+    changeTrailerPortuguese(url: string) {
+      const key = this.getYoutubeVideoKey(url);
+      this.moviePage.selectedMovie.portuguese_url_trailer = key;
+    },
+    changeTrailerEnglish(url: string) {
+      const key = this.getYoutubeVideoKey(url);
+      this.moviePage.selectedMovie.english_url_trailer = key;
+    },
+    getYoutubeVideoKey(url: string) {
+      const split = url.split(/(vi\/|v=|\/b\/|youtu\.be\/|\/embed\/)/);
+
+      const param =
+        // eslint-disable-next-line
+        split[2] !== undefined ? split[2].split(/[^0-9a-z_\-]/i)[0] : split[0].split(/[^0-9a-z_\-]/i)[0];
+      return param;
+    },
+  },
+  watch: {
+    async urlImage(url) {
+      if (!url) {
+        return;
+      }
+      try {
+        const img = await imageUtils.checkImageSizeByUrl(url);
+
+        if (!img.imgOk || img.error) {
+          this.showError('A imagem deve ter 750px de altura e 500px de largura');
+          this.moviePage.selectedMovie.url_image = '';
+        }
+        if (img.imgOk) {
+          this.moviePage.selectedMovie.url_image = url;
+        }
+      } catch {
+        this.moviePage.selectedMovie.url_image = '';
+        this.showError('Insira uma url válida para a imagem');
+      }
     },
   },
 });

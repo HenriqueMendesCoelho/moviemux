@@ -1,6 +1,5 @@
 <template>
   <main>
-    <LoginAnimation />
     <div class="row items-center" style="height: 100%">
       <div class="col-6">
         <div class="row justify-center">
