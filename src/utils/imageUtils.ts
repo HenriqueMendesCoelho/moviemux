@@ -1,8 +1,8 @@
 export default {
-  async checkImageSizeByUrl(url: string) {
+  async checkImageSizeByUrl(url: string, minHeight = 750, maxHeight = 750, minWidth = 500, maxWidth = 500) {
     const image = new Image();
     return new Promise<{ imgOk: boolean; error: boolean }>(function (resolve, reject) {
-      if (/\.(jpg|jpeg|png|webp|)$/.test(url)) {
+      if (!/\.(jpg|jpeg|png|webp|)$/.test(url)) {
         reject({ error: true });
       }
 
@@ -11,7 +11,12 @@ export default {
           resolve({ imgOk: false, error: false });
         }
 
-        if (this.naturalHeight < 350 || this.naturalHeight > 1200 || this.naturalWidth > 1100 || this.naturalWidth < 550) {
+        if (
+          this.naturalHeight < minHeight ||
+          this.naturalHeight > maxHeight ||
+          this.naturalWidth > maxWidth ||
+          this.naturalWidth < minWidth
+        ) {
           resolve({ imgOk: false, error: false });
         }
 
