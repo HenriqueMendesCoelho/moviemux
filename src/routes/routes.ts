@@ -33,7 +33,7 @@ export const routes = [
         component: HomeApp,
         name: 'home',
         meta: {
-          roles: ['ROLE_ADM', 'ROLE_USER'],
+          roles: ['ADM', 'USER'],
         },
       },
       {
@@ -41,7 +41,7 @@ export const routes = [
         component: () => import('@/components/administrator/AdministratorPage.vue'),
         name: 'adm',
         meta: {
-          roles: ['ROLE_ADM'],
+          roles: ['ADM'],
         },
       },
       {
@@ -49,7 +49,7 @@ export const routes = [
         component: () => import('@/components/movie/MoviePage.vue'),
         name: 'movie',
         meta: {
-          roles: ['ROLE_ADM', 'ROLE_USER'],
+          roles: ['ADM', 'USER'],
         },
       },
       {
@@ -57,7 +57,7 @@ export const routes = [
         component: () => import('@/components/movie/MoviePage.vue'),
         name: 'add',
         meta: {
-          roles: ['ROLE_ADM', 'ROLE_USER'],
+          roles: ['ADM', 'USER'],
         },
       },
       {
@@ -65,7 +65,7 @@ export const routes = [
         component: () => import('@/components/profile/ProfilePage.vue'),
         name: 'profile',
         meta: {
-          roles: ['ROLE_ADM', 'ROLE_USER'],
+          roles: ['ADM', 'USER'],
         },
       },
     ],
