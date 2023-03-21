@@ -28,7 +28,7 @@
             style="top: 8px; left: 8px"
             v-if="showInfos && !isRating()"
           >
-            <CustomTooltip :delay="500"> Esse filme ainda não tem votos </CustomTooltip>
+            <CustomTooltip :delay="500"> Esse filme ainda não tem notas </CustomTooltip>
           </q-icon>
         </transition>
         <transition>
