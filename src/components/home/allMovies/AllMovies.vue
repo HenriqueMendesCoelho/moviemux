@@ -71,7 +71,7 @@ export default defineComponent({
 
         return res.content;
       } else {
-        const res = await MovieService.listMoviesPageable(this.page, 'portugueseTitle,asc');
+        const res = await MovieService.listMoviesPageable(this.page, 'portugueseTitle,asc', 20);
         if (this.page >= this.pagesFouded) {
           this.loading = true;
         }
@@ -87,8 +87,6 @@ export default defineComponent({
 </script>
 <style lang="scss">
 .div-allfilms {
-  //border: 5px solid pink;
-
   margin-top: 20px;
   max-width: 100%;
 
@@ -103,7 +101,6 @@ export default defineComponent({
 
   .search-input {
     max-width: 100%;
-    //border: 5px solid blue;
     height: 5vh;
     width: 100%;
     margin-bottom: 20px;
@@ -112,7 +109,6 @@ export default defineComponent({
 
     display: flex;
     overflow: hidden;
-    //border: 5px solid green;
     input {
       max-width: 100%;
       padding: 15px;
@@ -182,9 +178,8 @@ export default defineComponent({
 
   .container-cards-films {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 20px;
-    //border: 5px solid green;
 
     justify-content: center;
     align-items: center;
@@ -193,8 +188,6 @@ export default defineComponent({
     max-width: 100%;
 
     .cards-films {
-      //border: 5px solid yellow;
-
       .img-movies {
         max-width: 100%;
         object-fit: cover;
