@@ -16,8 +16,6 @@ import AllMovies from './allMovies/AllMovies.vue';
 
 import { useStyleStore } from '@/stores/StyleStore';
 
-import imageUtils from '@/utils/imageUtils';
-
 export default defineComponent({
   name: 'HomeApp',
   components: {
@@ -71,21 +69,6 @@ export default defineComponent({
         return 250;
       }
       return 150;
-    },
-  },
-  methods: {
-    async checkImage(url: string) {
-      try {
-        const img = await imageUtils.checkImageSizeByUrl(url);
-
-        if (!img.imgOk) {
-          this.showError('A imagem deve ter no mínimo 350px de altura e no max 1200px e de largura no mínimo 550px e no max 1100px.');
-          return;
-        }
-        this.showMessage('Imagem OK!');
-      } catch {
-        this.showError('Insira uma url válida para a imagem');
-      }
     },
   },
 });
