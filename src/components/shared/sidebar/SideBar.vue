@@ -18,7 +18,7 @@
         <span class="text" v-if="showTextsSideBar">Home</span>
         <CustomTooltip anchor="center right" v-if="!isExpanded" :delay="500">HOME</CustomTooltip>
       </router-link>
-      <router-link to="/adm" class="button" v-if="isAdmin()">
+      <router-link to="/adm" class="button" v-if="isAdmin">
         <span class="material-icons">admin_panel_settings</span>
         <span class="text" v-if="showTextsSideBar">Painel ADM</span>
         <CustomTooltip anchor="center right" :offset="[30, 0]" v-if="!isExpanded" :delay="500">PAINEL ADM</CustomTooltip>
@@ -72,6 +72,9 @@ export default defineComponent({
   computed: {
     ...mapState(useStyleStore, ['backgroundColor', 'sideBarWidth']),
     ...mapState(useUserStore, ['user']),
+    isAdmin() {
+      return this.user.roles.includes('ADM');
+    },
   },
   methods: {
     ...mapActions(useStyleStore, ['ToggleMenuStore', 'setIsExpanded']),
@@ -79,10 +82,6 @@ export default defineComponent({
       this.isExpanded = !this.isExpanded;
       this.ToggleMenuStore();
       localStorage.setItem('is_expanded', this.isExpanded.toString());
-    },
-    isAdmin() {
-      //TODO
-      return true;
     },
     logout() {
       localStorage.clear();
