@@ -67,14 +67,12 @@ export default defineComponent({
 }
 
 .tabs-selector {
-  //background: var(--grey-mid);
   background-color: var(--dark-alt);
   color: white;
   box-shadow: 0 5px 10px var(--shadow);
   border-top-right-radius: 15px;
   border-top-left-radius: 15px;
   font-size: x-large;
-  //border: 1px solid white;
 
   .tab-style-right {
     border-right: 3px solid var(--grey-mid);
