@@ -85,6 +85,7 @@
             <h3>Criar nova conta</h3>
             <SeparatorDivLineSolid />
             <q-input
+              ref="inputEmailCreateAccountRef"
               class="col-10 justify-center"
               label="E-mail"
               v-model="email"
@@ -95,6 +96,7 @@
               ><template v-slot:append> <q-icon name="mail" /> </template
             ></q-input>
             <q-input
+              ref="inputPasswordCreateAccountRef"
               class="col-5 justify-center q-pr-sm"
               label="Senha"
               v-model="password"
@@ -107,6 +109,7 @@
                 <q-icon name="visibility_off" v-if="visibilityPass" @click="visibilityPass = !visibilityPass" /></template
             ></q-input>
             <q-input
+              ref="inputRepeatPasswordCreateAccountRef"
               class="col-5 justify-center q-pl-sm"
               label="Repita a senha"
               v-model="newPassword"
@@ -119,6 +122,7 @@
                 <q-icon name="visibility_off" v-if="visibilityNewPass" @click="visibilityNewPass = !visibilityNewPass" /></template
             ></q-input>
             <q-input
+              ref="inputNicknameCreateAccountRef"
               class="col-5 justify-center q-pr-sm"
               label="Nickname"
               v-model="nickname"
@@ -129,6 +133,7 @@
               ><template v-slot:append> <q-icon name="badge" /> </template
             ></q-input>
             <q-input
+              ref="inputInviteCreateAccountRef"
               class="col-5 justify-center q-pl-sm"
               label="Convite"
               v-model="invite"
@@ -197,7 +202,7 @@ export default defineComponent({
         $q.notify({
           type: 'negative',
           message: msg,
-          position: 'bottom',
+          position: 'top',
         });
       },
     };
@@ -231,7 +236,11 @@ export default defineComponent({
       try {
         this.loading = true;
         await this.signIn({ email: this.email, password: this.password });
-        this.$router.push('/home');
+        if (this.$route.name === 'login') {
+          this.$router.push('/home');
+        } else {
+          window.location.reload();
+        }
       } catch {
         this.showError('Error ao fazer login, tente novamente mais tarde!');
       } finally {
@@ -264,6 +273,7 @@ export default defineComponent({
       }
     },
   },
+  //A senha deve conter no mínimo 8 carecteres, letras maiúsculas e minúsculas, números e caracteres especiais
   watch: {
     modelValue() {
       this.tab = this.modelValue;
