@@ -87,14 +87,14 @@ export default defineComponent({
         $q.notify({
           type: 'positive',
           message: msg,
-          position: 'bottom',
+          position: 'top',
         });
       },
       showError(msg: string) {
         $q.notify({
           type: 'negative',
           message: msg,
-          position: 'bottom',
+          position: 'top',
         });
       },
     };

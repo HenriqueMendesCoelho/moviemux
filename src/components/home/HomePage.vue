@@ -33,7 +33,7 @@ export default defineComponent({
         $q.notify({
           type: 'negative',
           message: msg,
-          position: 'bottom',
+          position: 'top',
         });
       },
       showMessage(msg: string) {
