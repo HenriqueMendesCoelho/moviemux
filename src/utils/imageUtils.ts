@@ -1,5 +1,5 @@
 export default {
-  async checkImageSizeByUrl(url: string, minHeight = 700, maxHeight = 750, minWidth = 500, maxWidth = 500) {
+  async checkImageSizeByUrl(url: string, minHeight = 700, maxHeight = 800, minWidth = 500, maxWidth = 500) {
     const image = new Image();
     return new Promise<{ imgOk: boolean; error: boolean }>(function (resolve, reject) {
       if (!/\.(jpg|jpeg|png|webp|)$/.test(url)) {
