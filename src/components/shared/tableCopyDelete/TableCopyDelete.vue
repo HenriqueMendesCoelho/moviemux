@@ -1,8 +1,8 @@
 <template>
   <q-table
     :title="title"
+    :style="`background-color: ${color}; max-height: 350px !important`"
     :rows="rows"
-    :style="`background-color: ${color};`"
     dense
     dark
     card-class="text-white"
@@ -14,11 +14,11 @@
   >
     <template v-slot:body-cell-actions="props">
       <q-td :props="props">
-        <q-btn dense round flat color="white" icon="edit" v-if="edit">
-          <q-tooltip>Editar</q-tooltip>
+        <q-btn dense round flat color="white" icon="content_copy" @click="actionCopy(props.row)">
+          <CustomTooltip :delay="300" :hide-delay="300">Copiar</CustomTooltip>
         </q-btn>
-        <q-btn dense round flat color="white" icon="delete">
-          <q-tooltip>Deletar</q-tooltip>
+        <q-btn dense round flat color="white" icon="delete" @click="actionDelete(props.row)">
+          <CustomTooltip :delay="300" :hide-delay="300">Deletar</CustomTooltip>
         </q-btn>
       </q-td>
     </template>
@@ -29,8 +29,13 @@
 import type { QTableProps } from 'quasar';
 import { defineComponent, PropType } from 'vue';
 
+import CustomTooltip from '../customTooltip/CustomTooltip.vue';
+
 export default defineComponent({
-  name: 'TableEditDelete',
+  name: 'TableCopyDelete',
+  components: {
+    CustomTooltip,
+  },
   props: {
     title: {
       type: String,
@@ -47,10 +52,13 @@ export default defineComponent({
       type: Array,
       required: false,
     },
-    edit: {
-      type: Boolean,
-      required: false,
-      default: true,
+    actionCopy: {
+      type: Function,
+      required: true,
+    },
+    actionDelete: {
+      type: Function,
+      required: true,
     },
   },
 });
