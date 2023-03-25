@@ -90,7 +90,8 @@ export default defineComponent({
         sum += note.note;
         count++;
       }
-      return sum / count;
+      const average = sum / count;
+      return average.toFixed(1);
     },
     getChipColor() {
       const averageNote = this.getNoteAverage();
