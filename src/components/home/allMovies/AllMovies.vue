@@ -7,7 +7,7 @@
         <span class="material-icons" style="font-size: 18pt"> refresh </span>
       </button>
     </div>
-    <q-infinite-scroll class="container-cards-films full-width" @load="onLoad" :offset="100">
+    <q-infinite-scroll class="container-cards-films full-width" @load="onLoad" :offset="10">
       <div class="cards-films" v-for="movie in movies" :key="movie.id">
         <CardImageAllMovies :movie="movie" />
       </div>
@@ -71,7 +71,7 @@ export default defineComponent({
 
         return res.content;
       } else {
-        const res = await MovieService.listMoviesPageable(this.page, 'portugueseTitle,asc', 20);
+        const res = await MovieService.listMoviesPageable(this.page, 'portugueseTitle,asc', 30);
         this.pagesFouded = res.total_pages;
         if (this.page >= this.pagesFouded) {
           this.loading = true;
