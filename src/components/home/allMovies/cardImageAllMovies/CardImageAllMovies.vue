@@ -107,12 +107,12 @@ export default defineComponent({
         return ['orange', 'star_half', 'black'];
       }
 
-      if (averageNote > 7 && averageNote <= 9) {
-        return ['positive', 'star', 'white'];
+      if (averageNote > 7 && averageNote <= 9.5) {
+        return ['positive', 'star'];
       }
 
-      if (averageNote === 10) {
-        return ['kb-primary', 'hotel_class', 'white'];
+      if (averageNote > 9.5) {
+        return ['kb-primary', 'hotel_class'];
       }
 
       return ['grey', 'sym_o_star'];

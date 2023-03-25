@@ -321,11 +321,11 @@ export default defineComponent({
         return ['orange', 'star_half'];
       }
 
-      if (averageNote > 7 && averageNote <= 9) {
+      if (averageNote > 7 && averageNote <= 9.5) {
         return ['positive', 'star'];
       }
 
-      if (averageNote === 10) {
+      if (averageNote > 9.5) {
         return ['kb-primary', 'hotel_class'];
       }
 
