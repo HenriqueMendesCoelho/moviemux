@@ -7,7 +7,7 @@
         <span class="material-icons" style="font-size: 18pt"> refresh </span>
       </button>
     </div>
-    <q-infinite-scroll class="container-cards-films" @load="onLoad" :offset="10">
+    <q-infinite-scroll class="container-cards-films full-width justify-center" @load="onLoad" :offset="10">
       <div class="cards-films" v-for="movie in movies" :key="movie.id">
         <CardImageAllMovies :movie="movie" />
       </div>
@@ -178,7 +178,7 @@ export default defineComponent({
 
   .container-cards-films {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, 280px);
     gap: 20px;
 
     justify-content: center;
