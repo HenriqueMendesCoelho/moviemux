@@ -2,6 +2,8 @@ import axios from 'axios';
 
 import User from '@/domain/user/User';
 
+import StringUtils from '@/utils/stringUtils';
+
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;
 const API_USER = `${BASE_URL}/api/user`;
 
@@ -25,6 +27,88 @@ export default {
   async getUser(): Promise<User> {
     try {
       const res = await axios.get(`${API_USER}`);
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
+  async updateUserProfile(payload: { name: string; email: string; notify: boolean }): Promise<User> {
+    const params = StringUtils.getStringParams(payload);
+    try {
+      const res = await axios.patch(`${API_USER}/update`, params);
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
+  async updateUserPassword(payload: { password: string; newPassword: string }): Promise<User> {
+    const params = StringUtils.getStringParams(payload);
+    try {
+      const res = await axios.patch(`${API_USER}/p/update`, params);
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
+  async promoteUser(userId: string): Promise<User> {
+    try {
+      const res = await axios.patch(`${API_USER}/${userId}/promote`);
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
+  async demoteUser(userId: string): Promise<User> {
+    try {
+      const res = await axios.patch(`${API_USER}/${userId}/demote`);
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
+  async blockUser(userId: string): Promise<User> {
+    try {
+      const res = await axios.patch(`${API_USER}/${userId}/block`);
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
+  async deleteUser(userId: string): Promise<User> {
+    try {
+      const res = await axios.delete(`${API_USER}/${userId}`);
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
+  async listUsers(): Promise<User[]> {
+    try {
+      const res = await axios.get(`${API_USER}/list`);
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
+  async listUserInvites(): Promise<{ code: string }[]> {
+    try {
+      const res = await axios.get(`${API_USER}/invite`);
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
+  async createUserInvite(): Promise<{ code: string }> {
+    try {
+      const res = await axios.post(`${API_USER}/invite`);
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
+  async deleteUserInvite(code: string): Promise<void> {
+    try {
+      const res = await axios.delete(`${API_USER}/invite/${code}/delete`);
       return res.data;
     } catch (error) {
       return Promise.reject(error);
