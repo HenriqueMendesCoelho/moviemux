@@ -62,7 +62,13 @@ export default defineComponent({
   data() {
     return {
       tab: 'myData',
-      user: {} as User,
+      user: {
+        name: '',
+        email: '',
+        preferences: {
+          notify: true,
+        },
+      } as User,
     };
   },
   async mounted() {
