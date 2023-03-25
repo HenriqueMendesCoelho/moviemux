@@ -19,7 +19,7 @@
     <div class="container-lastmovies" v-auto-animate>
       <div class="div-cards-lastfilm" v-if="isVisibleLastFilms">
         <div v-for="movie of movies.slice(0, 10)" :key="movie.id">
-          <CardImageMovie class="q-mt-xl q-px-md" :id="movie.id" :title="movie.portuguese_title" :url="movie.url_image" :footer="true" />
+          <CardImageMovie class="q-mt-md q-px-sm" :id="movie.id" :title="movie.portuguese_title" :url="movie.url_image" :footer="true" />
         </div>
       </div>
     </div>
