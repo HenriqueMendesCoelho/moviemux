@@ -19,7 +19,7 @@
     <div class="q-mt-md" :class="isMobile ? 'col-12 row' : 'col-8 row'">
       <InputText class="col" :label="'Email'" v-model="user.email" :readOnly="allReadOnly" />
       <q-input
-        v-model="user.statistics.consecutive_failed_login_attempts"
+        :model-value="user.statistics?.consecutive_failed_login_attempts"
         v-if="showAdmInfo"
         :class="isMobile ? 'col-12' : 'col-6 q-ml-sm q-pl-sm'"
         square
@@ -29,13 +29,14 @@
         label="Quantidade de tentativas de login"
         dark
         :readonly="true"
+        type="number"
       />
     </div>
     <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
       <div class="row">
         <div :class="isMobile ? 'col-12' : 'col-6 q-pr-sm'">
           <q-input
-            :model-value="user.roles.join(',')"
+            :model-value="user.roles?.join(', ')"
             square
             filled
             standout="text-info"
@@ -75,7 +76,7 @@
         </div>
         <div :class="isMobile ? 'col-12 q-mt-md' : 'col-6 q-pl-sm'">
           <q-input
-            :model-value="user.statistics.ratings_given"
+            :model-value="user.statistics?.ratings_given"
             square
             filled
             standout="text-info"
@@ -119,6 +120,7 @@ export default defineComponent({
     return {
       no: true,
       user: new User(),
+      teste: true,
     };
   },
   emits: ['update:modelValue'],
