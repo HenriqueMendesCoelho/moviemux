@@ -68,6 +68,14 @@ export default {
       return Promise.reject(error);
     }
   },
+  async deleteMovie(movieId: string): Promise<Movie> {
+    try {
+      const res = await axios.delete(`${API_MOVIE}/${movieId}/delete`);
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
 
   //Genres
   async getMoviesGenres(): Promise<Array<{ id: number; name: string }>> {
