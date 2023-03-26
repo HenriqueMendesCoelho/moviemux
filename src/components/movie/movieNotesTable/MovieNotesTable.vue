@@ -55,6 +55,7 @@
                 :rules="[(val) => ruleInputNote(val)]"
               />
             </q-popup-edit>
+            <CustomTooltip :delay="200" v-if="showEdit(props.row)">Clique para editar</CustomTooltip>
           </q-td>
           <q-td key="createdAt" :props="props">{{ props.cols[2].value }}</q-td>
           <q-td key="updatedAt" :props="props">{{ props.cols[3].value }}</q-td>
