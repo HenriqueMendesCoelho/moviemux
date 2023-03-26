@@ -172,6 +172,7 @@ import { InputValidateRefType } from '../shared/inputText/types/InputValidateRef
 
 import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue';
 import UserService from '@/services/UserService';
+import axios, { AxiosError } from 'axios';
 
 export default defineComponent({
   nome: 'FormForm',
@@ -203,6 +204,17 @@ export default defineComponent({
           type: 'negative',
           message: msg,
           position: 'top',
+        });
+      },
+      showErrorPassword() {
+        $q.notify({
+          type: 'warning',
+          message:
+            '<p>A senha <strong>deve</strong> conter:</p><p>Letras maiúsculas e minúsculas</p><p>Números</p><p>Caracteres especiais</p><p>OK?</p>',
+          position: 'top',
+          timeout: 10000,
+          progress: true,
+          html: true,
         });
       },
     };
@@ -263,13 +275,20 @@ export default defineComponent({
       try {
         await UserService.create({ name: this.nickname, email: this.email, password: this.password, invite_code: this.invite });
         this.tab = 'login';
-        // eslint-disable-next-line
-      } catch (error: any) {
-        if (error.response.data.message === 'invite is not valid') {
-          this.showError('O convite é inválido');
-          return;
+      } catch (err) {
+        const error = err as Error | AxiosError;
+        if (axios.isAxiosError(error)) {
+          console.log(error.response?.data.errors.password);
+          if (error.response?.data.errors.password === 'password is to weak') {
+            this.showErrorPassword();
+          }
+          if (error.response?.data.message === 'invite is not valid') {
+            this.showError('O convite é inválido');
+            return;
+          }
+        } else {
+          this.showError('Erro ao criar conta');
         }
-        this.showError('Erro ao criar conta');
       }
     },
   },
