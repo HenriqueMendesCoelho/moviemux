@@ -1,6 +1,5 @@
 <template>
   <div class="row justify-center form-movie q-mx-md" style="overflow: auto">
-    <!--<img class="col q-mx-xl q-py-xs" :src="getImageAndAlt()[0]" :alt="getImageAndAlt()[1]" draggable="false" @contextmenu.prevent />-->
     <q-img
       style="border-radius: 20px"
       class="col-3 q-mx-xl q-py-xs"
@@ -11,8 +10,8 @@
     />
     <div class="col q-ml-xl">
       <div class="row q-col-gutter-y-md">
-        <div class="col-12 text-h2">Informações</div>
-        <div class="col-12 row q-gutter-sm">
+        <div class="col-12" :class="screenHeight > 1080 ? 'text-h3' : 'text-h4'">Informações</div>
+        <div class="col-12 row q-col-gutter-sm">
           <InputText
             ref="inputTextPortugueseTitleRef"
             class="col"
@@ -20,6 +19,7 @@
             v-model="moviePage.selectedMovie.portuguese_title"
             :readOnly="!isRegisterOrEditing"
             :required="true"
+            :dense="screenHeight <= 1080"
           />
           <InputText
             ref="inputTextEnglishTitleRef"
@@ -28,6 +28,7 @@
             v-model="moviePage.selectedMovie.english_title"
             :readOnly="!isRegisterOrEditing"
             :required="true"
+            :dense="screenHeight <= 1080"
           />
           <InputText
             v-if="() => moviePage.selectedMovie.original_title || isRegisterOrEditing"
@@ -36,6 +37,7 @@
             :label="'Título Original'"
             v-model="moviePage.selectedMovie.original_title"
             :readOnly="!isRegisterOrEditing"
+            :dense="screenHeight <= 1080"
           />
         </div>
         <div class="col-12 row q-col-gutter-sm">
@@ -46,6 +48,7 @@
             v-model="moviePage.selectedMovie.director"
             :readOnly="!isRegisterOrEditing"
             :required="true"
+            :dense="screenHeight <= 1080"
           />
           <InputText
             ref="inputTextReleaseDateRef"
@@ -56,6 +59,7 @@
             :readOnly="!isRegisterOrEditing"
             :mask="'##/##/####'"
             :required="true"
+            :dense="screenHeight <= 1080"
           />
         </div>
         <div class="col-12 row q-col-gutter-sm">
@@ -67,7 +71,7 @@
             outlined
             v-model="moviePage.selectedMovie.description"
             input-style="resize: none;"
-            rows="9"
+            :rows="screenHeight > 1080 ? '9' : '7'"
             label="Descrição - Sinopse"
             bg-color="grey-mid2"
             dark
@@ -75,6 +79,7 @@
             :readonly="!isRegisterOrEditing"
             :rules="[(val) => !!val || '*Obrigatório']"
             :lazy-rules="true"
+            :dense="screenHeight <= 1080"
           />
           <div class="col-5 row">
             <q-select
@@ -96,6 +101,7 @@
               hideBottomSpace
               :readonly="!isRegisterOrEditing"
               :lazy-rules="true"
+              :dense="screenHeight <= 1080"
             />
             <InputText
               ref="inputTextTmdbIdRef"
@@ -105,8 +111,15 @@
               @update:modelValue="moviePage.selectedMovie.tmdb_id = parseInt($event)"
               type="number"
               :readonly="true"
+              :dense="screenHeight <= 1080"
             />
-            <InputText class="col-12" :label="'Imdb ID'" v-model="moviePage.selectedMovie.imdb_id" :readOnly="!isRegisterOrEditing" />
+            <InputText
+              class="col-12"
+              :label="'Imdb ID'"
+              v-model="moviePage.selectedMovie.imdb_id"
+              :readOnly="!isRegisterOrEditing"
+              :dense="screenHeight <= 1080"
+            />
           </div>
         </div>
 
@@ -119,6 +132,7 @@
             v-model="moviePage.selectedMovie.url_image"
             :readOnly="!isRegisterOrEditing"
             :required="true"
+            :dense="screenHeight <= 1080"
           />
           <InputText
             ref="inputTextUrlTrailerBrRef"
@@ -130,6 +144,7 @@
             :customRules="!!(moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer)"
             :customRulesText="'É necessário ter url do trailer dublado ou legendado'"
             :hint="isRegisterOrEditing ? 'Insira a url do youtube ou key do video' : ''"
+            :dense="screenHeight <= 1080"
           />
           <InputText
             ref="inputTextUrlTrailerEnRef"
@@ -141,12 +156,20 @@
             :customRules="!!(moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer)"
             :customRulesText="'É necessário ter url do trailer dublado ou legendado'"
             :hint="isRegisterOrEditing ? 'Insira a url do youtube ou key do video' : ''"
+            :dense="screenHeight <= 1080"
           />
         </div>
-        <div class="col-12 row q-col-gutter-sm q-mt-xs" v-if="moviePage.selectedMovie.notes?.length">
+        <div class="col-12 row q-col-gutter-sm" v-if="moviePage.selectedMovie.notes?.length">
           <div class="col-12 text-h5">Nota</div>
           <div class="col-12 q-pl-xs">
-            <q-chip size="xl" square :color="getChipColor()[0]" text-color="white" :icon-right="getChipColor()[1]">
+            <q-chip
+              size="xl"
+              square
+              :color="getChipColor()[0]"
+              text-color="white"
+              :icon-right="getChipColor()[1]"
+              :dense="screenHeight <= 1080"
+            >
               {{ getNoteAverage() }}
             </q-chip>
           </div>
@@ -223,6 +246,9 @@ export default defineComponent({
     ...mapState(useMovieStore, ['moviePage']),
     urlImage() {
       return this.moviePage.selectedMovie.url_image;
+    },
+    screenHeight() {
+      return this.$q.screen.height;
     },
   },
   async mounted() {
