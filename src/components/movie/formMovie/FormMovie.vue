@@ -1,6 +1,14 @@
 <template>
-  <div class="row justify-center form-movie items-center q-mx-md">
-    <img class="q-mx-xl q-py-xs" :src="getImageAndAlt()[0]" :alt="getImageAndAlt()[1]" draggable="false" @contextmenu.prevent />
+  <div class="row justify-center form-movie q-mx-md" style="overflow: auto">
+    <!--<img class="col q-mx-xl q-py-xs" :src="getImageAndAlt()[0]" :alt="getImageAndAlt()[1]" draggable="false" @contextmenu.prevent />-->
+    <q-img
+      style="border-radius: 20px"
+      class="col-3 q-mx-xl q-py-xs"
+      :src="getImageAndAlt()[0]"
+      :alt="getImageAndAlt()[1]"
+      :draggable="false"
+      :height="'100%'"
+    />
     <div class="col q-ml-xl">
       <div class="row q-col-gutter-y-md">
         <div class="col-12 text-h2">Informações</div>
@@ -383,18 +391,10 @@ export default defineComponent({
 
   img {
     border-radius: 20px;
-    max-height: 100% !important;
+    width: 100% !important;
+    height: auto;
 
     transition: 0.2s ease-out;
-
-    &:hover {
-      transform: scale(1.01);
-    }
-
-    @media (max-width: 768px) {
-      max-width: 100%;
-      height: auto;
-    }
   }
 }
 </style>
