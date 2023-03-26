@@ -1,7 +1,7 @@
 <template>
   <div class="div-allfilms">
     <div class="search-input">
-      <input type="text" name="search" placeholder="Digite..." v-model="searchText" />
+      <input type="text" name="search" placeholder="Digite..." v-model="searchText" @keyup.enter="search()" />
       <button class="search-btn" @click="search()">BUSCAR</button>
       <button class="end-btn" @click="refreshSearch()">
         <span class="material-icons" style="font-size: 18pt"> refresh </span>

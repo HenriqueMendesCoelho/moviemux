@@ -16,6 +16,7 @@
     :mask="mask"
     clearable
     :lazy-rules="true"
+    @keyup.enter="enterEvent"
   />
 </template>
 
@@ -62,6 +63,9 @@ export default defineComponent({
     mask: {
       type: String as PropType<QInputProps['mask']>,
       default: undefined,
+    },
+    enterEvent: {
+      type: Function,
     },
   },
   setup() {

@@ -9,7 +9,7 @@
           <q-icon color="white" name="close" size="md" @click="moviePage.showImportMovieDialog = !moviePage.showImportMovieDialog" />
         </div>
         <SeparatorDivSolidLine class="q-mb-xl" />
-        <div class="col-4 q-mr-md"><InputText dense :label="'Título Do Filme'" v-model="text" /></div>
+        <div class="col-4 q-mr-md"><InputText dense :label="'Título Do Filme'" v-model="text" :enterEvent="firstSearch" /></div>
         <div class="col-4">
           <q-btn style="width: 100%" color="kb-primary" text-color="black" label="Pesquisar" :disable="false" @click="firstSearch" />
         </div>
