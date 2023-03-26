@@ -37,7 +37,7 @@
 
     <div class="flex"></div>
     <div class="menu">
-      <button class="button" style="opacity: 50%; cursor: not-allowed" disabled="true">
+      <button v-show="false" class="button" style="opacity: 50%; cursor: not-allowed" disabled="true">
         <span class="material-icons" draggable="false"> light_mode </span>
         <span class="text" draggable="false">Tema</span>
       </button>
