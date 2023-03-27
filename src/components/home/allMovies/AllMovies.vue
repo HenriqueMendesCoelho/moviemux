@@ -179,7 +179,7 @@ export default defineComponent({
 
   .container-cards-films {
     display: grid;
-    grid-template-columns: repeat(auto-fit, 280px);
+    grid-template-columns: repeat(auto-fit, min(280px, 12vw));
     gap: 20px;
 
     justify-content: center;
