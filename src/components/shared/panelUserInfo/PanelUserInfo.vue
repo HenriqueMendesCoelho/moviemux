@@ -64,7 +64,7 @@
       <div class="row">
         <div :class="isMobile ? 'col-12' : 'col-6 q-pr-sm'">
           <q-input
-            :model-value="new Date(user.updated_at).toLocaleString()"
+            :model-value="user.statistics.registered_movies"
             square
             filled
             standout="text-info"
