@@ -17,8 +17,8 @@
       </q-card-section>
       <q-separator />
       <q-card-section class="scroll" style="max-height: 60vh" v-if="movies?.length">
-        <div class="q-mt-md">
-          <q-infinite-scroll class="row justify-center scroll" @load="onLoad" :offset="1">
+        <q-infinite-scroll class="" @load="onLoad" :offset="50">
+          <div class="q-mt-md row justify-center">
             <q-img
               class="image-search col-3 q-mx-md q-mb-md"
               :src="getImageUrl(movie.poster_path)"
@@ -29,8 +29,8 @@
             >
               <div class="absolute-bottom text-h6">{{ movie.title }}</div>
             </q-img>
-          </q-infinite-scroll>
-        </div>
+          </div>
+        </q-infinite-scroll>
         <div class="col-12 row justify-center q-my-md" v-if="loading">
           <q-spinner color="kb-primary" size="50px" />
         </div>
