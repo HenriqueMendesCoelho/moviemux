@@ -5,10 +5,9 @@
       class="col-8"
       title="Notas"
       :rows="moviePage.selectedMovie.notes"
-      style="background-color: #343c4c"
       dense
       dark
-      card-class="text-white"
+      card-class="text-white bg-grey-mid2"
       row-key="index"
       virtual-scroll
       no-data-label="Ainda não há notas para esse filme :("
@@ -32,13 +31,13 @@
           <q-td key="note" :props="props">
             {{ props.row.note }}
             <q-popup-edit
+              class="bg-grey-mid2"
               :model-value="props.row.note"
               @save="updateNote(props.row, $event)"
               title="Atualizar Nota"
               buttons
               v-slot="scope"
               v-if="showEdit(props.row)"
-              style="background-color: #343c4c"
               color="kb-primary"
               dark
               label-set="Salvar"

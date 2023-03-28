@@ -1,7 +1,7 @@
 <template>
   <div class="col-6 row" v-if="showTopButtons()">
     <div class="q-ml-md">
-      <q-btn style="background-color: #343c4c" text-color="white" round icon="refresh" @click="loadMovie()" />
+      <q-btn color="grey-mid2" text-color="white" round icon="refresh" @click="loadMovie()" />
     </div>
     <div class="q-ml-md" v-if="showEditAndDeleteButton()">
       <q-btn style="width: 100%" color="primary" text-color="white" label="Editar" @click="moviePage.isEditing = !moviePage.isEditing" />
