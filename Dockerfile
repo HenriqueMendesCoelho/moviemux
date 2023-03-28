@@ -2,13 +2,11 @@ FROM arm64v8/node:18.15-alpine as build-stage
 
 WORKDIR /app
 
-COPY package*.json ./
-
-RUN npm install
-
 COPY . .
 
-RUN npm run build
+RUN corepack enable
+RUN yarn install
+RUN yarn build
 
 FROM arm64v8/nginx:stable-alpine as production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
