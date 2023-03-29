@@ -11,7 +11,7 @@
         </div>
       </div>
       <div class="col-6">
-        <FormLogin v-model="tab" :actionLogin="login" />
+        <FormLogin v-model="tab" />
       </div>
     </div>
   </main>
@@ -20,7 +20,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 
-import FormLogin from './FormLogin.vue';
+import FormLogin from './formLogin/FormLogin.vue';
 import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue';
 
 export default defineComponent({
@@ -34,20 +34,8 @@ export default defineComponent({
   },
   data() {
     return {
-      button_text: 'Login',
-      input_pass: '',
-      input_email: '',
-      input_code: '',
       tab: 'login',
     };
-  },
-  methods: {
-    routeToLogin() {
-      this.$router.push({ name: 'home' });
-    },
-    login() {
-      this.$router.push('/home');
-    },
   },
 });
 </script>

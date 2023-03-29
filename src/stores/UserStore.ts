@@ -52,8 +52,8 @@ export const useUserStore = defineStore('UserStore', {
         this.decodeToken(token);
 
         return Promise.resolve();
-      } catch {
-        return Promise.reject();
+      } catch (error) {
+        return Promise.reject(error);
       }
     },
     async refreshToken(): Promise<void> {

@@ -7,7 +7,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 
-import FormLogin from './FormLogin.vue';
+import FormLogin from './formLogin/FormLogin.vue';
 
 export default defineComponent({
   name: 'DialogLogin',
