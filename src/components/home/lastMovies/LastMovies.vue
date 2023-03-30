@@ -57,7 +57,7 @@ export default defineComponent({
       }, 100);
     },
     async loadLastMovies() {
-      const res = await MovieService.listMoviesPageable(1, 'createdAt,desc', 10);
+      const res = await MovieService.listMoviesPageable(1, 10, 'createdAt,desc');
       this.movies = res.content;
     },
   },
