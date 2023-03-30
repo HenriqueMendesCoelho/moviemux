@@ -71,7 +71,7 @@ export default defineComponent({
 
         return res.content;
       } else {
-        const res = await MovieService.listMoviesPageable(this.page, 'portugueseTitle,asc', 30);
+        const res = await MovieService.listMoviesPageable(this.page, 30);
         this.pagesFouded = res.total_pages;
         if (this.page >= this.pagesFouded) {
           this.loading = true;

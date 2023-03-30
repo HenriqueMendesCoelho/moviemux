@@ -36,7 +36,7 @@ export default {
       return Promise.reject(error);
     }
   },
-  async listMoviesPageable(page: number, sort = 'portugueseTitle,cres', size = 50): Promise<MoviePageableType> {
+  async listMoviesPageable(page: number, size = 50, sort = 'portugueseTitle,asc'): Promise<MoviePageableType> {
     try {
       const res = await axios.get(`${API_MOVIE}/list?page=${page}&sort=${sort}&size=${size}`);
       return res.data;
@@ -44,9 +44,9 @@ export default {
       return Promise.reject(error);
     }
   },
-  async listMoviesByTitlePageable(page: number, title: string, size = 50): Promise<MoviePageableType> {
+  async listMoviesByTitlePageable(page: number, title: string, size = 50, sort = 'portuguese_title,asc'): Promise<MoviePageableType> {
     try {
-      const res = await axios.get(`${API_MOVIE}?page=${page}&query=${title}&size=${size}`);
+      const res = await axios.get(`${API_MOVIE}?page=${page}&query=${title}&size=${size}&sort=${sort}`);
       return res.data;
     } catch (error) {
       return Promise.reject(error);
