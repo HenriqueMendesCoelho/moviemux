@@ -37,7 +37,15 @@
       <button class="btn-underline q-mt-md" @click="changeTab('forgot')">Esqueceu sua senha ?</button>
     </div>
     <div class="col-10 q-mt-xl">
-      <q-btn class="btn-login" label="entrar" @click="login()" color="kb-primary" text-color="black" style="width: 100%" />
+      <q-btn
+        ref="btnLoginRef"
+        class="btn-login"
+        label="entrar"
+        @click="login()"
+        color="kb-primary"
+        text-color="black"
+        style="width: 100%"
+      />
     </div>
     <div class="col-12 row justify-center q-mt-md">
       <div class="row" v-if="createAccount">
@@ -55,6 +63,12 @@ import { InputValidateRefType } from '@/components/shared/inputText/types/InputV
 import { useUserStore } from '@/stores/UserStore';
 import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
 
+type btnFocusRefType = {
+  $el: {
+    focus: () => void;
+  };
+};
+
 export default defineComponent({
   name: 'tabLogin',
   components: { SeparatorDivLineSolid },
@@ -69,9 +83,12 @@ export default defineComponent({
 
     const inputEmailRef = ref<InputValidateRefType>();
     const inputPasswordRef = ref<InputValidateRefType>();
+
+    const btnLoginRef = ref<btnFocusRefType>();
     return {
       inputEmailRef,
       inputPasswordRef,
+      btnLoginRef,
       showSuccess(msg: string) {
         $q.notify({
           type: 'positive',
@@ -97,6 +114,9 @@ export default defineComponent({
     };
   },
   emits: ['changeTab', 'loading'],
+  mounted() {
+    this.btnLoginRef?.$el.focus();
+  },
   methods: {
     ...mapActions(useUserStore, { signIn: 'login' }),
     changeTab(tab: string) {
