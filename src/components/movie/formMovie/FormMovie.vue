@@ -55,7 +55,7 @@
             class="col-2"
             :label="'Ano de lançamento'"
             :modelValue="moviePage.selectedMovie.release_date ? new Date(moviePage.selectedMovie.release_date).toLocaleDateString() : ''"
-            @change="moviePage.selectedMovie.release_date = new Date($event)"
+            @change="changeReleaseDate"
             :readOnly="!isRegisterOrEditing"
             :mask="'##/##/####'"
             :required="true"
@@ -112,7 +112,7 @@
               type="number"
               :readonly="true"
               :dense="screenHeight <= 1080"
-              :icon="'open_in_new'"
+              :icon="!isRegisterOrEditing ? 'open_in_new' : ''"
               :iconTooltip="'Abrir tmdb'"
               :iconFunction="openTmdbInNewTab"
             />
@@ -122,7 +122,7 @@
               v-model="moviePage.selectedMovie.imdb_id"
               :readOnly="!isRegisterOrEditing"
               :dense="screenHeight <= 1080"
-              :icon="'open_in_new'"
+              :icon="!isRegisterOrEditing ? 'open_in_new' : ''"
               :iconTooltip="'Abrir imdb'"
               :iconFunction="openImdbInNewTab"
             />
@@ -178,7 +178,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { useQuasar } from 'quasar';
+import { useQuasar, date } from 'quasar';
 import { mapState } from 'pinia';
 
 import { useMovieStore } from '@/stores/MovieStore';
@@ -359,6 +359,13 @@ export default defineComponent({
       if (w) {
         w.focus();
       }
+    },
+    changeReleaseDate(val: string) {
+      if (val.split('/').length < 3) {
+        return;
+      }
+      const dateChange = date.extractDate(val, 'DD/MM/YYYY');
+      this.moviePage.selectedMovie.release_date = dateChange;
     },
   },
   watch: {
