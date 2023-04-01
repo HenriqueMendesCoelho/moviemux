@@ -17,7 +17,12 @@
     clearable
     :lazy-rules="true"
     @keyup.enter="enterEvent"
-  />
+    ><template v-slot:append v-if="icon">
+      <q-icon :name="icon" @click="iconFunction"
+        ><CustomTooltip v-if="iconTooltip" :delay="300" :hide-delay="300">{{ iconTooltip }}</CustomTooltip></q-icon
+      >
+    </template></q-input
+  >
 </template>
 
 <script lang="ts">
@@ -25,9 +30,11 @@ import type { QInputProps } from 'quasar';
 import { defineComponent, PropType, ref } from 'vue';
 
 import { InputValidateRefType } from './types/InputValidateRefType';
+import CustomTooltip from '../customTooltip/CustomTooltip.vue';
 
 export default defineComponent({
   name: 'InputText',
+  components: { CustomTooltip },
   props: {
     label: {
       type: String,
@@ -65,6 +72,18 @@ export default defineComponent({
       default: undefined,
     },
     enterEvent: {
+      type: Function,
+      default: () => {
+        return;
+      },
+    },
+    icon: {
+      type: String,
+    },
+    iconTooltip: {
+      type: String,
+    },
+    iconFunction: {
       type: Function,
     },
   },
