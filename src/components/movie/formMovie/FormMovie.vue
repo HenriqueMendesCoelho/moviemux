@@ -112,6 +112,9 @@
               type="number"
               :readonly="true"
               :dense="screenHeight <= 1080"
+              :icon="'open_in_new'"
+              :iconTooltip="'Abrir tmdb'"
+              :iconFunction="openTmdbInNewTab"
             />
             <InputText
               class="col-12"
@@ -119,6 +122,9 @@
               v-model="moviePage.selectedMovie.imdb_id"
               :readOnly="!isRegisterOrEditing"
               :dense="screenHeight <= 1080"
+              :icon="'open_in_new'"
+              :iconTooltip="'Abrir imdb'"
+              :iconFunction="openImdbInNewTab"
             />
           </div>
         </div>
@@ -162,16 +168,7 @@
         <div class="col-12 row q-col-gutter-sm" v-if="moviePage.selectedMovie.notes?.length">
           <div class="col-12 text-h5">Nota</div>
           <div class="col-12 q-pl-xs">
-            <q-chip
-              size="xl"
-              square
-              :color="getChipColor()[0]"
-              text-color="white"
-              :icon-right="getChipColor()[1]"
-              :dense="screenHeight <= 1080"
-            >
-              {{ getNoteAverage() }}
-            </q-chip>
+            <ChipNote size="xl" :movie="moviePage.selectedMovie" :dense="screenHeight <= 1080" />
           </div>
         </div>
       </div>
@@ -192,10 +189,11 @@ import MovieService from '@/services/MovieService';
 import imageUtils from '@/utils/imageUtils';
 
 import InputText from '@/components/shared/inputText/InputText.vue';
+import ChipNote from '@/components/shared/chipNote/ChipNote.vue';
 
 export default defineComponent({
   name: 'FormVideo',
-  components: { InputText },
+  components: { InputText, ChipNote },
   props: {
     isRegisterOrEditing: {
       type: Boolean,
@@ -328,44 +326,6 @@ export default defineComponent({
       this.inputTextUrlTrailerBrRef?.resetValidation();
       this.inputTextUrlTrailerEnRef?.resetValidation();
     },
-    getNoteAverage() {
-      if (!this.moviePage.selectedMovie?.notes?.length) {
-        return 0;
-      }
-      let sum = 0;
-      let count = 0;
-      for (const note of this.moviePage.selectedMovie.notes) {
-        sum += note.note;
-        count++;
-      }
-      const average = sum / count;
-      return average.toFixed(1);
-    },
-    getChipColor() {
-      const averageNote = this.getNoteAverage();
-
-      if (averageNote === null || averageNote === undefined) {
-        return ['grey', 'sym_o_star', 'white'];
-      }
-
-      if (averageNote <= 5) {
-        return ['negative', 'sym_o_star'];
-      }
-
-      if (averageNote > 5 && averageNote <= 7) {
-        return ['orange', 'star_half'];
-      }
-
-      if (averageNote > 7 && averageNote <= 9.5) {
-        return ['positive', 'star'];
-      }
-
-      if (averageNote > 9.5) {
-        return ['kb-primary', 'hotel_class'];
-      }
-
-      return ['grey', 'sym_o_star'];
-    },
     changeTrailerPortuguese(url: string) {
       const key = this.getYoutubeVideoKey(url);
       this.moviePage.selectedMovie.portuguese_url_trailer = key;
@@ -381,6 +341,24 @@ export default defineComponent({
         // eslint-disable-next-line
         split[2] !== undefined ? split[2].split(/[^0-9a-z_\-]/i)[0] : split[0].split(/[^0-9a-z_\-]/i)[0];
       return param;
+    },
+    openTmdbInNewTab() {
+      if (!this.moviePage.selectedMovie.tmdb_id) {
+        return;
+      }
+      this.openNewWindow(`https://www.themoviedb.org/movie/${this.moviePage.selectedMovie.tmdb_id}`);
+    },
+    openImdbInNewTab() {
+      if (!this.moviePage.selectedMovie.imdb_id) {
+        return;
+      }
+      this.openNewWindow(`https://www.imdb.com/title/${this.moviePage.selectedMovie.imdb_id}`);
+    },
+    openNewWindow(url: string) {
+      const w = window.open(url);
+      if (w) {
+        w.focus();
+      }
     },
   },
   watch: {

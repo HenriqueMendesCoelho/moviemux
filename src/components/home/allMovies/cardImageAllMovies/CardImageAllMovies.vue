@@ -32,18 +32,7 @@
           </q-icon>
         </transition>
         <transition>
-          <q-chip
-            dense
-            size="lg"
-            square
-            :color="getChipColor()[0]"
-            text-color="white"
-            :icon-right="getChipColor()[1]"
-            style="top: 8px; left: 8px"
-            v-if="showInfos && isRating()"
-          >
-            {{ getNoteAverage() }}
-          </q-chip>
+          <ChipNote dense size="lg" :movie="movie" style="top: 8px; left: 8px" v-if="showInfos && isRating()" />
         </transition>
       </q-img>
       <ContextMenuHome :movie-id="movie?.id || ''" />
@@ -58,10 +47,11 @@ import Movie from '@/domain/movie/movie';
 
 import ContextMenuHome from '../../contextMenuHome/ContextMenuHome.vue';
 import CustomTooltip from '@/components/shared/customTooltip/CustomTooltip.vue';
+import ChipNote from '@/components/shared/chipNote/ChipNote.vue';
 
 export default defineComponent({
   name: 'CardImageAllMovies',
-  components: { ContextMenuHome, CustomTooltip },
+  components: { ContextMenuHome, CustomTooltip, ChipNote },
   props: {
     movie: {
       type: Object as PropType<Movie>,
@@ -91,7 +81,7 @@ export default defineComponent({
         count++;
       }
       const average = sum / count;
-      return average.toFixed(1);
+      return average;
     },
     getChipColor() {
       const averageNote = this.getNoteAverage();
