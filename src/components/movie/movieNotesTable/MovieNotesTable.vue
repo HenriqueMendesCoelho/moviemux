@@ -57,8 +57,8 @@
             </q-popup-edit>
             <CustomTooltip :delay="200" v-if="showEdit(props.row)">Clique para editar</CustomTooltip>
           </q-td>
-          <q-td key="createdAt" :props="props">{{ props.cols[2].value }}</q-td>
-          <q-td key="updatedAt" :props="props">{{ props.cols[3].value }}</q-td>
+          <q-td key="createdAt" :props="props">{{ props.cols[3].value }}</q-td>
+          <q-td key="updatedAt" :props="props">{{ props.cols[4].value }}</q-td>
           <q-td key="actions" :props="props"
             ><q-btn dense round flat color="white" icon="delete" v-if="showEdit(props.row)" @click="showConfirmDialogDelete">
               <CustomTooltip anchor="bottom right" :delay="500" :hide-delay="300">Deletar</CustomTooltip>
