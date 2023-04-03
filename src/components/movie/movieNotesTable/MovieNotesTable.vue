@@ -27,7 +27,8 @@
 
       <template v-slot:body="props">
         <q-tr :props="props">
-          <q-td key="userName" :props="props">{{ props.cols[0].value }}</q-td>
+          <q-td key="owner" :props="props"><q-icon name="fa-solid fa-crown" v-if="isOwner(props.row)" /></q-td>
+          <q-td key="userName" :props="props">{{ props.cols[1].value }}</q-td>
           <q-td key="note" :props="props">
             {{ props.row.note }}
             <q-popup-edit
@@ -37,7 +38,7 @@
               title="Atualizar Nota"
               buttons
               v-slot="scope"
-              v-if="showEdit(props.row)"
+              v-if="isOwner(props.row)"
               color="kb-primary"
               dark
               label-set="Salvar"
@@ -54,12 +55,12 @@
                 :rules="[(val) => ruleInputNote(val)]"
               />
             </q-popup-edit>
-            <CustomTooltip :delay="200" v-if="showEdit(props.row)">Clique para editar</CustomTooltip>
+            <CustomTooltip :delay="200" v-if="isOwner(props.row)">Clique para editar</CustomTooltip>
           </q-td>
           <q-td key="createdAt" :props="props">{{ props.cols[2].value }}</q-td>
           <q-td key="updatedAt" :props="props">{{ props.cols[3].value }}</q-td>
           <q-td key="actions" :props="props"
-            ><q-btn dense round flat color="white" icon="delete" v-if="showEdit(props.row)" @click="showConfirmDialogDelete">
+            ><q-btn dense round flat color="white" icon="delete" v-if="isOwner(props.row)" @click="showConfirmDialogDelete">
               <CustomTooltip anchor="bottom right" :delay="500" :hide-delay="300">Deletar</CustomTooltip>
             </q-btn></q-td
           >
@@ -105,10 +106,17 @@ export default defineComponent({
   setup() {
     const columns: QTableProps['columns'] = [
       {
+        name: 'owner',
+        label: '',
+        field: '',
+        align: 'right',
+      },
+      {
         name: 'userName',
         label: 'Nome',
         field: (row) => row.user.name,
         align: 'center',
+        sortable: true,
       },
       {
         name: 'note',
@@ -173,7 +181,7 @@ export default defineComponent({
   },
   methods: {
     ...mapActions(useMovieStore, ['removeNoteFromStore']),
-    showEdit(row: MovieNoteType): boolean {
+    isOwner(row: MovieNoteType): boolean {
       return row.user.id === this.user.id;
     },
     showConfirmDialogDelete() {
