@@ -7,7 +7,7 @@
         <span class="material-icons" style="font-size: 18pt"> refresh </span>
       </button>
     </div>
-    <q-infinite-scroll class="container-cards-films full-width" @load="onLoad" :offset="10">
+    <q-infinite-scroll ref="infinitScrollRef" class="container-cards-films full-width" @load="onLoad" :offset="10">
       <div class="cards-films" v-for="movie in movies" :key="movie.id">
         <CardImageAllMovies :movie="movie" />
       </div>
@@ -18,7 +18,7 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 
 import Movie from '@/domain/movie/movie';
 
@@ -28,6 +28,14 @@ import MovieService from '@/services/MovieService';
 export default defineComponent({
   name: 'AllMovies',
   components: { CardImageAllMovies },
+  setup() {
+    const infinitScrollRef = ref<{
+      resume: () => void;
+    }>();
+    return {
+      infinitScrollRef,
+    };
+  },
   data() {
     return {
       movies: [] as Movie[],
@@ -82,6 +90,7 @@ export default defineComponent({
     async refreshSearch() {
       this.searchText = '';
       await this.search();
+      this.infinitScrollRef?.resume();
     },
   },
 });
