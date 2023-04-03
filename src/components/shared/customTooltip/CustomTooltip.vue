@@ -1,5 +1,5 @@
 <template>
-  <q-tooltip style="font-size: 10pt; background-color: rgb(41, 50, 68, 0.9)"><slot></slot></q-tooltip>
+  <q-tooltip class="bg-grey-mid" style="font-size: 10pt"><slot></slot></q-tooltip>
 </template>
 
 <script lang="ts">

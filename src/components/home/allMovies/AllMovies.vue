@@ -131,13 +131,13 @@ export default defineComponent({
         min-width: 60%;
         max-width: 60%;
       }
+    }
 
-      input::placeholder {
-        max-width: 100%;
-        color: var(--light-grey2);
+    ::placeholder {
+      max-width: 100%;
+      color: var(--light-grey);
 
-        margin-left: 55px;
-      }
+      margin-left: 55px;
     }
 
     .end-btn {

@@ -1,11 +1,11 @@
 <template>
   <q-table
     :title="title"
-    :style="`background-color: ${color}; max-height: 350px !important`"
+    :style="`max-height: 350px !important`"
     :rows="rows"
     dense
     dark
-    card-class="text-white"
+    card-class="text-white bg-grey-mid2"
     row-key="index"
     virtual-scroll
     no-data-label="Não encontrei nada :("
@@ -39,10 +39,6 @@ export default defineComponent({
   props: {
     title: {
       type: String,
-    },
-    color: {
-      type: String,
-      default: '#343c4c',
     },
     columns: {
       type: Array as PropType<QTableProps['columns']>,

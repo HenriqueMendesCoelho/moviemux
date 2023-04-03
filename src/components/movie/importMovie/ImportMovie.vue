@@ -208,9 +208,9 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .dialog-container {
-  background: var(--grey-dark2);
+  background-color: var(--grey-dark2);
 
   overflow-y: hidden;
 

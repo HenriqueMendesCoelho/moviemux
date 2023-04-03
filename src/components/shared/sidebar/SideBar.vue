@@ -37,8 +37,9 @@
 
     <div class="flex"></div>
     <div class="menu">
-      <button v-show="false" class="button" style="opacity: 50%; cursor: not-allowed" disabled="true">
-        <span class="material-icons" draggable="false"> light_mode </span>
+      <button class="button" @click="darkThemeToggle()">
+        <span class="material-icons" draggable="false" v-if="layoutSettings.darkMode"> light_mode </span>
+        <span class="material-icons" draggable="false" v-else> dark_mode </span>
         <span class="text" draggable="false">Tema</span>
       </button>
       <router-link @click="logout" to="/" class="button">
@@ -70,14 +71,14 @@ export default defineComponent({
     };
   },
   computed: {
-    ...mapState(useStyleStore, ['backgroundColor', 'sideBarWidth']),
+    ...mapState(useStyleStore, ['backgroundColor', 'sideBarWidth', 'layoutSettings']),
     ...mapState(useUserStore, ['user']),
     isAdmin() {
       return this.user.roles.includes('ADM');
     },
   },
   methods: {
-    ...mapActions(useStyleStore, ['ToggleMenuStore', 'setIsExpanded']),
+    ...mapActions(useStyleStore, ['ToggleMenuStore', 'setIsExpanded', 'darkThemeToggle']),
     ToggleMenu() {
       this.isExpanded = !this.isExpanded;
       this.ToggleMenuStore();

@@ -5,9 +5,33 @@
 </template>
 
 <script lang="ts">
+import { mapState } from 'pinia';
 import { defineComponent } from 'vue';
+
+import { useStyleStore } from './stores/StyleStore';
+
 export default defineComponent({
   name: 'App',
+  computed: {
+    ...mapState(useStyleStore, ['layoutSettings']),
+  },
+  mounted() {
+    if (localStorage.getItem('theme') == 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      return;
+    } else if (localStorage.getItem('theme') == 'light') {
+      localStorage.setItem('theme', 'light');
+      return;
+    }
+
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      localStorage.setItem('theme', 'dark');
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      localStorage.setItem('theme', 'light');
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  },
 });
 </script>
 
@@ -25,6 +49,53 @@ export default defineComponent({
   --sidebar-width: 300px;
   --dark-alt: #334155;
   --dark-alt2: rgb(98, 114, 139) 5;
+
+  .bg-grey-mid {
+    background: var(--grey-mid) !important;
+  }
+
+  .text-grey-mid {
+    color: var(--grey-mid) !important;
+  }
+
+  .bg-grey-mid2 {
+    background: var(--grey-mid2) !important;
+  }
+
+  .text-grey-mid2 {
+    color: var(--grey-mid2) !important;
+  }
+}
+
+[data-theme='light'] {
+  --primary: #00f6ff;
+  --grey-dark: #828383;
+  --grey-dark2: #b8b7b7;
+  --grey-mid: #a6a7a7;
+  --grey-mid2: #acaeae;
+  --light-grey: #f0ffff94;
+  --light-grey2: #f0ffffde;
+  --light-blue: #9bf6f9;
+  --shadow: #cacaca95;
+  --sidebar-width: 300px;
+  --dark-alt: #9f9f9f;
+  --dark-alt2: rgb(98, 114, 139) 5;
+
+  .bg-grey-mid {
+    background: var(--grey-mid) !important;
+  }
+
+  .text-grey-mid {
+    color: var(--grey-mid) !important;
+  }
+
+  .bg-grey-mid2 {
+    background: var(--grey-mid2) !important;
+  }
+
+  .text-grey-mid2 {
+    color: var(--grey-mid2) !important;
+  }
 }
 
 * {

@@ -6,6 +6,7 @@ export const useStyleStore = defineStore('StyleStore', {
       backgroundColor: '#0b0e14',
       sideBarWidth: '7rem',
       is_expanded: false,
+      layoutSettings: { darkMode: true },
     };
   },
   getters: {
@@ -35,6 +36,17 @@ export const useStyleStore = defineStore('StyleStore', {
     },
     setIsExpanded(newValue: boolean) {
       this.is_expanded = newValue;
+    },
+    darkThemeToggle() {
+      if (localStorage.getItem('theme') == 'dark') {
+        localStorage.setItem('theme', 'light');
+        document.documentElement.setAttribute('data-theme', 'light');
+        this.layoutSettings.darkMode = false;
+      } else {
+        localStorage.setItem('theme', 'dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
+        this.layoutSettings.darkMode = true;
+      }
     },
   },
 });
