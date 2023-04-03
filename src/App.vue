@@ -16,11 +16,11 @@ export default defineComponent({
     ...mapState(useStyleStore, ['layoutSettings']),
   },
   mounted() {
-    if (localStorage.getItem('theme') == 'dark') {
+    if (localStorage.getItem('theme') === 'dark') {
       document.documentElement.setAttribute('data-theme', 'dark');
       return;
-    } else if (localStorage.getItem('theme') == 'light') {
-      localStorage.setItem('theme', 'light');
+    } else if (localStorage.getItem('theme') === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
       return;
     }
 
