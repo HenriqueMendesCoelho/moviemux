@@ -31,7 +31,7 @@
             :dense="screenHeight <= 1080"
           />
           <InputText
-            v-show="showOriginalTitle()"
+            v-if="showOriginalTitle()"
             ref="inputTextOriginalTitleRef"
             class="col"
             :label="'Título Original'"
