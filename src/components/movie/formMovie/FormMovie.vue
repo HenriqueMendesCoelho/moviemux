@@ -400,7 +400,7 @@ export default defineComponent({
       const hours = Math.floor(runtime / 60);
       const minutes = runtime - 60 * hours;
 
-      return `${hours}h ${minutes}m`;
+      return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
     },
     showOriginalTitle() {
       if (this.isRegisterOrEditing) {
