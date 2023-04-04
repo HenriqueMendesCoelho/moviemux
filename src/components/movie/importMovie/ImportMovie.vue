@@ -170,7 +170,8 @@ export default defineComponent({
           res.english_url_trailer,
           res.description,
           this.getGenres(res.genres),
-          new Date(res.release_date || new Date())
+          new Date(res.release_date || new Date()),
+          res.runtime
         );
         this.moviePage.showImportMovieDialog = false;
         this.showSuccess('Filme importado com sucesso');

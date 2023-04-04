@@ -43,11 +43,30 @@
         <div class="col-12 row q-col-gutter-sm">
           <InputText
             ref="inputTextDirectorRef"
-            class="col-10"
+            class="col-8"
             :label="'Diretor'"
             v-model="moviePage.selectedMovie.director"
             :readOnly="!isRegisterOrEditing"
             :required="true"
+            :dense="screenHeight <= 1080"
+          />
+          <InputText
+            v-if="isRegisterOrEditing"
+            ref="inputTextRuntimeRef"
+            class="col-2"
+            :label="'Tempo de duração em minutos'"
+            :modelValue="moviePage.selectedMovie.runtime?.toString()"
+            @change="moviePage.selectedMovie.runtime = Number($event)"
+            :mask="'###'"
+            :required="true"
+            :dense="screenHeight <= 1080"
+          />
+          <InputText
+            v-else
+            class="col-2"
+            :label="'Tempo de duração'"
+            :modelValue="runtimeToText()"
+            :readOnly="true"
             :dense="screenHeight <= 1080"
           />
           <InputText
@@ -366,6 +385,16 @@ export default defineComponent({
       }
       const dateChange = date.extractDate(val, 'DD/MM/YYYY');
       this.moviePage.selectedMovie.release_date = dateChange;
+    },
+    runtimeToText() {
+      const runtime = this.moviePage.selectedMovie.runtime;
+      if (!runtime) {
+        return '0';
+      }
+      const hours = Math.floor(runtime / 60);
+      const minutes = runtime - 60 * hours;
+
+      return `${hours}h ${minutes}m`;
     },
   },
   watch: {

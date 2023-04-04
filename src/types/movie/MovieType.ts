@@ -14,6 +14,7 @@ export type MovieSummaryTypeKit = {
   description?: string;
   genres?: Array<string>;
   release_date?: Date;
+  runtime?: number;
 };
 
 export type MovieFoundByName = {
