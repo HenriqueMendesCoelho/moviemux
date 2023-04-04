@@ -31,7 +31,7 @@
             :dense="screenHeight <= 1080"
           />
           <InputText
-            v-if="() => moviePage.selectedMovie.original_title || isRegisterOrEditing"
+            v-show="showOriginalTitle()"
             ref="inputTextOriginalTitleRef"
             class="col"
             :label="'Título Original'"
@@ -231,6 +231,7 @@ export default defineComponent({
     const inputTextUrlImageRef = ref<InputTextRefType>();
     const inputTextUrlTrailerBrRef = ref<InputTextRefType>();
     const inputTextUrlTrailerEnRef = ref<InputTextRefType>();
+    const inputTextRuntimeRef = ref<InputTextRefType>();
 
     return {
       inputTextPortugueseTitleRef,
@@ -244,6 +245,7 @@ export default defineComponent({
       inputTextUrlImageRef,
       inputTextUrlTrailerBrRef,
       inputTextUrlTrailerEnRef,
+      inputTextRuntimeRef,
       showError(msg: string) {
         $q.notify({
           type: 'negative',
@@ -329,6 +331,9 @@ export default defineComponent({
       if (this.inputTextUrlTrailerEnRef) {
         hasError = this.inputTextUrlTrailerEnRef.hasErrors();
       }
+      if (this.inputTextRuntimeRef) {
+        hasError = this.inputTextRuntimeRef.hasErrors();
+      }
       return hasError;
     },
     resetValidation(): void {
@@ -344,6 +349,7 @@ export default defineComponent({
       this.inputTextUrlImageRef?.resetValidation();
       this.inputTextUrlTrailerBrRef?.resetValidation();
       this.inputTextUrlTrailerEnRef?.resetValidation();
+      this.inputTextRuntimeRef?.resetValidation();
     },
     changeTrailerPortuguese(url: string) {
       const key = this.getYoutubeVideoKey(url);
@@ -395,6 +401,15 @@ export default defineComponent({
       const minutes = runtime - 60 * hours;
 
       return `${hours}h ${minutes}m`;
+    },
+    showOriginalTitle() {
+      if (this.isRegisterOrEditing) {
+        return true;
+      }
+      if (this.moviePage.selectedMovie.original_title !== this.moviePage.selectedMovie.english_title) {
+        return true;
+      }
+      return false;
     },
   },
   watch: {
