@@ -120,7 +120,9 @@ export default defineComponent({
     },
   },
   async mounted() {
-    this.resetForm();
+    setTimeout(() => {
+      this.resetForm();
+    }, 10);
     await this.loadMovie();
   },
   async updated() {
