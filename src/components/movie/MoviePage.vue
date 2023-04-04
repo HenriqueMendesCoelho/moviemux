@@ -69,7 +69,7 @@ export default defineComponent({
     const $q = useQuasar();
     const confirmDialogRef = ref<ConfirmDialogRefType>();
     const formMovieRef = ref<{
-      hasErrors: () => boolean;
+      hasErrors: () => Promise<boolean>;
       resetValidation: () => void;
     }>();
     return {
@@ -120,10 +120,10 @@ export default defineComponent({
     },
   },
   async mounted() {
-    setTimeout(() => {
-      this.resetForm();
-    }, 10);
     await this.loadMovie();
+    if (this.routeName === 'add') {
+      this.resetForm();
+    }
   },
   async updated() {
     if (this.routeName === 'add') {
@@ -137,12 +137,12 @@ export default defineComponent({
     this.setDocumentTitle();
   },
   methods: {
-    ...mapActions(useMovieStore, ['resetStoreMovie', 'selectedMovieHasAnyFieldFilled']),
+    ...mapActions(useMovieStore, ['resetSelectedMovie', 'selectedMovieHasAnyFieldFilled']),
     showTopButtons() {
       return this.routeName === 'movie';
     },
     async save() {
-      if (this.formMovieRef?.hasErrors()) {
+      if (await this.formMovieRef?.hasErrors()) {
         return;
       }
       const movie = { ...this.moviePage.selectedMovie };
@@ -181,10 +181,8 @@ export default defineComponent({
     },
     resetForm() {
       this.moviePage.isEditing = false;
-      this.resetStoreMovie();
-      setTimeout(() => {
-        this.formMovieRef?.resetValidation();
-      }, 300);
+      this.resetSelectedMovie();
+      this.formMovieRef?.resetValidation();
     },
     cantEdit() {
       return false;
@@ -211,10 +209,12 @@ export default defineComponent({
       }
     },
     async loadMovie() {
-      if (this.routeIDPath) {
-        const res = await MovieService.getMovie(this.routeIDPath.toString());
-        this.moviePage.selectedMovie = res;
+      if (!this.routeIDPath) {
+        return;
       }
+      const res = await MovieService.getMovie(this.routeIDPath.toString());
+      this.moviePage.selectedMovie = res;
+
       this.setDocumentTitle();
     },
     showNotifyMovie(movieTitle?: string, movieId?: string) {

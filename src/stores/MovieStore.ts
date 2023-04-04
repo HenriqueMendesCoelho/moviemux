@@ -22,7 +22,7 @@ export const useMovieStore = defineStore('MovieStore', {
     },
   },
   actions: {
-    resetStoreMovie() {
+    resetSelectedMovie() {
       this.moviePage.selectedMovie = new Movie();
     },
     selectedMovieHasAnyFieldFilled() {

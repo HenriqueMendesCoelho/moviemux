@@ -1,10 +1,10 @@
 export type InputValidateRefType = {
   hasError: boolean;
-  validate: () => void;
+  validate: () => Promise<boolean>;
   resetValidation: () => void;
 };
 
 export type InputTextRefType = {
-  hasErrors: () => boolean;
+  hasErrors: () => Promise<boolean>;
   resetValidation: () => void;
 };

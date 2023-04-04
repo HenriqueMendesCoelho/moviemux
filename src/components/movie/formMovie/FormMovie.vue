@@ -291,50 +291,50 @@ export default defineComponent({
 
       return [srcImage, altImage];
     },
-    hasErrors(): boolean {
+    async hasErrors(): Promise<boolean> {
       let hasError = false;
       if (this.inputTextPortugueseTitleRef) {
-        hasError = this.inputTextPortugueseTitleRef.hasErrors();
+        hasError = await this.inputTextPortugueseTitleRef.hasErrors();
       }
       if (this.inputTextEnglishTitleRef) {
-        hasError = this.inputTextEnglishTitleRef.hasErrors();
+        hasError = await this.inputTextEnglishTitleRef.hasErrors();
       }
       if (this.inputTextOriginalTitleRef) {
-        hasError = this.inputTextOriginalTitleRef.hasErrors();
+        hasError = await this.inputTextOriginalTitleRef.hasErrors();
       }
       if (this.inputTextDirectorRef) {
-        hasError = this.inputTextDirectorRef.hasErrors();
+        hasError = await this.inputTextDirectorRef.hasErrors();
       }
       if (this.inputTextReleaseDateRef) {
-        hasError = this.inputTextReleaseDateRef.hasErrors();
+        hasError = await this.inputTextReleaseDateRef.hasErrors();
       }
       if (this.inputTextReleaseDateRef) {
-        hasError = this.inputTextReleaseDateRef.hasErrors();
+        hasError = await this.inputTextReleaseDateRef.hasErrors();
       }
       if (this.qInputDescriptionRef) {
-        this.qInputDescriptionRef.validate();
+        await this.qInputDescriptionRef.validate();
         hasError = this.qInputDescriptionRef.hasError;
       }
       if (this.qSelectGenresRef) {
-        this.qSelectGenresRef.validate();
+        await this.qSelectGenresRef.validate();
         hasError = this.qSelectGenresRef.hasError;
       }
       if (this.InputTextTmdbIdRef) {
-        hasError = this.InputTextTmdbIdRef.hasErrors();
+        hasError = await this.InputTextTmdbIdRef.hasErrors();
       }
       if (this.inputTextUrlImageRef) {
-        hasError = this.inputTextUrlImageRef.hasErrors();
+        hasError = await this.inputTextUrlImageRef.hasErrors();
       }
       if (this.inputTextUrlTrailerBrRef) {
-        hasError = this.inputTextUrlTrailerBrRef.hasErrors();
+        hasError = await this.inputTextUrlTrailerBrRef.hasErrors();
       }
       if (this.inputTextUrlTrailerEnRef) {
-        hasError = this.inputTextUrlTrailerEnRef.hasErrors();
+        hasError = await this.inputTextUrlTrailerEnRef.hasErrors();
       }
       if (this.inputTextRuntimeRef) {
-        hasError = this.inputTextRuntimeRef.hasErrors();
+        hasError = await this.inputTextRuntimeRef.hasErrors();
       }
-      return hasError;
+      return Promise.resolve(hasError);
     },
     resetValidation(): void {
       this.inputTextPortugueseTitleRef?.resetValidation();

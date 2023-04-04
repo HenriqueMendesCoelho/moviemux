@@ -98,7 +98,7 @@ export default defineComponent({
   },
   methods: {
     async updatePassword() {
-      if (this.hasErrors()) {
+      if (await this.hasErrors()) {
         return;
       }
       try {
@@ -127,18 +127,18 @@ export default defineComponent({
       this.newPass = '';
       this.confirmNewPass = '';
     },
-    hasErrors(): boolean {
+    async hasErrors(): Promise<boolean> {
       let hasError = false;
       if (this.inputTextCurrentPassRef) {
-        hasError = this.inputTextCurrentPassRef.hasErrors();
+        hasError = await this.inputTextCurrentPassRef.hasErrors();
       }
       if (this.inputTextNewPassRef) {
-        hasError = this.inputTextNewPassRef.hasErrors();
+        hasError = await this.inputTextNewPassRef.hasErrors();
       }
       if (this.inputTextConfirmNewPassRef) {
-        hasError = this.inputTextConfirmNewPassRef.hasErrors();
+        hasError = await this.inputTextConfirmNewPassRef.hasErrors();
       }
-      return hasError;
+      return Promise.resolve(hasError);
     },
   },
 });
