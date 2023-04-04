@@ -205,7 +205,7 @@ export default defineComponent({
       if (this.routeName === 'add') {
         document.title = 'Cineminha - Cadastrar Filme';
       } else {
-        document.title = `Cineminha - Filme ${this.moviePage.selectedMovie.portuguese_title}`;
+        document.title = `Cineminha - ${this.moviePage.selectedMovie.portuguese_title}`;
       }
     },
     async loadMovie() {
