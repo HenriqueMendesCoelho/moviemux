@@ -24,7 +24,7 @@ export default defineComponent({
           message: message,
           persistent: persisstent,
           color: 'kb-primary',
-          class: 'dialog-container',
+          class: 'bg-grey-mid',
           ok: {
             label: ok,
             flat: true,

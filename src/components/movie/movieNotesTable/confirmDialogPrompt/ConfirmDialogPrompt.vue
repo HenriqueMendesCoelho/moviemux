@@ -16,7 +16,7 @@ export default defineComponent({
           message: 'Insira uma nota de 0 a 10',
           persistent: false,
           color: 'kb-primary',
-          class: 'dialog-container',
+          class: 'bg-grey-mid',
           prompt: {
             model: '',
             type: 'number',
