@@ -31,7 +31,7 @@ router.beforeEach((to, from, next) => {
 
   if (!user.isLoged && from.name !== 'login' && from.name !== 'notFound') {
     loginStore.showDialogLogin = true;
-    next(from);
+    next({ name: from.name || 'login', query: { from: to.fullPath } });
     return;
   } else if (!user.isLoged) {
     next({ name: 'login' });

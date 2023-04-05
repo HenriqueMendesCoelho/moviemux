@@ -131,6 +131,11 @@ export default defineComponent({
         this.$emit('loading', true);
         await this.signIn({ email: this.email, password: this.password });
         if (this.$route.name === 'login') {
+          if (this.$route.query.from) {
+            this.$router.push(this.$route.query.from.toString());
+            return;
+          }
+
           this.$router.push('/home');
         } else {
           window.location.reload();
