@@ -2,137 +2,21 @@
   <ContainerMain>
     <div class="row q-mt-xl justify-center">
       <div class="row col-10 justify-center">
-        <div>
-          <h2 style="color: white">Meu Perfil</h2>
-        </div>
+        <div class="text-h2" style="color: white">Meu Perfil</div>
       </div>
       <div class="panel-profile q-mt-xl" :class="isMobile ? 'col-12' : 'col-10'">
-        <SelectPanelBar />
-        <div
-          class="PanelmyData row justify-center"
-          :class="isMobile ? 'q-pt-xs' : 'q-pt-xl'"
-          v-if="ProfileSelectBar.PanelMyData"
-        >
-          <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
-            <q-input
-              standout="text-info"
-              color="info"
-              outlined
-              v-model="myData.name"
-              label="Nome"
-              style="background-color: #343c4c"
-              dark
-            />
-          </div>
-          <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
-            <q-input
-              standout="text-info"
-              color="info"
-              outlined
-              v-model="myData.email"
-              label="Email"
-              style="background-color: #343c4c"
-              dark
-            />
-          </div>
-          <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
-            <div class="row">
-              <div :class="isMobile ? 'col-12' : 'col-6 q-pr-sm'">
-                <q-input
-                  square
-                  filled
-                  standout="text-info"
-                  color="info"
-                  v-model="myData.accessProfile"
-                  label="Perfil de Acesso"
-                  style="background-color: #343c4c"
-                  dark
-                  :readonly="true"
-                />
-              </div>
-              <div :class="isMobile ? 'col-12' : 'col-6 q-pl-sm'">
-                <q-input
-                  square
-                  filled
-                  standout="text-info"
-                  color="info"
-                  :model-value="myData.dtCreated.toLocaleString('pt-br')"
-                  label="Data criação da conta"
-                  style="background-color: #343c4c"
-                  dark
-                  :readonly="true"
-                />
-              </div>
-            </div>
-          </div>
-          <div class="q-mt-md q-mb-xl" :class="isMobile ? 'col-12' : 'col-8'">
-            <div class="row">
-              <div :class="isMobile ? 'col-12' : 'col-6 q-pr-sm'">
-                <q-input
-                  square
-                  filled
-                  standout="text-info"
-                  color="info"
-                  v-model="myData.qtdMovies"
-                  label="Quantidade de filmes cadastrados"
-                  dark
-                  :readonly="true"
-                />
-              </div>
-              <div :class="isMobile ? 'col-12 q-mt-md' : 'col-6 q-pl-sm'">
-                <q-input
-                  square
-                  filled
-                  standout="text-info"
-                  color="info"
-                  v-model="myData.qtdNotes"
-                  label="Quantidade de notas cadastrados"
-                  dark
-                  :readonly="true"
-                  draggable="false"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="PanelSecurity row q-pt-xl justify-center" v-if="ProfileSelectBar.PanelSecurity">
-          <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
-            <q-input
-              standout="text-info"
-              color="info"
-              outlined
-              v-model="myData.name"
-              label="Senha atual"
-              style="background-color: #343c4c"
-              dark
-              type="password"
-            />
-          </div>
-          <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
-            <q-input
-              standout="text-info"
-              color="info"
-              outlined
-              v-model="myData.name"
-              label="Nova Senha"
-              style="background-color: #343c4c"
-              dark
-              type="password"
-            />
-          </div>
-          <div class="q-mt-md q-mb-xl" :class="isMobile ? 'col-12' : 'col-8'">
-            <q-input
-              standout="text-info"
-              color="info"
-              outlined
-              v-model="myData.name"
-              label="Confirme Nova Senha"
-              style="background-color: #343c4c"
-              dark
-              type="password"
-            />
-          </div>
-        </div>
+        <q-tabs v-model="tab" class="tabs-selector" active-color="kb-primary" indicator-color="kb-primary" align="justify" dense>
+          <q-tab :class="isMobile ? '' : 'tab-style-right'" name="myData" label="Meus Dados" icon="badge" />
+          <q-tab :class="isMobile ? '' : 'tab-style-right'" name="security" label="Segurança" icon="lock" />
+        </q-tabs>
+        <q-tab-panels v-model="tab" animated class="tabs q-pt-md" style="min-height: 500px">
+          <q-tab-panel name="myData">
+            <PanelProfile />
+          </q-tab-panel>
+          <q-tab-panel name="security">
+            <PanelSecurityProfile />
+          </q-tab-panel>
+        </q-tab-panels>
       </div>
     </div>
   </ContainerMain>
@@ -140,57 +24,54 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { mapState } from 'pinia';
 
-import { useStyleStore } from '@/stores/StyleStore';
-import { useProfileStore } from '@/stores/ProfileStore';
-
-import ContainerMain from '../shared/ContainerMain/ContainerMain.vue';
-import SelectPanelBar from '@/components/profile/selectPanelBar/SelectPanelProfileBar.vue';
-
-//:class="{ active: AdministratorSelectBar.panel_access }"
+import ContainerMain from '../shared/containerMain/ContainerMain.vue';
+import PanelSecurityProfile from './panelSecurityProfile/PanelSecurityProfile.vue';
+import PanelProfile from './panelProfile/PanelProfile.vue';
 
 export default defineComponent({
   name: 'ProfileApp',
   components: {
     ContainerMain,
-    SelectPanelBar,
-  },
-  setup() {
-    document.title = 'Cineminha - Meu Perfil';
+    PanelSecurityProfile,
+    PanelProfile,
   },
   data() {
     return {
-      changePanels: true,
-      myData: {
-        name: '',
-        email: '',
-        accessProfile: 'ADMIN',
-        dtCreated: new Date(Date.now()),
-        qtdMovies: 10,
-        qtdNotes: 10,
-      },
+      tab: 'myData',
     };
   },
-  mounted() {
-    console.log(this.myData.dtCreated);
-  },
   computed: {
-    ...mapState(useStyleStore, ['getMarginSideBar']),
-    ...mapState(useProfileStore, ['ProfileSelectBar']),
-    isMobile() {
+    isMobile(): boolean | undefined {
       return this.$q.platform.is.mobile;
     },
   },
 });
 </script>
 
-<style lang="scss">
-.panel-profile {
-  background: var(--grey-mid);
-  height: auto;
-  border-radius: 15px;
+<style lang="scss" scoped>
+:deep(.q-tab__label) {
+  font-size: 12pt;
+}
 
+.tabs-selector {
+  background-color: var(--dark-alt);
+  color: white;
   box-shadow: 0 5px 10px var(--shadow);
+  border-top-right-radius: 15px;
+  border-top-left-radius: 15px;
+  font-size: x-large;
+
+  .tab-style-right {
+    border-right: 3px solid var(--grey-mid);
+  }
+}
+
+.tabs {
+  background: var(--grey-mid);
+  color: white;
+  box-shadow: 0 5px 10px var(--shadow);
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
 }
 </style>

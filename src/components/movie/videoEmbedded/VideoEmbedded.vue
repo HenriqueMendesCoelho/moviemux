@@ -1,54 +1,57 @@
-<template v-if="convertedUrl">
-  <div class="q-mx-lg">
-    <iframe
-      :width="width"
-      height="315"
-      :src="convertedUrl"
-      title="YouTube video player"
-      frameborder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowfullscreen
-    ></iframe>
+<template>
+  <SeparatorDivSolidLine v-if="moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer" />
+  <div
+    class="row movie-trailers justify-center"
+    v-if="moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer"
+  >
+    <div class="column items-center" v-if="moviePage.selectedMovie.portuguese_url_trailer">
+      <h6>Trailer Dublado</h6>
+      <IframeVideo :width="width" :url="moviePage.selectedMovie.portuguese_url_trailer" />
+    </div>
+    <SeparatorDivLineSolidVertical
+      v-if="showSeparationBar && moviePage.selectedMovie.portuguese_url_trailer && moviePage.selectedMovie.english_url_trailer"
+    />
+    <div class="column items-center" v-if="moviePage.selectedMovie.english_url_trailer">
+      <h6>Trailer Legendado</h6>
+      <IframeVideo :width="width" :url="moviePage.selectedMovie.english_url_trailer" />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { mapState } from 'pinia';
+
+import { useMovieStore } from '@/stores/MovieStore';
+
+import IframeVideo from './iframeVideo/IframeVideo.vue';
+import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';
+import SeparatorDivLineSolidVertical from '@/components/shared/separator/SeparatorDivLineSolidVertical.vue';
 
 export default defineComponent({
   name: 'VideoEmbedded',
+  components: { IframeVideo, SeparatorDivSolidLine, SeparatorDivLineSolidVertical },
   props: {
-    url: {
-      type: String,
-      required: true,
-    },
     width: {
       type: String,
       default: '560',
     },
-  },
-  data() {
-    return {
-      isYoutubeUrl: true,
-    };
+    showSeparationBar: {
+      type: String,
+      default: '560',
+    },
   },
   computed: {
-    convertedUrl() {
-      return this.getUrlConverted(this.url);
-    },
-  },
-  methods: {
-    getUrlConverted(url: string) {
-      const split = url.split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/);
-
-      const param =
-        // eslint-disable-next-line
-        split[2] !== undefined ? split[2].split(/[^0-9a-z_\-]/i)[0] : split[0];
-
-      return param ? `https://www.youtube.com/embed/${param}` : undefined;
-    },
+    ...mapState(useMovieStore, ['moviePage']),
   },
 });
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+.movie-trailers {
+  @media (max-width: 768px) {
+    max-width: 100%;
+    overflow: hidden;
+  }
+}
+</style>

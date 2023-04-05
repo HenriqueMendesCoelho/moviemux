@@ -12,4 +12,14 @@ $negative: #c10015;
 $info: #31ccec;
 $warning: #f2c037;
 
+$grey-mid: #293244;
+
+.bg-kb-primary {
+  background: #00f6ff !important;
+}
+
+.text-kb-primary {
+  color: #00f6ff !important;
+}
+
 @import '~quasar-variables-styl';

@@ -7,13 +7,13 @@
         </div>
       </div>
       <div :class="isMobile ? 'col-12 q-my-xl' : 'col-10 q-my-xl'">
-        <q-tabs v-model="tab" class="tabs-selector" active-color="info" indicator-color="info" align="justify">
+        <q-tabs v-model="tab" class="tabs-selector" active-color="kb-primary" indicator-color="kb-primary" align="justify">
           <q-tab :class="isMobile ? '' : 'tab-style-right'" name="users" label="Gerenciamento Usuário" />
           <q-tab :class="isMobile ? '' : 'tab-style-right'" name="listUsers" label="Lista de Usuários" />
           <q-tab name="invite" label="Gerencimento de Convite" />
         </q-tabs>
 
-        <q-tab-panels v-model="tab" animated class="tabs q-pt-sm">
+        <q-tab-panels v-model="tab" animated class="tabs q-pt-sm" style="min-height: 580px">
           <q-tab-panel name="users">
             <UserTabAdministrator />
           </q-tab-panel>
@@ -33,7 +33,7 @@
 import { defineComponent } from 'vue';
 import { mapState } from 'pinia';
 
-import ContainerMain from '../shared/ContainerMain/ContainerMain.vue';
+import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import UserTabAdministrator from './userTab/UserTabAdministrator.vue';
 import ListUserTabAdministrator from './listUserTab/ListUserTabAdministrator.vue';
 import InviteUserTabAdmiminstrator from './inviteTab/InviteUserTabAdministrator.vue';
@@ -54,7 +54,7 @@ export default defineComponent({
   computed: {
     ...mapState(useStyleStore, ['getMarginSideBar']),
 
-    isMobile() {
+    isMobile(): boolean | undefined {
       return this.$q.platform.is.mobile;
     },
   },
@@ -62,19 +62,17 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-::v-deep .q-tab__label {
+:deep(.q-tab__label) {
   font-size: 12pt;
 }
 
 .tabs-selector {
-  //background: var(--grey-mid);
   background-color: var(--dark-alt);
   color: white;
   box-shadow: 0 5px 10px var(--shadow);
   border-top-right-radius: 15px;
   border-top-left-radius: 15px;
   font-size: x-large;
-  //border: 1px solid white;
 
   .tab-style-right {
     border-right: 3px solid var(--grey-mid);

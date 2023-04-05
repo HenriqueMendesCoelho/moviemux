@@ -1,31 +1,73 @@
-import LoginInit from '@/components/login/LoginInit.vue';
+import LoginPage from '@/components/login/LoginPage.vue';
 import HomeApp from '@/components/home/HomePage.vue';
-import MovieApp from '@/components/movie/MoviePage.vue';
 
 export const routes = [
-  { path: '/', name: 'login', component: LoginInit, title: 'Login', meta: { sideBar: false } },
-  { path: '/home', name: 'home', component: HomeApp, title: 'Home', meta: { sideBar: true } },
   {
-    path: '/adm',
-    name: 'adm',
-    component: () => import('@/components/administrator/AdministratorPage.vue'),
-    title: 'Administrator',
-    meta: { sideBar: true },
+    path: '',
+    component: () => import('@/layout/LayoutWithoutSideBar.vue'),
+    children: [
+      {
+        path: '',
+        component: LoginPage,
+        name: 'login',
+        meta: {
+          roles: ['UNSECURE'],
+        },
+      },
+      {
+        path: '/:pathMatch(.*)*',
+        component: () => import('@/components/notFound/NotFound.vue'),
+        name: 'notFound',
+        meta: {
+          roles: ['UNSECURE'],
+        },
+      },
+    ],
   },
-  { path: '/movie/:id', name: 'movie', component: MovieApp, title: 'Movie', meta: { sideBar: true } },
-  { path: '/add', name: 'add', component: MovieApp, title: 'AddMovie', meta: { sideBar: true } },
   {
-    path: '/profile',
-    name: 'profile',
-    component: () => import('@/components/profile/ProfilePage.vue'),
-    title: 'Profile',
-    meta: { sideBar: true },
-  },
-  //{ path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
-  {
-    path: '/:pathMatch(.*)*',
-    name: 'NotFound',
-    component: () => import('@/components/NotFound/NotFound.vue'),
-    meta: { sideBar: false },
+    path: '',
+    component: () => import('@/layout/LayoutWithSideBar.vue'),
+    children: [
+      {
+        path: '/home',
+        component: HomeApp,
+        name: 'home',
+        meta: {
+          roles: ['ADM', 'USER'],
+        },
+      },
+      {
+        path: '/adm',
+        component: () => import('@/components/administrator/AdministratorPage.vue'),
+        name: 'adm',
+        meta: {
+          roles: ['ADM'],
+        },
+      },
+      {
+        path: '/movie/:id',
+        component: () => import('@/components/movie/MoviePage.vue'),
+        name: 'movie',
+        meta: {
+          roles: ['ADM', 'USER'],
+        },
+      },
+      {
+        path: '/add',
+        component: () => import('@/components/movie/MoviePage.vue'),
+        name: 'add',
+        meta: {
+          roles: ['ADM', 'USER'],
+        },
+      },
+      {
+        path: '/profile',
+        component: () => import('@/components/profile/ProfilePage.vue'),
+        name: 'profile',
+        meta: {
+          roles: ['ADM', 'USER'],
+        },
+      },
+    ],
   },
 ];
