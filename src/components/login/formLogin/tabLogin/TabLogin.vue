@@ -21,6 +21,7 @@
     </div>
     <div class="col-10 justify-center q-mt-md">
       <q-input
+        @keyup.enter="login()"
         ref="inputPasswordRef"
         name="password"
         label="Senha"
