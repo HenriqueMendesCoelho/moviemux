@@ -93,8 +93,10 @@ export default defineComponent({
       }
     },
     async refreshSearch() {
-      this.searchText = '';
       await this.search();
+      this.pagesFouded = 3;
+      this.page = 2;
+      this.searchText = '';
       this.infinitScrollRef?.resume();
     },
     pushToMovie(): void {
