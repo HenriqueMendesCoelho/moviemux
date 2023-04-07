@@ -62,7 +62,7 @@ export default defineComponent({
       const res = await this.searchMoviePageable();
       this.movies = res;
       this.loading = false;
-      Promise.resolve();
+      return Promise.resolve();
     },
     async onLoad(index: number, done: (stop?: boolean) => void): Promise<void> {
       if (this.page >= this.pagesFouded) {
