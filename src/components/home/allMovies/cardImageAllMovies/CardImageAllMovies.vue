@@ -7,14 +7,16 @@
       @mouseleave="showInfos = false"
     >
       <q-img
+        @click="pushToMovie(movie?.id)"
+        @mouseup.middle.prevent="openNewMovieTab($event, movie?.id)"
         class="image-cls"
         :src="movie?.url_image"
         spinner-color="kb-primary"
         :key="movie?.id"
-        @click="pushToMovie(movie?.id)"
         height="320px"
         no-native-menu
         :draggable="false"
+        style="cursor: pointer"
       >
         <transition>
           <div class="absolute-bottom" v-if="showInfos">{{ movie?.portuguese_title }}</div>
@@ -70,43 +72,16 @@ export default defineComponent({
     isRating() {
       return this.movie?.notes?.length;
     },
-    getNoteAverage() {
-      if (!this.movie?.notes?.length) {
-        return 0;
-      }
-      let sum = 0;
-      let count = 0;
-      for (const note of this.movie.notes) {
-        sum += note.note;
-        count++;
-      }
-      const average = sum / count;
-      return average;
+    copyMovie(id?: string) {
+      const url = `${window.location.origin}/movie/${id}`;
+      navigator.clipboard.writeText(url);
+      return url ? url : '';
     },
-    getChipColor() {
-      const averageNote = this.getNoteAverage();
-
-      if (averageNote === null || averageNote === undefined) {
-        return ['grey', 'sym_o_star', 'white'];
-      }
-
-      if (averageNote <= 5) {
-        return ['negative', 'sym_o_star', 'white'];
-      }
-
-      if (averageNote > 5 && averageNote <= 7) {
-        return ['orange', 'star_half', 'black'];
-      }
-
-      if (averageNote > 7 && averageNote <= 9.5) {
-        return ['positive', 'star'];
-      }
-
-      if (averageNote > 9.5) {
-        return ['kb-primary', 'hotel_class'];
-      }
-
-      return ['grey', 'sym_o_star'];
+    openNewMovieTab(event: MouseEvent, id?: string) {
+      event.preventDefault();
+      const url: string = this.copyMovie(id);
+      const w = window.open(url);
+      if (w) w.focus();
     },
   },
 });
