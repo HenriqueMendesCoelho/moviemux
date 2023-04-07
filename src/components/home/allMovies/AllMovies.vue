@@ -56,14 +56,15 @@ export default defineComponent({
     this.page = 1;
   },
   methods: {
-    async search() {
+    async search(): Promise<void> {
       this.pagesFouded = 2;
       this.page = 1;
       const res = await this.searchMoviePageable();
       this.movies = res;
       this.loading = false;
+      Promise.resolve();
     },
-    async onLoad(index: number, done: (stop?: boolean) => void) {
+    async onLoad(index: number, done: (stop?: boolean) => void): Promise<void> {
       if (this.page >= this.pagesFouded) {
         done(true);
         return;
@@ -73,8 +74,9 @@ export default defineComponent({
       this.movies.push(...result);
       done();
       this.loading = false;
+      return Promise.resolve();
     },
-    async searchMoviePageable() {
+    async searchMoviePageable(): Promise<Movie[]> {
       if (this.searchText) {
         const res = await MovieService.listMoviesByTitlePageable(this.page, this.searchText);
         this.pagesFouded = res.total_pages;
@@ -82,22 +84,23 @@ export default defineComponent({
           this.loading = true;
         }
 
-        return res.content;
+        return Promise.resolve(res.content);
       } else {
         const res = await MovieService.listMoviesPageable(this.page, 30);
         this.pagesFouded = res.total_pages;
         if (this.page >= this.pagesFouded) {
           this.loading = true;
         }
-        return res.content;
+        return Promise.resolve(res.content);
       }
     },
-    async refreshSearch() {
+    async refreshSearch(): Promise<void> {
       await this.search();
       this.pagesFouded = 3;
       this.page = 2;
       this.searchText = '';
       this.infinitScrollRef?.resume();
+      return Promise.resolve();
     },
     pushToMovie(): void {
       this.$router.push({ name: 'add' });
