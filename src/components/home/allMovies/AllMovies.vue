@@ -1,5 +1,5 @@
 <template>
-  <div class="div-allfilms">
+  <div class="div-allfilms" style="position: relative">
     <div class="search-input">
       <input type="text" name="search" placeholder="Digite..." v-model="searchText" @keyup.enter="search()" />
       <button class="search-btn" @click="search()">BUSCAR</button>
@@ -15,6 +15,10 @@
     <div class="row justify-center q-my-md" v-if="loading">
       <q-spinner color="kb-primary" size="50px" />
     </div>
+    <div class="absolute-bottom-right" style="position: fixed; bottom: 5vh; right: 5vh">
+      <q-btn @click="pushToMovie" round icon="add" color="kb-primary" size="lg" />
+      <CustomTooltip anchor="bottom middle" :offset="[0, 10]" :delay="3000">ADICIONAR FILME</CustomTooltip>
+    </div>
   </div>
 </template>
 <script lang="ts">
@@ -24,10 +28,11 @@ import Movie from '@/domain/movie/movie';
 
 import CardImageAllMovies from './cardImageAllMovies/CardImageAllMovies.vue';
 import MovieService from '@/services/MovieService';
+import CustomTooltip from '@/components/shared/customTooltip/CustomTooltip.vue';
 
 export default defineComponent({
   name: 'AllMovies',
-  components: { CardImageAllMovies },
+  components: { CardImageAllMovies, CustomTooltip },
   setup() {
     const infinitScrollRef = ref<{
       resume: () => void;
@@ -91,6 +96,9 @@ export default defineComponent({
       this.searchText = '';
       await this.search();
       this.infinitScrollRef?.resume();
+    },
+    pushToMovie(): void {
+      this.$router.push({ name: 'add' });
     },
   },
 });
