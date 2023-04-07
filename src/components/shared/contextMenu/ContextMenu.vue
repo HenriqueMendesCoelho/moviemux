@@ -10,9 +10,3 @@ export default defineComponent({
   name: 'ContextMenu',
 });
 </script>
-
-<style scoped>
-.container {
-  border: 1px solid white;
-}
-</style>
