@@ -8,7 +8,9 @@
       :draggable="false"
       :height="'100%'"
       v-if="moviePage.selectedMovie?.url_image"
-    />
+    >
+      <TooltipMovieInfo />
+    </q-img>
     <q-skeleton class="col-3" v-else width="600px" height="750px" animation="fade" dark bordered />
     <div class="col q-ml-xl">
       <div class="row q-col-gutter-y-md">
@@ -211,10 +213,11 @@ import imageUtils from '@/utils/imageUtils';
 
 import InputText from '@/components/shared/inputText/InputText.vue';
 import ChipNote from '@/components/shared/chipNote/ChipNote.vue';
+import TooltipMovieInfo from './tooltipMovieInfo/TooltipMovieInfo.vue';
 
 export default defineComponent({
   name: 'FormVideo',
-  components: { InputText, ChipNote },
+  components: { InputText, ChipNote, TooltipMovieInfo },
   props: {
     isRegisterOrEditing: {
       type: Boolean,

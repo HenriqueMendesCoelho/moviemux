@@ -124,6 +124,7 @@ export default defineComponent({
     if (this.routeName === 'add') {
       this.resetForm();
     }
+    return Promise.resolve();
   },
   async updated() {
     if (this.routeName === 'add') {
@@ -141,7 +142,7 @@ export default defineComponent({
     showTopButtons() {
       return this.routeName === 'movie';
     },
-    async save() {
+    async save(): Promise<void> {
       if (await this.formMovieRef?.hasErrors()) {
         return;
       }
@@ -170,6 +171,7 @@ export default defineComponent({
       } finally {
         this.hideLoading();
       }
+      return Promise.resolve();
     },
     showConfirmDialogCancel() {
       this.confirmDialogRef?.dialog(
@@ -208,14 +210,15 @@ export default defineComponent({
         document.title = `Cineminha - ${this.moviePage.selectedMovie.portuguese_title}`;
       }
     },
-    async loadMovie() {
+    async loadMovie(): Promise<void> {
       if (!this.routeIDPath) {
-        return;
+        return Promise.resolve();
       }
       const res = await MovieService.getMovie(this.routeIDPath.toString());
       this.moviePage.selectedMovie = res;
 
       this.setDocumentTitle();
+      return Promise.resolve();
     },
     showNotifyMovie(movieTitle?: string, movieId?: string) {
       if (!movieTitle || !movieId) {

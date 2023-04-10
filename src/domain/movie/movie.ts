@@ -20,6 +20,9 @@ export default class Movie {
     public release_date?: Date,
     public runtime?: number,
     public notes?: MovieNoteType[],
-    public user_id?: string
+    public user_id?: string,
+    public user_name?: string,
+    public created_at?: Date,
+    public updated_at?: Date
   ) {}
 }
