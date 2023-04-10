@@ -7,7 +7,9 @@
       :alt="getImageAndAlt()[1]"
       :draggable="false"
       :height="'100%'"
+      v-if="moviePage.selectedMovie?.url_image"
     />
+    <q-skeleton class="col-3" v-else width="600px" height="750px" animation="fade" dark bordered />
     <div class="col q-ml-xl">
       <div class="row q-col-gutter-y-md">
         <div class="col-12" :class="screenHeight > 1080 ? 'text-h3' : 'text-h4'">Informações</div>
@@ -284,10 +286,12 @@ export default defineComponent({
       }
     },
     getImageAndAlt(): Array<string> {
-      const srcImage =
-        this.moviePage.selectedMovie.url_image ||
-        'https://cdn.discordapp.com/attachments/713552377348882434/987853775450566666/unknown.png';
-      const altImage = this.moviePage.selectedMovie.portuguese_title || 'img';
+      const srcImage = this.moviePage.selectedMovie.url_image;
+      const altImage = this.moviePage.selectedMovie.portuguese_title;
+
+      if (!srcImage || !altImage) {
+        return ['', ''];
+      }
 
       return [srcImage, altImage];
     },
