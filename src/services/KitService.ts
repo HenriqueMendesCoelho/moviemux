@@ -9,7 +9,7 @@ export default {
   async summary(payload: { tmdb_id: number }): Promise<MovieSummaryTypeKit> {
     try {
       const res = await axios.get(`${API_KIT}/${payload.tmdb_id}/summary`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -19,7 +19,7 @@ export default {
 
     try {
       const res = await axios.get(`${API_KIT}?${params}`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }

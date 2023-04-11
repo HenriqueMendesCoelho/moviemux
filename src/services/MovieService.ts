@@ -12,7 +12,7 @@ export default {
   async getMovieSummary(movieIdTmdb: string): Promise<MovieSummaryTypeKit> {
     try {
       const res = await axios.get(`${API_MOVIE}/tmdb/${movieIdTmdb}/summary`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -21,7 +21,7 @@ export default {
     const params = StringUtils.getStringParams(payload);
     try {
       const res = await axios.get(`${API_MOVIE}/tmdb?${params}`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -31,7 +31,7 @@ export default {
   async getMovie(movieId: string): Promise<Movie> {
     try {
       const res = await axios.get(`${API_MOVIE}/${movieId}`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -39,7 +39,7 @@ export default {
   async listMoviesPageable(page: number, size = 50, sort = 'portugueseTitle,asc'): Promise<MoviePageableType> {
     try {
       const res = await axios.get(`${API_MOVIE}/list?page=${page}&sort=${sort}&size=${size}`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -47,7 +47,7 @@ export default {
   async listMoviesByTitlePageable(page: number, title: string, size = 50, sort = 'portuguese_title,asc'): Promise<MoviePageableType> {
     try {
       const res = await axios.get(`${API_MOVIE}?page=${page}&query=${title}&size=${size}&sort=${sort}`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -55,7 +55,7 @@ export default {
   async createMovie(payload: MovieRequestType): Promise<Movie> {
     try {
       const res = await axios.post(`${API_MOVIE}`, payload);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -63,7 +63,7 @@ export default {
   async updateMovie(payload: MovieRequestType): Promise<Movie> {
     try {
       const res = await axios.put(`${API_MOVIE}/${payload.id}/update`, payload);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -71,7 +71,7 @@ export default {
   async deleteMovie(movieId: string): Promise<Movie> {
     try {
       const res = await axios.delete(`${API_MOVIE}/${movieId}/delete`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
