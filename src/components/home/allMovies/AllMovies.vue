@@ -1,8 +1,8 @@
 <template>
   <div class="div-allfilms" style="position: relative">
     <div class="search-input">
-      <input type="text" name="search" placeholder="Digite..." v-model="searchText" @keyup.enter="search()" />
-      <button class="search-btn" @click="search()">BUSCAR</button>
+      <input type="text" name="search" placeholder="Digite..." v-model="searchText" @keyup.enter="btnSearchAction()" />
+      <button class="search-btn" @click="btnSearchAction()">BUSCAR</button>
       <button class="end-btn" @click="refreshSearch()">
         <span class="material-icons" style="font-size: 18pt"> refresh </span>
       </button>
@@ -15,10 +15,7 @@
     <div class="row justify-center q-my-md" v-if="loading">
       <q-spinner color="kb-primary" size="50px" />
     </div>
-    <div class="absolute-bottom-right" style="position: fixed; bottom: 5vh; right: 5vh">
-      <q-btn @click="pushToMovie" round icon="add" color="kb-primary" size="lg" />
-      <CustomTooltip anchor="bottom middle" :offset="[0, 10]" :delay="3000">ADICIONAR FILME</CustomTooltip>
-    </div>
+    <FloatingActionButton />
   </div>
 </template>
 <script lang="ts">
@@ -28,11 +25,11 @@ import Movie from '@/domain/movie/movie';
 
 import CardImageAllMovies from './cardImageAllMovies/CardImageAllMovies.vue';
 import MovieService from '@/services/MovieService';
-import CustomTooltip from '@/components/shared/customTooltip/CustomTooltip.vue';
+import FloatingActionButton from './floatingActionButton/FloatingActionButton.vue';
 
 export default defineComponent({
   name: 'AllMovies',
-  components: { CardImageAllMovies, CustomTooltip },
+  components: { CardImageAllMovies, FloatingActionButton },
   setup() {
     const infinitScrollRef = ref<{
       resume: () => void;
@@ -95,6 +92,7 @@ export default defineComponent({
       }
     },
     async refreshSearch(): Promise<void> {
+      console.log('entrei sem texto');
       await this.search();
       this.pagesFouded = 3;
       this.page = 2;
@@ -102,8 +100,13 @@ export default defineComponent({
       this.infinitScrollRef?.resume();
       return Promise.resolve();
     },
-    pushToMovie(): void {
-      this.$router.push({ name: 'add' });
+    async btnSearchAction(): Promise<void> {
+      if (!this.searchText) {
+        await this.refreshSearch();
+        return Promise.resolve();
+      }
+      await this.search();
+      return Promise.resolve();
     },
   },
 });
