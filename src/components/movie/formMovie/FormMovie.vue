@@ -22,7 +22,7 @@
             :label="'Título PT-BR'"
             v-model="moviePage.selectedMovie.portuguese_title"
             :readOnly="!isRegisterOrEditing"
-            :required="true"
+            required
             :dense="screenHeight <= 1080"
           />
           <InputText
@@ -31,7 +31,7 @@
             :label="'Título Inglês'"
             v-model="moviePage.selectedMovie.english_title"
             :readOnly="!isRegisterOrEditing"
-            :required="true"
+            required
             :dense="screenHeight <= 1080"
           />
           <InputText
@@ -51,7 +51,7 @@
             :label="'Diretor'"
             v-model="moviePage.selectedMovie.director"
             :readOnly="!isRegisterOrEditing"
-            :required="true"
+            required
             :dense="screenHeight <= 1080"
           />
           <InputText
@@ -62,7 +62,7 @@
             :modelValue="moviePage.selectedMovie.runtime?.toString()"
             @change="moviePage.selectedMovie.runtime = Number($event)"
             :mask="'###'"
-            :required="true"
+            required
             :dense="screenHeight <= 1080"
           />
           <InputText
@@ -81,7 +81,7 @@
             @change="changeReleaseDate"
             :readOnly="!isRegisterOrEditing"
             :mask="'##/##/####'"
-            :required="true"
+            required
             :dense="screenHeight <= 1080"
           />
         </div>
@@ -160,7 +160,7 @@
             :label="'URL da Imagem'"
             v-model="moviePage.selectedMovie.url_image"
             :readOnly="!isRegisterOrEditing"
-            :required="true"
+            required
             :dense="screenHeight <= 1080"
           />
           <InputText
