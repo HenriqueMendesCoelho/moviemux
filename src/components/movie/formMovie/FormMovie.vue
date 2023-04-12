@@ -300,46 +300,46 @@ export default defineComponent({
     },
     async hasErrors(): Promise<boolean> {
       let hasError = false;
-      if (this.inputTextPortugueseTitleRef) {
-        hasError = await this.inputTextPortugueseTitleRef.hasErrors();
+      if (this.inputTextPortugueseTitleRef?.hasErrors()) {
+        hasError = true;
       }
-      if (this.inputTextEnglishTitleRef) {
-        hasError = await this.inputTextEnglishTitleRef.hasErrors();
+      if (this.inputTextEnglishTitleRef?.hasErrors()) {
+        hasError = true;
       }
-      if (this.inputTextOriginalTitleRef) {
-        hasError = await this.inputTextOriginalTitleRef.hasErrors();
+      if (this.inputTextOriginalTitleRef?.hasErrors()) {
+        hasError = true;
       }
-      if (this.inputTextDirectorRef) {
-        hasError = await this.inputTextDirectorRef.hasErrors();
+      if (this.inputTextDirectorRef?.hasErrors()) {
+        hasError = true;
       }
-      if (this.inputTextReleaseDateRef) {
-        hasError = await this.inputTextReleaseDateRef.hasErrors();
+      if (this.inputTextReleaseDateRef?.hasErrors()) {
+        hasError = true;
       }
-      if (this.inputTextReleaseDateRef) {
-        hasError = await this.inputTextReleaseDateRef.hasErrors();
+      if (this.inputTextReleaseDateRef?.hasErrors()) {
+        hasError = true;
       }
       if (this.qInputDescriptionRef) {
         await this.qInputDescriptionRef.validate();
-        hasError = this.qInputDescriptionRef.hasError;
+        hasError = this.qInputDescriptionRef.hasError || hasError;
       }
       if (this.qSelectGenresRef) {
         await this.qSelectGenresRef.validate();
-        hasError = this.qSelectGenresRef.hasError;
+        hasError = this.qSelectGenresRef.hasError || hasError;
       }
-      if (this.InputTextTmdbIdRef) {
-        hasError = await this.InputTextTmdbIdRef.hasErrors();
+      if (this.InputTextTmdbIdRef?.hasErrors()) {
+        hasError = true;
       }
-      if (this.inputTextUrlImageRef) {
-        hasError = await this.inputTextUrlImageRef.hasErrors();
+      if (this.inputTextUrlImageRef?.hasErrors()) {
+        hasError = true;
       }
-      if (this.inputTextUrlTrailerBrRef) {
-        hasError = await this.inputTextUrlTrailerBrRef.hasErrors();
+      if (this.inputTextUrlTrailerBrRef?.hasErrors()) {
+        hasError = true;
       }
-      if (this.inputTextUrlTrailerEnRef) {
-        hasError = await this.inputTextUrlTrailerEnRef.hasErrors();
+      if (this.inputTextUrlTrailerEnRef?.hasErrors()) {
+        hasError = true;
       }
-      if (this.inputTextRuntimeRef) {
-        hasError = await this.inputTextRuntimeRef.hasErrors();
+      if (this.inputTextRuntimeRef?.hasErrors()) {
+        hasError = true;
       }
       return Promise.resolve(hasError);
     },
