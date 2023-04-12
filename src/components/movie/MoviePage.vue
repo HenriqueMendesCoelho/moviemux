@@ -228,8 +228,9 @@ export default defineComponent({
         progress: true,
         message: `Acesse o filme '${movieTitle}' que acabou de cadastrar!`,
         multiLine: true,
-        position: 'top',
+        position: 'bottom-left',
         color: 'grey-mid2',
+        timeout: 10000,
         actions: [
           {
             label: 'Acessar',
