@@ -100,9 +100,7 @@ export default defineComponent({
   },
   emits: ['update:modelValue'],
   mounted() {
-    if (this.modelValue) {
-      this.text = this.modelValue;
-    }
+    this.text = this.modelValue || '';
   },
   methods: {
     defaultRules(): boolean | string {

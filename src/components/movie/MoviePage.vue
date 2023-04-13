@@ -126,16 +126,18 @@ export default defineComponent({
     }
     return Promise.resolve();
   },
-  async updated() {
+  async beforeUpdate() {
     if (this.routeName === 'add') {
       if (!this.alreadyEditing) {
         this.resetForm();
       }
       this.alreadyEditing = true;
       this.idPathParam = '';
+      return;
     }
     await this.loadMovie();
     this.setDocumentTitle();
+    return;
   },
   methods: {
     ...mapActions(useMovieStore, ['resetSelectedMovie', 'selectedMovieHasAnyFieldFilled']),
@@ -182,8 +184,9 @@ export default defineComponent({
       );
     },
     resetForm() {
+      const movieStore = useMovieStore();
+      movieStore.$reset();
       this.moviePage.isEditing = false;
-      this.resetSelectedMovie();
       this.formMovieRef?.resetValidation();
     },
     cantEdit() {
@@ -216,7 +219,6 @@ export default defineComponent({
       }
       const res = await MovieService.getMovie(this.routeIDPath.toString());
       this.moviePage.selectedMovie = res;
-
       this.setDocumentTitle();
       return Promise.resolve();
     },
