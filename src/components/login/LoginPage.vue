@@ -22,6 +22,8 @@ import { defineComponent } from 'vue';
 
 import FormLogin from './formLogin/FormLogin.vue';
 import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue';
+import { useUserStore } from '@/stores/UserStore';
+import { mapState } from 'pinia';
 
 export default defineComponent({
   name: 'LoginPage',
@@ -36,6 +38,14 @@ export default defineComponent({
     return {
       tab: 'login',
     };
+  },
+  computed: {
+    ...mapState(useUserStore, ['user']),
+  },
+  mounted() {
+    if (this.user.isLoged) {
+      this.$router.push('/home');
+    }
   },
 });
 </script>
