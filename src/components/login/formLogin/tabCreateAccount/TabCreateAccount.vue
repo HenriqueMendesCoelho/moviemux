@@ -15,6 +15,8 @@
       ><template v-slot:append> <q-icon name="mail" /> </template
     ></q-input>
     <q-input
+      @focus="tooltipPassword = true"
+      @blur="tooltipPassword = false"
       ref="inputPasswordRef"
       class="col-10 justify-center"
       label="Senha"
@@ -23,15 +25,14 @@
       color="kb-primary"
       bg-color="grey-mid"
       dark
-      :rules="[
-        (val) => !!val,
-        (val) => regexPassword.test(val) || 'Deve conter letras maiúsculas e minúsculas, número e caractere especial',
-      ]"
+      :rules="[(val) => !!val, (val) => regexPassword.test(val)]"
       hint="Mínimo 8 caracteres e máximo 70"
       ><template v-slot:append>
-        <q-icon name="visibility" v-if="!visibilityPass" @click="visibilityPass = !visibilityPass" />
-        <q-icon name="visibility_off" v-if="visibilityPass" @click="visibilityPass = !visibilityPass" /></template
-    ></q-input>
+        <q-icon name="visibility_off" v-if="!visibilityPass" @click="visibilityPass = !visibilityPass" />
+        <q-icon name="visibility" v-if="visibilityPass" @click="visibilityPass = !visibilityPass" />
+      </template>
+      <TooltipPassowordInfo v-model="tooltipPassword" />
+    </q-input>
     <q-input
       ref="inputRepeatPasswordRef"
       class="col-10 justify-center"
@@ -43,8 +44,8 @@
       dark
       :rules="[(val) => !!val, () => password === repeatePassword || 'Deve ser igual a senha preenchida anteriormente']"
       ><template v-slot:append>
-        <q-icon name="visibility" v-if="!visibilityNewPass" @click="visibilityNewPass = !visibilityNewPass" />
-        <q-icon name="visibility_off" v-if="visibilityNewPass" @click="visibilityNewPass = !visibilityNewPass" /></template
+        <q-icon name="visibility_off" v-if="!visibilityNewPass" @click="visibilityNewPass = !visibilityNewPass" />
+        <q-icon name="visibility" v-if="visibilityNewPass" @click="visibilityNewPass = !visibilityNewPass" /> </template
     ></q-input>
     <q-input
       ref="inputNicknameRef"
@@ -91,10 +92,11 @@ import { InputValidateRefType } from '@/components/shared/inputText/types/InputV
 import UserService from '@/services/UserService';
 
 import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
+import TooltipPassowordInfo from './tooltipPasswordInfo/TooltipPassowordInfo.vue';
 
 export default defineComponent({
   name: 'tabCreateAccount',
-  components: { SeparatorDivLineSolid },
+  components: { SeparatorDivLineSolid, TooltipPassowordInfo },
   props: {
     createAccount: {
       type: Boolean,
@@ -155,6 +157,7 @@ export default defineComponent({
       nickname: '',
       regexEmail: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/ as RegExp,
       regexPassword: /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,70}$/ as RegExp,
+      tooltipPassword: false,
     };
   },
   emits: ['changeTab', 'loading'],
