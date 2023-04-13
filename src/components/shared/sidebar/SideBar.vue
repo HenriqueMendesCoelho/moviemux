@@ -88,6 +88,8 @@ export default defineComponent({
       localStorage.setItem('is_expanded', this.isExpanded.toString());
     },
     logout() {
+      const userStore = useUserStore();
+      userStore.$reset();
       localStorage.clear();
     },
   },
