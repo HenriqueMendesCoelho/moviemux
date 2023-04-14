@@ -136,7 +136,7 @@ export default defineComponent({
       }
     },
     async onLoad(index: number, done: (stop?: boolean) => void) {
-      if (this.page >= this.pagesFouded) {
+      if (this.page > this.pagesFouded) {
         done(true);
         return;
       }

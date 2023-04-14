@@ -62,7 +62,7 @@ export default defineComponent({
       return Promise.resolve();
     },
     async onLoad(index: number, done: (stop?: boolean) => void): Promise<void> {
-      if (this.page >= this.pagesFouded) {
+      if (this.page > this.pagesFouded) {
         done(true);
         return;
       }
