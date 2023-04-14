@@ -300,22 +300,22 @@ export default defineComponent({
     },
     async hasErrors(): Promise<boolean> {
       let hasError = false;
-      if (this.inputTextPortugueseTitleRef?.hasErrors()) {
+      if (await this.inputTextPortugueseTitleRef?.hasErrors()) {
         hasError = true;
       }
-      if (this.inputTextEnglishTitleRef?.hasErrors()) {
+      if (await this.inputTextEnglishTitleRef?.hasErrors()) {
         hasError = true;
       }
-      if (this.inputTextOriginalTitleRef?.hasErrors()) {
+      if (await this.inputTextOriginalTitleRef?.hasErrors()) {
         hasError = true;
       }
-      if (this.inputTextDirectorRef?.hasErrors()) {
+      if (await this.inputTextDirectorRef?.hasErrors()) {
         hasError = true;
       }
-      if (this.inputTextReleaseDateRef?.hasErrors()) {
+      if (await this.inputTextReleaseDateRef?.hasErrors()) {
         hasError = true;
       }
-      if (this.inputTextReleaseDateRef?.hasErrors()) {
+      if (await this.inputTextReleaseDateRef?.hasErrors()) {
         hasError = true;
       }
       if (this.qInputDescriptionRef) {
@@ -326,19 +326,19 @@ export default defineComponent({
         await this.qSelectGenresRef.validate();
         hasError = this.qSelectGenresRef.hasError || hasError;
       }
-      if (this.InputTextTmdbIdRef?.hasErrors()) {
+      if (await this.InputTextTmdbIdRef?.hasErrors()) {
         hasError = true;
       }
-      if (this.inputTextUrlImageRef?.hasErrors()) {
+      if (await this.inputTextUrlImageRef?.hasErrors()) {
         hasError = true;
       }
-      if (this.inputTextUrlTrailerBrRef?.hasErrors()) {
+      if (await this.inputTextUrlTrailerBrRef?.hasErrors()) {
         hasError = true;
       }
-      if (this.inputTextUrlTrailerEnRef?.hasErrors()) {
+      if (await this.inputTextUrlTrailerEnRef?.hasErrors()) {
         hasError = true;
       }
-      if (this.inputTextRuntimeRef?.hasErrors()) {
+      if (await this.inputTextRuntimeRef?.hasErrors()) {
         hasError = true;
       }
       return Promise.resolve(hasError);
