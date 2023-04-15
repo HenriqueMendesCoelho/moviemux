@@ -1,14 +1,13 @@
 <template>
   <div class="row full-width justify-center">
-    <div
+    <router-link
+      :to="{ name: 'movie', params: { id: movie?.id } }"
       class="col-10 container-img justify-center"
       style="border-radius: 50px"
       @mouseover="showInfos = true"
       @mouseleave="showInfos = false"
     >
       <q-img
-        @click="pushToMovie(movie?.id)"
-        @mouseup.middle.prevent="openNewMovieTab($event, movie?.id)"
         class="image-cls"
         :src="movie?.url_image"
         spinner-color="kb-primary"
@@ -38,7 +37,7 @@
         </transition>
       </q-img>
       <ContextMenuHome :movie-id="movie?.id || ''" />
-    </div>
+    </router-link>
   </div>
 </template>
 
@@ -66,9 +65,6 @@ export default defineComponent({
     };
   },
   methods: {
-    pushToMovie(id?: string): void {
-      this.$router.push({ name: 'movie', params: { id: id } });
-    },
     isRating() {
       return this.movie?.notes?.length;
     },
@@ -76,12 +72,6 @@ export default defineComponent({
       const url = `${window.location.origin}/movie/${id}`;
       navigator.clipboard.writeText(url);
       return url ? url : '';
-    },
-    openNewMovieTab(event: MouseEvent, id?: string) {
-      event.preventDefault();
-      const url: string = this.copyMovie(id);
-      const w = window.open(url);
-      if (w) w.focus();
     },
   },
 });
