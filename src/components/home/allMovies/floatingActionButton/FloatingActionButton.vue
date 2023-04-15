@@ -22,6 +22,10 @@ function pushToMovie(): void {
   router.push({ name: 'add' });
 }
 function scrollToTop(): void {
-  window.scrollTo(0, 0);
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: 'smooth',
+  });
 }
 </script>
