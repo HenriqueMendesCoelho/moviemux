@@ -16,8 +16,8 @@
         <SeparatorDivSolidLine />
       </q-card-section>
       <q-separator />
-      <q-card-section class="scroll" style="max-height: 60vh" v-if="movies?.length">
-        <q-infinite-scroll class="" @load="onLoad" :offset="50">
+      <q-card-section ref="cardScrollRef" class="scroll" style="max-height: 60vh" v-if="movies?.length">
+        <q-infinite-scroll @load="onLoad" :offset="50">
           <div class="q-mt-md row justify-center">
             <q-img
               class="image-search col-3 q-mx-md q-mb-md"
@@ -56,6 +56,12 @@ import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLin
 import Movie from '@/domain/movie/movie';
 import ConfirmDialog from '@/components/shared/confirmDialog/ConfirmDialog.vue';
 
+type divScrollTopRef = {
+  $el: {
+    scrollTo: (options: { top: number; left: number; behavior: 'smooth' | 'instant' | 'auto' }) => void;
+  };
+};
+
 export default defineComponent({
   name: 'ImportMovie',
   components: { InputText, SeparatorDivSolidLine, ConfirmDialog },
@@ -67,8 +73,10 @@ export default defineComponent({
   setup() {
     const $q = useQuasar();
     const confirmDialogRef = ref<ConfirmDialogRefType>();
+    const cardScrollRef = ref<divScrollTopRef>();
     return {
       confirmDialogRef,
+      cardScrollRef,
       showLoading() {
         $q.loading.show({
           spinnerColor: 'kb-primary',
@@ -118,6 +126,12 @@ export default defineComponent({
   },
   methods: {
     async firstSearch() {
+      this.cardScrollRef?.$el.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth',
+      });
+      console.log(this.cardScrollRef);
       this.page = 1;
       const result = await this.searchMovieByName();
       this.movies = result;
