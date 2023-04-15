@@ -1,22 +1,15 @@
 <template>
   <div class="row full-width justify-center">
-    <div class="col-10 container-img justify-center" style="border-radius: 50px">
+    <router-link :to="{ name: 'movie', params: { id: id } }" class="col-10 container-img justify-center" style="border-radius: 50px">
       <figure v-show="!loading">
-        <img
-          id="card-img-id"
-          class="image-cls"
-          :src="url"
-          @click="pushToMovie(id)"
-          :style="`max-height: ${height}px;`"
-          @load="disableLoading"
-        />
+        <img id="card-img-id" class="image-cls" :src="url" :style="`max-height: ${height}px;`" @load="disableLoading" />
         <figcaption>{{ getTitle(20) }}</figcaption>
       </figure>
       <div v-if="loading" class="col-10 justify-center q-my-md">
         <q-spinner color="kb-primary" size="50px" />
       </div>
       <ContextMenuHome :movie-id="id || ''" />
-    </div>
+    </router-link>
   </div>
 </template>
 
@@ -49,9 +42,6 @@ export default defineComponent({
     };
   },
   methods: {
-    pushToMovie(id?: string): void {
-      this.$router.push({ name: 'movie', params: { id: id } });
-    },
     getTitle(size: number): string | void {
       if (!this.title) {
         return;
@@ -76,14 +66,8 @@ export default defineComponent({
   display: inline-block;
   max-height: 320px !important;
 
-  .hover-text {
-    color: white;
-    bottom: 30px;
-
-    .text-div {
-      background-color: rgba(120, 120, 120, 0.4);
-    }
-  }
+  text-decoration: none;
+  color: var(--light-grey2);
   .image-cls {
     max-width: 100% !important;
 
