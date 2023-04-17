@@ -117,7 +117,7 @@
               bg-color="grey-mid2"
               dark
               :multiple="true"
-              popup-content-style="background-color: #1f2531"
+              popup-content-class="bg-grey-dark2"
               option-label="name"
               clearable
               :rules="[(val) => !!val?.length]"

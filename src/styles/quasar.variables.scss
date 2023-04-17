@@ -14,11 +14,35 @@ $info: #31ccec;
 $warning: #f2c037;
 
 .bg-kb-primary {
-  background: #00f6ff !important;
+  background: var(--primary) !important;
 }
 
 .text-kb-primary {
-  color: #00f6ff !important;
+  color: var(--primary) !important;
+}
+
+.bg-grey-dark2 {
+  background: var(--grey-dark2) !important;
+}
+
+.text-grey-dark2 {
+  color: var(--grey-dark2) !important;
+}
+
+.bg-grey-mid {
+  background: var(--grey-mid) !important;
+}
+
+.text-grey-mid {
+  color: var(--grey-mid) !important;
+}
+
+.bg-grey-mid2 {
+  background: var(--grey-mid2) !important;
+}
+
+.text-grey-mid2 {
+  color: var(--grey-mid2) !important;
 }
 
 @import '~quasar-variables-styl';

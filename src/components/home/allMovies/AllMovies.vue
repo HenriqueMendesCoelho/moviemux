@@ -25,7 +25,7 @@
           standout="text-kb-primary"
           color="kb-primary"
           dark
-          popup-content-style="background-color: #1f2531"
+          popup-content-class="bg-grey-dark2"
           clearable
           option-label="name"
           option-value="param"
