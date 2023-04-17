@@ -1,11 +1,41 @@
 <template>
   <div class="div-allfilms" style="position: relative">
-    <div class="search-input">
-      <input type="text" name="search" placeholder="Digite..." v-model="searchText" @keyup.enter="btnSearchAction()" />
-      <button class="search-btn" @click="btnSearchAction()">BUSCAR</button>
-      <button class="end-btn" @click="refreshSearch()">
-        <span class="material-icons" style="font-size: 18pt"> refresh </span>
-      </button>
+    <div class="row full-width q-mb-md">
+      <q-toolbar class="bg-grey-mid text-white row" style="border-radius: 15px">
+        <q-icon name="menu" size="sm" />
+        <q-separator class="q-mx-md" dark vertical inset />
+        <q-input
+          borderless
+          class="col q-mr-sm"
+          label="Digite"
+          v-model="searchText"
+          dark
+          color="kb-primary"
+          maxlength="150"
+          @keyup.enter="btnSearchAction()"
+        />
+        <q-btn icon="search" flat round @click="btnSearchAction()" />
+        <q-separator class="q-mx-md" dark vertical inset />
+        <q-select
+          class="col-3"
+          borderless
+          :options="orderOptions"
+          v-model="orderOption"
+          label="Ordernar"
+          standout="text-kb-primary"
+          color="kb-primary"
+          dark
+          popup-content-style="background-color: #1f2531"
+          clearable
+          option-label="name"
+          option-value="param"
+          options-dense
+          emit-value
+          map-options
+        />
+        <q-separator class="q-mx-md" dark vertical inset />
+        <q-btn @click="refreshSearch()" icon="refresh" flat round />
+      </q-toolbar>
     </div>
     <q-infinite-scroll ref="infinitScrollRef" class="container-cards-films full-width" @load="onLoad" :offset="10">
       <div class="cards-films" v-for="movie in movies" :key="movie.id">
@@ -45,6 +75,19 @@ export default defineComponent({
       pagesFouded: 2,
       page: 1,
       searchText: '',
+      orderOption: '',
+      orderOptions: [
+        { name: 'Título (A-Z)', param: 'portugueseTitle,asc' },
+        { name: 'Título (Z-A)', param: 'portugueseTitle,desc' },
+        { name: 'Data de Lançamento (Mais Novo)', param: 'releaseDate,portugueseTitle,desc' },
+        { name: 'Data de Lançamento (Mais Antigo)', param: 'releaseDate,portugueseTitle,asc' },
+        { name: 'Nota (Mais alta)', param: '&sortJoin=notes,desc' },
+        { name: 'Nota (Mais baixa)', param: '&sortJoin=notes,asc' },
+        { name: 'Data de Cadastro (Mais Novo)', param: 'createdAt,portugueseTitle,desc' },
+        { name: 'Data de Cadastro (Mais Antigo)', param: 'createdAt,portugueseTitle,asc' },
+        { name: 'Duração (Mais Longo)', param: 'runtime,desc' },
+        { name: 'Duração (Mais Curto)', param: 'runtime,asc' },
+      ],
     };
   },
   mounted() {
@@ -53,12 +96,27 @@ export default defineComponent({
     this.page = 1;
   },
   methods: {
-    async search(): Promise<void> {
+    async btnSearchAction(): Promise<void> {
+      if (!this.searchText && !this.orderOption) {
+        await this.refreshSearch();
+        return Promise.resolve();
+      }
+      await this.search();
+      return Promise.resolve();
+    },
+    async search(pageParam = 1): Promise<void> {
       this.pagesFouded = 2;
-      this.page = 1;
+      this.page = pageParam;
       const res = await this.searchMoviePageable();
       this.movies = res;
       this.loading = false;
+      return Promise.resolve();
+    },
+    async refreshSearch(): Promise<void> {
+      this.orderOption = '';
+      await this.search();
+      this.searchText = '';
+      this.infinitScrollRef?.resume();
       return Promise.resolve();
     },
     async onLoad(index: number, done: (stop?: boolean) => void): Promise<void> {
@@ -67,7 +125,6 @@ export default defineComponent({
         return;
       }
       const result = await this.searchMoviePageable();
-      this.page += 1;
       this.movies.push(...result);
       done();
       this.loading = false;
@@ -77,36 +134,21 @@ export default defineComponent({
       if (this.searchText) {
         const res = await MovieService.listMoviesByTitlePageable(this.page, this.searchText);
         this.pagesFouded = res.total_pages;
+        this.page++;
         if (this.page >= this.pagesFouded) {
           this.loading = true;
         }
 
         return Promise.resolve(res.content);
       } else {
-        const res = await MovieService.listMoviesPageable(this.page, 30);
+        const res = await MovieService.listMoviesPageable(this.page, 30, this.orderOption);
         this.pagesFouded = res.total_pages;
+        this.page++;
         if (this.page >= this.pagesFouded) {
           this.loading = true;
         }
         return Promise.resolve(res.content);
       }
-    },
-    async refreshSearch(): Promise<void> {
-      console.log('entrei sem texto');
-      await this.search();
-      this.pagesFouded = 3;
-      this.page = 2;
-      this.searchText = '';
-      this.infinitScrollRef?.resume();
-      return Promise.resolve();
-    },
-    async btnSearchAction(): Promise<void> {
-      if (!this.searchText) {
-        await this.refreshSearch();
-        return Promise.resolve();
-      }
-      await this.search();
-      return Promise.resolve();
     },
   },
 });
