@@ -1,8 +1,8 @@
 <template>
   <q-input
     ref="inputTextRef"
-    standout="text-info"
-    color="grey-mid2"
+    standout="text-kb-primary"
+    color="kb-primary"
     bg-color="grey-mid2"
     outlined
     v-model="text"
