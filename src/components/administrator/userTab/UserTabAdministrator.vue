@@ -50,168 +50,156 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script lang="ts" setup>
+import { computed, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
 import User from '@/domain/user/User';
 import UserService from '@/services/UserService';
+import { useUserStore } from '@/stores/UserStore';
 
 import PanelUserInfo from '@/components/shared/panelUserInfo/PanelUserInfo.vue';
 import InputText from '@/components/shared/inputText/InputText.vue';
 import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
-import { mapState } from 'pinia';
-import { useUserStore } from '@/stores/UserStore';
 
-export default defineComponent({
-  name: 'UserTabAdministrator',
-  components: {
-    PanelUserInfo,
-    InputText,
-    SeparatorDivLineSolid,
-  },
-  setup() {
-    const $q = useQuasar();
-    return {
-      showLoading() {
-        $q.loading.show({
-          spinnerColor: 'kb-primary',
-        });
-      },
-      hideLoading() {
-        $q.loading.hide();
-      },
-      showSuccess(msg: string) {
-        $q.notify({
-          type: 'positive',
-          message: msg,
-          position: 'top',
-        });
-      },
-      showError(msg: string) {
-        $q.notify({
-          type: 'negative',
-          message: msg,
-          position: 'top',
-        });
-      },
-    };
-  },
-  data() {
-    return {
-      email: '',
-      pass: '',
-      user: new User(),
-    };
-  },
-  computed: {
-    ...mapState(useUserStore, {
-      userStore: 'user',
-    }),
-  },
-  methods: {
-    async searchUser(showSuccessMessage = true) {
-      if (!this.email) {
-        this.showError('É necessário preencher o e-mail do usuario alvo');
-        return;
-      }
+const $q = useQuasar();
 
-      try {
-        this.showLoading();
-        const res = await UserService.getUserAdm(this.email);
-        this.user = res;
-        if (showSuccessMessage) {
-          this.showSuccess('Usuario encontrado com sucesso');
-        }
-      } catch {
-        this.showError('Erro ao buscar usuario');
-      } finally {
-        this.hideLoading();
-      }
-    },
-    async promoteUser() {
-      if (!this.isUserLoaded() || this.isUserMyself()) {
-        return;
-      }
-      try {
-        this.showLoading();
-        const res = await UserService.promoteUser(this.user.id);
-        this.user = res;
-        this.showSuccess('Usuario promovido');
-      } catch {
-        this.showError('Erro ao promover usuario');
-      } finally {
-        this.hideLoading();
-      }
-    },
-    async demoteUser() {
-      if (!this.isUserLoaded() || this.isUserMyself()) {
-        return;
-      }
-      try {
-        this.showLoading();
-        const res = await UserService.demoteUser(this.user.id);
-        this.user = res;
-        this.showSuccess('Usuario rebaixado');
-      } catch {
-        this.showError('Erro ao rebaixar usuario');
-      } finally {
-        this.hideLoading();
-      }
-    },
-    async blockUser() {
-      if (!this.isUserLoaded() || this.isUserMyself()) {
-        return;
-      }
-      try {
-        this.showLoading();
-        const res = await UserService.blockUser(this.user.id);
-        this.user = res;
-        this.showSuccess('Usuario bloqueado');
-      } catch {
-        this.showError('Erro ao bloqueado usuario');
-      } finally {
-        this.hideLoading();
-      }
-    },
-    async deleteUser() {
-      if (!this.isUserLoaded() || this.isUserMyself()) {
-        return;
-      }
-      try {
-        this.showLoading();
-        const res = await UserService.deleteUser(this.user.id);
-        this.user = res;
-        this.showSuccess('Usuario deletado');
-      } catch {
-        this.showError('Erro ao deletar usuario');
-      } finally {
-        this.hideLoading();
-      }
-    },
-    isUserLoaded() {
-      if (!this.email) {
-        this.showError('É necessário preencher o e-mail do usuario alvo');
-        return false;
-      }
-      if (!this.user.id) {
-        this.searchUser(false);
-      }
+const storeUser = useUserStore();
 
-      return !!this.user.id;
-    },
-    isUserMyself() {
-      if (!this.user.id) {
-        return false;
-      }
+const email = ref('');
+const user = ref(new User());
 
-      if (this.user.id === this.userStore.id) {
-        this.showError('Você não pode executar uma ação no seu próprio usuario');
-        return true;
-      }
+const userStore = computed(() => storeUser.user);
 
-      return false;
-    },
-  },
-});
+function showLoading() {
+  $q.loading.show({
+    spinnerColor: 'kb-primary',
+  });
+}
+function hideLoading() {
+  $q.loading.hide();
+}
+function showSuccess(msg: string) {
+  $q.notify({
+    type: 'positive',
+    message: msg,
+    position: 'top',
+  });
+}
+function showError(msg: string) {
+  $q.notify({
+    type: 'negative',
+    message: msg,
+    position: 'top',
+  });
+}
+
+async function searchUser(showSuccessMessage = true) {
+  if (!email.value) {
+    showError('É necessário preencher o e-mail do usuario alvo');
+    return;
+  }
+
+  try {
+    showLoading();
+    const res = await UserService.getUserAdm(email.value);
+    user.value = res;
+    if (showSuccessMessage) {
+      showSuccess('Usuario encontrado com sucesso');
+    }
+  } catch {
+    showError('Erro ao buscar usuario');
+  } finally {
+    hideLoading();
+  }
+}
+
+async function promoteUser() {
+  if (!(await isUserLoaded()) || isUserMyself()) {
+    return;
+  }
+  try {
+    showLoading();
+    const res = await UserService.promoteUser(user.value.id);
+    user.value = res;
+    showSuccess('Usuario promovido');
+  } catch {
+    showError('Erro ao promover usuario');
+  } finally {
+    hideLoading();
+  }
+}
+
+async function demoteUser() {
+  if (!(await isUserLoaded()) || isUserMyself()) {
+    return;
+  }
+  try {
+    showLoading();
+    const res = await UserService.demoteUser(user.value.id);
+    user.value = res;
+    showSuccess('Usuario rebaixado');
+  } catch {
+    showError('Erro ao rebaixar usuario');
+  } finally {
+    hideLoading();
+  }
+}
+
+async function blockUser() {
+  if (!(await isUserLoaded()) || isUserMyself()) {
+    return;
+  }
+  try {
+    showLoading();
+    const res = await UserService.blockUser(user.value.id);
+    user.value = res;
+    showSuccess('Usuario bloqueado');
+  } catch {
+    showError('Erro ao bloqueado usuario');
+  } finally {
+    hideLoading();
+  }
+}
+
+async function deleteUser() {
+  if (!(await isUserLoaded()) || isUserMyself()) {
+    return;
+  }
+  try {
+    showLoading();
+    const res = await UserService.deleteUser(user.value.id);
+    user.value = res;
+    showSuccess('Usuario deletado');
+  } catch {
+    showError('Erro ao deletar usuario');
+  } finally {
+    hideLoading();
+  }
+}
+
+async function isUserLoaded() {
+  if (!email.value) {
+    showError('É necessário preencher o e-mail do usuario alvo');
+    return false;
+  }
+  if (!user.value.id) {
+    await searchUser(false);
+  }
+
+  return !!user.value.id;
+}
+
+function isUserMyself() {
+  if (!user.value.id) {
+    return false;
+  }
+
+  if (user.value.id === userStore.value.id) {
+    showError('Você não pode executar uma ação no seu próprio usuario');
+    return true;
+  }
+
+  return false;
+}
 </script>
