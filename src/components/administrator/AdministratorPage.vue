@@ -29,36 +29,20 @@
   </ContainerMain>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-import { mapState } from 'pinia';
+<script lang="ts" setup>
+import { computed, ref } from 'vue';
+import { useQuasar } from 'quasar';
 
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import UserTabAdministrator from './userTab/UserTabAdministrator.vue';
 import ListUserTabAdministrator from './listUserTab/ListUserTabAdministrator.vue';
 import InviteUserTabAdmiminstrator from './inviteTab/InviteUserTabAdministrator.vue';
 
-import { useStyleStore } from '@/stores/StyleStore';
+document.title = 'Cineminha - ADM';
 
-export default defineComponent({
-  name: 'AdministratorPage',
-  components: { ContainerMain, UserTabAdministrator, ListUserTabAdministrator, InviteUserTabAdmiminstrator },
-  setup() {
-    document.title = 'Cineminha - ADM';
-  },
-  data() {
-    return {
-      tab: 'users',
-    };
-  },
-  computed: {
-    ...mapState(useStyleStore, ['getMarginSideBar']),
-
-    isMobile(): boolean | undefined {
-      return this.$q.platform.is.mobile;
-    },
-  },
-});
+const tab = ref('users');
+const $q = useQuasar();
+const isMobile = computed(() => $q.platform.is.mobile);
 </script>
 
 <style lang="scss" scoped>
