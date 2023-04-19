@@ -17,7 +17,7 @@ import AllMovies from './allMovies/AllMovies.vue';
 import { useStyleStore } from '@/stores/StyleStore';
 
 export default defineComponent({
-  name: 'HomeApp',
+  name: 'HomePage',
   components: {
     ContainerMain,
     LastMovies,
