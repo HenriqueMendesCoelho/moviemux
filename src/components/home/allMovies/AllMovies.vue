@@ -1,41 +1,15 @@
 <template>
   <div class="div-allfilms" style="position: relative">
     <div class="row full-width q-mb-md">
-      <q-toolbar class="bg-grey-mid text-white row" style="border-radius: 15px">
-        <q-icon name="menu" size="sm" />
-        <q-separator class="q-mx-md" dark vertical inset />
-        <q-input
-          borderless
-          class="col q-mr-sm"
-          label="Digite"
-          v-model="searchText"
-          dark
-          color="kb-primary"
-          maxlength="150"
-          @keyup.enter="btnSearchAction()"
-        />
-        <q-btn icon="search" flat round @click="btnSearchAction()" />
-        <q-separator class="q-mx-md" dark vertical inset />
-        <q-select
-          class="col-3"
-          borderless
-          :options="orderOptions"
-          v-model="orderOption"
-          label="Ordernar"
-          standout="text-kb-primary"
-          color="kb-primary"
-          dark
-          popup-content-class="bg-grey-dark2"
-          clearable
-          option-label="name"
-          option-value="param"
-          options-dense
-          emit-value
-          map-options
-        />
-        <q-separator class="q-mx-md" dark vertical inset />
-        <q-btn @click="refreshSearch()" icon="refresh" flat round />
-      </q-toolbar>
+      <SearchToolbar
+        :order-options="orderOptions"
+        :input-search="searchText"
+        @input-search="searchText = $event"
+        :select-order="orderOption"
+        @select-order="orderOption = $event"
+        @refresh="refreshSearch()"
+        @search="btnSearchAction()"
+      />
     </div>
     <q-infinite-scroll ref="infinitScrollRef" class="container-cards-films full-width" @load="onLoad" :offset="10">
       <div class="cards-films" v-for="movie in movies" :key="movie.id">
@@ -56,10 +30,11 @@ import Movie from '@/domain/movie/movie';
 import CardImageAllMovies from './cardImageAllMovies/CardImageAllMovies.vue';
 import MovieService from '@/services/MovieService';
 import FloatingActionButton from './floatingActionButton/FloatingActionButton.vue';
+import SearchToolbar from '@/components/shared/searchToolbar/SearchToolbar.vue';
 
 export default defineComponent({
   name: 'AllMovies',
-  components: { CardImageAllMovies, FloatingActionButton },
+  components: { CardImageAllMovies, FloatingActionButton, SearchToolbar },
   setup() {
     const infinitScrollRef = ref<{
       resume: () => void;
