@@ -19,7 +19,7 @@
       borderless
       :options="orderOptions"
       v-model="orderOption"
-      label="Ordernar"
+      :label="props.selectOrderLabel"
       standout="text-kb-primary"
       color="kb-primary"
       dark
@@ -35,14 +35,19 @@
     <q-btn @click="emit('refresh')" icon="refresh" flat round />
   </q-toolbar>
 </template>
-<script lang="ts" setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue';
 
-const props = defineProps<{
+interface Props {
   orderOptions: Array<string | object>;
   inputSearch: string;
   selectOrder: string;
-}>();
+  selectOrderLabel?: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  selectOrderLabel: 'Ordenar',
+});
 
 const emit = defineEmits<{
   (e: 'inputSearch', value: string): void;
