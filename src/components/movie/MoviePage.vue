@@ -120,6 +120,7 @@ export default defineComponent({
     },
   },
   async mounted() {
+    this.setDocumentTitle();
     await this.loadMovie();
     if (this.routeName === 'add') {
       this.resetForm();
@@ -127,6 +128,7 @@ export default defineComponent({
     return Promise.resolve();
   },
   async beforeUpdate() {
+    this.setDocumentTitle();
     if (this.routeName === 'add') {
       if (!this.alreadyEditing) {
         this.resetForm();
@@ -136,7 +138,6 @@ export default defineComponent({
       return;
     }
     await this.loadMovie();
-    this.setDocumentTitle();
     return;
   },
   methods: {
