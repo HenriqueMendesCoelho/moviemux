@@ -89,8 +89,8 @@ export default defineComponent({
     },
     async refreshSearch(): Promise<void> {
       this.orderOption = '';
-      await this.search();
       this.searchText = '';
+      await this.search();
       this.infinitScrollRef?.resume();
       return Promise.resolve();
     },
