@@ -13,6 +13,13 @@
       <div class="col-6">
         <FormLogin v-model="tab" />
       </div>
+      <div class="absolute-bottom">
+        <div class="row justify-center">
+          <div class="col-auto"><img class="" src="../../assets/tmdb-logo-long.svg" style="height: 20px" /></div>
+          <div class="col-12"></div>
+          <div class="col-auto"><p class="q-mt-xs" style="font-size: smaller; color: white">We use TMDB API, thanks TMDB!</p></div>
+        </div>
+      </div>
     </div>
   </main>
 </template>
