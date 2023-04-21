@@ -22,6 +22,16 @@
   </ContainerMain>
 </template>
 
+<script lang="ts">
+import { defineComponent } from 'vue';
+export default defineComponent({
+  name: 'ProfilePage',
+  beforeRouteEnter() {
+    document.title = 'Cineminha - Meus dados';
+  },
+});
+</script>
+
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 import { useQuasar } from 'quasar';
