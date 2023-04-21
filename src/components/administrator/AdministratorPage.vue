@@ -2,9 +2,7 @@
   <ContainerMain>
     <div class="row q-mt-xl justify-center">
       <div class="row col-10 justify-center">
-        <div>
-          <h2 style="color: white">Menu Administrativo</h2>
-        </div>
+        <PageTitle title="Menu Administrativo" icon="admin_panel_settings" />
       </div>
       <div :class="isMobile ? 'col-12 q-my-xl' : 'col-10 q-my-xl'">
         <q-tabs v-model="tab" class="tabs-selector" active-color="kb-primary" indicator-color="kb-primary" align="justify">
@@ -37,6 +35,7 @@ import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import UserTabAdministrator from './userTab/UserTabAdministrator.vue';
 import ListUserTabAdministrator from './listUserTab/ListUserTabAdministrator.vue';
 import InviteUserTabAdmiminstrator from './inviteTab/InviteUserTabAdministrator.vue';
+import PageTitle from '../shared/pageTitle/PageTitle.vue';
 
 document.title = 'Cineminha - ADM';
 
