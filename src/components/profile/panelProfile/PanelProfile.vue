@@ -27,7 +27,6 @@ import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLin
 import PanelUserInfo from '@/components/shared/panelUserInfo/PanelUserInfo.vue';
 
 const $q = useQuasar();
-const tab = ref('myData');
 const user = ref(new User());
 
 const isMobile = computed(() => $q.platform.is.mobile);
