@@ -17,7 +17,11 @@
         <div class="row justify-center">
           <div class="col-auto"><img class="" src="../../assets/tmdb-logo-long.svg" style="height: 20px" /></div>
           <div class="col-12"></div>
-          <div class="col-auto"><p class="q-mt-xs" style="font-size: smaller; color: white">We use TMDB API, thanks TMDB!</p></div>
+          <div class="col-auto">
+            <p class="q-mt-xs" style="font-size: smaller; color: white">
+              This product uses the TMDB API but is not endorsed or certified by TMDB.
+            </p>
+          </div>
         </div>
       </div>
     </div>
