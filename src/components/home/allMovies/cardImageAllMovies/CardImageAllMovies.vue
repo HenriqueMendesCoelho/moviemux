@@ -18,7 +18,10 @@
         style="cursor: pointer"
       >
         <transition>
-          <div class="absolute-bottom" v-if="showInfos">{{ movie?.portuguese_title }}</div>
+          <div class="absolute-bottom" v-if="showInfos">
+            {{ movie?.portuguese_title }}<br />
+            {{ getMovieDateLocale() }}
+          </div>
         </transition>
         <transition>
           <q-icon
@@ -72,6 +75,15 @@ export default defineComponent({
       const url = `${window.location.origin}/movie/${id}`;
       navigator.clipboard.writeText(url);
       return url ? url : '';
+    },
+    getMovieDateLocale() {
+      if (!this.movie?.release_date) {
+        return;
+      }
+      const date = new Date(this.movie.release_date);
+      return date.toLocaleString('pt-Br', {
+        dateStyle: 'long',
+      });
     },
   },
 });
