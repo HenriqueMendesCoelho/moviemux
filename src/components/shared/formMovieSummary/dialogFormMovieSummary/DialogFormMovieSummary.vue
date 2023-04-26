@@ -1,9 +1,9 @@
 <template>
-  <q-dialog class="dialog-container" @beforeShow="loadMovie" @hide="scrollBackToPosition()" v-model="visible">
+  <q-dialog @beforeShow="loadMovie" @hide="scrollBackToPosition()" v-model="visible">
     <q-card class="bg-grey-dark2 dialog-container" style="min-width: 80vw; border-radius: 15px">
       <q-card-section class="row justify-end">
         <div class="col-auto row">
-          <q-icon color="white" name="close" size="md" @click="visible = false" />
+          <q-btn color="white" icon="close" size="md" @click="visible = false" flat round />
         </div>
         <SeparatorDivLineSolid />
       </q-card-section>

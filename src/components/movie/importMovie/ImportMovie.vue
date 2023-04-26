@@ -5,8 +5,8 @@
         <div class="col-6">
           <h5 class="title-container">Importar Filmes</h5>
         </div>
-        <div class="col-1 row offset-md-5 justify-center">
-          <q-icon color="white" name="close" size="md" @click="moviePage.showImportMovieDialog = !moviePage.showImportMovieDialog" />
+        <div class="col-1 row offset-md-5 justify-end">
+          <q-btn color="white" icon="close" size="md" @click="moviePage.showImportMovieDialog = false" flat round />
         </div>
         <SeparatorDivSolidLine class="q-mb-xl" />
         <div class="col-4 q-mr-md"><InputText dense :label="'Título Do Filme'" v-model="text" :enterEvent="firstSearch" /></div>
