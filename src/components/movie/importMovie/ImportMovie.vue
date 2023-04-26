@@ -47,7 +47,7 @@ import { mapState } from 'pinia';
 import { useMovieStore } from '@/stores/MovieStore';
 
 import { ConfirmDialogRefType } from '@/components/shared/confirmDialog/types/ConfirmDialogType';
-import { MovieFoundByName } from '@/types/movie/MovieType';
+import { MovieResultResponseTmdb } from '@/types/movie/MovieType';
 
 import KitService from '@/services/KitService';
 
@@ -113,7 +113,7 @@ export default defineComponent({
       page: 1,
       pagesFouded: 2,
       loading: false,
-      movies: [] as MovieFoundByName['results'],
+      movies: [] as MovieResultResponseTmdb['results'],
       text: '',
       movieId: 0,
     };
@@ -163,7 +163,7 @@ export default defineComponent({
     },
     getImageUrl(path?: string, size = 'w342') {
       if (!path) {
-        return require('../../../assets/no-image.png');
+        return;
       }
       return `${process.env.VUE_APP_TMDB_IMAGE_BASE}/${size}${path}`;
     },
@@ -196,7 +196,7 @@ export default defineComponent({
         this.hideLoading();
       }
     },
-    showConfirmDialog(movie: MovieFoundByName['results'][0]) {
+    showConfirmDialog(movie: MovieResultResponseTmdb['results'][0]) {
       this.confirmDialogRef?.dialog(`Você quer mesmo importar o filme ${movie.title}?`, 'ok', 'Confirme sua importação', 'Sim');
       this.movieId = movie.id;
     },

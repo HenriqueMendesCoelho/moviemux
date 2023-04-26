@@ -17,7 +17,7 @@ export type MovieSummaryTypeKit = {
   runtime?: number;
 };
 
-export type MovieFoundByName = {
+export type MovieResultResponseTmdb = {
   page: number;
   results: Array<{
     adult: boolean;

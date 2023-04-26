@@ -1,7 +1,7 @@
 <template>
   <SideBar />
   <router-view v-slot="{ Component }">
-    <KeepAlive include="HomePage">
+    <KeepAlive :include="['HomePage', 'DiscoverMoviesPage']">
       <component :class="isExpanded ? 'expanded-sidebar' : 'not-expanded-sidebar'" :is="Component" />
     </KeepAlive>
   </router-view>

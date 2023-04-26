@@ -1,7 +1,7 @@
 import axios from 'axios';
 import StringUtils from '@/utils/stringUtils';
 
-import { MovieFoundByName, MovieNoteType, MoviePageableType, MovieRequestType, MovieSummaryTypeKit } from '@/types/movie/MovieType';
+import { MovieResultResponseTmdb, MovieNoteType, MoviePageableType, MovieRequestType, MovieSummaryTypeKit } from '@/types/movie/MovieType';
 import Movie from '@/domain/movie/movie';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;
@@ -17,7 +17,7 @@ export default {
       return Promise.reject(error);
     }
   },
-  async getMoviesByName(payload: { query: string }): Promise<MovieFoundByName> {
+  async getMoviesByName(payload: { query: string }): Promise<MovieResultResponseTmdb> {
     const params = StringUtils.getStringParams(payload);
     try {
       const res = await axios.get(`${API_MOVIE}/tmdb?${params}`);

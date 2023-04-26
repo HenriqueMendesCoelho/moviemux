@@ -28,17 +28,22 @@
         <span class="text" v-if="showTextsSideBar">PERFIL</span>
         <CustomTooltip anchor="top right" :offset="[35, 0]" v-if="!isExpanded" :delay="500">PERFIL</CustomTooltip>
       </router-link>
-      <router-link to="/add" class="button">
+      <router-link to="/movie/add" class="button">
         <span class="material-icons">add</span>
         <span class="text" v-if="showTextsSideBar" id="textAddMovie">ADICIONAR FILME</span>
         <CustomTooltip anchor="top right" :offset="[65, 0]" v-if="!isExpanded" :delay="500">ADICIONAR FILME</CustomTooltip>
+      </router-link>
+      <router-link to="/movie/discover" class="button" style="position: relative">
+        <q-badge class="q-mr-sm" label="novo" color="kb-primary" rounded floating />
+        <span class="material-icons">search</span>
+        <span class="text" v-if="showTextsSideBar" id="textAddMovie">DESCOBRIR FILMES</span>
+        <CustomTooltip anchor="top right" :offset="[65, 0]" v-if="!isExpanded" :delay="500">DESCOBRIR FILMES</CustomTooltip>
       </router-link>
     </div>
 
     <div class="flex"></div>
     <div class="menu justify-start">
-      <button class="button" @click="darkThemeToggle()" style="position: relative">
-        <q-badge color="kb-primary" label="novo" floating rounded />
+      <button class="button" @click="darkThemeToggle()">
         <span class="material-icons" draggable="false" v-if="layoutSettings.darkMode"> light_mode </span>
         <span class="material-icons" draggable="false" v-else> dark_mode </span>
         <span class="text" draggable="false">Tema</span>

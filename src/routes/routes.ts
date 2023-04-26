@@ -53,7 +53,7 @@ export const routes = [
         },
       },
       {
-        path: '/add',
+        path: '/movie/add',
         component: () => import('@/components/movie/MoviePage.vue'),
         name: 'add',
         meta: {
@@ -64,6 +64,14 @@ export const routes = [
         path: '/profile',
         component: () => import('@/components/profile/ProfilePage.vue'),
         name: 'profile',
+        meta: {
+          roles: ['ADM', 'USER'],
+        },
+      },
+      {
+        path: '/movie/discover',
+        component: () => import('@/components/discoverMovies/DiscoverMoviesPage.vue'),
+        name: 'discoverMovies',
         meta: {
           roles: ['ADM', 'USER'],
         },
