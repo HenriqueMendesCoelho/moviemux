@@ -50,7 +50,7 @@ export default defineComponent({
       pagesFouded: 2,
       page: 1,
       searchText: '',
-      orderOption: '',
+      orderOption: '' as string | { label: string; value: string } | undefined,
       orderOptions: [
         { label: 'Título (A-Z)', value: 'portugueseTitle,asc' },
         { label: 'Título (Z-A)', value: 'portugueseTitle,desc' },
@@ -116,7 +116,11 @@ export default defineComponent({
 
         return Promise.resolve(res.content);
       } else {
-        const res = await MovieService.listMoviesPageable(this.page, 30, this.orderOption);
+        const res = await MovieService.listMoviesPageable(
+          this.page,
+          30,
+          typeof this.orderOption === 'object' ? this.orderOption.value : this.orderOption
+        );
         this.pagesFouded = res.total_pages;
         this.page++;
         if (this.page >= this.pagesFouded) {
