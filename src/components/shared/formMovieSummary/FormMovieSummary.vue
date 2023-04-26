@@ -5,7 +5,8 @@
       class="col-3 q-mx-xl q-py-xs"
       :src="movie.url_image"
       :draggable="false"
-      height="750px"
+      :height="screenHeight > 1080 ? '750px' : '600px'"
+      :width="screenHeight > 1080 ? '500px' : '400px'"
       v-if="movie?.url_image"
     />
     <q-skeleton class="col-3" v-else width="600px" height="750px" animation="fade" dark bordered />
