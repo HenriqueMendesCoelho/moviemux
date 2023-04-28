@@ -43,8 +43,7 @@
 
     <div class="flex"></div>
     <div class="menu justify-start">
-      <button class="button" @click="darkThemeToggle()" style="position: relative">
-        <q-badge class="q-mr-sm" label="novo" color="kb-primary" rounded floating />
+      <button class="button" @click="darkThemeToggle()">
         <span class="material-icons" draggable="false" v-if="layoutSettings.darkMode"> light_mode </span>
         <span class="material-icons" draggable="false" v-else> dark_mode </span>
         <span class="text" draggable="false">Tema</span>
