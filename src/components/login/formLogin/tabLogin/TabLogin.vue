@@ -20,21 +20,7 @@
       </q-input>
     </div>
     <div class="col-10 justify-center q-mt-md">
-      <q-input
-        @keyup.enter="login()"
-        ref="inputPasswordRef"
-        name="password"
-        label="Senha"
-        v-model="password"
-        :type="visibilityPass ? 'text' : 'password'"
-        color="kb-primary"
-        bg-color="grey-mid"
-        dark
-        :rules="[(val) => !!val]"
-        ><template v-slot:append>
-          <q-icon name="visibility" v-if="!visibilityPass" @click="visibilityPass = !visibilityPass" />
-          <q-icon name="visibility_off" v-if="visibilityPass" @click="visibilityPass = !visibilityPass" /></template
-      ></q-input>
+      <InputPassword v-model="password" required :error-text-required="false" />
       <button class="btn-underline q-mt-md" @click="changeTab('forgot')">Esqueceu sua senha ?</button>
     </div>
     <div class="col-10 q-mt-xl">
@@ -63,6 +49,7 @@ import { mapActions } from 'pinia';
 import { InputValidateRefType } from '@/components/shared/inputText/types/InputValidateRefType';
 import { useUserStore } from '@/stores/UserStore';
 import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
+import InputPassword from '@/components/shared/inputPassword/InputPassword.vue';
 
 type btnFocusRefType = {
   $el: {
@@ -72,7 +59,7 @@ type btnFocusRefType = {
 
 export default defineComponent({
   name: 'tabLogin',
-  components: { SeparatorDivLineSolid },
+  components: { SeparatorDivLineSolid, InputPassword },
   props: {
     createAccount: {
       type: Boolean,

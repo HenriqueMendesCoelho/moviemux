@@ -14,39 +14,26 @@
       :rules="[(val) => !!val, (val) => regexEmail.test(val) || 'E-mail inválido']"
       ><template v-slot:append> <q-icon name="mail" /> </template
     ></q-input>
-    <q-input
-      @focus="tooltipPassword = true"
-      @blur="tooltipPassword = false"
+    <InputPassword
       ref="inputPasswordRef"
       class="col-10 justify-center"
-      label="Senha"
       v-model="password"
-      :type="visibilityPass ? 'text' : 'password'"
-      color="kb-primary"
-      bg-color="grey-mid"
-      dark
-      :rules="[(val) => !!val, (val) => regexPassword.test(val)]"
+      required
+      valid-password
       hint="Mínimo 8 caracteres e máximo 70"
-      ><template v-slot:append>
-        <q-icon name="visibility_off" v-if="!visibilityPass" @click="visibilityPass = !visibilityPass" />
-        <q-icon name="visibility" v-if="visibilityPass" @click="visibilityPass = !visibilityPass" />
-      </template>
-      <TooltipPassowordInfo v-model="tooltipPassword" />
-    </q-input>
-    <q-input
+      :error-text-valid-passord="false"
+      @focus="tooltipPassword = true"
+      @blur="tooltipPassword = false"
+      ><TooltipPassowordInfo v-model="tooltipPassword"
+    /></InputPassword>
+    <InputPassword
       ref="inputRepeatPasswordRef"
       class="col-10 justify-center"
-      label="Repita a senha"
       v-model="repeatePassword"
-      :type="visibilityNewPass ? 'text' : 'password'"
-      color="kb-primary"
-      bg-color="grey-mid"
-      dark
-      :rules="[(val) => !!val, () => password === repeatePassword || 'Deve ser igual a senha preenchida anteriormente']"
-      ><template v-slot:append>
-        <q-icon name="visibility_off" v-if="!visibilityNewPass" @click="visibilityNewPass = !visibilityNewPass" />
-        <q-icon name="visibility" v-if="visibilityNewPass" @click="visibilityNewPass = !visibilityNewPass" /> </template
-    ></q-input>
+      label="Repita a senha"
+      required
+      :custom-rules="() => password === repeatePassword || 'Deve ser igual a senha preenchida anteriormente'"
+    />
     <q-input
       ref="inputNicknameRef"
       class="col-5 justify-center q-pr-sm"
@@ -93,10 +80,11 @@ import UserService from '@/services/UserService';
 
 import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
 import TooltipPassowordInfo from './tooltipPasswordInfo/TooltipPassowordInfo.vue';
+import InputPassword from '@/components/shared/inputPassword/InputPassword.vue';
 
 export default defineComponent({
   name: 'tabCreateAccount',
-  components: { SeparatorDivLineSolid, TooltipPassowordInfo },
+  components: { SeparatorDivLineSolid, TooltipPassowordInfo, InputPassword },
   props: {
     createAccount: {
       type: Boolean,
@@ -107,8 +95,8 @@ export default defineComponent({
     const $q = useQuasar();
 
     const inputEmailRef = ref<InputValidateRefType>();
-    const inputPasswordRef = ref<InputValidateRefType>();
-    const inputRepeatPasswordRef = ref<InputValidateRefType>();
+    const inputPasswordRef = ref<{ hasErrors: () => boolean; resetValidation: () => void }>();
+    const inputRepeatPasswordRef = ref<{ hasErrors: () => boolean; resetValidation: () => void }>();
     const inputNicknameRef = ref<InputValidateRefType>();
     const inputInviteRef = ref<InputValidateRefType>();
     return {
@@ -198,12 +186,10 @@ export default defineComponent({
         hasErrors = this.inputEmailRef.hasError;
       }
       if (this.inputPasswordRef) {
-        this.inputPasswordRef.validate();
-        hasErrors = this.inputPasswordRef.hasError;
+        hasErrors = this.inputPasswordRef.hasErrors();
       }
       if (this.inputRepeatPasswordRef) {
-        this.inputRepeatPasswordRef.validate();
-        hasErrors = this.inputRepeatPasswordRef.hasError;
+        hasErrors = this.inputRepeatPasswordRef.hasErrors();
       }
       if (this.inputNicknameRef) {
         this.inputNicknameRef.validate();
