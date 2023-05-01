@@ -89,6 +89,11 @@ button {
   background: none;
 }
 
+::selection {
+  color: black;
+  background-color: var(--primary);
+}
+
 .main-app {
   display: flex;
   background-color: var(--grey-dark);
