@@ -5,7 +5,13 @@
         <div class="row justify-center">
           <h2 style="color: white">Bem-vindo ao Cineminha!</h2>
           <SeparatorDivLineSolid class="q-my-md" style="opacity: 60%" />
-          <img src="@/assets/logo-kronus.png" class="left-img-login" alt="logo" draggable="false" @click="tab = 'login'" />
+          <img
+            src="@/assets/logo-kronus.png"
+            class="left-img-login no-pointer-events"
+            alt="logo"
+            draggable="false"
+            @click="tab = 'login'"
+          />
           <div class="col-12" />
           <p class="q-mt-xl" style="font-size: smaller; color: white">Powered by Kronus Platform</p>
         </div>
