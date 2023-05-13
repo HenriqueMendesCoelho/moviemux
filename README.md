@@ -12,6 +12,13 @@ Inspired by IMDB and TMDB.
 Vue.js 3, Quasar Framework, Pinia, Typescript
 ```
 
+<p align="center">
+  <img src="https://cdn.discordapp.com/attachments/1106797324329562164/1106797355782656030/CineKronusBossimg.png" style="width: 500px;" />
+</p>
+<p align="center">
+  <img src="https://cdn.discordapp.com/attachments/1106797324329562164/1106798320459980890/CineKronusBoss-movie-img.png" style="width: 500px;" />
+</p>
+
 ### Link
 
 [CineKronusBoss website](https://www.cine.kronusboss.com)
