@@ -1,4 +1,4 @@
-# Cineminha KronusBoss
+# CineKronusBoss - Frontend
 
 ## Introduction
 
