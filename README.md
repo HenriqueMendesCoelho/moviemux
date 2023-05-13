@@ -6,7 +6,7 @@ This is a personal project aimed at creating a comprehensive movie rating portal
 
 Inspired by IMDB and TMDB.
 
-## Tecnologies
+## Technologies
 
 ```
 Vue.js 3, Quasar Framework, Pinia, Typescript
