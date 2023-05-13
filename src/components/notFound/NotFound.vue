@@ -3,13 +3,7 @@
     <div class="row justify-center">
       <div>
         <router-link to="/">
-          <img
-            src="../../assets/logo-kronus.png"
-            class="left-img-login"
-            alt="logo"
-            draggable="false"
-            @click="(forgotPass = false), (createAccout = false)"
-          />
+          <img src="../../assets/logo-kronus.png" class="left-img-login" alt="logo" draggable="false" />
         </router-link>
       </div>
       <div class="col-12"></div>
@@ -20,14 +14,8 @@
   </main>
 </template>
 
-<script>
-import { defineComponent } from 'vue';
-export default defineComponent({
-  name: 'NotFound',
-  setup() {
-    document.title = 'Cineminha - 404';
-  },
-});
+<script lang="ts" setup>
+document.title = 'Cineminha - 404';
 </script>
 
 <style lang="scss" scoped>

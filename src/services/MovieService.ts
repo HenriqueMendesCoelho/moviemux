@@ -1,7 +1,7 @@
 import axios from 'axios';
 import StringUtils from '@/utils/stringUtils';
 
-import { MovieFoundByName, MovieNoteType, MoviePageableType, MovieRequestType, MovieSummaryTypeKit } from '@/types/movie/MovieType';
+import { MovieResultResponseTmdb, MovieNoteType, MoviePageableType, MovieRequestType, MovieSummaryTypeKit } from '@/types/movie/MovieType';
 import Movie from '@/domain/movie/movie';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;
@@ -12,16 +12,16 @@ export default {
   async getMovieSummary(movieIdTmdb: string): Promise<MovieSummaryTypeKit> {
     try {
       const res = await axios.get(`${API_MOVIE}/tmdb/${movieIdTmdb}/summary`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
   },
-  async getMoviesByName(payload: { query: string }): Promise<MovieFoundByName> {
+  async getMoviesByName(payload: { query: string }): Promise<MovieResultResponseTmdb> {
     const params = StringUtils.getStringParams(payload);
     try {
       const res = await axios.get(`${API_MOVIE}/tmdb?${params}`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -31,15 +31,22 @@ export default {
   async getMovie(movieId: string): Promise<Movie> {
     try {
       const res = await axios.get(`${API_MOVIE}/${movieId}`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
   },
-  async listMoviesPageable(page: number, size = 50, sort = 'portugueseTitle,asc'): Promise<MoviePageableType> {
+  async listMoviesPageable(page: number, size = 50, sort?: string): Promise<MoviePageableType> {
+    let sortParam;
+    if (!sort) {
+      sortParam = '&sort=portugueseTitle,asc';
+    } else {
+      sortParam = sort.includes('order') ? sort : `&sort=${sort}`;
+    }
+
     try {
-      const res = await axios.get(`${API_MOVIE}/list?page=${page}&sort=${sort}&size=${size}`);
-      return res.data;
+      const res = await axios.get(`${API_MOVIE}/list?page=${page}${sortParam}&size=${size}`);
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -47,7 +54,7 @@ export default {
   async listMoviesByTitlePageable(page: number, title: string, size = 50, sort = 'portuguese_title,asc'): Promise<MoviePageableType> {
     try {
       const res = await axios.get(`${API_MOVIE}?page=${page}&query=${title}&size=${size}&sort=${sort}`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -55,7 +62,7 @@ export default {
   async createMovie(payload: MovieRequestType): Promise<Movie> {
     try {
       const res = await axios.post(`${API_MOVIE}`, payload);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -63,7 +70,7 @@ export default {
   async updateMovie(payload: MovieRequestType): Promise<Movie> {
     try {
       const res = await axios.put(`${API_MOVIE}/${payload.id}/update`, payload);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -71,7 +78,7 @@ export default {
   async deleteMovie(movieId: string): Promise<Movie> {
     try {
       const res = await axios.delete(`${API_MOVIE}/${movieId}/delete`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }

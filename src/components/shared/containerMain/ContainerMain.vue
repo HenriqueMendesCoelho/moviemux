@@ -7,8 +7,6 @@ import { defineComponent } from 'vue';
 import { mapState } from 'pinia';
 import { useStyleStore } from '@/stores/StyleStore';
 
-defineComponent;
-
 export default defineComponent({
   name: 'ContainerMain',
   computed: {
@@ -22,14 +20,10 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
 
-  margin-left: v-bind(getMarginSideBar);
   padding: 2rem;
   margin-top: 2rem;
 
-  $width: calc(v-bind(getMarginSideBar));
-
   max-width: 100%;
-  min-width: calc(100vw - $width);
 
   min-height: calc(100vh - 2rem);
 

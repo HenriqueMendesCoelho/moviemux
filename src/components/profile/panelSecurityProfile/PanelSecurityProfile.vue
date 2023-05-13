@@ -30,8 +30,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue';
+<script lang="ts" setup>
+import { computed, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
 import { InputTextRefType } from '@/components/shared/inputText/types/InputValidateRefType';
@@ -41,105 +41,82 @@ import InputText from '@/components/shared/inputText/InputText.vue';
 import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
 import axios, { AxiosError } from 'axios';
 
-export default defineComponent({
-  name: 'PanelSecurityProfile',
-  components: {
-    InputText,
-    SeparatorDivLineSolid,
-  },
-  setup() {
-    const $q = useQuasar();
+const $q = useQuasar();
+const inputTextCurrentPassRef = ref<InputTextRefType>();
+const inputTextNewPassRef = ref<InputTextRefType>();
+const inputTextConfirmNewPassRef = ref<InputTextRefType>();
 
-    const inputTextCurrentPassRef = ref<InputTextRefType>();
-    const inputTextNewPassRef = ref<InputTextRefType>();
-    const inputTextConfirmNewPassRef = ref<InputTextRefType>();
-    return {
-      inputTextCurrentPassRef,
-      inputTextNewPassRef,
-      inputTextConfirmNewPassRef,
-      showLoading() {
-        $q.loading.show({
-          spinnerColor: 'kb-primary',
-        });
-      },
-      hideLoading() {
-        $q.loading.hide();
-      },
-      showSuccess(msg: string) {
-        $q.notify({
-          type: 'positive',
-          message: msg,
-          position: 'top',
-        });
-      },
-      showError(msg: string) {
-        $q.notify({
-          type: 'negative',
-          message: msg,
-          position: 'top',
-        });
-      },
-    };
-  },
-  data() {
-    return {
-      currentPass: '',
-      newPass: '',
-      confirmNewPass: '',
-    };
-  },
-  computed: {
-    isMobile(): boolean | undefined {
-      return this.$q.platform.is.mobile;
-    },
-  },
-  mounted() {
-    document.title = 'Cineminha - Segurança';
-  },
-  methods: {
-    async updatePassword() {
-      if (await this.hasErrors()) {
-        return;
+const currentPass = ref('');
+const newPass = ref('');
+const confirmNewPass = ref('');
+
+const isMobile = computed(() => $q.platform.is.mobile);
+
+function showLoading() {
+  $q.loading.show({
+    spinnerColor: 'kb-primary',
+  });
+}
+function hideLoading() {
+  $q.loading.hide();
+}
+function showSuccess(msg: string) {
+  $q.notify({
+    type: 'positive',
+    message: msg,
+    position: 'top',
+  });
+}
+function showError(msg: string) {
+  $q.notify({
+    type: 'negative',
+    message: msg,
+    position: 'top',
+  });
+}
+
+async function updatePassword() {
+  if (await hasErrors()) {
+    return;
+  }
+  try {
+    showLoading();
+    await UserService.updateUserPassword({
+      password: currentPass.value,
+      newPassword: newPass.value,
+    });
+    showSuccess('Senha atualizada com sucesso');
+    clearInputs();
+  } catch (err) {
+    const error = err as Error | AxiosError;
+    if (axios.isAxiosError(error)) {
+      if (error.response?.data.message === 'user not authorized to do this action') {
+        showError('Senha incorreta');
       }
-      try {
-        this.showLoading();
-        await UserService.updateUserPassword({
-          password: this.currentPass,
-          newPassword: this.newPass,
-        });
-        this.showSuccess('Senha atualizada com sucesso');
-        this.clearInputs();
-      } catch (err) {
-        const error = err as Error | AxiosError;
-        if (axios.isAxiosError(error)) {
-          if (error.response?.data.message === 'user not authorized to do this action') {
-            this.showError('Senha incorreta');
-          }
-        } else {
-          this.showError('Erro ao atualizar senha');
-        }
-      } finally {
-        this.hideLoading();
-      }
-    },
-    clearInputs() {
-      this.currentPass = '';
-      this.newPass = '';
-      this.confirmNewPass = '';
-    },
-    async hasErrors(): Promise<boolean> {
-      let hasError = false;
-      if (this.inputTextCurrentPassRef) {
-        hasError = await this.inputTextCurrentPassRef.hasErrors();
-      }
-      if (this.inputTextNewPassRef) {
-        hasError = await this.inputTextNewPassRef.hasErrors();
-      }
-      if (this.inputTextConfirmNewPassRef) {
-        hasError = await this.inputTextConfirmNewPassRef.hasErrors();
-      }
-      return Promise.resolve(hasError);
-    },
-  },
-});
+    } else {
+      showError('Erro ao atualizar senha');
+    }
+  } finally {
+    hideLoading();
+  }
+}
+function clearInputs() {
+  currentPass.value = '';
+  newPass.value = '';
+  confirmNewPass.value = '';
+}
+
+async function hasErrors(): Promise<boolean> {
+  let hasError = false;
+  if (inputTextCurrentPassRef.value) {
+    hasError = await inputTextCurrentPassRef.value.hasErrors();
+  }
+  if (inputTextNewPassRef.value) {
+    hasError = await inputTextNewPassRef.value.hasErrors();
+  }
+  if (inputTextConfirmNewPassRef.value) {
+    hasError = await inputTextConfirmNewPassRef.value.hasErrors();
+  }
+  return Promise.resolve(hasError);
+}
 </script>

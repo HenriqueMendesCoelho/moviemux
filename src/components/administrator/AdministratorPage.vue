@@ -2,9 +2,7 @@
   <ContainerMain>
     <div class="row q-mt-xl justify-center">
       <div class="row col-10 justify-center">
-        <div>
-          <h2 style="color: white">Menu Administrativo</h2>
-        </div>
+        <PageTitle title="Menu Administrativo" icon="admin_panel_settings" />
       </div>
       <div :class="isMobile ? 'col-12 q-my-xl' : 'col-10 q-my-xl'">
         <q-tabs v-model="tab" class="tabs-selector" active-color="kb-primary" indicator-color="kb-primary" align="justify">
@@ -29,36 +27,21 @@
   </ContainerMain>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-import { mapState } from 'pinia';
+<script lang="ts" setup>
+import { computed, ref } from 'vue';
+import { useQuasar } from 'quasar';
 
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import UserTabAdministrator from './userTab/UserTabAdministrator.vue';
 import ListUserTabAdministrator from './listUserTab/ListUserTabAdministrator.vue';
 import InviteUserTabAdmiminstrator from './inviteTab/InviteUserTabAdministrator.vue';
+import PageTitle from '../shared/pageTitle/PageTitle.vue';
 
-import { useStyleStore } from '@/stores/StyleStore';
+document.title = 'Cineminha - ADM';
 
-export default defineComponent({
-  name: 'AdministratorPage',
-  components: { ContainerMain, UserTabAdministrator, ListUserTabAdministrator, InviteUserTabAdmiminstrator },
-  setup() {
-    document.title = 'Cineminha - ADM';
-  },
-  data() {
-    return {
-      tab: 'users',
-    };
-  },
-  computed: {
-    ...mapState(useStyleStore, ['getMarginSideBar']),
-
-    isMobile(): boolean | undefined {
-      return this.$q.platform.is.mobile;
-    },
-  },
-});
+const tab = ref('users');
+const $q = useQuasar();
+const isMobile = computed(() => $q.platform.is.mobile);
 </script>
 
 <style lang="scss" scoped>

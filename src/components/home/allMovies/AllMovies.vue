@@ -1,11 +1,15 @@
 <template>
-  <div class="div-allfilms">
-    <div class="search-input">
-      <input type="text" name="search" placeholder="Digite..." v-model="searchText" @keyup.enter="search()" />
-      <button class="search-btn" @click="search()">BUSCAR</button>
-      <button class="end-btn" @click="refreshSearch()">
-        <span class="material-icons" style="font-size: 18pt"> refresh </span>
-      </button>
+  <div class="div-allfilms" style="position: relative">
+    <div class="row full-width q-mb-md">
+      <SearchToolbar
+        :order-options="orderOptions"
+        :input-search="searchText"
+        @input-search="searchText = $event"
+        :select-order="orderOption"
+        @select-order="orderOption = $event"
+        @refresh="refreshSearch()"
+        @search="btnSearchAction()"
+      />
     </div>
     <q-infinite-scroll ref="infinitScrollRef" class="container-cards-films full-width" @load="onLoad" :offset="10">
       <div class="cards-films" v-for="movie in movies" :key="movie.id">
@@ -15,6 +19,7 @@
     <div class="row justify-center q-my-md" v-if="loading">
       <q-spinner color="kb-primary" size="50px" />
     </div>
+    <FloatingActionButton />
   </div>
 </template>
 <script lang="ts">
@@ -24,10 +29,12 @@ import Movie from '@/domain/movie/movie';
 
 import CardImageAllMovies from './cardImageAllMovies/CardImageAllMovies.vue';
 import MovieService from '@/services/MovieService';
+import FloatingActionButton from './floatingActionButton/FloatingActionButton.vue';
+import SearchToolbar from '@/components/shared/searchToolbar/SearchToolbar.vue';
 
 export default defineComponent({
   name: 'AllMovies',
-  components: { CardImageAllMovies },
+  components: { CardImageAllMovies, FloatingActionButton, SearchToolbar },
   setup() {
     const infinitScrollRef = ref<{
       resume: () => void;
@@ -43,6 +50,19 @@ export default defineComponent({
       pagesFouded: 2,
       page: 1,
       searchText: '',
+      orderOption: '' as string | { label: string; value: string } | undefined,
+      orderOptions: [
+        { label: 'Título (A-Z)', value: 'portugueseTitle,asc' },
+        { label: 'Título (Z-A)', value: 'portugueseTitle,desc' },
+        { label: 'Data de Lançamento (Mais Novo)', value: 'releaseDate,portugueseTitle,desc' },
+        { label: 'Data de Lançamento (Mais Antigo)', value: 'releaseDate,portugueseTitle,asc' },
+        { label: 'Nota (Mais alta)', value: '&sortJoin=notes,desc' },
+        { label: 'Nota (Mais baixa)', value: '&sortJoin=notes,asc' },
+        { label: 'Data de Cadastro (Mais Novo)', value: 'createdAt,portugueseTitle,desc' },
+        { label: 'Data de Cadastro (Mais Antigo)', value: 'createdAt,portugueseTitle,asc' },
+        { label: 'Duração (Mais Longo)', value: 'runtime,desc' },
+        { label: 'Duração (Mais Curto)', value: 'runtime,asc' },
+      ],
     };
   },
   mounted() {
@@ -51,46 +71,63 @@ export default defineComponent({
     this.page = 1;
   },
   methods: {
-    async search() {
+    async btnSearchAction(): Promise<void> {
+      if (!this.searchText && !this.orderOption) {
+        await this.refreshSearch();
+        return Promise.resolve();
+      }
+      await this.search();
+      return Promise.resolve();
+    },
+    async search(pageParam = 1): Promise<void> {
       this.pagesFouded = 2;
-      this.page = 1;
+      this.page = pageParam;
       const res = await this.searchMoviePageable();
       this.movies = res;
       this.loading = false;
+      return Promise.resolve();
     },
-    async onLoad(index: number, done: (stop?: boolean) => void) {
-      if (this.page >= this.pagesFouded) {
+    async refreshSearch(): Promise<void> {
+      this.orderOption = '';
+      this.searchText = '';
+      await this.search();
+      this.infinitScrollRef?.resume();
+      return Promise.resolve();
+    },
+    async onLoad(index: number, done: (stop?: boolean) => void): Promise<void> {
+      if (this.page > this.pagesFouded) {
         done(true);
         return;
       }
       const result = await this.searchMoviePageable();
-      this.page += 1;
       this.movies.push(...result);
       done();
       this.loading = false;
+      return Promise.resolve();
     },
-    async searchMoviePageable() {
+    async searchMoviePageable(): Promise<Movie[]> {
       if (this.searchText) {
         const res = await MovieService.listMoviesByTitlePageable(this.page, this.searchText);
         this.pagesFouded = res.total_pages;
+        this.page++;
         if (this.page >= this.pagesFouded) {
           this.loading = true;
         }
 
-        return res.content;
+        return Promise.resolve(res.content);
       } else {
-        const res = await MovieService.listMoviesPageable(this.page, 30);
+        const res = await MovieService.listMoviesPageable(
+          this.page,
+          30,
+          typeof this.orderOption === 'object' ? this.orderOption.value : this.orderOption
+        );
         this.pagesFouded = res.total_pages;
+        this.page++;
         if (this.page >= this.pagesFouded) {
           this.loading = true;
         }
-        return res.content;
+        return Promise.resolve(res.content);
       }
-    },
-    async refreshSearch() {
-      this.searchText = '';
-      await this.search();
-      this.infinitScrollRef?.resume();
     },
   },
 });

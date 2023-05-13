@@ -5,7 +5,7 @@ export const useStyleStore = defineStore('StyleStore', {
     return {
       backgroundColor: '#0b0e14',
       sideBarWidth: '7rem',
-      is_expanded: false,
+      isExpanded: false,
       layoutSettings: { darkMode: true },
     };
   },
@@ -13,7 +13,7 @@ export const useStyleStore = defineStore('StyleStore', {
     getMarginSideBar(state) {
       const is_expanded = localStorage.getItem('is_expanded') == 'true' ? true : false;
 
-      state.is_expanded = is_expanded;
+      state.isExpanded = is_expanded;
 
       if (is_expanded) {
         state.sideBarWidth = '320px';
@@ -24,18 +24,18 @@ export const useStyleStore = defineStore('StyleStore', {
   },
   actions: {
     ToggleMenuStore() {
-      this.is_expanded ? this.collapseMenu() : this.expandMenu();
+      this.isExpanded ? this.collapseMenu() : this.expandMenu();
     },
     collapseMenu() {
-      this.is_expanded = false;
+      this.isExpanded = false;
       this.sideBarWidth = '7rem';
     },
     expandMenu() {
-      this.is_expanded = true;
+      this.isExpanded = true;
       this.sideBarWidth = '320px';
     },
     setIsExpanded(newValue: boolean) {
-      this.is_expanded = newValue;
+      this.isExpanded = newValue;
     },
     darkThemeToggle() {
       if (localStorage.getItem('theme') == 'dark') {

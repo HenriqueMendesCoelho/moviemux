@@ -49,22 +49,6 @@ export default defineComponent({
   --sidebar-width: 300px;
   --dark-alt: #334155;
   --dark-alt2: rgb(98, 114, 139) 5;
-
-  .bg-grey-mid {
-    background: var(--grey-mid) !important;
-  }
-
-  .text-grey-mid {
-    color: var(--grey-mid) !important;
-  }
-
-  .bg-grey-mid2 {
-    background: var(--grey-mid2) !important;
-  }
-
-  .text-grey-mid2 {
-    color: var(--grey-mid2) !important;
-  }
 }
 
 [data-theme='light'] {
@@ -80,22 +64,6 @@ export default defineComponent({
   --sidebar-width: 300px;
   --dark-alt: #9f9f9f;
   --dark-alt2: rgb(98, 114, 139) 5;
-
-  .bg-grey-mid {
-    background: var(--grey-mid) !important;
-  }
-
-  .text-grey-mid {
-    color: var(--grey-mid) !important;
-  }
-
-  .bg-grey-mid2 {
-    background: var(--grey-mid2) !important;
-  }
-
-  .text-grey-mid2 {
-    color: var(--grey-mid2) !important;
-  }
 }
 
 * {
@@ -119,6 +87,11 @@ button {
   border: none;
   outline: none;
   background: none;
+}
+
+::selection {
+  color: black;
+  background-color: var(--primary);
 }
 
 .main-app {

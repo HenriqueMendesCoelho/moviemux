@@ -7,7 +7,11 @@
       :alt="getImageAndAlt()[1]"
       :draggable="false"
       :height="'100%'"
-    />
+      v-if="moviePage.selectedMovie?.url_image"
+    >
+      <TooltipMovieInfo />
+    </q-img>
+    <q-skeleton class="col-3" v-else width="600px" height="750px" animation="fade" dark bordered />
     <div class="col q-ml-xl">
       <div class="row q-col-gutter-y-md">
         <div class="col-12" :class="screenHeight > 1080 ? 'text-h3' : 'text-h4'">Informações</div>
@@ -18,7 +22,7 @@
             :label="'Título PT-BR'"
             v-model="moviePage.selectedMovie.portuguese_title"
             :readOnly="!isRegisterOrEditing"
-            :required="true"
+            required
             :dense="screenHeight <= 1080"
           />
           <InputText
@@ -27,7 +31,7 @@
             :label="'Título Inglês'"
             v-model="moviePage.selectedMovie.english_title"
             :readOnly="!isRegisterOrEditing"
-            :required="true"
+            required
             :dense="screenHeight <= 1080"
           />
           <InputText
@@ -47,7 +51,7 @@
             :label="'Diretor'"
             v-model="moviePage.selectedMovie.director"
             :readOnly="!isRegisterOrEditing"
-            :required="true"
+            required
             :dense="screenHeight <= 1080"
           />
           <InputText
@@ -58,7 +62,7 @@
             :modelValue="moviePage.selectedMovie.runtime?.toString()"
             @change="moviePage.selectedMovie.runtime = Number($event)"
             :mask="'###'"
-            :required="true"
+            required
             :dense="screenHeight <= 1080"
           />
           <InputText
@@ -77,7 +81,7 @@
             @change="changeReleaseDate"
             :readOnly="!isRegisterOrEditing"
             :mask="'##/##/####'"
-            :required="true"
+            required
             :dense="screenHeight <= 1080"
           />
         </div>
@@ -113,7 +117,7 @@
               bg-color="grey-mid2"
               dark
               :multiple="true"
-              popup-content-style="background-color: #1f2531"
+              popup-content-class="bg-grey-dark2"
               option-label="name"
               clearable
               :rules="[(val) => !!val?.length]"
@@ -156,7 +160,7 @@
             :label="'URL da Imagem'"
             v-model="moviePage.selectedMovie.url_image"
             :readOnly="!isRegisterOrEditing"
-            :required="true"
+            required
             :dense="screenHeight <= 1080"
           />
           <InputText
@@ -209,10 +213,11 @@ import imageUtils from '@/utils/imageUtils';
 
 import InputText from '@/components/shared/inputText/InputText.vue';
 import ChipNote from '@/components/shared/chipNote/ChipNote.vue';
+import TooltipMovieInfo from './tooltipMovieInfo/TooltipMovieInfo.vue';
 
 export default defineComponent({
   name: 'FormVideo',
-  components: { InputText, ChipNote },
+  components: { InputText, ChipNote, TooltipMovieInfo },
   props: {
     isRegisterOrEditing: {
       type: Boolean,
@@ -284,55 +289,57 @@ export default defineComponent({
       }
     },
     getImageAndAlt(): Array<string> {
-      const srcImage =
-        this.moviePage.selectedMovie.url_image ||
-        'https://cdn.discordapp.com/attachments/713552377348882434/987853775450566666/unknown.png';
-      const altImage = this.moviePage.selectedMovie.portuguese_title || 'img';
+      const srcImage = this.moviePage.selectedMovie.url_image;
+      const altImage = this.moviePage.selectedMovie.portuguese_title;
+
+      if (!srcImage || !altImage) {
+        return ['', ''];
+      }
 
       return [srcImage, altImage];
     },
     async hasErrors(): Promise<boolean> {
       let hasError = false;
-      if (this.inputTextPortugueseTitleRef) {
-        hasError = await this.inputTextPortugueseTitleRef.hasErrors();
+      if (await this.inputTextPortugueseTitleRef?.hasErrors()) {
+        hasError = true;
       }
-      if (this.inputTextEnglishTitleRef) {
-        hasError = await this.inputTextEnglishTitleRef.hasErrors();
+      if (await this.inputTextEnglishTitleRef?.hasErrors()) {
+        hasError = true;
       }
-      if (this.inputTextOriginalTitleRef) {
-        hasError = await this.inputTextOriginalTitleRef.hasErrors();
+      if (await this.inputTextOriginalTitleRef?.hasErrors()) {
+        hasError = true;
       }
-      if (this.inputTextDirectorRef) {
-        hasError = await this.inputTextDirectorRef.hasErrors();
+      if (await this.inputTextDirectorRef?.hasErrors()) {
+        hasError = true;
       }
-      if (this.inputTextReleaseDateRef) {
-        hasError = await this.inputTextReleaseDateRef.hasErrors();
+      if (await this.inputTextReleaseDateRef?.hasErrors()) {
+        hasError = true;
       }
-      if (this.inputTextReleaseDateRef) {
-        hasError = await this.inputTextReleaseDateRef.hasErrors();
+      if (await this.inputTextReleaseDateRef?.hasErrors()) {
+        hasError = true;
       }
       if (this.qInputDescriptionRef) {
         await this.qInputDescriptionRef.validate();
-        hasError = this.qInputDescriptionRef.hasError;
+        hasError = this.qInputDescriptionRef.hasError || hasError;
       }
       if (this.qSelectGenresRef) {
         await this.qSelectGenresRef.validate();
-        hasError = this.qSelectGenresRef.hasError;
+        hasError = this.qSelectGenresRef.hasError || hasError;
       }
-      if (this.InputTextTmdbIdRef) {
-        hasError = await this.InputTextTmdbIdRef.hasErrors();
+      if (await this.InputTextTmdbIdRef?.hasErrors()) {
+        hasError = true;
       }
-      if (this.inputTextUrlImageRef) {
-        hasError = await this.inputTextUrlImageRef.hasErrors();
+      if (await this.inputTextUrlImageRef?.hasErrors()) {
+        hasError = true;
       }
-      if (this.inputTextUrlTrailerBrRef) {
-        hasError = await this.inputTextUrlTrailerBrRef.hasErrors();
+      if (await this.inputTextUrlTrailerBrRef?.hasErrors()) {
+        hasError = true;
       }
-      if (this.inputTextUrlTrailerEnRef) {
-        hasError = await this.inputTextUrlTrailerEnRef.hasErrors();
+      if (await this.inputTextUrlTrailerEnRef?.hasErrors()) {
+        hasError = true;
       }
-      if (this.inputTextRuntimeRef) {
-        hasError = await this.inputTextRuntimeRef.hasErrors();
+      if (await this.inputTextRuntimeRef?.hasErrors()) {
+        hasError = true;
       }
       return Promise.resolve(hasError);
     },

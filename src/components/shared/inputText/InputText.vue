@@ -1,8 +1,8 @@
 <template>
   <q-input
     ref="inputTextRef"
-    standout="text-info"
-    color="grey-mid2"
+    standout="text-kb-primary"
+    color="kb-primary"
     bg-color="grey-mid2"
     outlined
     v-model="text"
@@ -100,9 +100,7 @@ export default defineComponent({
   },
   emits: ['update:modelValue'],
   mounted() {
-    if (this.modelValue) {
-      this.text = this.modelValue;
-    }
+    this.text = this.modelValue || '';
   },
   methods: {
     defaultRules(): boolean | string {

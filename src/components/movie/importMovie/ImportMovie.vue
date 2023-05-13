@@ -5,8 +5,8 @@
         <div class="col-6">
           <h5 class="title-container">Importar Filmes</h5>
         </div>
-        <div class="col-1 row offset-md-5 justify-center">
-          <q-icon color="white" name="close" size="md" @click="moviePage.showImportMovieDialog = !moviePage.showImportMovieDialog" />
+        <div class="col-1 row offset-md-5 justify-end">
+          <q-btn color="white" icon="close" size="md" @click="moviePage.showImportMovieDialog = false" flat round />
         </div>
         <SeparatorDivSolidLine class="q-mb-xl" />
         <div class="col-4 q-mr-md"><InputText dense :label="'Título Do Filme'" v-model="text" :enterEvent="firstSearch" /></div>
@@ -16,8 +16,8 @@
         <SeparatorDivSolidLine />
       </q-card-section>
       <q-separator />
-      <q-card-section class="scroll" style="max-height: 60vh" v-if="movies?.length">
-        <q-infinite-scroll class="" @load="onLoad" :offset="50">
+      <q-card-section ref="cardScrollRef" class="scroll" style="max-height: 60vh" v-if="movies?.length">
+        <q-infinite-scroll @load="onLoad" :offset="50">
           <div class="q-mt-md row justify-center">
             <q-img
               class="image-search col-3 q-mx-md q-mb-md"
@@ -47,7 +47,7 @@ import { mapState } from 'pinia';
 import { useMovieStore } from '@/stores/MovieStore';
 
 import { ConfirmDialogRefType } from '@/components/shared/confirmDialog/types/ConfirmDialogType';
-import { MovieFoundByName } from '@/types/movie/MovieType';
+import { MovieResultResponseTmdb } from '@/types/movie/MovieType';
 
 import KitService from '@/services/KitService';
 
@@ -55,6 +55,12 @@ import InputText from '@/components/shared/inputText/InputText.vue';
 import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';
 import Movie from '@/domain/movie/movie';
 import ConfirmDialog from '@/components/shared/confirmDialog/ConfirmDialog.vue';
+
+type divScrollTopRef = {
+  $el: {
+    scrollTo: (options: { top: number; left: number; behavior: 'smooth' | 'instant' | 'auto' }) => void;
+  };
+};
 
 export default defineComponent({
   name: 'ImportMovie',
@@ -67,8 +73,10 @@ export default defineComponent({
   setup() {
     const $q = useQuasar();
     const confirmDialogRef = ref<ConfirmDialogRefType>();
+    const cardScrollRef = ref<divScrollTopRef>();
     return {
       confirmDialogRef,
+      cardScrollRef,
       showLoading() {
         $q.loading.show({
           spinnerColor: 'kb-primary',
@@ -105,7 +113,7 @@ export default defineComponent({
       page: 1,
       pagesFouded: 2,
       loading: false,
-      movies: [] as MovieFoundByName['results'],
+      movies: [] as MovieResultResponseTmdb['results'],
       text: '',
       movieId: 0,
     };
@@ -118,6 +126,12 @@ export default defineComponent({
   },
   methods: {
     async firstSearch() {
+      this.cardScrollRef?.$el.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth',
+      });
+      console.log(this.cardScrollRef);
       this.page = 1;
       const result = await this.searchMovieByName();
       this.movies = result;
@@ -136,7 +150,7 @@ export default defineComponent({
       }
     },
     async onLoad(index: number, done: (stop?: boolean) => void) {
-      if (this.page >= this.pagesFouded) {
+      if (this.page > this.pagesFouded) {
         done(true);
         return;
       }
@@ -149,7 +163,7 @@ export default defineComponent({
     },
     getImageUrl(path?: string, size = 'w342') {
       if (!path) {
-        return require('../../../assets/no-image.png');
+        return;
       }
       return `${process.env.VUE_APP_TMDB_IMAGE_BASE}/${size}${path}`;
     },
@@ -182,7 +196,7 @@ export default defineComponent({
         this.hideLoading();
       }
     },
-    showConfirmDialog(movie: MovieFoundByName['results'][0]) {
+    showConfirmDialog(movie: MovieResultResponseTmdb['results'][0]) {
       this.confirmDialogRef?.dialog(`Você quer mesmo importar o filme ${movie.title}?`, 'ok', 'Confirme sua importação', 'Sim');
       this.movieId = movie.id;
     },

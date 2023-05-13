@@ -26,122 +26,111 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script lang="ts" setup>
+import { onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
 import type { QTableProps } from 'quasar';
 
+import UserService from '@/services/UserService';
+
 import InputText from '@/components/shared/inputText/InputText.vue';
 import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
-import UserService from '@/services/UserService';
 import TableCopyDelete from '@/components/shared/tableCopyDelete/TableCopyDelete.vue';
 
-export default defineComponent({
-  name: 'InviteUserTabAdministrator',
-  components: {
-    InputText,
-    SeparatorDivLineSolid,
-    TableCopyDelete,
+const $q = useQuasar();
+const columns: QTableProps['columns'] = [
+  {
+    name: 'invite',
+    label: 'Codigo do convite',
+    field: 'code',
+    align: 'left',
   },
-  setup() {
-    const $q = useQuasar();
-    const columns: QTableProps['columns'] = [
-      {
-        name: 'invite',
-        label: 'Codigo do convite',
-        field: 'code',
-        align: 'left',
-      },
-      {
-        name: 'actions',
-        label: '',
-        field: '',
-        align: 'center',
-      },
-    ];
-    return {
-      columns,
-      showSuccess(msg: string) {
-        $q.notify({
-          type: 'positive',
-          message: msg,
-          position: 'top',
-        });
-      },
-      showError(msg: string) {
-        $q.notify({
-          type: 'negative',
-          message: msg,
-          position: 'top',
-        });
-      },
-    };
+  {
+    name: 'actions',
+    label: '',
+    field: '',
+    align: 'center',
   },
-  data() {
-    return {
-      invite: '',
-      invites: [] as { code: string }[],
-      loading: false,
-    };
-  },
-  async mounted() {
-    await this.loadInvites();
-  },
-  methods: {
-    async createInvite() {
-      try {
-        this.loading = true;
-        const res = await UserService.createUserInvite();
-        this.invite = res.code;
-        await this.loadInvites();
-        this.showSuccess('Convite criado');
-      } catch {
-        this.showError('Erro ao criar convite');
-      } finally {
-        this.loading = false;
-      }
-    },
-    async loadInvites() {
-      try {
-        this.loading = true;
-        const res = await UserService.listUserInvites();
-        this.invites = res;
-      } catch {
-        this.showError('Erro ao listar convites');
-      } finally {
-        this.loading = false;
-      }
-    },
-    async deleteInvite(invite: { code: string }) {
-      try {
-        this.loading = true;
-        await UserService.deleteUserInvite(invite.code);
-        this.removeInviteFromDate(invite.code);
-        this.showSuccess('Convite deletado');
-      } catch {
-        this.showError('Erro ao listar convites');
-      } finally {
-        this.loading = false;
-      }
-    },
-    actionCopy(invite: { code: string }) {
-      if (!invite) {
-        return;
-      }
-      navigator.clipboard.writeText(invite.code);
-      this.showSuccess('Convite copiado');
-    },
-    removeInviteFromDate(code: string) {
-      if (!this.invites?.length) {
-        return;
-      }
-      const invite = this.invites?.find((i) => i.code === code) as { code: string };
-      const index = this.invites?.indexOf(invite);
-      if (typeof index === 'number') {
-        this.invites?.splice(index, 1);
-      }
-    },
-  },
+];
+const invite = ref('');
+const invites = ref<{ code: string }[]>([]);
+const loading = ref(false);
+
+function showSuccess(msg: string) {
+  $q.notify({
+    type: 'positive',
+    message: msg,
+    position: 'top',
+  });
+}
+function showError(msg: string) {
+  $q.notify({
+    type: 'negative',
+    message: msg,
+    position: 'top',
+  });
+}
+
+onMounted(async () => {
+  await loadInvites();
 });
+
+async function createInvite() {
+  try {
+    loading.value = true;
+    const res = await UserService.createUserInvite();
+    invite.value = res.code;
+    await loadInvites();
+    showSuccess('Convite criado');
+  } catch {
+    showError('Erro ao criar convite');
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function loadInvites() {
+  try {
+    loading.value = true;
+    const res = await UserService.listUserInvites();
+    invites.value = res;
+  } catch {
+    showError('Erro ao listar convites');
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function deleteInvite(invite: { code: string }) {
+  try {
+    loading.value = true;
+    await UserService.deleteUserInvite(invite.code);
+    removeInviteFromDate(invite.code);
+    showSuccess('Convite deletado');
+  } catch {
+    showError('Erro ao listar convites');
+  } finally {
+    loading.value = false;
+  }
+}
+
+function actionCopy(invite: { code: string }) {
+  if (!invite) {
+    return;
+  }
+  navigator.clipboard.writeText(invite.code);
+  showSuccess('Convite copiado');
+}
+
+function removeInviteFromDate(code: string) {
+  if (!invites.value?.length) {
+    return;
+  }
+  const invite = invites.value?.find((i) => i.code === code) as { code: string };
+  const index = invites.value?.indexOf(invite);
+  if (typeof index === 'number') {
+    invites.value?.splice(index, 1);
+  }
+}
 </script>

@@ -120,28 +120,32 @@ export default defineComponent({
     },
   },
   async mounted() {
+    this.setDocumentTitle();
     await this.loadMovie();
     if (this.routeName === 'add') {
       this.resetForm();
     }
+    return Promise.resolve();
   },
-  async updated() {
+  async beforeUpdate() {
+    this.setDocumentTitle();
     if (this.routeName === 'add') {
       if (!this.alreadyEditing) {
         this.resetForm();
       }
       this.alreadyEditing = true;
       this.idPathParam = '';
+      return;
     }
     await this.loadMovie();
-    this.setDocumentTitle();
+    return;
   },
   methods: {
     ...mapActions(useMovieStore, ['resetSelectedMovie', 'selectedMovieHasAnyFieldFilled']),
     showTopButtons() {
       return this.routeName === 'movie';
     },
-    async save() {
+    async save(): Promise<void> {
       if (await this.formMovieRef?.hasErrors()) {
         return;
       }
@@ -170,6 +174,7 @@ export default defineComponent({
       } finally {
         this.hideLoading();
       }
+      return Promise.resolve();
     },
     showConfirmDialogCancel() {
       this.confirmDialogRef?.dialog(
@@ -180,8 +185,9 @@ export default defineComponent({
       );
     },
     resetForm() {
+      const movieStore = useMovieStore();
+      movieStore.$reset();
       this.moviePage.isEditing = false;
-      this.resetSelectedMovie();
       this.formMovieRef?.resetValidation();
     },
     cantEdit() {
@@ -208,14 +214,14 @@ export default defineComponent({
         document.title = `Cineminha - ${this.moviePage.selectedMovie.portuguese_title}`;
       }
     },
-    async loadMovie() {
+    async loadMovie(): Promise<void> {
       if (!this.routeIDPath) {
-        return;
+        return Promise.resolve();
       }
       const res = await MovieService.getMovie(this.routeIDPath.toString());
       this.moviePage.selectedMovie = res;
-
       this.setDocumentTitle();
+      return Promise.resolve();
     },
     showNotifyMovie(movieTitle?: string, movieId?: string) {
       if (!movieTitle || !movieId) {
@@ -225,8 +231,9 @@ export default defineComponent({
         progress: true,
         message: `Acesse o filme '${movieTitle}' que acabou de cadastrar!`,
         multiLine: true,
-        position: 'top',
+        position: 'bottom-left',
         color: 'grey-mid2',
+        timeout: 10000,
         actions: [
           {
             label: 'Acessar',

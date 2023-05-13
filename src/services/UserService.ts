@@ -11,7 +11,7 @@ export default {
   async create(payload: { name: string; email: string; password: string; invite_code: string }) {
     try {
       const res = await axios.post(`${API_USER}`, payload);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -19,7 +19,7 @@ export default {
   async getUserAdm(email: string): Promise<User> {
     try {
       const res = await axios.get(`${API_USER}/adm?email=${email}`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -27,7 +27,7 @@ export default {
   async getUser(): Promise<User> {
     try {
       const res = await axios.get(`${API_USER}`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -36,7 +36,7 @@ export default {
     const params = StringUtils.getStringParams(payload);
     try {
       const res = await axios.patch(`${API_USER}/update`, params);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -45,7 +45,7 @@ export default {
     const params = StringUtils.getStringParams(payload);
     try {
       const res = await axios.patch(`${API_USER}/p/update`, params);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -53,7 +53,7 @@ export default {
   async promoteUser(userId: string): Promise<User> {
     try {
       const res = await axios.patch(`${API_USER}/${userId}/promote`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -61,7 +61,7 @@ export default {
   async demoteUser(userId: string): Promise<User> {
     try {
       const res = await axios.patch(`${API_USER}/${userId}/demote`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -69,7 +69,7 @@ export default {
   async blockUser(userId: string): Promise<User> {
     try {
       const res = await axios.patch(`${API_USER}/${userId}/block`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -77,7 +77,7 @@ export default {
   async deleteUser(userId: string): Promise<User> {
     try {
       const res = await axios.delete(`${API_USER}/${userId}`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -85,7 +85,7 @@ export default {
   async listUsers(): Promise<User[]> {
     try {
       const res = await axios.get(`${API_USER}/list`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -93,7 +93,7 @@ export default {
   async listUserInvites(): Promise<{ code: string }[]> {
     try {
       const res = await axios.get(`${API_USER}/invite`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -101,7 +101,7 @@ export default {
   async createUserInvite(): Promise<{ code: string }> {
     try {
       const res = await axios.post(`${API_USER}/invite`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }
@@ -109,7 +109,7 @@ export default {
   async deleteUserInvite(code: string): Promise<void> {
     try {
       const res = await axios.delete(`${API_USER}/invite/${code}/delete`);
-      return res.data;
+      return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
     }

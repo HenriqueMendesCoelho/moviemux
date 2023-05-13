@@ -2,7 +2,7 @@
   <ContainerMain>
     <div class="row q-mt-xl justify-center">
       <div class="row col-10 justify-center">
-        <div class="text-h2" style="color: white">Meu Perfil</div>
+        <PageTitle title="Meu Perfil" icon="person" />
       </div>
       <div class="panel-profile q-mt-xl" :class="isMobile ? 'col-12' : 'col-10'">
         <q-tabs v-model="tab" class="tabs-selector" active-color="kb-primary" indicator-color="kb-primary" align="justify" dense>
@@ -24,29 +24,27 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+export default defineComponent({
+  name: 'ProfilePage',
+  beforeRouteEnter() {
+    document.title = 'Cineminha - Meus dados';
+  },
+});
+</script>
+
+<script lang="ts" setup>
+import { computed, ref } from 'vue';
+import { useQuasar } from 'quasar';
 
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import PanelSecurityProfile from './panelSecurityProfile/PanelSecurityProfile.vue';
 import PanelProfile from './panelProfile/PanelProfile.vue';
+import PageTitle from '../shared/pageTitle/PageTitle.vue';
 
-export default defineComponent({
-  name: 'ProfileApp',
-  components: {
-    ContainerMain,
-    PanelSecurityProfile,
-    PanelProfile,
-  },
-  data() {
-    return {
-      tab: 'myData',
-    };
-  },
-  computed: {
-    isMobile(): boolean | undefined {
-      return this.$q.platform.is.mobile;
-    },
-  },
-});
+const tab = ref('myData');
+const $q = useQuasar();
+
+const isMobile = computed(() => $q.platform.is.mobile);
 </script>
 
 <style lang="scss" scoped>

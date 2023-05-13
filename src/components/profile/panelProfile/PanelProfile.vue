@@ -15,8 +15,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script lang="ts" setup>
+import { computed, onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
 import User from '@/domain/user/User';
@@ -26,80 +26,62 @@ import UserService from '@/services/UserService';
 import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
 import PanelUserInfo from '@/components/shared/panelUserInfo/PanelUserInfo.vue';
 
-export default defineComponent({
-  name: 'PanelSecurityProfile',
-  components: {
-    SeparatorDivLineSolid,
-    PanelUserInfo,
-  },
-  setup() {
-    const $q = useQuasar();
-    return {
-      showLoading() {
-        $q.loading.show({
-          spinnerColor: 'kb-primary',
-        });
-      },
-      hideLoading() {
-        $q.loading.hide();
-      },
-      showSuccess(msg: string) {
-        $q.notify({
-          type: 'positive',
-          message: msg,
-          position: 'top',
-        });
-      },
-      showError(msg: string) {
-        $q.notify({
-          type: 'negative',
-          message: msg,
-          position: 'top',
-        });
-      },
-    };
-  },
-  data() {
-    return {
-      tab: 'myData',
-      user: new User(),
-    };
-  },
-  async mounted() {
-    document.title = 'Cineminha - Meu Dados';
-    await this.loadUser();
-  },
-  computed: {
-    isMobile(): boolean | undefined {
-      return this.$q.platform.is.mobile;
-    },
-  },
-  methods: {
-    async loadUser() {
-      const res = await UserService.getUser();
-      this.user = res;
-    },
-    async updateProfile() {
-      if (!this.user.name || !this.user.email) {
-        this.showError('Todos os campos devem estar preenchidos');
-        return;
-      }
+const $q = useQuasar();
+const user = ref(new User());
 
-      try {
-        this.showLoading();
-        const res = await UserService.updateUserProfile({
-          name: this.user.name,
-          email: this.user.email,
-          notify: this.user.preferences.notify,
-        });
-        this.user = res;
-        this.showSuccess('Perfil atualizado com sucesso');
-      } catch {
-        this.showError('Erro ao atualizar perfil');
-      } finally {
-        this.hideLoading();
-      }
-    },
-  },
+const isMobile = computed(() => $q.platform.is.mobile);
+
+function showLoading() {
+  $q.loading.show({
+    spinnerColor: 'kb-primary',
+  });
+}
+function hideLoading() {
+  $q.loading.hide();
+}
+function showSuccess(msg: string) {
+  $q.notify({
+    type: 'positive',
+    message: msg,
+    position: 'top',
+  });
+}
+function showError(msg: string) {
+  $q.notify({
+    type: 'negative',
+    message: msg,
+    position: 'top',
+  });
+}
+
+onMounted(async () => {
+  await loadUser();
 });
+
+async function loadUser() {
+  const res = await UserService.getUser();
+  user.value = res;
+}
+
+async function updateProfile() {
+  if (!user.value.name || !user.value.email) {
+    showError('Todos os campos devem estar preenchidos');
+    return;
+  }
+
+  try {
+    showLoading();
+    const res = await UserService.updateUserProfile({
+      name: user.value.name,
+      email: user.value.email,
+      notify: user.value.preferences.notify,
+    });
+    user.value = res;
+    showSuccess('Perfil atualizado com sucesso');
+  } catch {
+    showError('Erro ao atualizar perfil');
+  } finally {
+    hideLoading();
+  }
+}
 </script>

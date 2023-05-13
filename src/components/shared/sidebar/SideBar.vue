@@ -16,35 +16,43 @@
       <router-link to="/home" class="button">
         <span class="material-icons">home</span>
         <span class="text" v-if="showTextsSideBar">Home</span>
-        <CustomTooltip anchor="center right" v-if="!isExpanded" :delay="500">HOME</CustomTooltip>
+        <CustomTooltip anchor="top right" :offset="[35, 0]" v-if="!isExpanded" :delay="500">HOME</CustomTooltip>
       </router-link>
       <router-link to="/adm" class="button" v-if="isAdmin">
         <span class="material-icons">admin_panel_settings</span>
         <span class="text" v-if="showTextsSideBar">Painel ADM</span>
-        <CustomTooltip anchor="center right" :offset="[30, 0]" v-if="!isExpanded" :delay="500">PAINEL ADM</CustomTooltip>
+        <CustomTooltip anchor="top right" :offset="[50, 0]" v-if="!isExpanded" :delay="500">PAINEL ADM</CustomTooltip>
       </router-link>
       <router-link to="/profile" class="button">
         <span class="material-icons">person</span>
         <span class="text" v-if="showTextsSideBar">PERFIL</span>
-        <CustomTooltip anchor="center right" v-if="!isExpanded" :delay="500">PERFIL</CustomTooltip>
+        <CustomTooltip anchor="top right" :offset="[35, 0]" v-if="!isExpanded" :delay="500">PERFIL</CustomTooltip>
       </router-link>
-      <router-link to="/add" class="button">
+      <router-link to="/movie/add" class="button">
         <span class="material-icons">add</span>
         <span class="text" v-if="showTextsSideBar" id="textAddMovie">ADICIONAR FILME</span>
-        <CustomTooltip anchor="center right" :offset="[50, 0]" v-if="!isExpanded" :delay="500">ADICIONAR FILME</CustomTooltip>
+        <CustomTooltip anchor="top right" :offset="[65, 0]" v-if="!isExpanded" :delay="500">ADICIONAR FILME</CustomTooltip>
+      </router-link>
+      <router-link to="/movie/discover" class="button" style="position: relative">
+        <q-badge class="q-mr-sm" label="novo" color="kb-primary" rounded floating />
+        <span class="material-icons">search</span>
+        <span class="text" v-if="showTextsSideBar" id="textAddMovie">DESCOBRIR FILMES</span>
+        <CustomTooltip anchor="top right" :offset="[65, 0]" v-if="!isExpanded" :delay="500">DESCOBRIR FILMES</CustomTooltip>
       </router-link>
     </div>
 
     <div class="flex"></div>
-    <div class="menu">
+    <div class="menu justify-start">
       <button class="button" @click="darkThemeToggle()">
         <span class="material-icons" draggable="false" v-if="layoutSettings.darkMode"> light_mode </span>
         <span class="material-icons" draggable="false" v-else> dark_mode </span>
         <span class="text" draggable="false">Tema</span>
+        <CustomTooltip anchor="top right" :offset="[30, 0]" v-if="!isExpanded" :delay="500">Tema</CustomTooltip>
       </button>
       <router-link @click="logout" to="/" class="button">
         <span class="material-icons">logout</span>
         <span class="text">Sair</span>
+        <CustomTooltip anchor="top right" :offset="[30, 0]" v-if="!isExpanded" :delay="500">Sair</CustomTooltip>
       </router-link>
     </div>
   </aside>
@@ -85,6 +93,8 @@ export default defineComponent({
       localStorage.setItem('is_expanded', this.isExpanded.toString());
     },
     logout() {
+      const userStore = useUserStore();
+      userStore.$reset();
       localStorage.clear();
     },
   },
