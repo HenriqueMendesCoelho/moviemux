@@ -1,33 +1,21 @@
 # Cineminha KronusBoss
 
-## Project setup
+## Apresentation
 
 ```
-yarn install
+This is a personal project aimed at creating a comprehensive movie rating portal. It has been developed using the latest VueJS 3 framework, in conjunction with the powerful Quasar Framework, ensuring a seamless and intuitive user experience. Whether you're a movie buff or simply looking for a way to discover new films.
+
+Inspired by IMDB and TMDB.
 ```
 
-### Compiles and hot-reloads for development
+### Tecnologies
 
 ```
-yarn serve
+Vue.js 3, Quasar Framework, Pinia, Typescript
 ```
-
-### Compiles and minifies for production
-
-```
-yarn build
-```
-
-### Lints and fixes files
-
-```
-yarn lint
-```
-
-### Customize configuration
-
-See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ### Link
 
-[cine.kronusboss](https://cine.app.kronusboss.com)
+[CineKronusBoss website](https://www.cine.kronusboss.com)
+
+This product uses the TMDB API but is not endorsed or certified by TMDB.
