@@ -1,14 +1,12 @@
 # Cineminha KronusBoss
 
-## Apresentation
+## Introduction
 
-```
 This is a personal project aimed at creating a comprehensive movie rating portal. Whether you're a movie buff or simply looking for a way to discover new films.
 
 Inspired by IMDB and TMDB.
-```
 
-### Tecnologies
+## Tecnologies
 
 ```
 Vue.js 3, Quasar Framework, Pinia, Typescript
