@@ -76,6 +76,7 @@ watch(
 
 watch(orderOption, (val: string | undefined | { label: string; value: string }) => {
   emit('selectOrder', val);
+  emit('search');
 });
 
 watch(
