@@ -24,23 +24,36 @@
       round
       @click.stop
     >
-      <q-popup-proxy class="bg-grey-dark2" dark @before-show="selected = true" @before-hide="selected = false">
-        <q-list>
-          <q-item clickable v-close-popup v-if="false">
-            <q-icon name="list" size="lg" />
-            <q-icon name="add" size="xs" />
-            <q-item-section class="q-pl-sm">Adicionar a minha lista</q-item-section>
-          </q-item>
+      <q-menu class="bg-grey-dark2" dark @before-show="selected = true" @before-hide="selected = false" dense>
+        <q-list dense>
           <q-item clickable v-close-popup @click="clickSimilar">
             <q-icon name="search" size="lg" />
             <q-item-section class="q-pl-sm">Ver filmes similares</q-item-section>
           </q-item>
+
           <q-item clickable v-close-popup @click="clickRecommendations">
             <q-icon name="search" size="lg" />
             <q-item-section class="q-pl-sm">Ver recomendações</q-item-section>
           </q-item>
+
+          <q-item clickable v-if="false">
+            <q-icon name="list" size="lg" />
+            <q-icon name="add" size="xs" />
+            <q-item-section class="q-pl-sm">Adicionar a minha lista</q-item-section>
+            <q-item-section side>
+              <q-icon name="keyboard_arrow_right" color="white" />
+            </q-item-section>
+
+            <q-menu anchor="top end" self="top start" class="bg-grey-dark2" dark>
+              <q-list>
+                <q-item v-for="list in lists" :key="list" dense clickable>
+                  <q-item-section @click="addToList()" v-close-popup class="q-pl-sm">{{ list }}</q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
+          </q-item>
         </q-list>
-      </q-popup-proxy>
+      </q-menu>
     </q-btn>
     <template v-slot:error>
       <div class="absolute-full flex flex-center bg-grey-mid text-white">
@@ -69,6 +82,7 @@ const emit = defineEmits<{
 
 const props = defineProps<Props>();
 const selected = ref(false);
+const lists = ref([]);
 
 function getUrl() {
   return `https://image.tmdb.org/t/p/w500${props.movie?.poster_path}`;
@@ -88,6 +102,9 @@ function clickRecommendations() {
 }
 function clickSimilar() {
   emit('callTmdb', { label: `Similares a ${props.movie.title}`, value: 'similar' });
+}
+function addToList() {
+  return;
 }
 </script>
 <style lang="scss">
