@@ -3,7 +3,6 @@
     class="img-movie"
     :class="`${selected && 'img-movie-selected'}`"
     :src="getUrl()"
-    spinner-color="kb-primary"
     width="250px"
     height="380px"
     :no-native-menu="true"
@@ -55,6 +54,9 @@
         </q-list>
       </q-menu>
     </q-btn>
+    <template v-slot:loading>
+      <q-skeleton width="250px" height="380px" animation="fade" dark bordered />
+    </template>
     <template v-slot:error>
       <div class="absolute-full flex flex-center bg-grey-mid text-white">
         <div class="row justify-center">

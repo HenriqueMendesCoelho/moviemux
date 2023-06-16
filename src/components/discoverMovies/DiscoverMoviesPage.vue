@@ -16,7 +16,7 @@
       />
 
       <div class="row justify-center q-mt-lg">
-        <q-infinite-scroll ref="infinitScrollRef" class="container-cards-films full-width" @load="onLoad" :offset="1500">
+        <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="1500">
           <div class="row justify-center q-col-gutter-xl">
             <div class="col-auto" v-for="(movie, index) in movies" :key="index">
               <CardImageDiscoverMovies @click-on-image="showDialog(movie.id)" :movie="movie" @call-tmdb="cardCallTmdb($event, movie.id)" />
