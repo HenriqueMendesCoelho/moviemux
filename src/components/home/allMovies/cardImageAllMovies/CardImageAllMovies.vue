@@ -1,47 +1,39 @@
 <template>
-  <div class="row full-width justify-center">
-    <router-link
-      :to="{ name: 'movie', params: { id: movie?.id } }"
-      class="col-10 container-img justify-center"
-      style="border-radius: 50px"
-      @mouseover="showInfos = true"
-      @mouseleave="showInfos = false"
-    >
-      <q-img
-        class="image-cls"
-        :src="movie?.url_image"
-        spinner-color="kb-primary"
-        :key="movie?.id"
-        height="320px"
-        no-native-menu
-        :draggable="false"
-        style="cursor: pointer"
-      >
-        <transition>
-          <div class="absolute-bottom" v-if="showInfos">
-            {{ movie?.portuguese_title }}<br />
-            {{ getMovieDateLocale() }}
-          </div>
-        </transition>
-        <transition>
-          <q-icon
-            class="absolute all-pointer-events"
-            size="32px"
-            name="info"
-            color="grey-4"
-            style="top: 8px; left: 8px"
-            v-if="showInfos && !isRating()"
-          >
-            <CustomTooltip :delay="500"> Esse filme ainda não tem notas </CustomTooltip>
-          </q-icon>
-        </transition>
-        <transition>
-          <ChipNote dense size="lg" :movie="movie" style="top: 8px; left: 8px" v-if="showInfos && isRating()" />
-        </transition>
-      </q-img>
-      <ContextMenuHome :movie-id="movie?.id || ''" />
-    </router-link>
-  </div>
+  <router-link
+    :to="{ name: 'movie', params: { id: movie?.id } }"
+    class="col-10 container-img justify-center"
+    style="border-radius: 50px"
+    @mouseover="showInfos = true"
+    @mouseleave="showInfos = false"
+  >
+    <q-img class="image-cls" :src="movie?.url_image" :key="movie?.id" width="250px" height="380px" no-native-menu :draggable="false">
+      <transition>
+        <div class="absolute-bottom" v-if="showInfos">
+          {{ movie?.portuguese_title }}<br />
+          {{ getMovieDateLocale() }}
+        </div>
+      </transition>
+      <transition>
+        <q-icon
+          class="absolute all-pointer-events"
+          size="32px"
+          name="info"
+          color="grey-4"
+          style="top: 8px; left: 8px"
+          v-if="showInfos && !isRating()"
+        >
+          <CustomTooltip :delay="500"> Esse filme ainda não tem notas </CustomTooltip>
+        </q-icon>
+      </transition>
+      <transition>
+        <ChipNote dense size="lg" :movie="movie" style="top: 8px; left: 8px" v-if="showInfos && isRating()" />
+      </transition>
+      <template v-slot:loading>
+        <q-skeleton width="250px" height="380px" animation="fade" dark bordered />
+      </template>
+    </q-img>
+    <ContextMenuHome :movie-id="movie?.id || ''" />
+  </router-link>
 </template>
 
 <script lang="ts">
@@ -91,9 +83,6 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .container-img {
-  display: inline-block;
-  max-height: 320px !important;
-
   .hover-text {
     color: white;
     bottom: 30px;
