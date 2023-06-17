@@ -1,6 +1,6 @@
 <template>
   <q-dialog v-model="moviePage.showImportMovieDialog">
-    <q-card class="dialog-container" style="min-width: 40vw; min-height: 60vh">
+    <q-card class="dialog-container">
       <q-card-section class="row">
         <div class="col-6">
           <h5 class="title-container">Importar Filmes</h5>
@@ -25,18 +25,13 @@
       </q-card-section>
       <q-separator />
       <q-card-section ref="cardScrollRef" class="scroll" style="max-height: 60vh" v-if="movies?.length">
-        <q-infinite-scroll @load="onLoad" :offset="50">
-          <div class="q-mt-md row justify-center">
-            <q-img
-              class="image-search col-3 q-mx-md q-mb-md"
-              :src="getImageUrl(movie.poster_path)"
-              spinner-color="kb-primary"
-              v-for="movie in movies"
-              :key="movie.id"
-              @click="showConfirmDialog(movie)"
-            >
-              <div class="absolute-bottom text-h6">{{ movie.title }}</div>
-            </q-img>
+        <q-infinite-scroll class="q-mt-md" @load="onLoad" :offset="50">
+          <div class="row justify-center q-col-gutter-xl">
+            <div class="col-auto" v-for="movie in movies" :key="movie.id">
+              <CardImage :src="getImageUrl(movie.poster_path)" @click="showConfirmDialog(movie)" :animate="false">
+                <div class="absolute-bottom text-h6">{{ movie.title }}</div>
+              </CardImage>
+            </div>
           </div>
         </q-infinite-scroll>
         <div class="col-12 row justify-center q-my-md" v-if="loading">
@@ -63,6 +58,7 @@ import InputText from '@/components/shared/inputText/InputText.vue';
 import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';
 import Movie from '@/domain/movie/movie';
 import ConfirmDialog from '@/components/shared/confirmDialog/ConfirmDialog.vue';
+import CardImage from '@/components/shared/cardImage/CardImage.vue';
 
 type divScrollTopRef = {
   $el: {
@@ -72,7 +68,7 @@ type divScrollTopRef = {
 
 export default defineComponent({
   name: 'ImportMovie',
-  components: { InputText, SeparatorDivSolidLine, ConfirmDialog },
+  components: { InputText, SeparatorDivSolidLine, ConfirmDialog, CardImage },
   props: {
     moviePathId: {
       type: [String, Array],
@@ -234,6 +230,9 @@ export default defineComponent({
 <style lang="scss" scoped>
 .dialog-container {
   background-color: var(--grey-dark2);
+
+  min-width: 40vw !important;
+  min-height: 60vh !important;
 
   overflow-y: hidden;
 

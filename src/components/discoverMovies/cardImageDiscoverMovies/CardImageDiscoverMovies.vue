@@ -1,14 +1,5 @@
 <template>
-  <q-img
-    class="img-movie"
-    :class="`${selected && 'img-movie-selected'}`"
-    :src="getUrl()"
-    width="250px"
-    height="380px"
-    :no-native-menu="true"
-    :draggable="false"
-    @click="emit('clickOnImage')"
-  >
+  <CardImage :class="`${selected && 'img-movie-selected'}`" :src="getUrl()" @click="emit('clickOnImage')">
     <div class="absolute-bottom hover-show-img text-center">
       {{ props.movie?.title }}<br />
       {{ getMovieDateLocale() }}
@@ -54,23 +45,13 @@
         </q-list>
       </q-menu>
     </q-btn>
-    <template v-slot:loading>
-      <q-skeleton width="250px" height="380px" animation="fade" dark bordered />
-    </template>
-    <template v-slot:error>
-      <div class="absolute-full flex flex-center bg-grey-mid text-white">
-        <div class="row justify-center">
-          <q-icon class="col-12 q-mb-md" name="error" size="lg" />
-          <p>Erro ao carregar imagem</p>
-        </div>
-      </div>
-    </template>
-  </q-img>
+  </CardImage>
 </template>
 <script setup lang="ts">
 import { ref } from 'vue';
 
 import { MovieResultResponseTmdb } from '@/types/movie/MovieType';
+import CardImage from '@/components/shared/cardImage/CardImage.vue';
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 interface Props {
@@ -109,27 +90,8 @@ function addToList() {
   return;
 }
 </script>
-<style lang="scss">
-.img-movie {
-  border-radius: 10px;
-  transition: 0.2s ease-out;
-
-  cursor: pointer;
-
-  .hover-show-img {
-    opacity: 0;
-  }
-
-  &:hover {
-    transform: scale(1.1);
-    .hover-show-img {
-      opacity: 1;
-      transition: opacity 0.3s ease-out;
-    }
-  }
-}
-
-.img-movie.img-movie-selected {
+<style lang="scss" scoped>
+.img-movie-selected {
   opacity: 0.7;
   filter: blur(2px);
   &:hover {
