@@ -22,7 +22,7 @@ import type { InputValidateRefType } from '../inputText/types/InputValidateRefTy
 import type { ValidationRule } from 'quasar';
 
 const password = ref<string>('');
-const regexPassword = ref<RegExp>(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,70}$/);
+const regexPassword = ref<RegExp>(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{8,70}$/);
 const inputPasswordRef = ref<InputValidateRefType>();
 const visibility = ref(false);
 
