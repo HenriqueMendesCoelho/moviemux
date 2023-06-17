@@ -199,248 +199,191 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue';
+<script lang="ts" setup>
+import { computed, onMounted, ref } from 'vue';
 import { useQuasar, date } from 'quasar';
-import { mapState } from 'pinia';
 
 import { useMovieStore } from '@/stores/MovieStore';
 
 import { InputTextRefType, InputValidateRefType } from '@/components/shared/inputText/types/InputValidateRefType';
 
 import MovieService from '@/services/MovieService';
-import imageUtils from '@/utils/imageUtils';
 
 import InputText from '@/components/shared/inputText/InputText.vue';
 import ChipNote from '@/components/shared/chipNote/ChipNote.vue';
 import TooltipMovieInfo from './tooltipMovieInfo/TooltipMovieInfo.vue';
 
-export default defineComponent({
-  name: 'FormVideo',
-  components: { InputText, ChipNote, TooltipMovieInfo },
-  props: {
-    isRegisterOrEditing: {
-      type: Boolean,
-    },
-  },
-  setup() {
-    const $q = useQuasar();
-    const inputTextPortugueseTitleRef = ref<InputTextRefType>();
-    const inputTextEnglishTitleRef = ref<InputTextRefType>();
-    const inputTextOriginalTitleRef = ref<InputTextRefType>();
-    const inputTextDirectorRef = ref<InputTextRefType>();
-    const inputTextReleaseDateRef = ref<InputTextRefType>();
-    const qInputDescriptionRef = ref<InputValidateRefType>();
-    const qSelectGenresRef = ref<InputValidateRefType>();
-    const InputTextTmdbIdRef = ref<InputTextRefType>();
-    const inputTextUrlImageRef = ref<InputTextRefType>();
-    const inputTextUrlTrailerBrRef = ref<InputTextRefType>();
-    const inputTextUrlTrailerEnRef = ref<InputTextRefType>();
-    const inputTextRuntimeRef = ref<InputTextRefType>();
+interface Props {
+  isRegisterOrEditing: boolean;
+}
 
-    return {
-      inputTextPortugueseTitleRef,
-      inputTextEnglishTitleRef,
-      inputTextOriginalTitleRef,
-      inputTextDirectorRef,
-      inputTextReleaseDateRef,
-      qInputDescriptionRef,
-      qSelectGenresRef,
-      InputTextTmdbIdRef,
-      inputTextUrlImageRef,
-      inputTextUrlTrailerBrRef,
-      inputTextUrlTrailerEnRef,
-      inputTextRuntimeRef,
-      showError(msg: string) {
-        $q.notify({
-          type: 'negative',
-          message: msg,
-          position: 'center',
-        });
-      },
-    };
-  },
-  data() {
-    return {
-      idPathParam: this.$route.params.id,
-      loadingGenres: false,
-    };
-  },
-  computed: {
-    ...mapState(useMovieStore, ['moviePage']),
-    urlImage() {
-      return this.moviePage.selectedMovie.url_image;
-    },
-    screenHeight() {
-      return this.$q.screen.height;
-    },
-  },
-  async mounted() {
-    await this.loadGenres();
-  },
-  methods: {
-    async loadGenres(): Promise<void> {
-      try {
-        this.loadingGenres = true;
-        const res = await MovieService.getMoviesGenres();
-        this.moviePage.genres = res;
-      } finally {
-        this.loadingGenres = false;
-      }
-    },
-    getImageAndAlt(): Array<string> {
-      const srcImage = this.moviePage.selectedMovie.url_image;
-      const altImage = this.moviePage.selectedMovie.portuguese_title;
+const props = defineProps<Props>();
 
-      if (!srcImage || !altImage) {
-        return ['', ''];
-      }
+const $q = useQuasar();
+const inputTextPortugueseTitleRef = ref<InputTextRefType>();
+const inputTextEnglishTitleRef = ref<InputTextRefType>();
+const inputTextOriginalTitleRef = ref<InputTextRefType>();
+const inputTextDirectorRef = ref<InputTextRefType>();
+const inputTextReleaseDateRef = ref<InputTextRefType>();
+const qInputDescriptionRef = ref<InputValidateRefType>();
+const qSelectGenresRef = ref<InputValidateRefType>();
+const InputTextTmdbIdRef = ref<InputTextRefType>();
+const inputTextUrlImageRef = ref<InputTextRefType>();
+const inputTextUrlTrailerBrRef = ref<InputTextRefType>();
+const inputTextUrlTrailerEnRef = ref<InputTextRefType>();
+const inputTextRuntimeRef = ref<InputTextRefType>();
 
-      return [srcImage, altImage];
-    },
-    async hasErrors(): Promise<boolean> {
-      let hasError = false;
-      if (await this.inputTextPortugueseTitleRef?.hasErrors()) {
-        hasError = true;
-      }
-      if (await this.inputTextEnglishTitleRef?.hasErrors()) {
-        hasError = true;
-      }
-      if (await this.inputTextOriginalTitleRef?.hasErrors()) {
-        hasError = true;
-      }
-      if (await this.inputTextDirectorRef?.hasErrors()) {
-        hasError = true;
-      }
-      if (await this.inputTextReleaseDateRef?.hasErrors()) {
-        hasError = true;
-      }
-      if (await this.inputTextReleaseDateRef?.hasErrors()) {
-        hasError = true;
-      }
-      if (this.qInputDescriptionRef) {
-        await this.qInputDescriptionRef.validate();
-        hasError = this.qInputDescriptionRef.hasError || hasError;
-      }
-      if (this.qSelectGenresRef) {
-        await this.qSelectGenresRef.validate();
-        hasError = this.qSelectGenresRef.hasError || hasError;
-      }
-      if (await this.InputTextTmdbIdRef?.hasErrors()) {
-        hasError = true;
-      }
-      if (await this.inputTextUrlImageRef?.hasErrors()) {
-        hasError = true;
-      }
-      if (await this.inputTextUrlTrailerBrRef?.hasErrors()) {
-        hasError = true;
-      }
-      if (await this.inputTextUrlTrailerEnRef?.hasErrors()) {
-        hasError = true;
-      }
-      if (await this.inputTextRuntimeRef?.hasErrors()) {
-        hasError = true;
-      }
-      return Promise.resolve(hasError);
-    },
-    resetValidation(): void {
-      this.inputTextPortugueseTitleRef?.resetValidation();
-      this.inputTextEnglishTitleRef?.resetValidation();
-      this.inputTextOriginalTitleRef?.resetValidation();
-      this.inputTextDirectorRef?.resetValidation();
-      this.inputTextReleaseDateRef?.resetValidation();
-      this.inputTextReleaseDateRef?.resetValidation();
-      this.qInputDescriptionRef?.resetValidation();
-      this.qSelectGenresRef?.resetValidation();
-      this.InputTextTmdbIdRef?.resetValidation();
-      this.inputTextUrlImageRef?.resetValidation();
-      this.inputTextUrlTrailerBrRef?.resetValidation();
-      this.inputTextUrlTrailerEnRef?.resetValidation();
-      this.inputTextRuntimeRef?.resetValidation();
-    },
-    changeTrailerPortuguese(url: string) {
-      const key = this.getYoutubeVideoKey(url);
-      this.moviePage.selectedMovie.portuguese_url_trailer = key;
-    },
-    changeTrailerEnglish(url: string) {
-      const key = this.getYoutubeVideoKey(url);
-      this.moviePage.selectedMovie.english_url_trailer = key;
-    },
-    getYoutubeVideoKey(url: string) {
-      const split = url.split(/(vi\/|v=|\/b\/|youtu\.be\/|\/embed\/)/);
+const loadingGenres = ref(false);
 
-      const param =
-        // eslint-disable-next-line
-        split[2] !== undefined ? split[2].split(/[^0-9a-z_\-]/i)[0] : split[0].split(/[^0-9a-z_\-]/i)[0];
-      return param;
-    },
-    openTmdbInNewTab() {
-      if (!this.moviePage.selectedMovie.tmdb_id) {
-        return;
-      }
-      this.openNewWindow(`https://www.themoviedb.org/movie/${this.moviePage.selectedMovie.tmdb_id}`);
-    },
-    openImdbInNewTab() {
-      if (!this.moviePage.selectedMovie.imdb_id) {
-        return;
-      }
-      this.openNewWindow(`https://www.imdb.com/title/${this.moviePage.selectedMovie.imdb_id}`);
-    },
-    openNewWindow(url: string) {
-      const w = window.open(url);
-      if (w) {
-        w.focus();
-      }
-    },
-    changeReleaseDate(val: string) {
-      if (val.split('/').length < 3) {
-        return;
-      }
-      const dateChange = date.extractDate(val, 'DD/MM/YYYY');
-      this.moviePage.selectedMovie.release_date = dateChange;
-    },
-    runtimeToText() {
-      const runtime = this.moviePage.selectedMovie.runtime;
-      if (!runtime) {
-        return '0';
-      }
-      const hours = Math.floor(runtime / 60);
-      const minutes = runtime - 60 * hours;
+const movieStore = useMovieStore();
+const moviePage = computed(() => movieStore?.moviePage);
+const screenHeight = computed(() => $q.screen.height);
 
-      return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
-    },
-    showOriginalTitle() {
-      if (this.isRegisterOrEditing) {
-        return true;
-      }
-      if (this.moviePage.selectedMovie.original_title !== this.moviePage.selectedMovie.english_title) {
-        return true;
-      }
-      return false;
-    },
-  },
-  watch: {
-    async urlImage(url) {
-      if (!url) {
-        return;
-      }
-      try {
-        const img = await imageUtils.checkImageSizeByUrl(url);
-
-        if (!img.imgOk || img.error) {
-          this.showError('A imagem deve ter 750px de altura e 500px de largura');
-          this.moviePage.selectedMovie.url_image = '';
-        }
-        if (img.imgOk) {
-          this.moviePage.selectedMovie.url_image = url;
-        }
-      } catch {
-        this.moviePage.selectedMovie.url_image = '';
-        this.showError('Insira uma url válida para a imagem');
-      }
-    },
-  },
+onMounted(async () => {
+  await loadGenres();
 });
+
+defineExpose({ hasErrors, resetValidation });
+
+async function loadGenres(): Promise<void> {
+  try {
+    loadingGenres.value = true;
+    const res = await MovieService.getMoviesGenres();
+    moviePage.value.genres = res;
+  } finally {
+    loadingGenres.value = false;
+  }
+}
+function getImageAndAlt(): Array<string> {
+  const srcImage = moviePage.value.selectedMovie.url_image;
+  const altImage = moviePage.value.selectedMovie.portuguese_title;
+
+  if (!srcImage || !altImage) {
+    return ['', ''];
+  }
+
+  return [srcImage, altImage];
+}
+async function hasErrors(): Promise<boolean> {
+  let hasError = false;
+  if (await inputTextPortugueseTitleRef.value?.hasErrors()) {
+    hasError = true;
+  }
+  if (await inputTextEnglishTitleRef.value?.hasErrors()) {
+    hasError = true;
+  }
+  if (await inputTextOriginalTitleRef.value?.hasErrors()) {
+    hasError = true;
+  }
+  if (await inputTextDirectorRef.value?.hasErrors()) {
+    hasError = true;
+  }
+  if (await inputTextReleaseDateRef.value?.hasErrors()) {
+    hasError = true;
+  }
+  if (await inputTextReleaseDateRef.value?.hasErrors()) {
+    hasError = true;
+  }
+  if (qInputDescriptionRef.value) {
+    await qInputDescriptionRef.value.validate();
+    hasError = qInputDescriptionRef.value.hasError || hasError;
+  }
+  if (qSelectGenresRef.value) {
+    await qSelectGenresRef.value?.validate();
+    hasError = qSelectGenresRef.value?.hasError || hasError;
+  }
+  if (await InputTextTmdbIdRef.value?.hasErrors()) {
+    hasError = true;
+  }
+  if (await inputTextUrlImageRef.value?.hasErrors()) {
+    hasError = true;
+  }
+  if (await inputTextUrlTrailerBrRef.value?.hasErrors()) {
+    hasError = true;
+  }
+  if (await inputTextUrlTrailerEnRef.value?.hasErrors()) {
+    hasError = true;
+  }
+  if (await inputTextRuntimeRef.value?.hasErrors()) {
+    hasError = true;
+  }
+  return Promise.resolve(hasError);
+}
+function resetValidation(): void {
+  inputTextPortugueseTitleRef.value?.resetValidation();
+  inputTextEnglishTitleRef.value?.resetValidation();
+  inputTextOriginalTitleRef.value?.resetValidation();
+  inputTextDirectorRef.value?.resetValidation();
+  inputTextReleaseDateRef.value?.resetValidation();
+  inputTextReleaseDateRef.value?.resetValidation();
+  qInputDescriptionRef.value?.resetValidation();
+  qSelectGenresRef.value?.resetValidation();
+  InputTextTmdbIdRef.value?.resetValidation();
+  inputTextUrlImageRef.value?.resetValidation();
+  inputTextUrlTrailerBrRef.value?.resetValidation();
+  inputTextUrlTrailerEnRef.value?.resetValidation();
+  inputTextRuntimeRef.value?.resetValidation();
+}
+function changeTrailerPortuguese(url: string) {
+  const key = getYoutubeVideoKey(url);
+  moviePage.value.selectedMovie.portuguese_url_trailer = key;
+}
+function changeTrailerEnglish(url: string) {
+  const key = getYoutubeVideoKey(url);
+  moviePage.value.selectedMovie.english_url_trailer = key;
+}
+function getYoutubeVideoKey(url: string) {
+  const split = url.split(/(vi\/|v=|\/b\/|youtu\.be\/|\/embed\/)/);
+
+  const param =
+    // eslint-disable-next-line
+    split[2] !== undefined ? split[2].split(/[^0-9a-z_\-]/i)[0] : split[0].split(/[^0-9a-z_\-]/i)[0];
+  return param;
+}
+function openTmdbInNewTab() {
+  if (!moviePage.value.selectedMovie.tmdb_id) {
+    return;
+  }
+  openNewWindow(`https://www.themoviedb.org/movie/${moviePage.value.selectedMovie.tmdb_id}`);
+}
+function openImdbInNewTab() {
+  if (!moviePage.value.selectedMovie.imdb_id) {
+    return;
+  }
+  openNewWindow(`https://www.imdb.com/title/${moviePage.value.selectedMovie.imdb_id}`);
+}
+function openNewWindow(url: string) {
+  const w = window.open(url);
+  if (w) {
+    w.focus();
+  }
+}
+function changeReleaseDate(val: string) {
+  if (val.split('/').length < 3) {
+    return;
+  }
+  const dateChange = date.extractDate(val, 'DD/MM/YYYY');
+  moviePage.value.selectedMovie.release_date = dateChange;
+}
+function runtimeToText() {
+  const runtime = moviePage.value.selectedMovie.runtime;
+  if (!runtime) {
+    return '0';
+  }
+  const hours = Math.floor(runtime / 60);
+  const minutes = runtime - 60 * hours;
+
+  return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+}
+function showOriginalTitle() {
+  if (props.isRegisterOrEditing) {
+    return true;
+  }
+  if (moviePage.value.selectedMovie.original_title !== moviePage.value.selectedMovie.english_title) {
+    return true;
+  }
+  return false;
+}
 </script>
 
 <style lang="scss" scoped>
