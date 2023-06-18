@@ -15,7 +15,7 @@
         @refresh="resetSearch()"
       />
 
-      <div class="row justify-center q-mt-lg">
+      <div class="row justify-center q-mt-lg relative-position">
         <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="1500">
           <div class="row justify-center q-col-gutter-xl">
             <div class="col-auto" v-for="(movie, index) in movies" :key="index">
@@ -26,6 +26,7 @@
         <div class="col-12 row justify-center q-my-md" v-if="loading">
           <q-spinner color="kb-primary" size="50px" />
         </div>
+        <FloatingActionBtnTop />
       </div>
       <DialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" position="standard" />
     </div>
@@ -44,6 +45,7 @@ import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue
 import CardImageDiscoverMovies from './cardImageDiscoverMovies/CardImageDiscoverMovies.vue';
 import PageTitle from '../shared/pageTitle/PageTitle.vue';
 import DialogFormMovieSummary from '../shared/formMovieSummary/dialogFormMovieSummary/DialogFormMovieSummary.vue';
+import FloatingActionBtnTop from '@/components/shared/floatingActionBtnTop/FloatingActionBtnTop.vue';
 
 import KitService from '@/services/KitService';
 
