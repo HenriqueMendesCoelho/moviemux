@@ -1,5 +1,5 @@
 <template>
-  <div class="row" style="position: relative">
+  <div class="row relative-position">
     <div class="row full-width q-my-md">
       <SearchToolbar
         :order-options="orderOptions"
