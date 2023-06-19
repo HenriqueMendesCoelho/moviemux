@@ -94,13 +94,5 @@ function addToList() {
 .img-movie-selected {
   opacity: 0.7;
   filter: blur(2px);
-  &:hover {
-    transform: scale(1);
-
-    .hover-show-img {
-      opacity: 0;
-      transition: opacity 0.3s ease-out;
-    }
-  }
 }
 </style>
