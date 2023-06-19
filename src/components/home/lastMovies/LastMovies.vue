@@ -26,42 +26,25 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script lang="ts" setup>
+import { onMounted, ref } from 'vue';
 
 import Movie from '@/domain/movie/movie';
 import MovieService from '@/services/MovieService';
 
 import CardImageMovie from './cardImageLastMovies/CardImageLastMovies.vue';
 
-export default defineComponent({
-  name: 'LastMovies',
-  components: { CardImageMovie },
-  data() {
-    return {
-      loading: true,
-      isVisibleLastFilms: true,
-      movies: [] as Movie[],
-    };
-  },
-  async mounted() {
-    await this.loadLastMovies();
-  },
-  methods: {
-    pushToMovie(id: number): void {
-      this.$router.push({ name: 'movie', params: { id: id } });
-    },
-    disableLoading() {
-      setTimeout(() => {
-        this.loading = !this.loading;
-      }, 100);
-    },
-    async loadLastMovies() {
-      const res = await MovieService.listMoviesPageable(1, 10, 'createdAt,desc');
-      this.movies = res.content;
-    },
-  },
+const isVisibleLastFilms = ref(true);
+const movies = ref<Movie[]>([]);
+
+onMounted(async () => {
+  await loadLastMovies();
 });
+
+async function loadLastMovies() {
+  const res = await MovieService.listMoviesPageable(1, 10, 'createdAt,desc');
+  movies.value = res.content;
+}
 </script>
 
 <style lang="scss" scoped>
@@ -122,7 +105,7 @@ export default defineComponent({
 
   .container-lastmovies {
     height: 100%;
-    overflow: hidden;
+    overflow: auto;
 
     transition: 0.2s ease-out;
 

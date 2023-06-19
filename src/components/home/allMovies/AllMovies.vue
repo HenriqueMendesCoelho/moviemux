@@ -24,8 +24,8 @@
     <FloatingActionButton />
   </div>
 </template>
-<script lang="ts">
-import { defineComponent, ref } from 'vue';
+<script lang="ts" setup>
+import { onMounted, ref } from 'vue';
 
 import Movie from '@/domain/movie/movie';
 
@@ -34,103 +34,91 @@ import MovieService from '@/services/MovieService';
 import FloatingActionButton from './floatingActionButton/FloatingActionButton.vue';
 import SearchToolbar from '@/components/shared/searchToolbar/SearchToolbar.vue';
 
-export default defineComponent({
-  name: 'AllMovies',
-  components: { CardImageAllMovies, FloatingActionButton, SearchToolbar },
-  setup() {
-    const infinitScrollRef = ref<{
-      resume: () => void;
-    }>();
-    return {
-      infinitScrollRef,
-    };
-  },
-  data() {
-    return {
-      movies: [] as Movie[],
-      loading: false,
-      pagesFouded: 2,
-      page: 1,
-      searchText: '',
-      orderOption: '' as string | { label: string; value: string } | undefined,
-      orderOptions: [
-        { label: 'Título (A-Z)', value: 'portugueseTitle,asc' },
-        { label: 'Título (Z-A)', value: 'portugueseTitle,desc' },
-        { label: 'Data de Lançamento (Mais Novo)', value: 'releaseDate,portugueseTitle,desc' },
-        { label: 'Data de Lançamento (Mais Antigo)', value: 'releaseDate,portugueseTitle,asc' },
-        { label: 'Nota (Mais alta)', value: '&sortJoin=notes,desc' },
-        { label: 'Nota (Mais baixa)', value: '&sortJoin=notes,asc' },
-        { label: 'Data de Cadastro (Mais Novo)', value: 'createdAt,portugueseTitle,desc' },
-        { label: 'Data de Cadastro (Mais Antigo)', value: 'createdAt,portugueseTitle,asc' },
-        { label: 'Duração (Mais Longo)', value: 'runtime,desc' },
-        { label: 'Duração (Mais Curto)', value: 'runtime,asc' },
-      ],
-    };
-  },
-  mounted() {
-    this.loading = false;
-    this.pagesFouded = 2;
-    this.page = 1;
-  },
-  methods: {
-    async btnSearchAction(): Promise<void> {
-      if (!this.searchText && !this.orderOption) {
-        await this.refreshSearch();
-        return Promise.resolve();
-      }
-      await this.search();
-      return Promise.resolve();
-    },
-    async search(pageParam = 1): Promise<void> {
-      this.pagesFouded = 2;
-      this.page = pageParam;
-      const res = await this.searchMoviePageable();
-      this.movies = res;
-      this.loading = false;
-      return Promise.resolve();
-    },
-    async refreshSearch(): Promise<void> {
-      this.orderOption = '';
-      this.searchText = '';
-      await this.search();
-      this.infinitScrollRef?.resume();
-      return Promise.resolve();
-    },
-    async onLoad(index: number, done: (stop?: boolean) => void): Promise<void> {
-      if (this.page > this.pagesFouded) {
-        done(true);
-        return;
-      }
-      const result = await this.searchMoviePageable();
-      this.movies.push(...result);
-      done();
-      this.loading = false;
-      return Promise.resolve();
-    },
-    async searchMoviePageable(): Promise<Movie[]> {
-      if (this.searchText) {
-        const res = await MovieService.listMoviesByTitlePageable(this.page, this.searchText);
-        this.pagesFouded = res.total_pages;
-        this.page++;
-        if (this.page >= this.pagesFouded) {
-          this.loading = true;
-        }
+const infinitScrollRef = ref<{
+  resume: () => void;
+}>();
 
-        return Promise.resolve(res.content);
-      } else {
-        const res = await MovieService.listMoviesPageable(
-          this.page,
-          30,
-          typeof this.orderOption === 'object' ? this.orderOption.value : this.orderOption
-        );
-        this.pagesFouded = res.total_pages;
-        this.page++;
-        if (this.page >= this.pagesFouded) {
-          this.loading = true;
-        }
-        return Promise.resolve(res.content);
-      }
-    },
-  },
+const movies = ref<Movie[]>([]);
+const loading = ref(false);
+const pagesFouded = ref(2);
+const page = ref(1);
+const searchText = ref('');
+const orderOption = ref<string | { label: string; value: string } | undefined>('');
+const orderOptions = [
+  { label: 'Título (A-Z)', value: 'portugueseTitle,asc' },
+  { label: 'Título (Z-A)', value: 'portugueseTitle,desc' },
+  { label: 'Data de Lançamento (Mais Novo)', value: 'releaseDate,portugueseTitle,desc' },
+  { label: 'Data de Lançamento (Mais Antigo)', value: 'releaseDate,portugueseTitle,asc' },
+  { label: 'Nota (Mais alta)', value: '&sortJoin=notes,desc' },
+  { label: 'Nota (Mais baixa)', value: '&sortJoin=notes,asc' },
+  { label: 'Data de Cadastro (Mais Novo)', value: 'createdAt,portugueseTitle,desc' },
+  { label: 'Data de Cadastro (Mais Antigo)', value: 'createdAt,portugueseTitle,asc' },
+  { label: 'Duração (Mais Longo)', value: 'runtime,desc' },
+  { label: 'Duração (Mais Curto)', value: 'runtime,asc' },
+];
+
+onMounted(() => {
+  loading.value = false;
+  pagesFouded.value = 2;
+  page.value = 1;
 });
+
+async function btnSearchAction(): Promise<void> {
+  if (!searchText.value && !orderOption.value) {
+    await refreshSearch();
+    return Promise.resolve();
+  }
+  await search();
+  return Promise.resolve();
+}
+async function search(pageParam = 1): Promise<void> {
+  pagesFouded.value = 2;
+  page.value = pageParam;
+  const res = await searchMoviePageable();
+  movies.value = res;
+  loading.value = false;
+  return Promise.resolve();
+}
+async function refreshSearch(): Promise<void> {
+  orderOption.value = '';
+  searchText.value = '';
+  await search();
+  infinitScrollRef.value?.resume();
+  return Promise.resolve();
+}
+async function onLoad(index: number, done: (stop?: boolean) => void): Promise<void> {
+  if (page.value > pagesFouded.value) {
+    done(true);
+    return;
+  }
+  const result = await searchMoviePageable();
+  movies.value.push(...result);
+  done();
+  loading.value = false;
+  return Promise.resolve();
+}
+async function searchMoviePageable(): Promise<Movie[]> {
+  if (searchText.value) {
+    const res = await MovieService.listMoviesByTitlePageable(page.value, searchText.value);
+    pagesFouded.value = res.total_pages;
+    page.value++;
+    if (page.value >= pagesFouded.value) {
+      loading.value = true;
+    }
+
+    return Promise.resolve(res.content);
+  } else {
+    const res = await MovieService.listMoviesPageable(
+      page.value,
+      30,
+      typeof orderOption.value === 'object' ? orderOption.value.value : orderOption.value
+    );
+    pagesFouded.value = res.total_pages;
+    page.value++;
+    if (page.value >= pagesFouded.value) {
+      loading.value = true;
+    }
+    return Promise.resolve(res.content);
+  }
+}
 </script>
