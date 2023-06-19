@@ -70,8 +70,8 @@
     </div>
   </div>
 </template>
-<script lang="ts">
-import { defineComponent, ref } from 'vue';
+<script setup lang="ts">
+import { ref } from 'vue';
 import { useQuasar } from 'quasar';
 import axios, { AxiosError } from 'axios';
 
@@ -82,127 +82,104 @@ import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLin
 import TooltipPassowordInfo from './tooltipPasswordInfo/TooltipPassowordInfo.vue';
 import InputPassword from '@/components/shared/inputPassword/InputPassword.vue';
 
-export default defineComponent({
-  name: 'tabCreateAccount',
-  components: { SeparatorDivLineSolid, TooltipPassowordInfo, InputPassword },
-  props: {
-    createAccount: {
-      type: Boolean,
-      default: true,
-    },
-  },
-  setup() {
-    const $q = useQuasar();
+const emit = defineEmits<{
+  (e: 'changeTab', value: string): void;
+  (e: 'loading', value: boolean): void;
+}>();
 
-    const inputEmailRef = ref<InputValidateRefType>();
-    const inputPasswordRef = ref<{ hasErrors: () => boolean; resetValidation: () => void }>();
-    const inputRepeatPasswordRef = ref<{ hasErrors: () => boolean; resetValidation: () => void }>();
-    const inputNicknameRef = ref<InputValidateRefType>();
-    const inputInviteRef = ref<InputValidateRefType>();
-    return {
-      inputEmailRef,
-      inputPasswordRef,
-      inputRepeatPasswordRef,
-      inputNicknameRef,
-      inputInviteRef,
+const $q = useQuasar();
 
-      showSuccess(msg: string) {
-        $q.notify({
-          type: 'positive',
-          message: msg,
-          position: 'top',
-        });
-      },
-      showError(msg: string) {
-        $q.notify({
-          type: 'negative',
-          message: msg,
-          position: 'top',
-          timeout: 10000,
-        });
-      },
-      showErrorPassword() {
-        $q.notify({
-          type: 'warning',
-          message:
-            '<p>A senha <strong>deve</strong> conter:</p><p>Letras maiúsculas e minúsculas</p><p>Números</p><p>Caracteres especiais</p><p>OK?</p>',
-          position: 'top',
-          timeout: 10000,
-          progress: true,
-          html: true,
-        });
-      },
-    };
-  },
-  data() {
-    return {
-      email: '',
-      password: '',
-      visibilityPass: false,
-      visibilityNewPass: false,
-      repeatePassword: '',
-      invite: '',
-      nickname: '',
-      regexEmail: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/ as RegExp,
-      regexPassword: /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,70}$/ as RegExp,
-      tooltipPassword: false,
-    };
-  },
-  emits: ['changeTab', 'loading'],
-  computed: {},
-  methods: {
-    changeTab(tab: string) {
-      this.$emit('changeTab', tab);
-    },
-    async create() {
-      if (this.hasErrors()) {
-        return;
+const inputEmailRef = ref<InputValidateRefType>();
+const inputPasswordRef = ref<{ hasErrors: () => boolean; resetValidation: () => void }>();
+const inputRepeatPasswordRef = ref<{ hasErrors: () => boolean; resetValidation: () => void }>();
+const inputNicknameRef = ref<InputValidateRefType>();
+const inputInviteRef = ref<InputValidateRefType>();
+
+const email = ref('');
+const password = ref('');
+const repeatePassword = ref('');
+const invite = ref('');
+const nickname = ref('');
+const regexEmail = ref<RegExp>(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
+const tooltipPassword = ref(false);
+
+function showSuccess(msg: string) {
+  $q.notify({
+    type: 'positive',
+    message: msg,
+    position: 'top',
+  });
+}
+function showError(msg: string) {
+  $q.notify({
+    type: 'negative',
+    message: msg,
+    position: 'top',
+    timeout: 10000,
+  });
+}
+function showErrorPassword() {
+  $q.notify({
+    type: 'warning',
+    message:
+      '<p>A senha <strong>deve</strong> conter:</p><p>Letras maiúsculas e minúsculas</p><p>Números</p><p>Caracteres especiais</p><p>OK?</p>',
+    position: 'top',
+    timeout: 10000,
+    progress: true,
+    html: true,
+  });
+}
+
+function changeTab(tab: string) {
+  emit('changeTab', tab);
+}
+async function create() {
+  if (hasErrors()) {
+    return;
+  }
+  try {
+    await UserService.create({ name: nickname.value, email: email.value, password: password.value, invite_code: invite.value });
+    emit('loading', true);
+    showSuccess('Conta criada');
+    changeTab('login');
+  } catch (err) {
+    const error = err as Error | AxiosError;
+    if (axios.isAxiosError(error)) {
+      if (error.response?.data?.errors?.password === 'password is to weak') {
+        showErrorPassword();
       }
-      try {
-        await UserService.create({ name: this.nickname, email: this.email, password: this.password, invite_code: this.invite });
-        this.$emit('loading', true);
-        this.showSuccess('Conta criada');
-        this.changeTab('login');
-      } catch (err) {
-        const error = err as Error | AxiosError;
-        if (axios.isAxiosError(error)) {
-          if (error.response?.data?.errors?.password === 'password is to weak') {
-            this.showErrorPassword();
-          }
-          if (error.response?.data?.message === 'invite is not valid') {
-            this.showError('O convite é inválido');
-          }
-        } else {
-          this.showError('Erro ao criar conta');
-        }
-      } finally {
-        this.$emit('loading', false);
+      if (error.response?.data?.message === 'invite is not valid') {
+        showError('O convite é inválido');
       }
-    },
-    hasErrors() {
-      let hasErrors = false;
-      if (this.inputEmailRef) {
-        this.inputEmailRef.validate();
-        hasErrors = this.inputEmailRef.hasError;
-      }
-      if (this.inputPasswordRef) {
-        hasErrors = this.inputPasswordRef.hasErrors();
-      }
-      if (this.inputRepeatPasswordRef) {
-        hasErrors = this.inputRepeatPasswordRef.hasErrors();
-      }
-      if (this.inputNicknameRef) {
-        this.inputNicknameRef.validate();
-        hasErrors = this.inputNicknameRef.hasError;
-      }
-      if (this.inputInviteRef) {
-        this.inputInviteRef.validate();
-        hasErrors = this.inputInviteRef.hasError;
-      }
-      return hasErrors;
-    },
-  },
-});
+    } else {
+      showError('Erro ao criar conta');
+    }
+  } finally {
+    emit('loading', false);
+  }
+}
+function hasErrors() {
+  let hasErrors = false;
+  if (inputEmailRef.value) {
+    inputEmailRef.value.validate();
+    hasErrors = inputEmailRef.value.hasError;
+  }
+  if (inputPasswordRef.value) {
+    hasErrors = inputPasswordRef.value.hasErrors();
+  }
+  if (inputRepeatPasswordRef.value) {
+    hasErrors = inputRepeatPasswordRef.value.hasErrors();
+  }
+  if (inputNicknameRef.value) {
+    inputNicknameRef.value.validate();
+    hasErrors = inputNicknameRef.value.hasError;
+  }
+  if (inputInviteRef.value) {
+    inputInviteRef.value.validate();
+    hasErrors = inputInviteRef.value.hasError;
+  }
+  return hasErrors;
+}
 </script>
 
 <style lang="scss" scoped>

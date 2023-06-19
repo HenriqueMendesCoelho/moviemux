@@ -4,35 +4,36 @@
   </q-dialog>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script setup lang="ts">
+import { ref, watch } from 'vue';
 
 import FormLogin from './formLogin/FormLogin.vue';
 
-export default defineComponent({
-  name: 'DialogLogin',
-  props: {
-    modelValue: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  components: {
-    FormLogin,
-  },
-  data() {
-    return {
-      visible: false,
-    };
-  },
-  emits: ['update:modelValue'],
-  watch: {
-    modelValue() {
-      this.visible = this.modelValue;
-    },
-    visible() {
-      this.$emit('update:modelValue', this.visible);
-    },
-  },
+interface Props {
+  modelValue?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  modelValue: false,
 });
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: boolean): void;
+}>();
+
+const visible = ref(false);
+
+watch(
+  () => props.modelValue,
+  (val: boolean) => {
+    visible.value = val;
+  }
+);
+
+watch(
+  () => visible.value,
+  (val: boolean) => {
+    emit('update:modelValue', val);
+  }
+);
 </script>
