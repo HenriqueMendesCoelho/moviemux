@@ -4,9 +4,4 @@
   </q-popup-proxy>
 </template>
 
-<script>
-import { defineComponent } from 'vue';
-export default defineComponent({
-  name: 'ContextMenu',
-});
-</script>
+<script lang="ts" setup></script>

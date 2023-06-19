@@ -4,13 +4,20 @@
       <q-btn color="grey-mid2" text-color="white" round icon="refresh" @click="loadMovie()" />
     </div>
     <div class="q-ml-md" v-if="showEditAndDeleteButton()">
-      <q-btn style="width: 100%" color="primary" text-color="white" label="Editar" @click="moviePage.isEditing = !moviePage.isEditing" />
+      <q-btn
+        style="width: 100%"
+        color="primary"
+        text-color="white"
+        label="Editar"
+        icon="edit"
+        @click="moviePage.isEditing = !moviePage.isEditing"
+      />
     </div>
     <div class="q-ml-md" v-if="showEditAndDeleteButton()">
-      <q-btn v-if="true" style="width: 100%" color="red" text-color="white" label="Deletar" @click="deleteMovie" />
+      <q-btn v-if="true" style="width: 100%" color="red" text-color="white" label="Deletar" icon="delete" @click="deleteMovie" />
     </div>
   </div>
-  <div :class="routeName === 'movie' ? 'col-2 offset-md-4' : 'col-2 offset-md-10'">
+  <div :class="routeName === 'movie' ? 'col-auto offset-md-5' : 'col-auto offset-md-11'">
     <q-btn
       @click="moviePage.showImportMovieDialog = !moviePage.showImportMovieDialog"
       style="width: 100%"
@@ -19,6 +26,7 @@
       label="Importar do TMDB"
       v-if="showBtnImport()"
       :disable="selectedMovieHasAnyFieldFilled()"
+      icon="download"
     />
   </div>
 </template>

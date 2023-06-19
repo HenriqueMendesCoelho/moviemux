@@ -90,6 +90,24 @@ export default {
       return Promise.reject(error);
     }
   },
+  //User PasswordRedefineKey
+  async createRedefinePassowordKey(email: string): Promise<void> {
+    try {
+      await axios.post(`${API_USER}/password/reset`, { email: email });
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
+  async redefinePasswordByKey(key: string, request: { email: string; password: string }): Promise<void> {
+    try {
+      await axios.post(`${API_USER}/password/${key}/reset`, request);
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
+  //User Invites
   async listUserInvites(): Promise<{ code: string }[]> {
     try {
       const res = await axios.get(`${API_USER}/invite`);

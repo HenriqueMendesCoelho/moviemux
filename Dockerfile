@@ -1,4 +1,4 @@
-FROM arm64v8/node:18.15-alpine as build-stage
+FROM arm64v8/node:18.16-slim as build-stage
 
 WORKDIR /app
 
@@ -7,8 +7,9 @@ COPY . .
 RUN corepack enable
 RUN yarn install
 RUN yarn build
+RUN npx update-browserslist-db@latest
 
-FROM arm64v8/nginx:stable-alpine as production-stage
+FROM arm64v8/nginx:stable-alpine-slim as production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 

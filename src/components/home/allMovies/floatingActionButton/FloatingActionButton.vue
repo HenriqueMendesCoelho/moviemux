@@ -1,6 +1,6 @@
 <template>
-  <div class="absolute-bottom-right" style="position: fixed; bottom: 5vh; right: 5vh">
-    <q-fab color="kb-primary" icon="keyboard_arrow_up" direction="up">
+  <FloatingActionBtnTop>
+    <template v-slot:after-top>
       <q-fab-action
         color="grey-mid2"
         :to="{ name: 'add' }"
@@ -9,27 +9,10 @@
         label="ADICIONAR FILME"
         label-class="bg-grey-mid2"
         label-position="left"
-      />
-      <q-fab-action
-        color="grey-mid2"
-        @click="scrollToTop"
-        icon="keyboard_arrow_up"
-        :external-label="true"
-        label="IR PARA O TOPO"
-        label-class="bg-grey-mid2"
-        label-position="left"
-      />
-      >
-    </q-fab>
-  </div>
+    /></template>
+  </FloatingActionBtnTop>
 </template>
 
 <script lang="ts" setup>
-function scrollToTop(): void {
-  window.scrollTo({
-    top: 0,
-    left: 0,
-    behavior: 'smooth',
-  });
-}
+import FloatingActionBtnTop from '@/components/shared/floatingActionBtnTop/FloatingActionBtnTop.vue';
 </script>

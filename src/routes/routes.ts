@@ -15,9 +15,17 @@ export const routes = [
         },
       },
       {
+        path: '/password/change/:key',
+        name: 'ChangePasswordForgotten',
+        component: () => import('@/components/changeForgottenPassword/ChangeForgottenPassword.vue'),
+        meta: {
+          roles: ['UNSECURE'],
+        },
+      },
+      {
         path: '/:pathMatch(.*)*',
-        component: () => import('@/components/notFound/NotFound.vue'),
         name: 'notFound',
+        component: () => import('@/components/notFound/NotFound.vue'),
         meta: {
           roles: ['UNSECURE'],
         },

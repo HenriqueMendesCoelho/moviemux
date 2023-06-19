@@ -15,8 +15,8 @@
         @refresh="resetSearch()"
       />
 
-      <div class="row justify-center q-mt-lg">
-        <q-infinite-scroll ref="infinitScrollRef" class="container-cards-films full-width" @load="onLoad" :offset="300">
+      <div class="row justify-center q-mt-lg relative-position">
+        <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="1500">
           <div class="row justify-center q-col-gutter-xl">
             <div class="col-auto" v-for="(movie, index) in movies" :key="index">
               <CardImageDiscoverMovies @click-on-image="showDialog(movie.id)" :movie="movie" @call-tmdb="cardCallTmdb($event, movie.id)" />
@@ -26,8 +26,9 @@
         <div class="col-12 row justify-center q-my-md" v-if="loading">
           <q-spinner color="kb-primary" size="50px" />
         </div>
+        <FloatingActionBtnTop />
       </div>
-      <DialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" />
+      <DialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" position="standard" />
     </div>
   </ContainerMain>
 </template>
@@ -44,6 +45,7 @@ import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue
 import CardImageDiscoverMovies from './cardImageDiscoverMovies/CardImageDiscoverMovies.vue';
 import PageTitle from '../shared/pageTitle/PageTitle.vue';
 import DialogFormMovieSummary from '../shared/formMovieSummary/dialogFormMovieSummary/DialogFormMovieSummary.vue';
+import FloatingActionBtnTop from '@/components/shared/floatingActionBtnTop/FloatingActionBtnTop.vue';
 
 import KitService from '@/services/KitService';
 
@@ -92,6 +94,7 @@ async function cardCallTmdb(typeSearch: { label: string; value: string }, movieI
 
 async function firstSearch() {
   page.value = 1;
+  infinitScrollRef.value?.resume();
   const result = await callTmdb();
   movies.value = result;
 }
@@ -118,8 +121,6 @@ async function onLoad(index: number, done: (stop?: boolean) => void) {
   loading.value = false;
 }
 async function callTmdb() {
-  let result;
-
   if (page.value === 1) {
     window.scrollTo({
       top: 0,
@@ -129,40 +130,30 @@ async function callTmdb() {
   }
 
   if (typeof selectOrder?.value === 'object') {
-    switch (selectOrder.value.value) {
+    switch (selectOrder.value?.value) {
       case 'similar':
-        result = await getMoviesSimilar();
-        break;
+        return await getMoviesSimilar();
       case 'recommendation':
-        result = await getMoviesRecommendations();
-        break;
+        return await getMoviesRecommendations();
       default:
-        result = await getMoviesPopular();
-        break;
+        return await getMoviesPopular();
     }
-    return result;
   }
 
   if (searchText.value) {
-    result = await getMoviesByName({ query: searchText.value, page: page.value });
-    return result;
+    return await getMoviesByName({ query: searchText.value, page: page.value });
   }
 
   switch (selectOrder.value) {
     case 'playingNow':
-      result = await getMoviesNowPlaying();
-      break;
+      return await getMoviesNowPlaying();
     case 'topRated':
-      result = await getMoviesTopRated();
-      break;
+      return await getMoviesTopRated();
     case 'voteAverageAsc':
-      result = await getMoviesDiscover('vote_average.asc');
-      break;
+      return await getMoviesDiscover('vote_average.asc');
     default:
-      result = await getMoviesPopular();
-      break;
+      return await getMoviesPopular();
   }
-  return result;
 }
 async function getMoviesPopular() {
   try {
