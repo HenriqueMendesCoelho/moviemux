@@ -4,10 +4,10 @@ WORKDIR /app
 
 COPY . .
 
+RUN npx update-browserslist-db@latest
 RUN corepack enable
 RUN yarn install
 RUN yarn build
-RUN npx update-browserslist-db@latest
 
 FROM arm64v8/nginx:stable-alpine-slim as production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
