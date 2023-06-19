@@ -16,7 +16,7 @@
 </template>
 <script lang="ts" setup>
 interface Props {
-  animate: boolean;
+  animate?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
