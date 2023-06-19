@@ -1,10 +1,10 @@
 <template>
   <div class="row justify-center">
     <div class="row col-8">
-      <div :class="isMobile ? 'col-12' : 'col-11'">
+      <div class="col-md-11 col-sm-12">
         <InputText :label="'Nome'" v-model="user.name" :readOnly="allReadOnly" />
       </div>
-      <div :class="isMobile ? 'col-12' : 'col'">
+      <div class="col-md col-sm-12">
         <q-toggle
           v-model="user.preferences.notify"
           size="xl"
@@ -16,25 +16,27 @@
         <CustomTooltip anchor="bottom middle" :delay="500" style="font-size: 10pt">Notificações por e-mail</CustomTooltip>
       </div>
     </div>
-    <div class="q-mt-md" :class="isMobile ? 'col-12 row' : 'col-8 row'">
-      <InputText class="col" :label="'Email'" v-model="user.email" :readOnly="allReadOnly" />
-      <q-input
-        :model-value="user.statistics?.consecutive_failed_login_attempts"
-        v-if="showAdmInfo"
-        :class="isMobile ? 'col-12' : 'col-6 q-ml-sm q-pl-sm'"
-        square
-        filled
-        standout="text-info"
-        color="info"
-        label="Quantidade de tentativas de login"
-        dark
-        :readonly="true"
-        type="number"
-      />
+    <div class="col-md-8 col-sm-12 q-mt-md">
+      <div class="row q-col-gutter-md">
+        <InputText class="col" :label="'Email'" v-model="user.email" :readOnly="allReadOnly" />
+        <q-input
+          :model-value="user.statistics?.consecutive_failed_login_attempts"
+          v-if="showAdmInfo"
+          class="col-md-6 col-sm-12"
+          square
+          filled
+          standout="text-info"
+          color="info"
+          label="Quantidade de tentativas de login"
+          dark
+          :readonly="true"
+          type="number"
+        />
+      </div>
     </div>
-    <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-8'">
-      <div class="row">
-        <div :class="isMobile ? 'col-12' : 'col-6 q-pr-sm'">
+    <div class="col-md-8 col-sm-12 q-mt-md">
+      <div class="row q-col-gutter-md">
+        <div class="col-md-6 col-sm-12">
           <q-input
             :model-value="user.roles?.join(', ')"
             square
@@ -46,7 +48,7 @@
             :readonly="true"
           />
         </div>
-        <div :class="isMobile ? 'col-12' : 'col-6 q-pl-sm'">
+        <div class="col-md-6 col-sm-12">
           <q-input
             :model-value="new Date(user.created_at).toLocaleString()"
             square
@@ -60,9 +62,9 @@
         </div>
       </div>
     </div>
-    <div class="q-mt-md q-mb-xl" :class="isMobile ? 'col-12' : 'col-8'">
-      <div class="row">
-        <div :class="isMobile ? 'col-12' : 'col-6 q-pr-sm'">
+    <div class="col-md-8 col-sm-12 q-mt-md">
+      <div class="row q-col-gutter-md">
+        <div class="col-md col-sm-12">
           <q-input
             :model-value="user.statistics.registered_movies"
             square
@@ -74,7 +76,7 @@
             :readonly="true"
           />
         </div>
-        <div :class="isMobile ? 'col-12 q-mt-md' : 'col-6 q-pl-sm'">
+        <div class="col-md col-sm-12">
           <q-input
             :model-value="user.statistics?.ratings_given"
             square
@@ -86,12 +88,24 @@
             :readonly="true"
           />
         </div>
+        <div class="col-md col-sm-12">
+          <q-input
+            :model-value="runtimeToText()"
+            square
+            filled
+            standout="text-info"
+            color="info"
+            label="Tempo de Exibição"
+            dark
+            :readonly="true"
+          />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts" scoped>
+<script lang="ts">
 import { defineComponent, PropType } from 'vue';
 
 import User from '@/domain/user/User';
@@ -129,9 +143,17 @@ export default defineComponent({
       this.user = this.modelValue;
     }
   },
-  computed: {
-    isMobile(): boolean | undefined {
-      return this.$q.platform.is.mobile;
+  methods: {
+    runtimeToText() {
+      const runtime = this.user.statistics?.theoretical_total_minutes_watched;
+      console.log(this.user.statistics?.theoretical_total_minutes_watched);
+      if (!runtime) {
+        return '0';
+      }
+      const hours = Math.floor(runtime / 60);
+      const minutes = runtime % 60;
+
+      return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
     },
   },
   watch: {
