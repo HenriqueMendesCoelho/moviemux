@@ -1,4 +1,4 @@
-FROM node:18.16-slim as build-stage
+FROM arm64v8/node:18.16-slim as build-stage
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ ENV API_HOST=${API_HOST}
 ENV REDIRECT_DOMAIN=${REDIRECT_DOMAIN}
 
 
-FROM nginx:stable-alpine-slim as production-stage
+FROM arm64v8/nginx:stable-alpine-slim as production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/templates/default.conf.template
 
