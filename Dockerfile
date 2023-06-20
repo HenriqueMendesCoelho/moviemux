@@ -1,17 +1,23 @@
-FROM arm64v8/node:18.16-slim as build-stage
+FROM node:18.16-slim as build-stage
 
 WORKDIR /app
 
 COPY . .
 
-RUN npx update-browserslist-db@latest
 RUN corepack enable
 RUN yarn install
 RUN yarn build
 
-FROM arm64v8/nginx:stable-alpine-slim as production-stage
+ARG API_HOST
+ARG REDIRECT_DOMAIN
+
+ENV API_HOST=${API_HOST}
+ENV REDIRECT_DOMAIN=${REDIRECT_DOMAIN}
+
+
+FROM nginx:stable-alpine-slim as production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/templates/default.conf.template
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
