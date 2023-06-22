@@ -1,8 +1,14 @@
 import axios from 'axios';
-import StringUtils from '@/utils/stringUtils';
+import StringUtils from 'src/utils/stringUtils';
 
-import { MovieResultResponseTmdb, MovieNoteType, MoviePageableType, MovieRequestType, MovieSummaryTypeKit } from '@/types/movie/MovieType';
-import Movie from '@/domain/movie/movie';
+import {
+  MovieResultResponseTmdb,
+  MovieNoteType,
+  MoviePageableType,
+  MovieRequestType,
+  MovieSummaryTypeKit,
+} from 'src/types/movie/MovieType';
+import Movie from 'src/domain/movie/movie';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;
 const API_MOVIE = `${BASE_URL}/api/movie`;

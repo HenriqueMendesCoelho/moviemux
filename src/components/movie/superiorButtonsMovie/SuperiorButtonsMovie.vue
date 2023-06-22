@@ -37,10 +37,10 @@ import { defineComponent } from 'vue';
 import { RouteRecordName } from 'vue-router';
 import { useQuasar } from 'quasar';
 
-import { useMovieStore } from '@/stores/MovieStore';
-import { useUserStore } from '@/stores/UserStore';
+import { useMovieStore } from 'src/stores/MovieStore';
+import { useUserStore } from 'src/stores/UserStore';
 
-import MovieService from '@/services/MovieService';
+import MovieService from 'src/services/MovieService';
 
 export default defineComponent({
   name: 'SuperiorButtonsMovie',

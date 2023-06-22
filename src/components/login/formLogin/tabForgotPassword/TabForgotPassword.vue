@@ -29,7 +29,10 @@
     </div>
     <div class="col-12 row justify-center">
       <div class="row" v-if="props.createAccount">
-        <p class="text-white">Não tem conta ? <button class="btn-underline" @click="changeTab('create')">Criar Conta</button></p>
+        <p class="text-white">
+          Não tem conta ?
+          <button class="btn-underline" @click="changeTab('create')">Criar Conta</button>
+        </p>
       </div>
     </div>
   </div>
@@ -38,10 +41,10 @@
 import { ref } from 'vue';
 import { useQuasar } from 'quasar';
 
-import { InputValidateRefType } from '@/components/shared/inputText/types/InputValidateRefType';
-import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
+import { InputValidateRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
+import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 
-import UserService from '@/services/UserService';
+import UserService from 'src/services/UserService';
 
 interface Props {
   createAccount: boolean;

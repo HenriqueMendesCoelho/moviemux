@@ -4,7 +4,7 @@
   </q-chip>
 </template>
 <script lang="ts">
-import Movie from '@/domain/movie/movie';
+import Movie from 'src/domain/movie/movie';
 import { PropType, defineComponent } from 'vue';
 
 export default defineComponent({

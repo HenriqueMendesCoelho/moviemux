@@ -62,8 +62,8 @@
 import { defineComponent } from 'vue';
 import { mapActions, mapState } from 'pinia';
 
-import { useUserStore } from '@/stores/UserStore';
-import { useStyleStore } from '@/stores/StyleStore';
+import { useUserStore } from 'src/stores/UserStore';
+import { useStyleStore } from 'src/stores/StyleStore';
 
 import CustomTooltip from '../customTooltip/CustomTooltip.vue';
 

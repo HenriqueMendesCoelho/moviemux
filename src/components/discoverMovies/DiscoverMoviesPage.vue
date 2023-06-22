@@ -37,7 +37,7 @@
 import { onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
-import { MovieResultResponseTmdb } from '@/types/movie/MovieType';
+import { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
 
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import SearchToolbar from '../shared/searchToolbar/SearchToolbar.vue';
@@ -45,9 +45,9 @@ import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue
 import CardImageDiscoverMovies from './cardImageDiscoverMovies/CardImageDiscoverMovies.vue';
 import PageTitle from '../shared/pageTitle/PageTitle.vue';
 import DialogFormMovieSummary from '../shared/formMovieSummary/dialogFormMovieSummary/DialogFormMovieSummary.vue';
-import FloatingActionBtnTop from '@/components/shared/floatingActionBtnTop/FloatingActionBtnTop.vue';
+import FloatingActionBtnTop from 'src/components/shared/floatingActionBtnTop/FloatingActionBtnTop.vue';
 
-import KitService from '@/services/KitService';
+import KitService from 'src/services/KitService';
 
 const $q = useQuasar();
 const searchText = ref('');

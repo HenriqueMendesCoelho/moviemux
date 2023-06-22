@@ -77,19 +77,19 @@ import { useQuasar } from 'quasar';
 import { mapActions, mapState } from 'pinia';
 
 import type { QTableProps } from 'quasar';
-import { MovieNoteType } from '@/types/movie/MovieType';
-import { InputTextRefType } from '@/components/shared/inputText/types/InputValidateRefType';
-import { ConfirmDialogRefType } from '@/components/shared/confirmDialog/types/ConfirmDialogType';
+import { MovieNoteType } from 'src/types/movie/MovieType';
+import { InputTextRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
+import { ConfirmDialogRefType } from 'src/components/shared/confirmDialog/types/ConfirmDialogType';
 import { ConfirmDialogPromptRefType } from './confirmDialogPrompt/types/ConfirmDialogPrompt';
 
-import { useUserStore } from '@/stores/UserStore';
-import { useMovieStore } from '@/stores/MovieStore';
+import { useUserStore } from 'src/stores/UserStore';
+import { useMovieStore } from 'src/stores/MovieStore';
 
-import MovieService from '@/services/MovieService';
+import MovieService from 'src/services/MovieService';
 
-import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';
-import CustomTooltip from '@/components/shared/customTooltip/CustomTooltip.vue';
-import ConfirmDialog from '@/components/shared/confirmDialog/ConfirmDialog.vue';
+import SeparatorDivSolidLine from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
+import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
 import ConfirmDialogPrompt from './confirmDialogPrompt/ConfirmDialogPrompt.vue';
 
 export default defineComponent({

@@ -22,11 +22,11 @@
 import { defineComponent } from 'vue';
 import { mapState } from 'pinia';
 
-import { useMovieStore } from '@/stores/MovieStore';
+import { useMovieStore } from 'src/stores/MovieStore';
 
 import IframeVideo from './iframeVideo/IframeVideo.vue';
-import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';
-import SeparatorDivLineSolidVertical from '@/components/shared/separator/SeparatorDivLineSolidVertical.vue';
+import SeparatorDivSolidLine from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
+import SeparatorDivLineSolidVertical from 'src/components/shared/separator/SeparatorDivLineSolidVertical.vue';
 
 export default defineComponent({
   name: 'VideoEmbedded',

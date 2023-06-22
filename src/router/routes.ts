@@ -1,10 +1,11 @@
-import LoginPage from '@/components/login/LoginPage.vue';
-import HomeApp from '@/components/home/HomePage.vue';
+import { RouteRecordRaw } from 'vue-router';
+import HomePage from 'src/components/home/HomePage.vue';
+import LoginPage from 'src/components/login/LoginPage.vue';
 
-export const routes = [
+const routes: RouteRecordRaw[] = [
   {
     path: '',
-    component: () => import('@/layout/LayoutWithoutSideBar.vue'),
+    component: () => import('src/layout/LayoutWithoutSideBar.vue'),
     children: [
       {
         path: '',
@@ -17,7 +18,7 @@ export const routes = [
       {
         path: '/password/change/:key',
         name: 'ChangePasswordForgotten',
-        component: () => import('@/components/changeForgottenPassword/ChangeForgottenPassword.vue'),
+        component: () => import('src/components/changeForgottenPassword/ChangeForgottenPassword.vue'),
         meta: {
           roles: ['UNSECURE'],
         },
@@ -25,7 +26,7 @@ export const routes = [
       {
         path: '/:pathMatch(.*)*',
         name: 'notFound',
-        component: () => import('@/components/notFound/NotFound.vue'),
+        component: () => import('src/components/notFound/NotFound.vue'),
         meta: {
           roles: ['UNSECURE'],
         },
@@ -34,11 +35,11 @@ export const routes = [
   },
   {
     path: '',
-    component: () => import('@/layout/LayoutWithSideBar.vue'),
+    component: () => import('src/layout/LayoutWithSideBar.vue'),
     children: [
       {
         path: '/home',
-        component: HomeApp,
+        component: HomePage,
         name: 'home',
         meta: {
           roles: ['ADM', 'USER'],
@@ -46,7 +47,7 @@ export const routes = [
       },
       {
         path: '/adm',
-        component: () => import('@/components/administrator/AdministratorPage.vue'),
+        component: () => import('src/components/administrator/AdministratorPage.vue'),
         name: 'adm',
         meta: {
           roles: ['ADM'],
@@ -54,7 +55,7 @@ export const routes = [
       },
       {
         path: '/movie/:id',
-        component: () => import('@/components/movie/MoviePage.vue'),
+        component: () => import('src/components/movie/MoviePage.vue'),
         name: 'movie',
         meta: {
           roles: ['ADM', 'USER'],
@@ -62,7 +63,7 @@ export const routes = [
       },
       {
         path: '/movie/add',
-        component: () => import('@/components/movie/MoviePage.vue'),
+        component: () => import('src/components/movie/MoviePage.vue'),
         name: 'add',
         meta: {
           roles: ['ADM', 'USER'],
@@ -70,7 +71,7 @@ export const routes = [
       },
       {
         path: '/profile',
-        component: () => import('@/components/profile/ProfilePage.vue'),
+        component: () => import('src/components/profile/ProfilePage.vue'),
         name: 'profile',
         meta: {
           roles: ['ADM', 'USER'],
@@ -78,7 +79,7 @@ export const routes = [
       },
       {
         path: '/movie/discover',
-        component: () => import('@/components/discoverMovies/DiscoverMoviesPage.vue'),
+        component: () => import('src/components/discoverMovies/DiscoverMoviesPage.vue'),
         name: 'discoverMovies',
         meta: {
           roles: ['ADM', 'USER'],
@@ -87,3 +88,5 @@ export const routes = [
     ],
   },
 ];
+
+export default routes;

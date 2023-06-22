@@ -26,8 +26,8 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
 
-import Movie from '@/domain/movie/movie';
-import MovieService from '@/services/MovieService';
+import Movie from 'src/domain/movie/movie';
+import MovieService from 'src/services/MovieService';
 
 import CardImageMovie from './cardImageLastMovies/CardImageLastMovies.vue';
 

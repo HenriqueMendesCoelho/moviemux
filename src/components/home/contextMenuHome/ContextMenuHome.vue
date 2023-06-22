@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts" setup>
-import ContextMenu from '@/components/shared/contextMenu/ContextMenu.vue';
+import ContextMenu from 'src/components/shared/contextMenu/ContextMenu.vue';
 
 interface Props {
   movieId: string;

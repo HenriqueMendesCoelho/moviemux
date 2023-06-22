@@ -137,10 +137,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 
-import Movie from '@/domain/movie/movie';
+import Movie from 'src/domain/movie/movie';
 import { useQuasar } from 'quasar';
-import KitService from '@/services/KitService';
-import MovieService from '@/services/MovieService';
+import KitService from 'src/services/KitService';
+import MovieService from 'src/services/MovieService';
 import InputText from '../inputText/InputText.vue';
 
 const $q = useQuasar();

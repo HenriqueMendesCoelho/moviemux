@@ -10,7 +10,7 @@
 
 <script lang="ts" setup>
 import ContextMenuHome from '../../contextMenuHome/ContextMenuHome.vue';
-import CardImage from '@/components/shared/cardImage/CardImage.vue';
+import CardImage from 'src/components/shared/cardImage/CardImage.vue';
 
 interface Props {
   id: string | undefined;

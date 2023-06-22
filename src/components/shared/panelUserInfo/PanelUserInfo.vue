@@ -108,10 +108,10 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
 
-import User from '@/domain/user/User';
+import User from 'src/domain/user/User';
 
-import InputText from '@/components/shared/inputText/InputText.vue';
-import CustomTooltip from '@/components/shared/customTooltip/CustomTooltip.vue';
+import InputText from 'src/components/shared/inputText/InputText.vue';
+import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
 export default defineComponent({
   name: 'PanelUserInfo',

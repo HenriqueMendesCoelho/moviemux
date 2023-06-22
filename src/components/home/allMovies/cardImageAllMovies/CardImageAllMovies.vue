@@ -23,12 +23,12 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 
-import Movie from '@/domain/movie/movie';
+import Movie from 'src/domain/movie/movie';
 
 import ContextMenuHome from '../../contextMenuHome/ContextMenuHome.vue';
-import CustomTooltip from '@/components/shared/customTooltip/CustomTooltip.vue';
-import ChipNote from '@/components/shared/chipNote/ChipNote.vue';
-import CardImage from '@/components/shared/cardImage/CardImage.vue';
+import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import ChipNote from 'src/components/shared/chipNote/ChipNote.vue';
+import CardImage from 'src/components/shared/cardImage/CardImage.vue';
 
 interface Props {
   movie: Movie;

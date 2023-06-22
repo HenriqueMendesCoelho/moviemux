@@ -50,8 +50,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import { MovieResultResponseTmdb } from '@/types/movie/MovieType';
-import CardImage from '@/components/shared/cardImage/CardImage.vue';
+import { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
+import CardImage from 'src/components/shared/cardImage/CardImage.vue';
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 interface Props {
@@ -81,10 +81,16 @@ function getMovieDateLocale() {
   });
 }
 function clickRecommendations() {
-  emit('callTmdb', { label: `Recomendações para ${props.movie.title}`, value: 'recommendation' });
+  emit('callTmdb', {
+    label: `Recomendações para ${props.movie.title}`,
+    value: 'recommendation',
+  });
 }
 function clickSimilar() {
-  emit('callTmdb', { label: `Similares a ${props.movie.title}`, value: 'similar' });
+  emit('callTmdb', {
+    label: `Similares a ${props.movie.title}`,
+    value: 'similar',
+  });
 }
 function addToList() {
   return;

@@ -27,12 +27,12 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
 
-import Movie from '@/domain/movie/movie';
+import Movie from 'src/domain/movie/movie';
 
 import CardImageAllMovies from './cardImageAllMovies/CardImageAllMovies.vue';
-import MovieService from '@/services/MovieService';
+import MovieService from 'src/services/MovieService';
 import FloatingActionButton from './floatingActionButton/FloatingActionButton.vue';
-import SearchToolbar from '@/components/shared/searchToolbar/SearchToolbar.vue';
+import SearchToolbar from 'src/components/shared/searchToolbar/SearchToolbar.vue';
 
 const infinitScrollRef = ref<{
   resume: () => void;
@@ -47,12 +47,24 @@ const orderOption = ref<string | { label: string; value: string } | undefined>('
 const orderOptions = [
   { label: 'Título (A-Z)', value: 'portugueseTitle,asc' },
   { label: 'Título (Z-A)', value: 'portugueseTitle,desc' },
-  { label: 'Data de Lançamento (Mais Novo)', value: 'releaseDate,portugueseTitle,desc' },
-  { label: 'Data de Lançamento (Mais Antigo)', value: 'releaseDate,portugueseTitle,asc' },
+  {
+    label: 'Data de Lançamento (Mais Novo)',
+    value: 'releaseDate,portugueseTitle,desc',
+  },
+  {
+    label: 'Data de Lançamento (Mais Antigo)',
+    value: 'releaseDate,portugueseTitle,asc',
+  },
   { label: 'Nota (Mais alta)', value: '&sortJoin=notes,desc' },
   { label: 'Nota (Mais baixa)', value: '&sortJoin=notes,asc' },
-  { label: 'Data de Cadastro (Mais Novo)', value: 'createdAt,portugueseTitle,desc' },
-  { label: 'Data de Cadastro (Mais Antigo)', value: 'createdAt,portugueseTitle,asc' },
+  {
+    label: 'Data de Cadastro (Mais Novo)',
+    value: 'createdAt,portugueseTitle,desc',
+  },
+  {
+    label: 'Data de Cadastro (Mais Antigo)',
+    value: 'createdAt,portugueseTitle,asc',
+  },
   { label: 'Duração (Mais Longo)', value: 'runtime,desc' },
   { label: 'Duração (Mais Curto)', value: 'runtime,asc' },
 ];

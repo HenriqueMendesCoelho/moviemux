@@ -12,11 +12,11 @@
 import { defineComponent } from 'vue';
 import { mapState } from 'pinia';
 
-import { useUserStore } from '@/stores/UserStore';
-import { useStyleStore } from '@/stores/StyleStore';
+import { useUserStore } from 'src/stores/UserStore';
+import { useStyleStore } from 'src/stores/StyleStore';
 
-import SideBar from '@/components/shared/sidebar/SideBar.vue';
-import DialogLogin from '@/components/login/DialogLogin.vue';
+import SideBar from 'src/components/shared/sidebar/SideBar.vue';
+import DialogLogin from 'src/components/login/DialogLogin.vue';
 
 export default defineComponent({
   name: 'LayoutWithSideBar',

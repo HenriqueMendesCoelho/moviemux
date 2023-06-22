@@ -5,7 +5,7 @@
         <div class="row justify-center">
           <h2 style="color: white">Bem-vindo ao Cineminha!</h2>
           <SeparatorDivLineSolid class="q-my-md" style="opacity: 60%" />
-          <img class="left-img-login" src="@/assets/logo-kronus.png" alt="logo" draggable="false" @click="tab = 'login'" />
+          <img class="left-img-login" src="../../assets/logo-kronus.png" alt="logo" draggable="false" @click="tab = 'login'" />
           <div class="col-12" />
           <p class="q-mt-xl" style="font-size: smaller; color: white">Powered by Kronus Platform</p>
         </div>
@@ -15,7 +15,9 @@
       </div>
       <div class="absolute-bottom">
         <div class="row justify-center">
-          <div class="col-auto"><img class="" src="../../assets/tmdb-logo-long.svg" style="height: 20px" /></div>
+          <div class="col-auto">
+            <img class="" src="../../assets/tmdb-logo-long.svg" style="height: 20px" />
+          </div>
           <div class="col-12"></div>
           <div class="col-auto">
             <p class="q-mt-xs" style="font-size: smaller; color: white">
@@ -32,7 +34,7 @@
 import { computed, onActivated, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { useUserStore } from '@/stores/UserStore';
+import { useUserStore } from 'src/stores/UserStore';
 
 import FormLogin from './formLogin/FormLogin.vue';
 import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue';

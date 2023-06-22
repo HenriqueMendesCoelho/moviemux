@@ -36,22 +36,22 @@ import { RouteRecordName } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { mapActions, mapState } from 'pinia';
 
-import { useStyleStore } from '@/stores/StyleStore';
-import { useMovieStore } from '@/stores/MovieStore';
+import { useStyleStore } from 'src/stores/StyleStore';
+import { useMovieStore } from 'src/stores/MovieStore';
 
 import { ConfirmDialogRefType } from '../shared/confirmDialog/types/ConfirmDialogType';
 
-import MovieService from '@/services/MovieService';
+import MovieService from 'src/services/MovieService';
 
 import FormMovie from './formMovie/FormMovie.vue';
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
-import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';
+import SeparatorDivSolidLine from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 import VideoEmbedded from './videoEmbedded/VideoEmbedded.vue';
 import SuperiorButtonsMovie from './superiorButtonsMovie/SuperiorButtonsMovie.vue';
 import MovieNotesTable from './movieNotesTable/MovieNotesTable.vue';
 import ImportMovie from './importMovie/ImportMovie.vue';
-import ConfirmDialog from '@/components/shared/confirmDialog/ConfirmDialog.vue';
-import Movie from '@/domain/movie/movie';
+import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
+import Movie from 'src/domain/movie/movie';
 
 export default defineComponent({
   name: 'MoviePage',
@@ -150,7 +150,7 @@ export default defineComponent({
         return;
       }
       const movie = { ...this.moviePage.selectedMovie };
-      const request = { ...this.moviePage.selectedMovie, genres: movie.genres?.map((g) => g.id) };
+      const request = { ...this.moviePage.selectedMovie, genres: movie.genres?.map((g: { id: any }) => g.id) };
       if (!request) {
         return;
       }

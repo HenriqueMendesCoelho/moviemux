@@ -36,7 +36,10 @@
     </div>
     <div class="col-12 row justify-center q-mt-md">
       <div class="row" v-if="props.createAccount">
-        <p style="color: white">Não tem conta ? <button class="btn-underline" @click="changeTab('create')">Criar agora</button></p>
+        <p style="color: white">
+          Não tem conta ?
+          <button class="btn-underline" @click="changeTab('create')">Criar agora</button>
+        </p>
       </div>
     </div>
   </div>
@@ -45,10 +48,10 @@
 import { useQuasar } from 'quasar';
 import { onMounted, ref } from 'vue';
 
-import { InputValidateRefType } from '@/components/shared/inputText/types/InputValidateRefType';
-import { useUserStore } from '@/stores/UserStore';
-import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
-import InputPassword from '@/components/shared/inputPassword/InputPassword.vue';
+import { InputValidateRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
+import { useUserStore } from 'src/stores/UserStore';
+import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
+import InputPassword from 'src/components/shared/inputPassword/InputPassword.vue';
 import { useRoute, useRouter } from 'vue-router';
 
 type btnFocusRefType = {

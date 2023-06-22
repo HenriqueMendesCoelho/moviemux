@@ -2,7 +2,7 @@ import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 import { defineStore } from 'pinia';
 
-import { tokenPayload } from '@/types/token/TokenType';
+import { tokenPayload } from 'src/types/token/TokenType';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;
 
@@ -41,6 +41,8 @@ export const useUserStore = defineStore('UserStore', {
   },
   actions: {
     async login(payload: { email: string; password: string }): Promise<void> {
+      console.log(BASE_URL);
+      console.log(BASE_URL);
       try {
         const res = await axios.post(`${BASE_URL}/api/login`, payload);
         const responsePayload = res.data;

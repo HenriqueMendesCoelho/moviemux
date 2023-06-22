@@ -14,5 +14,5 @@
 </template>
 
 <script lang="ts" setup>
-import FloatingActionBtnTop from '@/components/shared/floatingActionBtnTop/FloatingActionBtnTop.vue';
+import FloatingActionBtnTop from 'src/components/shared/floatingActionBtnTop/FloatingActionBtnTop.vue';
 </script>

@@ -47,18 +47,18 @@ import { defineComponent, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { mapState } from 'pinia';
 
-import { useMovieStore } from '@/stores/MovieStore';
+import { useMovieStore } from 'src/stores/MovieStore';
 
-import { ConfirmDialogRefType } from '@/components/shared/confirmDialog/types/ConfirmDialogType';
-import { MovieResultResponseTmdb } from '@/types/movie/MovieType';
+import { ConfirmDialogRefType } from 'src/components/shared/confirmDialog/types/ConfirmDialogType';
+import { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
 
-import KitService from '@/services/KitService';
+import KitService from 'src/services/KitService';
 
-import InputText from '@/components/shared/inputText/InputText.vue';
-import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';
-import Movie from '@/domain/movie/movie';
-import ConfirmDialog from '@/components/shared/confirmDialog/ConfirmDialog.vue';
-import CardImage from '@/components/shared/cardImage/CardImage.vue';
+import InputText from 'src/components/shared/inputText/InputText.vue';
+import SeparatorDivSolidLine from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
+import Movie from 'src/domain/movie/movie';
+import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
+import CardImage from 'src/components/shared/cardImage/CardImage.vue';
 
 type divScrollTopRef = {
   $el: {

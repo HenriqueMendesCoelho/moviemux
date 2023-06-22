@@ -6,7 +6,7 @@
           <q-icon name="menu" class="q-mr-sm" size="sm" />
           <q-btn to="/" round flat>
             <q-avatar>
-              <img src="@/assets/logo-kronus.png" />
+              <img src="src/assets/logo-kronus.png" />
             </q-avatar>
           </q-btn>
 
@@ -75,7 +75,7 @@ import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue
 import PageTitle from '../shared/pageTitle/PageTitle.vue';
 import InputPassword from '../shared/inputPassword/InputPassword.vue';
 
-import UserService from '@/services/UserService';
+import UserService from 'src/services/UserService';
 
 const $q = useQuasar();
 const route = useRoute();
@@ -84,8 +84,14 @@ const router = useRouter();
 const email = ref('');
 const newPassword = ref('');
 const confirmNewPassword = ref('');
-const inputPasswordRef = ref<{ hasErrors: () => boolean; resetValidation: () => void }>();
-const inputConfirmPasswordRef = ref<{ hasErrors: () => boolean; resetValidation: () => void }>();
+const inputPasswordRef = ref<{
+  hasErrors: () => boolean;
+  resetValidation: () => void;
+}>();
+const inputConfirmPasswordRef = ref<{
+  hasErrors: () => boolean;
+  resetValidation: () => void;
+}>();
 
 const keyPathParam = computed(() => route.params?.key?.toString());
 
@@ -122,7 +128,10 @@ async function redefinePassword() {
 
   try {
     showLoading();
-    await UserService.redefinePasswordByKey(keyPathParam.value, { email: email.value, password: newPassword.value });
+    await UserService.redefinePasswordByKey(keyPathParam.value, {
+      email: email.value,
+      password: newPassword.value,
+    });
     router.push('/');
   } catch {
     showError('Erro ao executar ação, tente novamente mais tarde.');

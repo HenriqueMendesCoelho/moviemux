@@ -75,12 +75,12 @@ import { ref } from 'vue';
 import { useQuasar } from 'quasar';
 import axios, { AxiosError } from 'axios';
 
-import { InputValidateRefType } from '@/components/shared/inputText/types/InputValidateRefType';
-import UserService from '@/services/UserService';
+import { InputValidateRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
+import UserService from 'src/services/UserService';
 
-import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
+import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 import TooltipPassowordInfo from './tooltipPasswordInfo/TooltipPassowordInfo.vue';
-import InputPassword from '@/components/shared/inputPassword/InputPassword.vue';
+import InputPassword from 'src/components/shared/inputPassword/InputPassword.vue';
 
 const emit = defineEmits<{
   (e: 'changeTab', value: string): void;
@@ -90,8 +90,14 @@ const emit = defineEmits<{
 const $q = useQuasar();
 
 const inputEmailRef = ref<InputValidateRefType>();
-const inputPasswordRef = ref<{ hasErrors: () => boolean; resetValidation: () => void }>();
-const inputRepeatPasswordRef = ref<{ hasErrors: () => boolean; resetValidation: () => void }>();
+const inputPasswordRef = ref<{
+  hasErrors: () => boolean;
+  resetValidation: () => void;
+}>();
+const inputRepeatPasswordRef = ref<{
+  hasErrors: () => boolean;
+  resetValidation: () => void;
+}>();
 const inputNicknameRef = ref<InputValidateRefType>();
 const inputInviteRef = ref<InputValidateRefType>();
 
@@ -138,7 +144,12 @@ async function create() {
     return;
   }
   try {
-    await UserService.create({ name: nickname.value, email: email.value, password: password.value, invite_code: invite.value });
+    await UserService.create({
+      name: nickname.value,
+      email: email.value,
+      password: password.value,
+      invite_code: invite.value,
+    });
     emit('loading', true);
     showSuccess('Conta criada');
     changeTab('login');

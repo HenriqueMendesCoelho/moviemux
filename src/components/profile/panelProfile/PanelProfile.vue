@@ -19,12 +19,12 @@
 import { computed, onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
-import User from '@/domain/user/User';
+import User from 'src/domain/user/User';
 
-import UserService from '@/services/UserService';
+import UserService from 'src/services/UserService';
 
-import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
-import PanelUserInfo from '@/components/shared/panelUserInfo/PanelUserInfo.vue';
+import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
+import PanelUserInfo from 'src/components/shared/panelUserInfo/PanelUserInfo.vue';
 
 const $q = useQuasar();
 const user = ref(new User());
