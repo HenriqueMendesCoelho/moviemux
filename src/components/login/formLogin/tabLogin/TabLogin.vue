@@ -20,7 +20,7 @@
       </q-input>
     </div>
     <div class="col-10 justify-center q-mt-md">
-      <InputPassword v-model="password" required :error-text-required="false" />
+      <InputPassword @keyup.enter="login()" v-model="password" required :error-text-required="false" />
       <button class="btn-underline q-mt-md" @click="changeTab('forgot')">Esqueceu sua senha ?</button>
     </div>
     <div class="col-10 q-mt-xl">
