@@ -2,7 +2,7 @@
   <SideBar />
   <router-view v-slot="{ Component }">
     <KeepAlive :include="['HomePage', 'DiscoverMoviesPage']">
-      <component :class="isExpanded ? 'expanded-sidebar' : 'not-expanded-sidebar'" :is="Component" />
+      <component :class="classSideBar" :is="Component" />
     </KeepAlive>
   </router-view>
   <DialogLogin v-model="showDialogLogin" :actionLogin="login" />
@@ -26,7 +26,10 @@ export default defineComponent({
   },
   computed: {
     ...mapState(useUserStore, ['user', 'showDialogLogin']),
-    ...mapState(useStyleStore, ['isExpanded']),
+    ...mapState(useStyleStore, ['getIsExpanded']),
+    classSideBar() {
+      return this.getIsExpanded ? 'expanded-sidebar' : 'not-expanded-sidebar';
+    },
   },
   methods: {
     login() {

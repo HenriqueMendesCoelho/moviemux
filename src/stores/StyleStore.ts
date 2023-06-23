@@ -21,6 +21,13 @@ export const useStyleStore = defineStore('StyleStore', {
 
       return state.sideBarWidth;
     },
+    getIsExpanded(): boolean {
+      const is_expanded = localStorage.getItem('is_expanded') === 'true' ? true : false;
+      if (is_expanded) {
+        localStorage.setItem('is_expanded', 'true');
+      }
+      return is_expanded || this.isExpanded;
+    },
   },
   actions: {
     ToggleMenuStore() {
