@@ -26,7 +26,6 @@ import SeparatorDivSolidLine from 'src/components/shared/separator/SeparatorDivL
 import SeparatorDivLineSolidVertical from 'src/components/shared/separator/SeparatorDivLineSolidVertical.vue';
 
 interface Props {
-  url: string;
   width?: string;
 }
 
