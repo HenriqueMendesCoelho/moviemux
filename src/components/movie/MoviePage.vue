@@ -150,7 +150,7 @@ export default defineComponent({
         return;
       }
       const movie = { ...this.moviePage.selectedMovie };
-      const request = { ...this.moviePage.selectedMovie, genres: movie.genres?.map((g: { id: any }) => g.id) };
+      const request = { ...this.moviePage.selectedMovie, genres: movie.genres?.map((g: { id: number }) => g.id) };
       if (!request) {
         return;
       }
@@ -178,7 +178,7 @@ export default defineComponent({
     },
     showConfirmDialogCancel() {
       this.confirmDialogRef?.dialog(
-        `Caso cancele todos os dados serão limpos. Você quer cancelar? `,
+        'Caso cancele todos os dados serão limpos. Você quer cancelar? ',
         'cancel',
         'Confirme o cancelamento',
         'Sim'
