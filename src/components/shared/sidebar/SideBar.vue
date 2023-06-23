@@ -95,7 +95,7 @@ export default defineComponent({
     logout() {
       const userStore = useUserStore();
       userStore.$reset();
-      localStorage.clear();
+      localStorage.removeItem('auth-kb');
     },
   },
   beforeMount() {
