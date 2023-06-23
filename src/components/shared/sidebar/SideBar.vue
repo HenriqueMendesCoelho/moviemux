@@ -1,5 +1,5 @@
 <template>
-  <aside :class="`${isExpanded && 'is-expanded'}`">
+  <aside :class="`${layoutSettings.isSideBarExpanded && 'is-expanded'}`">
     <div class="row logo">
       <router-link to="/home">
         <img src="../../../assets/logo-kronus.png" alt="logo" draggable="false" style="z-index: 99" />
@@ -16,28 +16,32 @@
       <router-link to="/home" class="button">
         <span class="material-icons">home</span>
         <span class="text" v-if="showTextsSideBar">Home</span>
-        <CustomTooltip anchor="top right" :offset="[35, 0]" v-if="!isExpanded" :delay="500">HOME</CustomTooltip>
+        <CustomTooltip anchor="top right" :offset="[35, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">HOME</CustomTooltip>
       </router-link>
       <router-link to="/adm" class="button" v-if="isAdmin">
         <span class="material-icons">admin_panel_settings</span>
         <span class="text" v-if="showTextsSideBar">Painel ADM</span>
-        <CustomTooltip anchor="top right" :offset="[50, 0]" v-if="!isExpanded" :delay="500">PAINEL ADM</CustomTooltip>
+        <CustomTooltip anchor="top right" :offset="[50, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">PAINEL ADM</CustomTooltip>
       </router-link>
       <router-link to="/profile" class="button">
         <span class="material-icons">person</span>
         <span class="text" v-if="showTextsSideBar">PERFIL</span>
-        <CustomTooltip anchor="top right" :offset="[35, 0]" v-if="!isExpanded" :delay="500">PERFIL</CustomTooltip>
+        <CustomTooltip anchor="top right" :offset="[35, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">PERFIL</CustomTooltip>
       </router-link>
       <router-link to="/movie/add" class="button">
         <span class="material-icons">add</span>
         <span class="text" v-if="showTextsSideBar" id="textAddMovie">ADICIONAR FILME</span>
-        <CustomTooltip anchor="top right" :offset="[65, 0]" v-if="!isExpanded" :delay="500">ADICIONAR FILME</CustomTooltip>
+        <CustomTooltip anchor="top right" :offset="[65, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500"
+          >ADICIONAR FILME</CustomTooltip
+        >
       </router-link>
       <router-link to="/movie/discover" class="button" style="position: relative">
         <q-badge class="q-mr-sm" label="novo" color="kb-primary" rounded floating />
         <span class="material-icons">search</span>
         <span class="text" v-if="showTextsSideBar" id="textAddMovie">DESCOBRIR FILMES</span>
-        <CustomTooltip anchor="top right" :offset="[65, 0]" v-if="!isExpanded" :delay="500">DESCOBRIR FILMES</CustomTooltip>
+        <CustomTooltip anchor="top right" :offset="[65, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500"
+          >DESCOBRIR FILMES</CustomTooltip
+        >
       </router-link>
     </div>
 
@@ -47,12 +51,12 @@
         <span class="material-icons" draggable="false" v-if="layoutSettings.darkMode"> light_mode </span>
         <span class="material-icons" draggable="false" v-else> dark_mode </span>
         <span class="text" draggable="false">Tema</span>
-        <CustomTooltip anchor="top right" :offset="[30, 0]" v-if="!isExpanded" :delay="500">Tema</CustomTooltip>
+        <CustomTooltip anchor="top right" :offset="[30, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">Tema</CustomTooltip>
       </button>
       <router-link @click="logout" to="/" class="button">
         <span class="material-icons">logout</span>
         <span class="text">Sair</span>
-        <CustomTooltip anchor="top right" :offset="[30, 0]" v-if="!isExpanded" :delay="500">Sair</CustomTooltip>
+        <CustomTooltip anchor="top right" :offset="[30, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">Sair</CustomTooltip>
       </router-link>
     </div>
   </aside>
@@ -74,23 +78,23 @@ export default defineComponent({
   },
   data() {
     return {
-      isExpanded: false,
       showTextsSideBar: false,
     };
   },
   computed: {
-    ...mapState(useStyleStore, ['backgroundColor', 'sideBarWidth', 'layoutSettings']),
+    ...mapState(useStyleStore, ['backgroundColor', 'layoutSettings']),
     ...mapState(useUserStore, ['user']),
     isAdmin() {
       return this.user.roles.includes('ADM');
     },
   },
+  mounted() {
+    this.showTextsSideBar = this.layoutSettings.isSideBarExpanded;
+  },
   methods: {
-    ...mapActions(useStyleStore, ['ToggleMenuStore', 'setIsExpanded', 'darkThemeToggle']),
+    ...mapActions(useStyleStore, ['darkThemeToggle']),
     ToggleMenu() {
-      this.isExpanded = !this.isExpanded;
-      this.ToggleMenuStore();
-      localStorage.setItem('is_expanded', this.isExpanded.toString());
+      this.layoutSettings.isSideBarExpanded = !this.layoutSettings.isSideBarExpanded;
     },
     logout() {
       const userStore = useUserStore();
@@ -98,19 +102,18 @@ export default defineComponent({
       localStorage.removeItem('auth-kb');
     },
   },
-  beforeMount() {
-    this.isExpanded = localStorage.getItem('is_expanded') == 'true' ? true : false;
-  },
   watch: {
-    isExpanded(val) {
-      if (val) {
-        setTimeout(() => {
-          this.showTextsSideBar = true;
-          return;
-        }, 80);
-      }
-      this.showTextsSideBar = false;
-      return;
+    layoutSettings: {
+      handler: function (val: { isSideBarExpanded: boolean }) {
+        if (val.isSideBarExpanded) {
+          setTimeout(() => {
+            this.showTextsSideBar = true;
+            return;
+          }, 80);
+        }
+        this.showTextsSideBar = false;
+      },
+      deep: true,
     },
   },
 });

@@ -107,7 +107,6 @@ export default defineComponent({
     };
   },
   computed: {
-    ...mapState(useStyleStore, ['getMarginSideBar']),
     ...mapState(useMovieStore, ['moviePage']),
     routeName(): RouteRecordName | null | undefined {
       return this.$route.name;
