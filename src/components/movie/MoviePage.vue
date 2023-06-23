@@ -1,6 +1,6 @@
 <template>
   <ContainerMain>
-    <div :class="isMobile ? 'column q-gutter-y-md' : 'row'">
+    <div>
       <SuperiorButtonsMovie />
       <SeparatorDivSolidLine />
     </div>
@@ -25,8 +25,8 @@
         </div>
       </div>
     </div>
-    <ImportMovie :visible="moviePage.showImportMovieDialog" :moviePathId="routeIDPath" />
-    <ConfirmDialog ref="confirmDialogRef" @ok="resetForm()" />
+    <ImportMovie :visible="moviePage.showImportMovieDialog" />
+    <ConfirmDialog ref="confirmDialogRef" @ok="cancel()" />
   </ContainerMain>
 </template>
 
@@ -124,6 +124,9 @@ export default defineComponent({
     await this.loadMovie();
     if (this.routeName === 'add') {
       this.resetForm();
+    }
+    if (this.routeName === 'movie') {
+      this.moviePage.isEditing = false;
     }
     return Promise.resolve();
   },
@@ -244,6 +247,15 @@ export default defineComponent({
           },
         ],
       });
+    },
+    async cancel() {
+      if (this.routeName === 'add') {
+        this.resetForm();
+        return;
+      }
+
+      this.moviePage.isEditing = false;
+      await this.loadMovie();
     },
   },
 });
