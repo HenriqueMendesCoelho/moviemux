@@ -71,10 +71,9 @@
     <ConfirmDialogPrompt ref="confirmDialogPromptRef" @ok="createNote($event)" />
   </div>
 </template>
-<script lang="ts">
-import { defineComponent, ref } from 'vue';
+<script setup lang="ts">
+import { ref, computed } from 'vue';
 import { useQuasar } from 'quasar';
-import { mapActions, mapState } from 'pinia';
 
 import type { QTableProps } from 'quasar';
 import { MovieNoteType } from 'src/types/movie/MovieType';
@@ -92,185 +91,172 @@ import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue
 import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
 import ConfirmDialogPrompt from './confirmDialogPrompt/ConfirmDialogPrompt.vue';
 
-export default defineComponent({
-  name: 'NotesDescription',
-  components: { SeparatorDivSolidLine, CustomTooltip, ConfirmDialog, ConfirmDialogPrompt },
-  props: {
-    isRegisterOrEditing: {
-      type: Boolean,
-    },
-    movieId: {
-      type: [String, Array<string>],
-    },
+interface Props {
+  isRegisterOrEditing: boolean;
+  movieId: string | string[];
+}
+
+const props = defineProps<Props>();
+
+const columns = ref<QTableProps['columns']>([
+  {
+    name: 'owner',
+    label: '',
+    field: '',
+    align: 'right',
   },
-  setup() {
-    const columns: QTableProps['columns'] = [
-      {
-        name: 'owner',
-        label: '',
-        field: '',
-        align: 'right',
-      },
-      {
-        name: 'userName',
-        label: 'Nome',
-        field: (row) => row.user.name,
-        align: 'center',
-        sortable: true,
-      },
-      {
-        name: 'note',
-        label: 'Nota',
-        field: 'note',
-        align: 'center',
-      },
-      {
-        name: 'createdAt',
-        label: 'Criado em',
-        field: 'created_at',
-        align: 'center',
-        format: (val) => new Date(val).toLocaleString(),
-      },
-      {
-        name: 'updatedAt',
-        label: 'Atualizado em',
-        field: 'updated_at',
-        align: 'center',
-        format: (val) => new Date(val).toLocaleString(),
-      },
-      {
-        name: 'actions',
-        label: '',
-        field: '',
-        align: 'center',
-      },
-    ];
-    const $q = useQuasar();
-    const inputNoteRef = ref<InputTextRefType>();
-    const confirmDialogRef = ref<ConfirmDialogRefType>();
-    const confirmDialogPromptRef = ref<ConfirmDialogPromptRefType>();
-    return {
-      columns,
-      inputNoteRef,
-      confirmDialogRef,
-      confirmDialogPromptRef,
-      showSuccess(msg: string) {
-        $q.notify({
-          type: 'positive',
-          message: msg,
-          position: 'top',
-        });
-      },
-      showError(msg: string) {
-        $q.notify({
-          type: 'negative',
-          message: msg,
-          position: 'top',
-        });
-      },
-    };
+  {
+    name: 'userName',
+    label: 'Nome',
+    field: (row) => row.user.name,
+    align: 'center',
+    sortable: true,
   },
-  data() {
-    return {
-      loading: false,
-    };
+  {
+    name: 'note',
+    label: 'Nota',
+    field: 'note',
+    align: 'center',
   },
-  computed: {
-    ...mapState(useMovieStore, ['moviePage', 'isUserAlreadyVoted']),
-    ...mapState(useUserStore, ['user']),
+  {
+    name: 'createdAt',
+    label: 'Criado em',
+    field: 'created_at',
+    align: 'center',
+    format: (val) => new Date(val).toLocaleString(),
   },
-  methods: {
-    ...mapActions(useMovieStore, ['removeNoteFromStore']),
-    showEdit(row: MovieNoteType): boolean {
-      return row.user.id === this.user.id;
-    },
-    showCrown(row: MovieNoteType): boolean {
-      return row.user.id === this.moviePage.selectedMovie.user_id;
-    },
-    showConfirmDialogDelete() {
-      this.confirmDialogRef?.dialog('Quer mesmo excluir sua nota?', 'cancel', 'Confirme a exclusão', 'Deletar');
-    },
-    showConfirmPromptDelete() {
-      this.confirmDialogPromptRef?.dialog();
-    },
-    async createNote(note: string) {
-      const noteConverted = parseInt(note);
-      if (typeof noteConverted !== 'number') {
-        return false;
-      }
-
-      try {
-        this.loading = true;
-        const res = await MovieService.createMovieNote(noteConverted, this.movieId);
-        this.moviePage.selectedMovie.notes?.push(res);
-      } catch {
-        this.showError('Erro ao cadastrar nota.');
-      } finally {
-        this.loading = false;
-      }
-    },
-    async getMovieNotes() {
-      if (!this.movieId) {
-        return;
-      }
-
-      try {
-        this.loading = true;
-        const res = await MovieService.getMovieNotes(this.movieId);
-        this.moviePage.selectedMovie.notes = res;
-      } catch {
-        this.showError('Erro ao buscar notas.');
-      } finally {
-        this.loading = false;
-      }
-    },
-    async updateNote(row: MovieNoteType, note: string) {
-      try {
-        this.loading = true;
-
-        const noteConvertedToNumber = parseInt(note);
-        if (!noteConvertedToNumber) {
-          return;
-        }
-
-        await MovieService.updateMovieNotes(noteConvertedToNumber, this.movieId);
-        row.note = noteConvertedToNumber;
-        this.showSuccess('Nota atualizada.');
-      } catch {
-        this.showError('Erro ao atualizar nota.');
-      } finally {
-        this.loading = false;
-      }
-    },
-    async deleteNote() {
-      try {
-        this.loading = true;
-
-        await MovieService.deleteMovieNotes(this.movieId);
-        this.removeNoteFromStore(this.user.id);
-        this.showSuccess('Nota deletada.');
-      } catch {
-        this.showError('Erro ao deletar nota.');
-      } finally {
-        this.loading = false;
-      }
-    },
-    ruleInputNote(val: string) {
-      const noteConvertedToNumber = parseInt(val);
-      if (typeof noteConvertedToNumber !== 'number') {
-        return false;
-      }
-
-      return noteConvertedToNumber <= 10 ? true : 'A nota pode ser no máximo 10.';
-    },
-    rulePopUp(val: string) {
-      const noteConvertedToNumber = parseInt(val);
-      if (typeof noteConvertedToNumber !== 'number') {
-        return false;
-      }
-
-      return noteConvertedToNumber <= 10;
-    },
+  {
+    name: 'updatedAt',
+    label: 'Atualizado em',
+    field: 'updated_at',
+    align: 'center',
+    format: (val) => new Date(val).toLocaleString(),
   },
-});
+  {
+    name: 'actions',
+    label: '',
+    field: '',
+    align: 'center',
+  },
+]);
+
+const $q = useQuasar();
+const inputNoteRef = ref<InputTextRefType>();
+const confirmDialogRef = ref<ConfirmDialogRefType>();
+const confirmDialogPromptRef = ref<ConfirmDialogPromptRefType>();
+
+const movieStore = useMovieStore();
+const userStore = useUserStore();
+
+const loading = ref(false);
+
+const moviePage = computed(() => movieStore.moviePage);
+const isUserAlreadyVoted = computed(() => movieStore.isUserAlreadyVoted);
+const user = computed(() => userStore.user);
+
+function showSuccess(msg: string) {
+  $q.notify({
+    type: 'positive',
+    message: msg,
+    position: 'top',
+  });
+}
+function showError(msg: string) {
+  $q.notify({
+    type: 'negative',
+    message: msg,
+    position: 'top',
+  });
+}
+
+function showEdit(row: MovieNoteType): boolean {
+  return row.user.id === user.value.id;
+}
+function showCrown(row: MovieNoteType): boolean {
+  return row.user.id === moviePage.value.selectedMovie.user_id;
+}
+function showConfirmDialogDelete() {
+  confirmDialogRef.value?.dialog('Quer mesmo excluir sua nota?', 'cancel', 'Confirme a exclusão', 'Deletar');
+}
+function showConfirmPromptDelete() {
+  confirmDialogPromptRef.value?.dialog();
+}
+async function createNote(note: string) {
+  const noteConverted = parseInt(note);
+  if (typeof noteConverted !== 'number') {
+    return false;
+  }
+
+  try {
+    loading.value = true;
+    const res = await MovieService.createMovieNote(noteConverted, props.movieId);
+    moviePage.value.selectedMovie.notes?.push(res);
+  } catch {
+    showError('Erro ao cadastrar nota.');
+  } finally {
+    loading.value = false;
+  }
+}
+async function getMovieNotes() {
+  if (!props.movieId) {
+    return;
+  }
+
+  try {
+    loading.value = true;
+    const res = await MovieService.getMovieNotes(props.movieId);
+    moviePage.value.selectedMovie.notes = res;
+  } catch {
+    showError('Erro ao buscar notas.');
+  } finally {
+    loading.value = false;
+  }
+}
+async function updateNote(row: MovieNoteType, note: string) {
+  try {
+    loading.value = true;
+
+    const noteConvertedToNumber = parseInt(note);
+    if (!noteConvertedToNumber) {
+      return;
+    }
+
+    await MovieService.updateMovieNotes(noteConvertedToNumber, props.movieId);
+    row.note = noteConvertedToNumber;
+    showSuccess('Nota atualizada.');
+  } catch {
+    showError('Erro ao atualizar nota.');
+  } finally {
+    loading.value = false;
+  }
+}
+async function deleteNote() {
+  try {
+    loading.value = true;
+
+    await MovieService.deleteMovieNotes(props.movieId);
+    movieStore.removeNoteFromStore(user.value.id);
+    showSuccess('Nota deletada.');
+  } catch {
+    showError('Erro ao deletar nota.');
+  } finally {
+    loading.value = false;
+  }
+}
+function ruleInputNote(val: string) {
+  const noteConvertedToNumber = parseInt(val);
+  if (typeof noteConvertedToNumber !== 'number') {
+    return false;
+  }
+
+  return noteConvertedToNumber <= 10 ? true : 'A nota pode ser no máximo 10.';
+}
+function rulePopUp(val: string) {
+  const noteConvertedToNumber = parseInt(val);
+  if (typeof noteConvertedToNumber !== 'number') {
+    return false;
+  }
+
+  return noteConvertedToNumber <= 10;
+}
 </script>
