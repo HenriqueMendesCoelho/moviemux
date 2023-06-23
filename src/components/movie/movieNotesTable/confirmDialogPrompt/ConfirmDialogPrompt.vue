@@ -9,7 +9,7 @@ const $q = useQuasar();
 defineExpose({ dialog });
 
 const emit = defineEmits<{
-  (e: 'ok', value: any): void;
+  (e: 'ok', value: string | undefined): void;
   (e: 'cancel', value: void): void;
 }>();
 
