@@ -41,8 +41,6 @@ export const useUserStore = defineStore('UserStore', {
   },
   actions: {
     async login(payload: { email: string; password: string }): Promise<void> {
-      console.log(BASE_URL);
-      console.log(BASE_URL);
       try {
         const res = await axios.post(`${BASE_URL}/api/login`, payload);
         const responsePayload = res.data;

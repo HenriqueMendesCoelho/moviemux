@@ -83,7 +83,6 @@ function showTopButtons() {
   return routeName.value === 'movie';
 }
 function showEditAndDeleteButton() {
-  console.log(moviePage.value);
   if (moviePage.value.isEditing) {
     return false;
   }

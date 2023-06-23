@@ -115,7 +115,6 @@ watch(
 );
 
 async function firstSearch() {
-  console.log('teste');
   cardScrollRef.value?.$el.scrollTo({
     top: 0,
     left: 0,

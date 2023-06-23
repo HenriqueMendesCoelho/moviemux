@@ -146,7 +146,6 @@ export default defineComponent({
   methods: {
     runtimeToText() {
       const runtime = this.user.statistics?.theoretical_total_minutes_watched;
-      console.log(this.user.statistics?.theoretical_total_minutes_watched);
       if (!runtime) {
         return '0';
       }
