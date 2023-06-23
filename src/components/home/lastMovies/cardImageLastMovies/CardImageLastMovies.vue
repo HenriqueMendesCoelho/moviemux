@@ -1,7 +1,7 @@
 <template>
   <div class="row justify-center items-center">
     <router-link :to="{ name: 'movie', params: { id: id } }" class="container-img" style="border-radius: 50px">
-      <CardImage :src="url" height="95%" width="210px" :animate="false"> </CardImage>
+      <CardImage class="card" :src="url" height="95%" width="210px" :animate="false"> </CardImage>
       <figcaption>{{ getTitle(20) }}</figcaption>
       <ContextMenuHome :movie-id="id || ''" />
     </router-link>
@@ -36,5 +36,11 @@ function getTitle(size: number): string | void {
 .container-img {
   text-decoration: none;
   color: var(--light-grey2);
+}
+
+.card {
+  &:hover {
+    transform: scale(1.02);
+  }
 }
 </style>

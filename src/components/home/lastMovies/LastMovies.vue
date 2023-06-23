@@ -1,5 +1,5 @@
 <template>
-  <div class="div-lastfilms" v-if="movies?.length">
+  <div class="div-lastfilms q-pa-md" v-if="movies?.length">
     <div class="div-title">
       <q-btn
         :class="`icon-animate ${!isVisibleLastFilms && 'last-films-toggle'}`"
@@ -14,7 +14,7 @@
       <q-btn icon="refresh" color="white" round flat @click="loadLastMovies()" />
     </div>
     <div class="row justify-center q-mt-md" v-auto-animate>
-      <div class="row no-wrap scroll q-col-gutter-md" v-if="isVisibleLastFilms">
+      <div class="col-12 row no-wrap justify-center scroll q-col-gutter-lg" v-if="isVisibleLastFilms">
         <div v-for="movie of movies.slice(0, 10)" :key="movie.id">
           <CardImageMovie class="col-auto" :id="movie.id" :title="movie.portuguese_title" :url="movie.url_image" :footer="true" />
         </div>
@@ -46,13 +46,8 @@ async function loadLastMovies() {
 
 <style lang="scss" scoped>
 .div-lastfilms {
-  display: flex;
-  flex-direction: column;
-  padding: 1rem;
   overflow: hidden;
   transition: 0.2s ease-out;
-
-  max-width: 100%;
 
   max-height: 480px;
 
