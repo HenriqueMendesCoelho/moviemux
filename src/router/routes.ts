@@ -24,6 +24,15 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        path: '/login',
+        redirect: () => {
+          return { name: 'login' };
+        },
+        meta: {
+          roles: ['UNSECURE'],
+        },
+      },
+      {
         path: '/:pathMatch(.*)*',
         name: 'notFound',
         component: () => import('src/components/notFound/NotFound.vue'),
