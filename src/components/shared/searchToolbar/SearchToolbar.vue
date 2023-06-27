@@ -11,7 +11,11 @@
       color="kb-primary"
       maxlength="150"
       @keyup.enter="emit('search')"
-    />
+      @focus="emit('inputSearchFocus', true)"
+      @blur="emit('inputSearchFocus', false)"
+    >
+      <slot name="input-search"></slot>
+    </q-input>
     <q-btn icon="search" flat round @click="emit('search')" />
     <q-separator class="q-mx-md" dark vertical inset />
     <q-select
@@ -31,7 +35,7 @@
       emit-value
       map-options
     />
-    <slot></slot>
+    <slot name="append"></slot>
     <q-separator class="q-mx-md" dark vertical inset />
     <q-btn @click="emit('refresh')" icon="refresh" flat round />
   </q-toolbar>
@@ -52,6 +56,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   (e: 'inputSearch', value: string): void;
+  (e: 'inputSearchFocus', value: boolean): void;
   (e: 'selectOrder', value: string | undefined | { label: string; value: string }): void;
   (e: 'search', value: void): void;
   (e: 'refresh', value: void): void;
