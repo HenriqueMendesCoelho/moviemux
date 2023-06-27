@@ -36,7 +36,6 @@ import { RouteRecordName } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { mapActions, mapState } from 'pinia';
 
-import { useStyleStore } from 'src/stores/StyleStore';
 import { useMovieStore } from 'src/stores/MovieStore';
 
 import { ConfirmDialogRefType } from '../shared/confirmDialog/types/ConfirmDialogType';
