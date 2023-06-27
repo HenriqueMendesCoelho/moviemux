@@ -11,7 +11,7 @@
       />
       <h4>Últimos Filmes</h4>
       <div style="flex: 1 1 0"></div>
-      <q-btn icon="refresh" color="white" round flat @click="loadLastMovies()" />
+      <q-btn icon="refresh" color="white" round flat @click="loadLastMovies()" :loading="loading" />
     </div>
     <div class="row justify-center q-mt-md" v-auto-animate>
       <div class="col-12 row no-wrap justify-center scroll q-col-gutter-lg" v-if="isVisibleLastFilms">
@@ -25,20 +25,39 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
+import { useQuasar } from 'quasar';
 
 import Movie from 'src/domain/movie/movie';
 import MovieService from 'src/services/MovieService';
 
 import CardImageMovie from './cardImageLastMovies/CardImageLastMovies.vue';
 
+const $q = useQuasar();
+
 const isVisibleLastFilms = ref(true);
 const movies = ref<Movie[]>([]);
+const loading = ref(false);
 
 onMounted(async () => {
   await loadLastMovies();
 });
 
+function showError(msg: string) {
+  $q.notify({
+    type: 'negative',
+    message: msg,
+    position: 'top',
+  });
+}
+
 async function loadLastMovies() {
+  try {
+    loading.value = true;
+  } catch (error) {
+    showError('Erro ao executar, tente novamente mais tarde.');
+  } finally {
+    loading.value = false;
+  }
   const res = await MovieService.listMoviesPageable(1, 10, 'createdAt,desc');
   movies.value = res.content;
 }
