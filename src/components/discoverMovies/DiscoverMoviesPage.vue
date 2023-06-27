@@ -28,7 +28,12 @@
         </div>
         <FloatingActionBtnTop />
       </div>
-      <DialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" position="standard" />
+      <DialogFormMovieSummary
+        v-model="showDialogMovieSummary"
+        :movie-id="movieIdDialog"
+        position="standard"
+        @copy-url="copyMovie(movieIdDialog)"
+      />
     </div>
   </ContainerMain>
 </template>
@@ -36,6 +41,7 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
+import { useRoute } from 'vue-router';
 
 import { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
 
@@ -50,6 +56,8 @@ import FloatingActionBtnTop from 'src/components/shared/floatingActionBtnTop/Flo
 import KitService from 'src/services/KitService';
 
 const $q = useQuasar();
+const route = useRoute();
+
 const searchText = ref('');
 const filterOptions = ref([
   { label: 'Popularares', value: 'popular' },
@@ -68,6 +76,16 @@ const loading = ref(false);
 const movieIdSelected = ref(0);
 const movieIdDialog = ref(0);
 const showDialogMovieSummary = ref(false);
+
+onMounted(() => {
+  const movieParam = parseInt(route.query.movie?.toString() || '');
+
+  if (!movieParam) {
+    return;
+  }
+
+  showDialog(movieParam);
+});
 
 function showError(msg: string) {
   $q.notify({
@@ -228,6 +246,15 @@ async function getMoviesRecommendations() {
 function showDialog(movieId: number) {
   showDialogMovieSummary.value = true;
   movieIdDialog.value = movieId;
+}
+function copyMovie(id?: number) {
+  if (!id) {
+    return;
+  }
+
+  const url = `${window.location.origin}/movie/discover?movie=${id}`;
+  navigator.clipboard.writeText(url);
+  return url ? url : '';
 }
 </script>
 

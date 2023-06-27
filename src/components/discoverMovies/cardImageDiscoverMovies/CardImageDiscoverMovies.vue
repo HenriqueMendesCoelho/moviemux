@@ -45,6 +45,7 @@
         </q-list>
       </q-menu>
     </q-btn>
+    <ContextMenuDiscover :movie-id="props.movie.id" />
   </CardImage>
 </template>
 <script setup lang="ts">
@@ -52,6 +53,7 @@ import { ref } from 'vue';
 
 import { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
 import CardImage from 'src/components/shared/cardImage/CardImage.vue';
+import ContextMenuDiscover from './contextMenuDiscover/ContextMenuDiscover.vue';
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 interface Props {

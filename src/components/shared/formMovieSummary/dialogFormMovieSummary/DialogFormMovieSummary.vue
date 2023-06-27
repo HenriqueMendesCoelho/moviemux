@@ -3,13 +3,16 @@
     <q-card class="bg-grey-dark2 dialog-container" :style="conditionalCardStyle()">
       <q-bar class="bg-grey-dark2 q-mt-xs">
         <q-space />
-        <q-btn dense flat icon="minimize" color="white" size="md" @click="maximizedToggle = false" :disable="!maximizedToggle">
+        <q-btn round dense flat icon="link" color="white" size="md" @click="emit('copyUrl')">
+          <CustomTooltip :delay="400">Copiar URL</CustomTooltip>
+        </q-btn>
+        <q-btn round dense flat icon="minimize" color="white" size="md" @click="maximizedToggle = false" :disable="!maximizedToggle">
           <CustomTooltip :delay="400" v-if="maximizedToggle">Minimizar</CustomTooltip>
         </q-btn>
-        <q-btn dense flat icon="crop_square" color="white" size="md" @click="maximizedToggle = true" :disable="maximizedToggle">
+        <q-btn round dense flat icon="crop_square" color="white" size="md" @click="maximizedToggle = true" :disable="maximizedToggle">
           <CustomTooltip :delay="400" v-if="!maximizedToggle">Maximizar</CustomTooltip>
         </q-btn>
-        <q-btn dense flat icon="close" color="white" size="md" v-close-popup>
+        <q-btn round dense flat icon="close" color="white" size="md" v-close-popup>
           <CustomTooltip :delay="400">Fechar</CustomTooltip>
         </q-btn>
       </q-bar>
@@ -36,6 +39,7 @@ const maximizedToggle = ref(false);
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'hide', value: number): void;
+  (e: 'copyUrl', value: void): void;
 }>();
 
 watch(
