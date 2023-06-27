@@ -62,6 +62,7 @@ async function loadMovie() {
 }
 function scrollBackToPosition() {
   window.scrollTo(0, currentPosition.value);
+  maximizedToggle.value = false;
 }
 function conditionalCardStyle() {
   return !maximizedToggle.value ? 'border-radius: 15px; border: var(--grey-mid) solid 5px;' : 'border-radius: 0px; border: none;';
