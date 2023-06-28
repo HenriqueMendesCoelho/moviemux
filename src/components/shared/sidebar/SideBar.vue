@@ -35,8 +35,7 @@
           >ADICIONAR FILME</CustomTooltip
         >
       </router-link>
-      <router-link to="/movie/discover" class="button" style="position: relative">
-        <q-badge class="q-mr-sm" label="novo" color="kb-primary" rounded floating />
+      <router-link to="/movie/discover" class="button">
         <span class="material-icons">search</span>
         <span class="text" v-if="showTextsSideBar" id="textAddMovie">DESCOBRIR FILMES</span>
         <CustomTooltip anchor="top right" :offset="[65, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500"
