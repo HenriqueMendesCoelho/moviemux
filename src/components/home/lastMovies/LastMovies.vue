@@ -14,7 +14,7 @@
       <q-btn icon="refresh" color="white" round flat @click="loadLastMovies()" :loading="loading" />
     </div>
     <div class="row justify-center q-mt-md" v-auto-animate>
-      <div class="col-12 row no-wrap justify-center scroll q-col-gutter-lg" v-if="isVisibleLastFilms">
+      <div class="col-auto row no-wrap scroll q-col-gutter-lg" v-if="isVisibleLastFilms">
         <div v-for="movie of movies.slice(0, 10)" :key="movie.id">
           <CardImageMovie class="col-auto" :id="movie.id" :title="movie.portuguese_title" :url="movie.url_image" :footer="true" />
         </div>
@@ -65,7 +65,7 @@ async function loadLastMovies() {
 
 <style lang="scss" scoped>
 .div-lastfilms {
-  overflow: hidden;
+  //overflow: auto;
   transition: 0.2s ease-out;
 
   max-height: 480px;
