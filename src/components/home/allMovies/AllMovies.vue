@@ -9,7 +9,23 @@
         @select-order="orderOption = $event"
         @refresh="refreshSearch()"
         @search="btnSearchAction()"
-      />
+        @input-search-focus="menuIsFocused = $event"
+      >
+        <template #input-search>
+          <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
+            <q-list dense dark>
+              <div v-for="movie in moviesSearchToolbar" :key="movie.id">
+                <q-item bordered clickable v-close-popup>
+                  <q-item-section v-close-popup class="q-pl-sm" @click="searchActionToolbar(movie.portuguese_title)">{{
+                    movie.portuguese_title
+                  }}</q-item-section>
+                </q-item>
+                <q-separator dark />
+              </div>
+            </q-list>
+          </q-menu>
+        </template>
+      </SearchToolbar>
     </div>
     <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="10">
       <div class="row justify-center q-col-gutter-xl">
@@ -25,7 +41,8 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+import { useQuasar } from 'quasar';
 
 import Movie from 'src/domain/movie/movie';
 
@@ -33,12 +50,16 @@ import CardImageAllMovies from './cardImageAllMovies/CardImageAllMovies.vue';
 import MovieService from 'src/services/MovieService';
 import FloatingActionButton from './floatingActionButton/FloatingActionButton.vue';
 import SearchToolbar from 'src/components/shared/searchToolbar/SearchToolbar.vue';
+import { MoviePageableType } from 'src/types/movie/MovieType';
 
 const infinitScrollRef = ref<{
   resume: () => void;
 }>();
 
+const $q = useQuasar();
+
 const movies = ref<Movie[]>([]);
+const moviesSearchToolbar = ref<Movie[]>([]);
 const loading = ref(false);
 const pagesFouded = ref(2);
 const page = ref(1);
@@ -69,11 +90,34 @@ const orderOptions = [
   { label: 'Duração (Mais Curto)', value: 'runtime,asc' },
 ];
 
+const menuIsFocused = ref(false);
+
+const showMenu = computed<boolean>(() => {
+  return !!searchText.value && menuIsFocused.value && !!moviesSearchToolbar.value?.length;
+});
+
 onMounted(() => {
   loading.value = false;
   pagesFouded.value = 2;
   page.value = 1;
 });
+
+watch(
+  () => searchText.value,
+  async (val: string) => {
+    pagesFouded.value = 2;
+    page.value = 1;
+    moviesSearchToolbar.value = (await searchMoviesByTitle(val)).content;
+  }
+);
+
+function showError(msg = 'Erro ao executar ação, tente novamente mais tarde') {
+  $q.notify({
+    type: 'negative',
+    message: msg,
+    position: 'top',
+  });
+}
 
 async function btnSearchAction(): Promise<void> {
   if (!searchText.value && !orderOption.value) {
@@ -89,7 +133,6 @@ async function search(pageParam = 1): Promise<void> {
   const res = await searchMoviePageable();
   movies.value = res;
   loading.value = false;
-  return Promise.resolve();
 }
 async function refreshSearch(): Promise<void> {
   orderOption.value = '';
@@ -99,38 +142,67 @@ async function refreshSearch(): Promise<void> {
   return Promise.resolve();
 }
 async function onLoad(index: number, done: (stop?: boolean) => void): Promise<void> {
-  if (page.value > pagesFouded.value) {
+  if (page.value >= pagesFouded.value) {
     done(true);
     return;
   }
   const result = await searchMoviePageable();
-  movies.value.push(...result);
+  movies.value?.push(...result);
   done();
   loading.value = false;
   return Promise.resolve();
 }
 async function searchMoviePageable(): Promise<Movie[]> {
   if (searchText.value) {
-    const res = await MovieService.listMoviesByTitlePageable(page.value, searchText.value);
-    pagesFouded.value = res.total_pages;
-    page.value++;
-    if (page.value >= pagesFouded.value) {
-      loading.value = true;
-    }
+    try {
+      const res = await searchMoviesByTitle(searchText.value, page.value);
+      pagesFouded.value = res.total_pages;
+      page.value++;
+      if (page.value >= pagesFouded.value) {
+        loading.value = true;
+      }
 
-    return Promise.resolve(res.content);
-  } else {
-    const res = await MovieService.listMoviesPageable(
-      page.value,
-      30,
-      typeof orderOption.value === 'object' ? orderOption.value.value : orderOption.value
-    );
-    pagesFouded.value = res.total_pages;
-    page.value++;
-    if (page.value >= pagesFouded.value) {
-      loading.value = true;
+      return res.content;
+    } catch (error) {
+      showError();
+      return [] as Movie[];
     }
-    return Promise.resolve(res.content);
+  } else {
+    try {
+      const res = await searchMovies(typeof orderOption.value === 'object' ? orderOption.value.value : orderOption.value, page.value);
+      pagesFouded.value = res?.total_pages;
+      page.value++;
+      if (page.value >= pagesFouded.value) {
+        loading.value = true;
+      }
+      return res.content;
+    } catch (error) {
+      showError();
+      return [] as Movie[];
+    }
   }
+}
+async function searchMoviesByTitle(title: string, page = 1) {
+  try {
+    const res = await MovieService.listMoviesByTitlePageable(page, title);
+    return res;
+  } catch (error) {
+    return Promise.reject(error);
+  }
+}
+async function searchMovies(sort: string | undefined, page = 1, size = 30): Promise<MoviePageableType> {
+  try {
+    const res = await MovieService.listMoviesPageable(page, size, sort);
+    return res;
+  } catch (error) {
+    return Promise.reject(error);
+  }
+}
+async function searchActionToolbar(title?: string): Promise<void> {
+  if (!title) {
+    return;
+  }
+  searchText.value = title;
+  await btnSearchAction();
 }
 </script>
