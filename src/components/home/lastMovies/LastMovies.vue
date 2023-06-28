@@ -14,7 +14,7 @@
       <q-btn icon="refresh" color="white" round flat @click="loadLastMovies()" :loading="loading" />
     </div>
     <div class="row justify-center q-mt-md" v-auto-animate>
-      <div class="col-auto row no-wrap scroll q-col-gutter-lg" v-if="isVisibleLastFilms">
+      <div class="col-auto row no-wrap scroll q-col-gutter-lg justify-center-md q-px-xs" v-if="isVisibleLastFilms">
         <div v-for="movie of movies.slice(0, 10)" :key="movie.id">
           <CardImageMovie class="col-auto" :id="movie.id" :title="movie.portuguese_title" :url="movie.url_image" :footer="true" />
         </div>
