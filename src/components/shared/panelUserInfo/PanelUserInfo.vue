@@ -36,7 +36,7 @@
     </div>
     <div class="col-md-8 col-sm-12 q-mt-md">
       <div class="row q-col-gutter-md">
-        <div class="col-md-6 col-sm-12">
+        <div class="col-md col-sm-12">
           <q-input
             :model-value="user.roles?.join(', ')"
             square
@@ -48,7 +48,7 @@
             :readonly="true"
           />
         </div>
-        <div class="col-md-6 col-sm-12">
+        <div class="col-md col-sm-12">
           <q-input
             :model-value="new Date(user.created_at).toLocaleString()"
             square
@@ -90,12 +90,24 @@
         </div>
         <div class="col-md col-sm-12">
           <q-input
-            :model-value="runtimeToText()"
+            :model-value="displayTimeToText()"
             square
             filled
             standout="text-info"
             color="info"
             label="Tempo de Exibição"
+            dark
+            :readonly="true"
+          />
+        </div>
+        <div class="col-md col-sm-12">
+          <q-input
+            :model-value="user.statistics.average_rating_movies?.toFixed(2)"
+            square
+            filled
+            standout="text-info"
+            color="info"
+            label="Nota Média"
             dark
             :readonly="true"
           />
@@ -144,8 +156,8 @@ export default defineComponent({
     }
   },
   methods: {
-    runtimeToText() {
-      const runtime = this.user.statistics?.theoretical_total_minutes_watched;
+    displayTimeToText() {
+      const runtime = this.user.statistics?.display_time;
       if (!runtime) {
         return '0';
       }
