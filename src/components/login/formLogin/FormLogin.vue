@@ -19,67 +19,43 @@
   </div>
 </template>
 
-<script lang="ts" scoped>
-import { defineComponent } from 'vue';
-import { useQuasar } from 'quasar';
+<script setup lang="ts">
+import { ref, watch } from 'vue';
 
 import TabLogin from './tabLogin/TabLogin.vue';
 import TabCreateAccount from './tabCreateAccount/TabCreateAccount.vue';
 import TabForgotPassword from './tabForgotPassword/TabForgotPassword.vue';
 
-export default defineComponent({
-  nome: 'FormForm',
-  components: {
-    TabLogin,
-    TabCreateAccount,
-    TabForgotPassword,
-  },
-  props: {
-    modelValue: {
-      type: String,
-      default: 'login',
-    },
-    createAccount: {
-      type: Boolean,
-      default: true,
-    },
-  },
-  emits: ['update:modelValue'],
-  setup() {
-    const $q = useQuasar();
+interface Props {
+  modelValue: string;
+  createAccount?: boolean;
+}
 
-    return {
-      showSuccess(msg: string) {
-        $q.notify({
-          type: 'positive',
-          message: msg,
-          position: 'top',
-        });
-      },
-      showError(msg: string) {
-        $q.notify({
-          type: 'negative',
-          message: msg,
-          position: 'top',
-        });
-      },
-    };
-  },
-  data() {
-    return {
-      tab: 'login',
-      loading: false,
-    };
-  },
-  watch: {
-    modelValue() {
-      this.tab = this.modelValue;
-    },
-    tab() {
-      this.$emit('update:modelValue', this.tab);
-    },
-  },
+const props = withDefaults(defineProps<Props>(), {
+  modelValue: 'login',
+  createAccount: true,
 });
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: string): void;
+}>();
+
+const tab = ref('login');
+const loading = ref(false);
+
+watch(
+  () => props.modelValue,
+  (val: string) => {
+    tab.value = val;
+  }
+);
+
+watch(
+  () => tab.value,
+  (val: string) => {
+    emit('update:modelValue', val);
+  }
+);
 </script>
 
 <style lang="scss" scoped>

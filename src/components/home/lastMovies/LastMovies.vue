@@ -1,5 +1,5 @@
 <template>
-  <div class="div-lastfilms" v-if="movies?.length">
+  <div class="div-lastfilms q-pa-md" v-if="movies?.length">
     <div class="div-title">
       <q-btn
         :class="`icon-animate ${!isVisibleLastFilms && 'last-films-toggle'}`"
@@ -11,10 +11,10 @@
       />
       <h4>Últimos Filmes</h4>
       <div style="flex: 1 1 0"></div>
-      <q-btn icon="refresh" color="white" round flat @click="loadLastMovies()" />
+      <q-btn icon="refresh" color="white" round flat @click="loadLastMovies()" :loading="loading" />
     </div>
     <div class="row justify-center q-mt-md" v-auto-animate>
-      <div class="row no-wrap scroll q-col-gutter-md" v-if="isVisibleLastFilms">
+      <div class="col-auto row no-wrap scroll q-col-gutter-lg justify-center-md q-px-xs" v-if="isVisibleLastFilms">
         <div v-for="movie of movies.slice(0, 10)" :key="movie.id">
           <CardImageMovie class="col-auto" :id="movie.id" :title="movie.portuguese_title" :url="movie.url_image" :footer="true" />
         </div>
@@ -25,20 +25,39 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
+import { useQuasar } from 'quasar';
 
-import Movie from '@/domain/movie/movie';
-import MovieService from '@/services/MovieService';
+import Movie from 'src/domain/movie/movie';
+import MovieService from 'src/services/MovieService';
 
 import CardImageMovie from './cardImageLastMovies/CardImageLastMovies.vue';
 
+const $q = useQuasar();
+
 const isVisibleLastFilms = ref(true);
 const movies = ref<Movie[]>([]);
+const loading = ref(false);
 
 onMounted(async () => {
   await loadLastMovies();
 });
 
+function showError(msg: string) {
+  $q.notify({
+    type: 'negative',
+    message: msg,
+    position: 'top',
+  });
+}
+
 async function loadLastMovies() {
+  try {
+    loading.value = true;
+  } catch (error) {
+    showError('Erro ao executar, tente novamente mais tarde.');
+  } finally {
+    loading.value = false;
+  }
   const res = await MovieService.listMoviesPageable(1, 10, 'createdAt,desc');
   movies.value = res.content;
 }
@@ -46,13 +65,8 @@ async function loadLastMovies() {
 
 <style lang="scss" scoped>
 .div-lastfilms {
-  display: flex;
-  flex-direction: column;
-  padding: 1rem;
-  overflow: hidden;
+  //overflow: auto;
   transition: 0.2s ease-out;
-
-  max-width: 100%;
 
   max-height: 480px;
 

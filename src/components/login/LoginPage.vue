@@ -5,13 +5,7 @@
         <div class="row justify-center">
           <h2 style="color: white">Bem-vindo ao Cineminha!</h2>
           <SeparatorDivLineSolid class="q-my-md" style="opacity: 60%" />
-          <img
-            src="@/assets/logo-kronus.png"
-            class="left-img-login no-pointer-events"
-            alt="logo"
-            draggable="false"
-            @click="tab = 'login'"
-          />
+          <img class="left-img-login" src="../../assets/logo-kronus.png" alt="logo" draggable="false" @click="tab = 'login'" />
           <div class="col-12" />
           <p class="q-mt-xl" style="font-size: smaller; color: white">Powered by Kronus Platform</p>
         </div>
@@ -21,7 +15,9 @@
       </div>
       <div class="absolute-bottom">
         <div class="row justify-center">
-          <div class="col-auto"><img class="" src="../../assets/tmdb-logo-long.svg" style="height: 20px" /></div>
+          <div class="col-auto">
+            <img class="" src="../../assets/tmdb-logo-long.svg" style="height: 20px" />
+          </div>
           <div class="col-12"></div>
           <div class="col-auto">
             <p class="q-mt-xs" style="font-size: smaller; color: white">
@@ -34,50 +30,42 @@
   </main>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script setup lang="ts">
+import { computed, onActivated, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+import { useUserStore } from 'src/stores/UserStore';
 
 import FormLogin from './formLogin/FormLogin.vue';
 import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue';
-import { useUserStore } from '@/stores/UserStore';
-import { mapState } from 'pinia';
 
-export default defineComponent({
-  name: 'LoginPage',
-  components: {
-    FormLogin,
-    SeparatorDivLineSolid,
-  },
-  setup() {
-    document.title = 'Cineminha - Login';
-  },
-  data() {
-    return {
-      tab: 'login',
-    };
-  },
-  computed: {
-    ...mapState(useUserStore, ['user']),
-  },
-  mounted() {
-    if (this.user.isLoged) {
-      this.$router.push('/home');
-    }
-  },
+const userStore = useUserStore();
+const router = useRouter();
+
+const user = computed(() => userStore.user);
+
+const tab = ref('login');
+
+onActivated(() => {
+  document.title = 'Cineminha - Login';
+});
+
+onMounted(() => {
+  if (user.value.isLoged) {
+    router.push('/home');
+  }
 });
 </script>
 
 <style lang="scss" scoped>
-main {
-  height: 100%;
-  overflow: hidden;
-  .left-img-login {
-    border-radius: 50%;
+.left-img-login {
+  border-radius: 50%;
 
-    &:hover {
-      box-shadow: 0px 0px 30px -12px var(--primary);
-      transition: 0.2s ease-in-out;
-    }
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: 0px 0px 30px -12px var(--primary);
+    transition: 0.2s ease-in-out;
   }
 }
 </style>

@@ -1,12 +1,22 @@
 <template>
-  <q-dialog @beforeShow="loadMovie" @hide="scrollBackToPosition()" v-model="visible">
-    <q-card class="bg-grey-dark2 dialog-container" style="min-width: 80vw; border-radius: 15px">
-      <q-card-section class="row justify-end">
-        <div class="col-auto row">
-          <q-btn color="white" icon="close" size="md" @click="visible = false" flat round />
-        </div>
-        <SeparatorDivLineSolid />
-      </q-card-section>
+  <q-dialog @beforeShow="loadMovie" @hide="scrollBackToPosition()" v-model="visible" :maximized="maximizedToggle">
+    <q-card class="bg-grey-dark2 dialog-container" :style="conditionalCardStyle()">
+      <q-bar class="bg-grey-dark2 q-mt-xs">
+        <q-space />
+        <q-btn round dense flat icon="link" color="white" size="md" @click="emit('copyUrl')">
+          <CustomTooltip :delay="400">Copiar URL</CustomTooltip>
+        </q-btn>
+        <q-btn round dense flat icon="minimize" color="white" size="md" @click="maximizedToggle = false" :disable="!maximizedToggle">
+          <CustomTooltip :delay="400" v-if="maximizedToggle">Minimizar</CustomTooltip>
+        </q-btn>
+        <q-btn round dense flat icon="crop_square" color="white" size="md" @click="maximizedToggle = true" :disable="maximizedToggle">
+          <CustomTooltip :delay="400" v-if="!maximizedToggle">Maximizar</CustomTooltip>
+        </q-btn>
+        <q-btn round dense flat icon="close" color="white" size="md" v-close-popup>
+          <CustomTooltip :delay="400">Fechar</CustomTooltip>
+        </q-btn>
+      </q-bar>
+
       <q-card-section>
         <FormMovieSummary @error="visible = false" ref="formMovieSummaryRef" :movieId="movieId || 0" />
       </q-card-section>
@@ -18,16 +28,18 @@
 import { ref, watch } from 'vue';
 
 import FormMovieSummary from '../FormMovieSummary.vue';
-import SeparatorDivLineSolid from '../../separator/SeparatorDivLineSolid.vue';
+import CustomTooltip from '../../customTooltip/CustomTooltip.vue';
 
 const props = defineProps<{ modelValue: boolean; movieId?: number }>();
 const visible = ref(false);
 const formMovieSummaryRef = ref<{ getMovie: () => Promise<void> }>();
 const currentPosition = ref(0);
+const maximizedToggle = ref(false);
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'hide', value: number): void;
+  (e: 'copyUrl', value: void): void;
 }>();
 
 watch(
@@ -50,6 +62,10 @@ async function loadMovie() {
 }
 function scrollBackToPosition() {
   window.scrollTo(0, currentPosition.value);
+  maximizedToggle.value = false;
+}
+function conditionalCardStyle() {
+  return !maximizedToggle.value ? 'border-radius: 15px; border: var(--grey-mid) solid 5px;' : 'border-radius: 0px; border: none;';
 }
 </script>
 <style lang="scss" scoped>
@@ -58,7 +74,6 @@ function scrollBackToPosition() {
 
   overflow-y: hidden;
 
-  border: var(--grey-mid) solid 5px;
-  border-radius: 15px !important;
+  min-width: 80vw;
 }
 </style>

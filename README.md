@@ -1,26 +1,43 @@
-# CineKronusBoss - Frontend
+# Cine-KronusBoss (cine-kronusboss)
 
-## Introduction
+Cine-Kronusboss
 
-This is a personal project aimed at creating a comprehensive movie rating portal. Whether you're a movie buff or simply looking for a way to discover new films.
+## Install the dependencies
 
-Inspired by IMDB and TMDB.
-
-## Technologies
-
-```
-Vue.js 3, Quasar Framework, Pinia, Typescript
+```bash
+yarn
+# or
+npm install
 ```
 
-<p align="center">
-  <img src="https://cdn.discordapp.com/attachments/1106797324329562164/1106797355782656030/CineKronusBossimg.png" style="width: 500px;" />
-</p>
-<p align="center">
-  <img src="https://cdn.discordapp.com/attachments/1106797324329562164/1106798320459980890/CineKronusBoss-movie-img.png" style="width: 500px;" />
-</p>
+### Start the app in development mode (hot-code reloading, error reporting, etc.)
 
-### Link
+```bash
+quasar dev
+```
 
-[CineKronusBoss website](https://www.cine.kronusboss.com)
+### Lint the files
 
-This product uses the TMDB API but is not endorsed or certified by TMDB.
+```bash
+yarn lint
+# or
+npm run lint
+```
+
+### Format the files
+
+```bash
+yarn format
+# or
+npm run format
+```
+
+### Build the app for production
+
+```bash
+quasar build
+```
+
+### Customize the configuration
+
+See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).

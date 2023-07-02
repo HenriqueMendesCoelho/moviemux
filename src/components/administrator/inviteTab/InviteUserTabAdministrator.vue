@@ -32,11 +32,11 @@ import { useQuasar } from 'quasar';
 
 import type { QTableProps } from 'quasar';
 
-import UserService from '@/services/UserService';
+import UserService from 'src/services/UserService';
 
-import InputText from '@/components/shared/inputText/InputText.vue';
-import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
-import TableCopyDelete from '@/components/shared/tableCopyDelete/TableCopyDelete.vue';
+import InputText from 'src/components/shared/inputText/InputText.vue';
+import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
+import TableCopyDelete from 'src/components/shared/tableCopyDelete/TableCopyDelete.vue';
 
 const $q = useQuasar();
 const columns: QTableProps['columns'] = [
@@ -127,7 +127,9 @@ function removeInviteFromDate(code: string) {
   if (!invites.value?.length) {
     return;
   }
-  const invite = invites.value?.find((i) => i.code === code) as { code: string };
+  const invite = invites.value?.find((i) => i.code === code) as {
+    code: string;
+  };
   const index = invites.value?.indexOf(invite);
   if (typeof index === 'number') {
     invites.value?.splice(index, 1);

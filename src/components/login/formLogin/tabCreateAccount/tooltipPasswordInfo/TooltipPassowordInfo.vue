@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
-import CustomTooltip from '@/components/shared/customTooltip/CustomTooltip.vue';
+import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
 const show = ref<boolean>(false);
 

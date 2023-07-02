@@ -2,7 +2,7 @@
   <SideBar />
   <router-view v-slot="{ Component }">
     <KeepAlive :include="['HomePage', 'DiscoverMoviesPage']">
-      <component :class="isExpanded ? 'expanded-sidebar' : 'not-expanded-sidebar'" :is="Component" />
+      <component :class="layoutSettings.isSideBarExpanded ? 'expanded-sidebar' : 'not-expanded-sidebar'" :is="Component" />
     </KeepAlive>
   </router-view>
   <DialogLogin v-model="showDialogLogin" :actionLogin="login" />
@@ -12,11 +12,11 @@
 import { defineComponent } from 'vue';
 import { mapState } from 'pinia';
 
-import { useUserStore } from '@/stores/UserStore';
-import { useStyleStore } from '@/stores/StyleStore';
+import { useUserStore } from 'src/stores/UserStore';
+import { useStyleStore } from 'src/stores/StyleStore';
 
-import SideBar from '@/components/shared/sidebar/SideBar.vue';
-import DialogLogin from '@/components/login/DialogLogin.vue';
+import SideBar from 'src/components/shared/sidebar/SideBar.vue';
+import DialogLogin from 'src/components/login/DialogLogin.vue';
 
 export default defineComponent({
   name: 'LayoutWithSideBar',
@@ -26,11 +26,10 @@ export default defineComponent({
   },
   computed: {
     ...mapState(useUserStore, ['user', 'showDialogLogin']),
-    ...mapState(useStyleStore, ['isExpanded']),
+    ...mapState(useStyleStore, ['layoutSettings']),
   },
   methods: {
     login() {
-      //Chamar api e salvar token
       this.user.isLoged = false;
     },
   },

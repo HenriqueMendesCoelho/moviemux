@@ -21,11 +21,11 @@ import { onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import type { QTableProps } from 'quasar';
 
-import User from '@/domain/user/User';
-import UserService from '@/services/UserService';
+import User from 'src/domain/user/User';
+import UserService from 'src/services/UserService';
 
-import TableCopyDelete from '@/components/shared/tableCopyDelete/TableCopyDelete.vue';
-import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
+import TableCopyDelete from 'src/components/shared/tableCopyDelete/TableCopyDelete.vue';
+import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 
 const $q = useQuasar();
 const columns: QTableProps['columns'] = [

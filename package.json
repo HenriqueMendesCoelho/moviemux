@@ -1,36 +1,43 @@
 {
   "name": "cine-kronusboss",
-  "version": "1.0.0",
+  "version": "2.0.0",
+  "description": "Cine-Kronusboss",
+  "productName": "Cine-KronusBoss",
+  "author": "Henrique Mendes",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "eslint --ext .js,.ts,.vue ./",
+    "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore",
+    "test": "echo \"No test specified\" && exit 0",
+    "serve": "quasar dev",
+    "build": "quasar build"
   },
   "dependencies": {
-    "@formkit/auto-animate": "1.0.0-beta.6",
-    "@quasar/extras": "1.16.1",
-    "axios": "1.3.4",
-    "core-js": "3.29.1",
+    "@formkit/auto-animate": "^0.7.0",
+    "@quasar/extras": "^1.0.0",
+    "axios": "^1.2.1",
+    "dotenv": "^16.3.1",
     "jwt-decode": "^3.1.2",
-    "pinia": "2.0.33",
-    "quasar": "2.11.9",
-    "vue": "3.2.47",
-    "vue-router": "4.1.6"
+    "pinia": "^2.0.11",
+    "quasar": "^2.6.0",
+    "vue": "^3.0.0",
+    "vue-router": "^4.0.0"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "5.33.0",
-    "@typescript-eslint/parser": "5.33.0",
-    "@vue/cli-plugin-babel": "5.0.8",
-    "@vue/cli-plugin-eslint": "5.0.8",
-    "@vue/cli-plugin-typescript": "5.0.8",
-    "@vue/cli-service": "5.0.8",
-    "@vue/eslint-config-typescript": "9.1.0",
-    "eslint": "7.32.0",
-    "eslint-plugin-vue": "8.7.1",
-    "sass": "1.54.4",
-    "sass-loader": "12.6.0",
-    "typescript": "4.9.5",
-    "vue-cli-plugin-quasar": "5.0.1"
+    "@quasar/app-vite": "^1.0.0",
+    "@types/node": "^20.3.1",
+    "@typescript-eslint/eslint-plugin": "^5.10.0",
+    "@typescript-eslint/parser": "^5.10.0",
+    "autoprefixer": "^10.4.2",
+    "eslint": "^8.10.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-vue": "^9.0.0",
+    "prettier": "^2.5.1",
+    "typescript": "^5.1.3"
+  },
+  "engines": {
+    "node": "^18 || ^16 || ^14.19",
+    "npm": ">= 6.13.4",
+    "yarn": ">= 1.21.1"
   }
 }

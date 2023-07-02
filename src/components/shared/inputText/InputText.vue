@@ -16,7 +16,6 @@
     :mask="mask"
     clearable
     :lazy-rules="true"
-    @keyup.enter="enterEvent"
     ><template v-slot:append v-if="icon">
       <q-icon :name="icon" @click="iconFunction"
         ><CustomTooltip v-if="iconTooltip" :delay="300" :hide-delay="300">{{ iconTooltip }}</CustomTooltip></q-icon
@@ -70,12 +69,6 @@ export default defineComponent({
     mask: {
       type: String as PropType<QInputProps['mask']>,
       default: undefined,
-    },
-    enterEvent: {
-      type: Function,
-      default: () => {
-        return;
-      },
     },
     icon: {
       type: String,

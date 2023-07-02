@@ -203,14 +203,14 @@
 import { computed, onMounted, ref } from 'vue';
 import { useQuasar, date } from 'quasar';
 
-import { useMovieStore } from '@/stores/MovieStore';
+import { useMovieStore } from 'src/stores/MovieStore';
 
-import { InputTextRefType, InputValidateRefType } from '@/components/shared/inputText/types/InputValidateRefType';
+import { InputTextRefType, InputValidateRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
 
-import MovieService from '@/services/MovieService';
+import MovieService from 'src/services/MovieService';
 
-import InputText from '@/components/shared/inputText/InputText.vue';
-import ChipNote from '@/components/shared/chipNote/ChipNote.vue';
+import InputText from 'src/components/shared/inputText/InputText.vue';
+import ChipNote from 'src/components/shared/chipNote/ChipNote.vue';
 import TooltipMovieInfo from './tooltipMovieInfo/TooltipMovieInfo.vue';
 
 interface Props {

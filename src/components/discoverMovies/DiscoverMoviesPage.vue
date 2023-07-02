@@ -13,7 +13,21 @@
         select-order-label="filtrar"
         @search="firstSearch()"
         @refresh="resetSearch()"
-      />
+        @input-search-focus="menuIsFocused = $event"
+      >
+        <template #input-search>
+          <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
+            <q-list dense dark>
+              <div v-for="movie in moviesWhenTyping" :key="movie.id">
+                <q-item bordered clickable v-close-popup>
+                  <q-item-section v-close-popup class="q-pl-sm" @click="searchFromMenu(movie.title)">{{ movie.title }}</q-item-section>
+                </q-item>
+                <q-separator dark />
+              </div>
+            </q-list>
+          </q-menu>
+        </template>
+      </SearchToolbar>
 
       <div class="row justify-center q-mt-lg relative-position">
         <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="1500">
@@ -28,16 +42,22 @@
         </div>
         <FloatingActionBtnTop />
       </div>
-      <DialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" position="standard" />
+      <DialogFormMovieSummary
+        v-model="showDialogMovieSummary"
+        :movie-id="movieIdDialog"
+        position="standard"
+        @copy-url="copyMovie(movieIdDialog)"
+      />
     </div>
   </ContainerMain>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
+import { useRoute } from 'vue-router';
 
-import { MovieResultResponseTmdb } from '@/types/movie/MovieType';
+import { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
 
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import SearchToolbar from '../shared/searchToolbar/SearchToolbar.vue';
@@ -45,11 +65,13 @@ import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue
 import CardImageDiscoverMovies from './cardImageDiscoverMovies/CardImageDiscoverMovies.vue';
 import PageTitle from '../shared/pageTitle/PageTitle.vue';
 import DialogFormMovieSummary from '../shared/formMovieSummary/dialogFormMovieSummary/DialogFormMovieSummary.vue';
-import FloatingActionBtnTop from '@/components/shared/floatingActionBtnTop/FloatingActionBtnTop.vue';
+import FloatingActionBtnTop from 'src/components/shared/floatingActionBtnTop/FloatingActionBtnTop.vue';
 
-import KitService from '@/services/KitService';
+import KitService from 'src/services/KitService';
 
 const $q = useQuasar();
+const route = useRoute();
+
 const searchText = ref('');
 const filterOptions = ref([
   { label: 'Popularares', value: 'popular' },
@@ -62,12 +84,29 @@ const infinitScrollRef = ref<{
 }>();
 const selectOrder = ref<string | undefined | { label: string; value: string }>('');
 const movies = ref<MovieResultResponseTmdb['results']>();
+const moviesWhenTyping = ref<MovieResultResponseTmdb['results']>();
 const page = ref(1);
 const lastPage = ref(2);
 const loading = ref(false);
 const movieIdSelected = ref(0);
 const movieIdDialog = ref(0);
 const showDialogMovieSummary = ref(false);
+
+const menuIsFocused = ref(false);
+
+const showMenu = computed<boolean>(() => {
+  return !!searchText.value && menuIsFocused.value && !!moviesWhenTyping.value?.length;
+});
+
+onMounted(() => {
+  const movieParam = parseInt(route.query.movie?.toString() || '');
+
+  if (!movieParam) {
+    return;
+  }
+
+  showDialog(movieParam);
+});
 
 function showError(msg: string) {
   $q.notify({
@@ -83,6 +122,13 @@ onMounted(async () => {
   const res = await getMoviesPopular();
   movies.value = res;
 });
+
+watch(
+  () => searchText.value,
+  async (val: string) => {
+    moviesWhenTyping.value = await getMoviesByName({ query: val });
+  }
+);
 
 async function cardCallTmdb(typeSearch: { label: string; value: string }, movieId: number) {
   movieIdSelected.value = movieId;
@@ -228,6 +274,20 @@ async function getMoviesRecommendations() {
 function showDialog(movieId: number) {
   showDialogMovieSummary.value = true;
   movieIdDialog.value = movieId;
+}
+function copyMovie(id?: number) {
+  if (!id) {
+    return;
+  }
+
+  const url = `${window.location.origin}/movie/discover?movie=${id}`;
+  navigator.clipboard.writeText(url);
+  return url ? url : '';
+}
+async function searchFromMenu(title: string) {
+  searchText.value = title;
+  selectOrder.value = undefined;
+  await firstSearch();
 }
 </script>
 

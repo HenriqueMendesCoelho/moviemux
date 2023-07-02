@@ -1,6 +1,6 @@
 <template>
-  <CardImage :class="`${selected && 'img-movie-selected'}`" :src="getUrl()" @click="emit('clickOnImage')">
-    <div class="absolute-bottom hover-show-img text-center">
+  <CardImage :class="`${selected && 'img-movie-selected'}`" :src="getUrl()" @click="emit('clickOnImage')" :animate="!selected">
+    <div class="absolute-bottom hover-show-img text-center" v-if="!selected">
       {{ props.movie?.title }}<br />
       {{ getMovieDateLocale() }}
     </div>
@@ -45,13 +45,15 @@
         </q-list>
       </q-menu>
     </q-btn>
+    <ContextMenuDiscover :movie-id="props.movie.id" />
   </CardImage>
 </template>
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import { MovieResultResponseTmdb } from '@/types/movie/MovieType';
-import CardImage from '@/components/shared/cardImage/CardImage.vue';
+import { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
+import CardImage from 'src/components/shared/cardImage/CardImage.vue';
+import ContextMenuDiscover from './contextMenuDiscover/ContextMenuDiscover.vue';
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 interface Props {
@@ -81,10 +83,16 @@ function getMovieDateLocale() {
   });
 }
 function clickRecommendations() {
-  emit('callTmdb', { label: `Recomendações para ${props.movie.title}`, value: 'recommendation' });
+  emit('callTmdb', {
+    label: `Recomendações para ${props.movie.title}`,
+    value: 'recommendation',
+  });
 }
 function clickSimilar() {
-  emit('callTmdb', { label: `Similares a ${props.movie.title}`, value: 'similar' });
+  emit('callTmdb', {
+    label: `Similares a ${props.movie.title}`,
+    value: 'similar',
+  });
 }
 function addToList() {
   return;
@@ -94,13 +102,5 @@ function addToList() {
 .img-movie-selected {
   opacity: 0.7;
   filter: blur(2px);
-  &:hover {
-    transform: scale(1);
-
-    .hover-show-img {
-      opacity: 0;
-      transition: opacity 0.3s ease-out;
-    }
-  }
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <ContainerMain>
-    <div :class="isMobile ? 'column q-gutter-y-md' : 'row'">
+    <div>
       <SuperiorButtonsMovie />
       <SeparatorDivSolidLine />
     </div>
@@ -25,8 +25,8 @@
         </div>
       </div>
     </div>
-    <ImportMovie :visible="moviePage.showImportMovieDialog" :moviePathId="routeIDPath" />
-    <ConfirmDialog ref="confirmDialogRef" @ok="resetForm()" />
+    <ImportMovie :visible="moviePage.showImportMovieDialog" />
+    <ConfirmDialog ref="confirmDialogRef" @ok="cancel()" />
   </ContainerMain>
 </template>
 
@@ -36,22 +36,21 @@ import { RouteRecordName } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { mapActions, mapState } from 'pinia';
 
-import { useStyleStore } from '@/stores/StyleStore';
-import { useMovieStore } from '@/stores/MovieStore';
+import { useMovieStore } from 'src/stores/MovieStore';
 
 import { ConfirmDialogRefType } from '../shared/confirmDialog/types/ConfirmDialogType';
 
-import MovieService from '@/services/MovieService';
+import MovieService from 'src/services/MovieService';
 
 import FormMovie from './formMovie/FormMovie.vue';
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
-import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';
+import SeparatorDivSolidLine from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 import VideoEmbedded from './videoEmbedded/VideoEmbedded.vue';
 import SuperiorButtonsMovie from './superiorButtonsMovie/SuperiorButtonsMovie.vue';
 import MovieNotesTable from './movieNotesTable/MovieNotesTable.vue';
 import ImportMovie from './importMovie/ImportMovie.vue';
-import ConfirmDialog from '@/components/shared/confirmDialog/ConfirmDialog.vue';
-import Movie from '@/domain/movie/movie';
+import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
+import Movie from 'src/domain/movie/movie';
 
 export default defineComponent({
   name: 'MoviePage',
@@ -107,7 +106,6 @@ export default defineComponent({
     };
   },
   computed: {
-    ...mapState(useStyleStore, ['getMarginSideBar']),
     ...mapState(useMovieStore, ['moviePage']),
     routeName(): RouteRecordName | null | undefined {
       return this.$route.name;
@@ -124,6 +122,9 @@ export default defineComponent({
     await this.loadMovie();
     if (this.routeName === 'add') {
       this.resetForm();
+    }
+    if (this.routeName === 'movie') {
+      this.moviePage.isEditing = false;
     }
     return Promise.resolve();
   },
@@ -150,7 +151,7 @@ export default defineComponent({
         return;
       }
       const movie = { ...this.moviePage.selectedMovie };
-      const request = { ...this.moviePage.selectedMovie, genres: movie.genres?.map((g) => g.id) };
+      const request = { ...this.moviePage.selectedMovie, genres: movie.genres?.map((g: { id: number }) => g.id) };
       if (!request) {
         return;
       }
@@ -178,7 +179,7 @@ export default defineComponent({
     },
     showConfirmDialogCancel() {
       this.confirmDialogRef?.dialog(
-        `Caso cancele todos os dados serão limpos. Você quer cancelar? `,
+        'Caso cancele todos os dados serão limpos. Você quer cancelar? ',
         'cancel',
         'Confirme o cancelamento',
         'Sim'
@@ -244,6 +245,15 @@ export default defineComponent({
           },
         ],
       });
+    },
+    async cancel() {
+      if (this.routeName === 'add') {
+        this.resetForm();
+        return;
+      }
+
+      this.moviePage.isEditing = false;
+      await this.loadMovie();
     },
   },
 });

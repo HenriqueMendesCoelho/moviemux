@@ -3,12 +3,12 @@
     <h5>Dados pessoais</h5>
     <SeparatorDivLineSolid />
     <PanelUserInfo class="col-12 q-mt-md" v-model="user" />
-    <div class="row justify-center full-width">
+    <div class="row justify-center full-width q-col-gutter-md">
       <div class="col-12" />
-      <div :class="isMobile ? 'col-4' : 'col-2'">
+      <div class="col-md-2 col-sm-4">
         <q-btn style="width: 100%" color="positive" text-color="white" label="Salvar" @click="updateProfile" />
       </div>
-      <div :class="isMobile ? 'col-4 q-ml-md' : 'col-2 q-ml-md q-mb-sm'">
+      <div class="col-md-2 col-sm-4">
         <q-btn style="width: 100%" color="red" text-color="white" label="Cancelar" @click="loadUser" />
       </div>
     </div>
@@ -19,12 +19,12 @@
 import { computed, onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
-import User from '@/domain/user/User';
+import User from 'src/domain/user/User';
 
-import UserService from '@/services/UserService';
+import UserService from 'src/services/UserService';
 
-import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
-import PanelUserInfo from '@/components/shared/panelUserInfo/PanelUserInfo.vue';
+import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
+import PanelUserInfo from 'src/components/shared/panelUserInfo/PanelUserInfo.vue';
 
 const $q = useQuasar();
 const user = ref(new User());

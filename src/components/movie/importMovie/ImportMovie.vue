@@ -9,7 +9,7 @@
           <q-btn color="white" icon="close" size="md" @click="moviePage.showImportMovieDialog = false" flat round />
         </div>
         <SeparatorDivSolidLine class="q-mb-xl" />
-        <div class="col-4 q-mr-md"><InputText dense :label="'Título Do Filme'" v-model="text" :enterEvent="firstSearch" /></div>
+        <div class="col-4 q-mr-md"><InputText @keyup.enter="firstSearch()" v-model="text" :label="'Título Do Filme'" dense /></div>
         <div class="col-auto">
           <q-btn
             style="width: 100%"
@@ -18,7 +18,7 @@
             label="Pesquisar"
             icon="search"
             :disable="false"
-            @click="firstSearch"
+            @click="firstSearch()"
           />
         </div>
         <SeparatorDivSolidLine />
@@ -42,23 +42,22 @@
     <ConfirmDialog ref="confirmDialogRef" @ok="importMovie" />
   </q-dialog>
 </template>
-<script lang="ts">
-import { defineComponent, ref } from 'vue';
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue';
 import { useQuasar } from 'quasar';
-import { mapState } from 'pinia';
 
-import { useMovieStore } from '@/stores/MovieStore';
+import { useMovieStore } from 'src/stores/MovieStore';
 
-import { ConfirmDialogRefType } from '@/components/shared/confirmDialog/types/ConfirmDialogType';
-import { MovieResultResponseTmdb } from '@/types/movie/MovieType';
+import { ConfirmDialogRefType } from 'src/components/shared/confirmDialog/types/ConfirmDialogType';
+import { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
 
-import KitService from '@/services/KitService';
+import KitService from 'src/services/KitService';
 
-import InputText from '@/components/shared/inputText/InputText.vue';
-import SeparatorDivSolidLine from '@/components/shared/separator/SeparatorDivLineSolid.vue';
-import Movie from '@/domain/movie/movie';
-import ConfirmDialog from '@/components/shared/confirmDialog/ConfirmDialog.vue';
-import CardImage from '@/components/shared/cardImage/CardImage.vue';
+import InputText from 'src/components/shared/inputText/InputText.vue';
+import SeparatorDivSolidLine from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
+import Movie from 'src/domain/movie/movie';
+import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
+import CardImage from 'src/components/shared/cardImage/CardImage.vue';
 
 type divScrollTopRef = {
   $el: {
@@ -66,165 +65,138 @@ type divScrollTopRef = {
   };
 };
 
-export default defineComponent({
-  name: 'ImportMovie',
-  components: { InputText, SeparatorDivSolidLine, ConfirmDialog, CardImage },
-  props: {
-    moviePathId: {
-      type: [String, Array],
-    },
-  },
-  setup() {
-    const $q = useQuasar();
-    const confirmDialogRef = ref<ConfirmDialogRefType>();
-    const cardScrollRef = ref<divScrollTopRef>();
-    return {
-      confirmDialogRef,
-      cardScrollRef,
-      showLoading() {
-        $q.loading.show({
-          spinnerColor: 'kb-primary',
-        });
-      },
-      hideLoading() {
-        $q.loading.hide();
-      },
-      showSuccess(msg: string) {
-        $q.notify({
-          type: 'positive',
-          message: msg,
-          position: 'top',
-        });
-      },
-      showWarning(msg: string) {
-        $q.notify({
-          type: 'warning',
-          message: msg,
-          position: 'top',
-        });
-      },
-      showError(msg: string) {
-        $q.notify({
-          type: 'negative',
-          message: msg,
-          position: 'top',
-        });
-      },
-    };
-  },
-  data() {
-    return {
-      page: 1,
-      pagesFouded: 2,
-      loading: false,
-      movies: [] as MovieResultResponseTmdb['results'],
-      text: '',
-      movieId: 0,
-    };
-  },
-  computed: {
-    ...mapState(useMovieStore, ['moviePage']),
-    showImportMovieDialog() {
-      return this.moviePage.showImportMovieDialog;
-    },
-  },
-  methods: {
-    async firstSearch() {
-      this.cardScrollRef?.$el.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: 'smooth',
-      });
-      console.log(this.cardScrollRef);
-      this.page = 1;
-      const result = await this.searchMovieByName();
-      this.movies = result;
-    },
-    async searchMovieByName() {
-      if (!this.text) {
-        return [];
-      }
+const $q = useQuasar();
+const confirmDialogRef = ref<ConfirmDialogRefType>();
+const cardScrollRef = ref<divScrollTopRef>();
+const movieStore = useMovieStore();
 
-      try {
-        const res = await KitService.searchByName({ query: this.text, page: this.page });
-        this.pagesFouded = res.total_pages;
-        return res.results;
-      } catch {
-        return [];
-      }
-    },
-    async onLoad(index: number, done: (stop?: boolean) => void) {
-      if (this.page > this.pagesFouded) {
-        done(true);
-        return;
-      }
-      this.loading = true;
-      this.page += 1;
-      const result = await this.searchMovieByName();
-      this.movies.push(...result);
-      done();
-      this.loading = false;
-    },
-    getImageUrl(path?: string, size = 'w342') {
-      if (!path) {
-        return;
-      }
-      return `${process.env.VUE_APP_TMDB_IMAGE_BASE}/${size}${path}`;
-    },
-    async importMovie() {
-      try {
-        this.showLoading();
-        const res = await KitService.summary({ tmdb_id: this.movieId });
-        this.moviePage.selectedMovie = new Movie(
-          '',
-          res.tmdb_id,
-          res.imdb_id,
-          res.portuguese_title,
-          res.english_title,
-          res.original_title,
-          res.director,
-          this.getImageUrl(res.url_image_portuguese || res.url_image_english, 'w500'),
-          res.portuguese_url_trailer,
-          res.english_url_trailer,
-          res.description,
-          this.getGenres(res.genres),
-          new Date(res.release_date || new Date()),
-          res.runtime
-        );
-        this.moviePage.showImportMovieDialog = false;
-        this.showSuccess('Filme importado com sucesso');
-      } catch {
-        this.showError('Erro ao importar filme');
-        return;
-      } finally {
-        this.hideLoading();
-      }
-    },
-    showConfirmDialog(movie: MovieResultResponseTmdb['results'][0]) {
-      this.confirmDialogRef?.dialog(`Você quer mesmo importar o filme ${movie.title}?`, 'ok', 'Confirme sua importação', 'Sim');
-      this.movieId = movie.id;
-    },
-    getGenres(genres?: Array<string>): Array<{ id: number; name: string }> {
-      if (!genres?.length) {
-        return [];
-      }
+const page = ref(1);
+const pagesFouded = ref(2);
+const loading = ref(false);
+const movies = ref<MovieResultResponseTmdb['results']>([]);
+const text = ref('');
+const movieId = ref(0);
 
-      const genresStore = [...this.moviePage.genres];
+const moviePage = computed(() => movieStore.moviePage);
 
-      return genresStore.filter((g) => genres.some((gR) => g.name === gR));
-    },
-  },
-  watch: {
-    showImportMovieDialog(val) {
-      this.movies = [];
-      this.text = '';
+function showLoading() {
+  $q.loading.show({
+    spinnerColor: 'kb-primary',
+  });
+}
+function hideLoading() {
+  $q.loading.hide();
+}
+function showSuccess(msg: string) {
+  $q.notify({
+    type: 'positive',
+    message: msg,
+    position: 'top',
+  });
+}
+function showError(msg: string) {
+  $q.notify({
+    type: 'negative',
+    message: msg,
+    position: 'top',
+  });
+}
 
-      if (val) {
-        window.scrollTo(0, 0);
-      }
-    },
-  },
-});
+watch(
+  () => moviePage.value.showImportMovieDialog,
+  (val: boolean) => {
+    movies.value = [];
+    text.value = '';
+
+    if (val) {
+      window.scrollTo(0, 0);
+    }
+  }
+);
+
+async function firstSearch() {
+  cardScrollRef.value?.$el.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: 'smooth',
+  });
+  page.value = 1;
+  const result = await searchMovieByName();
+  movies.value = result;
+}
+async function searchMovieByName() {
+  if (!text.value) {
+    return [];
+  }
+
+  try {
+    const res = await KitService.searchByName({ query: text.value, page: page.value });
+    pagesFouded.value = res.total_pages;
+    return res.results;
+  } catch {
+    return [];
+  }
+}
+async function onLoad(index: number, done: (stop?: boolean) => void) {
+  if (page.value > pagesFouded.value) {
+    done(true);
+    return;
+  }
+  loading.value = true;
+  page.value += 1;
+  const result = await searchMovieByName();
+  movies.value.push(...result);
+  done();
+  loading.value = false;
+}
+function getImageUrl(path?: string, size = 'w342') {
+  if (!path) {
+    return;
+  }
+  return `${process.env.VUE_APP_TMDB_IMAGE_BASE}/${size}${path}`;
+}
+async function importMovie() {
+  try {
+    showLoading();
+    const res = await KitService.summary({ tmdb_id: movieId.value });
+    moviePage.value.selectedMovie = new Movie(
+      '',
+      res.tmdb_id,
+      res.imdb_id,
+      res.portuguese_title,
+      res.english_title,
+      res.original_title,
+      res.director,
+      getImageUrl(res.url_image_portuguese || res.url_image_english, 'w500'),
+      res.portuguese_url_trailer,
+      res.english_url_trailer,
+      res.description,
+      getGenres(res.genres),
+      new Date(res.release_date || new Date()),
+      res.runtime
+    );
+    moviePage.value.showImportMovieDialog = false;
+    showSuccess('Filme importado com sucesso');
+  } catch {
+    showError('Erro ao importar filme');
+    return;
+  } finally {
+    hideLoading();
+  }
+}
+function showConfirmDialog(movie: MovieResultResponseTmdb['results'][0]) {
+  confirmDialogRef.value?.dialog(`Você quer mesmo importar o filme ${movie.title}?`, 'ok', 'Confirme sua importação', 'Sim');
+  movieId.value = movie.id;
+}
+function getGenres(genres?: Array<string>): Array<{ id: number; name: string }> {
+  if (!genres?.length) {
+    return [];
+  }
+
+  const genresStore = [...moviePage.value.genres];
+
+  return genresStore.filter((g) => genres.some((gR) => g.name === gR));
+}
 </script>
 
 <style lang="scss" scoped>

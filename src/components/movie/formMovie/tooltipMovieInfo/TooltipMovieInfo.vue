@@ -28,10 +28,10 @@
   </CustomTooltip>
 </template>
 <script lang="ts" setup>
-import { useMovieStore } from '@/stores/MovieStore';
+import { useMovieStore } from 'src/stores/MovieStore';
 import { computed } from 'vue';
 
-import CustomTooltip from '@/components/shared/customTooltip/CustomTooltip.vue';
+import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
 const movieStore = useMovieStore();
 

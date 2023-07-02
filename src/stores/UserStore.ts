@@ -2,7 +2,7 @@ import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 import { defineStore } from 'pinia';
 
-import { tokenPayload } from '@/types/token/TokenType';
+import { tokenPayload } from 'src/types/token/TokenType';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;
 

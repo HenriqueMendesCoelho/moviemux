@@ -1,9 +1,9 @@
 <template>
-  <div class="col-6 row" v-if="showTopButtons()">
-    <div class="q-ml-md">
+  <div class="row q-col-gutter-sm">
+    <div class="col-md-auto col-sm-12 q-ml-md" v-if="showTopButtons()">
       <q-btn color="grey-mid2" text-color="white" round icon="refresh" @click="loadMovie()" />
     </div>
-    <div class="q-ml-md" v-if="showEditAndDeleteButton()">
+    <div class="col-md-auto col-sm-12 q-ml-md" v-if="showEditAndDeleteButton() && showTopButtons()">
       <q-btn
         style="width: 100%"
         color="primary"
@@ -13,124 +13,105 @@
         @click="moviePage.isEditing = !moviePage.isEditing"
       />
     </div>
-    <div class="q-ml-md" v-if="showEditAndDeleteButton()">
-      <q-btn v-if="true" style="width: 100%" color="red" text-color="white" label="Deletar" icon="delete" @click="deleteMovie" />
+    <div class="col-md-auto col-sm-12 q-ml-md" v-if="showEditAndDeleteButton() && showTopButtons()">
+      <q-btn style="width: 100%" color="red" text-color="white" label="Deletar" icon="delete" @click="deleteMovie" />
     </div>
-  </div>
-  <div :class="routeName === 'movie' ? 'col-auto offset-md-5' : 'col-auto offset-md-11'">
-    <q-btn
-      @click="moviePage.showImportMovieDialog = !moviePage.showImportMovieDialog"
-      style="width: 100%"
-      color="primary"
-      text-color="white"
-      label="Importar do TMDB"
-      v-if="showBtnImport()"
-      :disable="selectedMovieHasAnyFieldFilled()"
-      icon="download"
-    />
+
+    <div class="col-md-grow col-sm-12">
+      <div class="row justify-end">
+        <div class="col-auto">
+          <q-btn
+            @click="moviePage.showImportMovieDialog = !moviePage.showImportMovieDialog"
+            style="width: 100%"
+            color="primary"
+            text-color="white"
+            label="Importar do TMDB"
+            v-if="showBtnImport()"
+            :disable="movieStore.selectedMovieHasAnyFieldFilled()"
+            icon="download"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
-<script lang="ts">
-import { mapActions, mapState } from 'pinia';
-import { defineComponent } from 'vue';
-import { RouteRecordName } from 'vue-router';
+<script setup lang="ts">
+import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 
-import { useMovieStore } from '@/stores/MovieStore';
-import { useUserStore } from '@/stores/UserStore';
+import { useMovieStore } from 'src/stores/MovieStore';
+import { useUserStore } from 'src/stores/UserStore';
 
-import MovieService from '@/services/MovieService';
+import MovieService from 'src/services/MovieService';
 
-export default defineComponent({
-  name: 'SuperiorButtonsMovie',
-  setup() {
-    const $q = useQuasar();
-    return {
-      showLoading() {
-        $q.loading.show({
-          spinnerColor: 'kb-primary',
-        });
-      },
-      hideLoading() {
-        $q.loading.hide();
-      },
-      showSuccess(msg: string) {
-        $q.notify({
-          type: 'positive',
-          message: msg,
-          position: 'top',
-        });
-      },
-      showError(msg: string) {
-        $q.notify({
-          type: 'negative',
-          message: msg,
-          position: 'top',
-        });
-      },
-    };
-  },
-  data() {
-    return {};
-  },
-  computed: {
-    ...mapState(useMovieStore, ['moviePage']),
-    ...mapState(useUserStore, ['user']),
-    routeName(): RouteRecordName | null | undefined {
-      return this.$route.name;
-    },
-    routeIDPath(): string | string[] {
-      return this.$route.params.id;
-    },
-  },
-  methods: {
-    ...mapActions(useMovieStore, ['selectedMovieHasAnyFieldFilled']),
-    showBtnImport() {
-      if (this.routeName === 'add') {
-        return true;
-      }
+const $q = useQuasar();
+const movieStore = useMovieStore();
+const userStore = useUserStore();
+const route = useRoute();
+const router = useRouter();
 
-      return this.moviePage.isEditing;
-    },
-    cantEdit() {
-      return false;
-    },
-    showTopButtons() {
-      return this.routeName === 'movie';
-    },
-    showEditAndDeleteButton() {
-      if (this.moviePage.isEditing) {
-        return false;
-      }
+const moviePage = computed(() => movieStore.moviePage);
+const user = computed(() => userStore.user);
+const routeName = computed(() => route.name);
+const routeIDPath = computed(() => route.params.id);
 
-      if (this.user.id === this.moviePage.selectedMovie.user_id || this.user.roles.includes('ADM')) {
-        return true;
-      }
-    },
-    async loadMovie() {
-      if (this.routeIDPath) {
-        try {
-          const res = await MovieService.getMovie(this.routeIDPath.toString());
-          this.moviePage.selectedMovie = res;
-          this.showSuccess('Pagina atualizada com sucesso');
-        } catch {
-          this.showError('Erro ao buscar filme');
-        }
-      }
-    },
-    async deleteMovie() {
-      if (!this.moviePage.selectedMovie.id) {
-        return;
-      }
-      try {
-        await MovieService.deleteMovie(this.moviePage.selectedMovie.id);
-        this.showSuccess('Filme deletado');
-        this.$router.push('/home');
-      } catch {
-        this.showError('Erro ao deletar filme');
-      }
-    },
-  },
-});
+function showSuccess(msg: string) {
+  $q.notify({
+    type: 'positive',
+    message: msg,
+    position: 'top',
+  });
+}
+function showError(msg: string) {
+  $q.notify({
+    type: 'negative',
+    message: msg,
+    position: 'top',
+  });
+}
+
+function showBtnImport() {
+  if (routeName.value === 'add') {
+    return true;
+  }
+
+  return moviePage.value.isEditing;
+}
+function showTopButtons() {
+  return routeName.value === 'movie';
+}
+function showEditAndDeleteButton() {
+  if (moviePage.value.isEditing) {
+    return false;
+  }
+
+  if (user.value.id === moviePage.value.selectedMovie.user_id || user.value.roles.includes('ADM')) {
+    return true;
+  }
+}
+async function loadMovie() {
+  if (routeIDPath.value) {
+    try {
+      const res = await MovieService.getMovie(routeIDPath.value.toString());
+      moviePage.value.selectedMovie = res;
+      showSuccess('Pagina atualizada com sucesso');
+    } catch {
+      showError('Erro ao buscar filme');
+    }
+  }
+}
+async function deleteMovie() {
+  if (!moviePage.value.selectedMovie.id) {
+    return;
+  }
+  try {
+    await MovieService.deleteMovie(moviePage.value.selectedMovie.id);
+    showSuccess('Filme deletado');
+    router.push('/home');
+  } catch {
+    showError('Erro ao deletar filme');
+  }
+}
 </script>

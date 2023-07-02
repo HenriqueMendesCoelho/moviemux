@@ -16,14 +16,14 @@
 </template>
 <script lang="ts" setup>
 interface Props {
-  animate: boolean;
+  animate?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   animate: true,
 });
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 .img-movie {
   border-radius: 10px;
   transition: 0.2s ease-out;
@@ -34,12 +34,15 @@ const props = withDefaults(defineProps<Props>(), {
     opacity: 0;
   }
 
-  &:hover.animate {
-    transform: scale(1.1);
+  &:hover {
     .hover-show-img {
       opacity: 1;
       transition: opacity 0.3s ease-out;
     }
+  }
+
+  &:hover.animate {
+    transform: scale(1.1);
   }
 }
 </style>

@@ -34,11 +34,11 @@
 import { computed, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
-import { InputTextRefType } from '@/components/shared/inputText/types/InputValidateRefType';
-import UserService from '@/services/UserService';
+import { InputTextRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
+import UserService from 'src/services/UserService';
 
-import InputText from '@/components/shared/inputText/InputText.vue';
-import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
+import InputText from 'src/components/shared/inputText/InputText.vue';
+import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 import axios, { AxiosError } from 'axios';
 
 const $q = useQuasar();

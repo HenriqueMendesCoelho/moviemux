@@ -4,14 +4,9 @@
 
 <script>
 import { defineComponent } from 'vue';
-import { mapState } from 'pinia';
-import { useStyleStore } from '@/stores/StyleStore';
 
 export default defineComponent({
   name: 'ContainerMain',
-  computed: {
-    ...mapState(useStyleStore, ['getMarginSideBar']),
-  },
 });
 </script>
 

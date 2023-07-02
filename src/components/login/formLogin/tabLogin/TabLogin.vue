@@ -20,7 +20,7 @@
       </q-input>
     </div>
     <div class="col-10 justify-center q-mt-md">
-      <InputPassword v-model="password" required :error-text-required="false" />
+      <InputPassword @keyup.enter="login()" v-model="password" required :error-text-required="false" />
       <button class="btn-underline q-mt-md" @click="changeTab('forgot')">Esqueceu sua senha ?</button>
     </div>
     <div class="col-10 q-mt-xl">
@@ -35,21 +35,24 @@
       />
     </div>
     <div class="col-12 row justify-center q-mt-md">
-      <div class="row" v-if="createAccount">
-        <p style="color: white">Não tem conta ? <button class="btn-underline" @click="changeTab('create')">Criar agora</button></p>
+      <div class="row" v-if="props.createAccount">
+        <p style="color: white">
+          Não tem conta ?
+          <button class="btn-underline" @click="changeTab('create')">Criar agora</button>
+        </p>
       </div>
     </div>
   </div>
 </template>
-<script lang="ts">
+<script setup lang="ts">
 import { useQuasar } from 'quasar';
-import { defineComponent, ref } from 'vue';
-import { mapActions } from 'pinia';
+import { onMounted, ref } from 'vue';
 
-import { InputValidateRefType } from '@/components/shared/inputText/types/InputValidateRefType';
-import { useUserStore } from '@/stores/UserStore';
-import SeparatorDivLineSolid from '@/components/shared/separator/SeparatorDivLineSolid.vue';
-import InputPassword from '@/components/shared/inputPassword/InputPassword.vue';
+import { InputValidateRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
+import { useUserStore } from 'src/stores/UserStore';
+import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
+import InputPassword from 'src/components/shared/inputPassword/InputPassword.vue';
+import { useRoute, useRouter } from 'vue-router';
 
 type btnFocusRefType = {
   $el: {
@@ -57,97 +60,83 @@ type btnFocusRefType = {
   };
 };
 
-export default defineComponent({
-  name: 'tabLogin',
-  components: { SeparatorDivLineSolid, InputPassword },
-  props: {
-    createAccount: {
-      type: Boolean,
-      default: true,
-    },
-  },
-  setup() {
-    const $q = useQuasar();
+interface Props {
+  createAccount: boolean;
+}
 
-    const inputEmailRef = ref<InputValidateRefType>();
-    const inputPasswordRef = ref<InputValidateRefType>();
+const props = withDefaults(defineProps<Props>(), {
+  createAccount: true,
+});
 
-    const btnLoginRef = ref<btnFocusRefType>();
-    return {
-      inputEmailRef,
-      inputPasswordRef,
-      btnLoginRef,
-      showSuccess(msg: string) {
-        $q.notify({
-          type: 'positive',
-          message: msg,
-          position: 'top',
-        });
-      },
-      showError(msg: string) {
-        $q.notify({
-          type: 'negative',
-          message: msg,
-          position: 'top',
-        });
-      },
-    };
-  },
-  data() {
-    return {
-      email: '',
-      password: '',
-      visibilityPass: false,
-      visibilityNewPass: false,
-    };
-  },
-  emits: ['changeTab', 'loading'],
-  mounted() {
-    this.btnLoginRef?.$el.focus();
-  },
-  methods: {
-    ...mapActions(useUserStore, { signIn: 'login' }),
-    changeTab(tab: string) {
-      this.$emit('changeTab', tab);
-    },
-    async login() {
-      if (this.hasErrors()) {
+const emit = defineEmits<{
+  (e: 'changeTab', value: string): void;
+  (e: 'loading', value: boolean): void;
+}>();
+
+const route = useRoute();
+const router = useRouter();
+
+const $q = useQuasar();
+const inputEmailRef = ref<InputValidateRefType>();
+const inputPasswordRef = ref<InputValidateRefType>();
+const btnLoginRef = ref<btnFocusRefType>();
+
+const userStore = useUserStore();
+
+const email = ref('');
+const password = ref('');
+
+onMounted(() => {
+  btnLoginRef.value?.$el.focus();
+});
+
+function showError(msg: string) {
+  $q.notify({
+    type: 'negative',
+    message: msg,
+    position: 'top',
+  });
+}
+
+function changeTab(tab: string) {
+  emit('changeTab', tab);
+}
+async function login() {
+  if (hasErrors()) {
+    return;
+  }
+
+  try {
+    emit('loading', true);
+    await userStore.login({ email: email.value, password: password.value });
+    if (route.name === 'login') {
+      if (route.query.from) {
+        router.push(route.query.from.toString());
         return;
       }
 
-      try {
-        this.$emit('loading', true);
-        await this.signIn({ email: this.email, password: this.password });
-        if (this.$route.name === 'login') {
-          if (this.$route.query.from) {
-            this.$router.push(this.$route.query.from.toString());
-            return;
-          }
-
-          this.$router.push('/home');
-        } else {
-          window.location.reload();
-        }
-      } catch {
-        this.showError('Error ao fazer login, tente novamente mais tarde!');
-      } finally {
-        this.$emit('loading', false);
-      }
-    },
-    hasErrors() {
-      let hasErrors = false;
-      if (this.inputEmailRef) {
-        this.inputEmailRef.validate();
-        hasErrors = this.inputEmailRef.hasError;
-      }
-      if (this.inputPasswordRef) {
-        this.inputPasswordRef.validate();
-        hasErrors = this.inputPasswordRef.hasError;
-      }
-      return hasErrors;
-    },
-  },
-});
+      router.push('/home');
+    } else {
+      window.location.reload();
+    }
+  } catch {
+    showError('Error ao fazer login, tente novamente mais tarde!');
+  } finally {
+    emit('loading', false);
+  }
+}
+function hasErrors() {
+  let hasErrors = false;
+  if (inputEmailRef.value) {
+    inputEmailRef.value.validate();
+    hasErrors = inputEmailRef.value.hasError;
+  }
+  if (inputPasswordRef.value) {
+    inputPasswordRef.value.validate();
+    hasErrors = inputPasswordRef.value.hasError;
+  }
+  return hasErrors;
+}
 </script>
 
 <style lang="scss" scoped>

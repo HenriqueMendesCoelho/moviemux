@@ -12,6 +12,8 @@ export default class User {
     public statistics = {
       ratings_given: 0,
       registered_movies: 0,
+      display_time: 0,
+      average_rating_movies: 0,
       consecutive_failed_login_attempts: 0,
     }
   ) {}
