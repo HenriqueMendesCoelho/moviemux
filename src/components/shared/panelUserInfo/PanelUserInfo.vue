@@ -71,7 +71,7 @@
             filled
             standout="text-info"
             color="info"
-            label="Quantidade de filmes cadastrados"
+            label="Filmes cadastrados"
             dark
             :readonly="true"
           />
@@ -83,7 +83,7 @@
             filled
             standout="text-info"
             color="info"
-            label="Quantidade de notas cadastrados"
+            label="Notas cadastrados"
             dark
             :readonly="true"
           />
