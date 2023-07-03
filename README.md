@@ -1,43 +1,45 @@
-# Cine-KronusBoss (cine-kronusboss)
+# CineKronusBoss - Frontend
 
-Cine-Kronusboss
+## Introduction
 
-## Install the dependencies
+This is a personal project aimed at creating a comprehensive movie rating portal. Whether you're a movie buff or simply looking for a way to discover new films.
 
-```bash
-yarn
-# or
-npm install
+Inspired by IMDB and TMDB.
+
+## Technologies
+
+```
+Vue.js 3, Quasar Framework, Pinia, Typescript
 ```
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
+## Images
 
-```bash
-quasar dev
-```
+<p align="center">
+Home Page
+</p>
+<p align="center">
+  <img src="https://cdn.discordapp.com/attachments/1106797324329562164/1125492288039170228/image.png" style="width: 500px;" />
+</p>
+<p align="center">
+  <img src="https://media.discordapp.net/attachments/1106797324329562164/1125492713815556217/image.png?width=1793&height=905" style="width: 500px;" />
+</p>
 
-### Lint the files
+<p align="center">
+Movie Page
+</p>
+<p align="center">
+  <img src="https://cdn.discordapp.com/attachments/1106797324329562164/1125493073787486288/image.png" style="width: 500px;" />
+</p>
 
-```bash
-yarn lint
-# or
-npm run lint
-```
+<p align="center">
+Discover Page
+</p>
+<p align="center">
+  <img src="https://media.discordapp.net/attachments/1106797324329562164/1125492578062708868/image.png?width=1793&height=905" style="width: 500px;" />
+</p>
 
-### Format the files
+### Link
 
-```bash
-yarn format
-# or
-npm run format
-```
+[CineKronusBoss website](https://www.cine.kronusboss.com)
 
-### Build the app for production
-
-```bash
-quasar build
-```
-
-### Customize the configuration
-
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
+This product uses the TMDB API but is not endorsed or certified by TMDB.
