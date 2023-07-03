@@ -1,5 +1,5 @@
 <template>
-  <div class="row no-wrap scroll q-gutter-lg" v-if="!loading">
+  <div class="row no-wrap scroll q-gutter-lg">
     <div class="col-auto" v-if="watchProviders?.results['BR'].flatrate?.length">
       <div class="text-h6">Stream</div>
       <div class="row no-wrap q-py-xs q-gutter-sm">
@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
 import { MovieWatchProvider } from 'src/types/movie/MovieType';
@@ -51,9 +51,8 @@ interface Props {
 const props = defineProps<Props>();
 
 const watchProviders = ref<MovieWatchProvider>();
-const loading = ref(false);
 
-onMounted(async () => {
+onBeforeMount(async () => {
   await loadWatchProviders();
 });
 
@@ -71,13 +70,11 @@ async function loadWatchProviders(): Promise<void> {
     return;
   }
   try {
-    loading.value = true;
     showLoading();
     const res = await KitService.getWatchProviders(props.tmdbId);
     watchProviders.value = res;
   } finally {
     hideLoading();
-    loading.value = false;
   }
 }
 function getURL(path: string) {
