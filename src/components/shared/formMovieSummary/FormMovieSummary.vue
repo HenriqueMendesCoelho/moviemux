@@ -1,15 +1,17 @@
 <template>
   <div class="row justify-center q-mx-md text-white" style="overflow: auto">
-    <q-img
-      style="border-radius: 20px"
-      class="col-3 q-mx-xl q-py-xs"
-      :src="movie.url_image"
-      :draggable="false"
-      :height="screenHeight > 1080 ? '750px' : '600px'"
-      :width="screenHeight > 1080 ? '500px' : '400px'"
-      v-if="movie?.url_image"
-    />
-    <q-skeleton class="col-3" v-else width="600px" height="750px" animation="fade" dark bordered />
+    <div>
+      <q-img
+        style="border-radius: 20px"
+        class="col-3 q-mx-xl q-py-xs"
+        :src="movie.url_image"
+        :draggable="false"
+        :height="screenHeight > 1080 ? '750px' : '600px'"
+        :width="screenHeight > 1080 ? '500px' : '400px'"
+        v-if="movie?.url_image"
+      />
+      <q-skeleton class="col-3" v-else width="600px" height="750px" animation="fade" dark bordered />
+    </div>
     <div class="col q-ml-xl">
       <div class="row q-col-gutter-y-md">
         <div class="col-12" :class="screenHeight > 1080 ? 'text-h3' : 'text-h4'">Informações</div>
@@ -129,6 +131,12 @@
           <q-video class="col" :src="getUrl(movie.portuguese_url_trailer)" style="height: 300px" v-if="movie?.portuguese_url_trailer" />
           <q-video class="col" :src="getUrl(movie.english_url_trailer)" style="height: 300px" v-if="movie?.english_url_trailer" />
         </div>
+
+        <div class="col-12 row q-col-gutter-md">
+          <div class="col row justify-end">
+            <MovieWatchProviders class="col-auto" :tmdb-id="movieId" />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -136,12 +144,15 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import { useQuasar } from 'quasar';
 
 import Movie from 'src/domain/movie/movie';
-import { useQuasar } from 'quasar';
+
 import KitService from 'src/services/KitService';
 import MovieService from 'src/services/MovieService';
+
 import InputText from '../inputText/InputText.vue';
+import MovieWatchProviders from './movieWatchProviders/MovieWatchProviders.vue';
 
 const $q = useQuasar();
 const movie = ref(new Movie());

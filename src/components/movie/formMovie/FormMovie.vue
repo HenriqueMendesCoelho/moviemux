@@ -1,5 +1,5 @@
 <template>
-  <div class="row justify-center form-movie q-mx-md" style="overflow: auto">
+  <div class="row justify-center scroll form-movie q-mx-md">
     <q-img
       style="border-radius: 20px"
       class="col-3 q-mx-xl q-py-xs"
@@ -13,7 +13,7 @@
     </q-img>
     <q-skeleton class="col-3" v-else width="600px" height="750px" animation="fade" dark bordered />
     <div class="col q-ml-xl">
-      <div class="row q-col-gutter-y-md">
+      <div class="row" :class="screenHeight > 1080 ? 'q-col-gutter-y-lg' : 'q-col-gutter-y-md'">
         <div class="col-12" :class="screenHeight > 1080 ? 'text-h3' : 'text-h4'">Informações</div>
         <div class="col-12 row q-col-gutter-sm">
           <InputText
@@ -188,10 +188,13 @@
             :dense="screenHeight <= 1080"
           />
         </div>
-        <div class="col-12 row q-col-gutter-sm" v-if="moviePage.selectedMovie.notes?.length">
-          <div class="col-12 text-h5">Nota</div>
-          <div class="col-12 q-pl-xs">
+        <div class="col-12 row q-col-gutter-md">
+          <div class="col-auto" v-if="moviePage.selectedMovie.notes?.length">
+            <div class="text-h6">Nota</div>
             <ChipNote size="xl" :movie="moviePage.selectedMovie" :dense="screenHeight <= 1080" />
+          </div>
+          <div class="col offset-1 row justify-end">
+            <MovieWatchProviders class="col-auto" :tmdb-id="moviePage.selectedMovie.tmdb_id" />
           </div>
         </div>
       </div>
@@ -212,6 +215,7 @@ import MovieService from 'src/services/MovieService';
 import InputText from 'src/components/shared/inputText/InputText.vue';
 import ChipNote from 'src/components/shared/chipNote/ChipNote.vue';
 import TooltipMovieInfo from './tooltipMovieInfo/TooltipMovieInfo.vue';
+import MovieWatchProviders from 'src/components/shared/formMovieSummary/movieWatchProviders/MovieWatchProviders.vue';
 
 interface Props {
   isRegisterOrEditing: boolean;
@@ -335,9 +339,7 @@ function changeTrailerEnglish(url: string) {
 function getYoutubeVideoKey(url: string) {
   const split = url.split(/(vi\/|v=|\/b\/|youtu\.be\/|\/embed\/)/);
 
-  const param =
-    // eslint-disable-next-line
-    split[2] !== undefined ? split[2].split(/[^0-9a-z_\-]/i)[0] : split[0].split(/[^0-9a-z_\-]/i)[0];
+  const param = split[2] !== undefined ? split[2].split(/[^0-9a-z_\-]/i)[0] : split[0].split(/[^0-9a-z_\-]/i)[0];
   return param;
 }
 function openTmdbInNewTab() {
