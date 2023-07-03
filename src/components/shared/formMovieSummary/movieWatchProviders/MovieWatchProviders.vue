@@ -9,7 +9,7 @@
         </div>
       </div>
     </div>
-    <q-separator dark vertical inset v-if="watchProviders?.results['BR'].rent?.length" />
+    <q-separator dark vertical inset v-if="watchProviders?.results['BR'].rent?.length && watchProviders?.results['BR'].flatrate?.length" />
     <div class="col-auto" v-if="watchProviders?.results['BR'].rent?.length">
       <div class="text-h6">Alugar</div>
       <div class="row no-wrap q-py-xs q-gutter-sm">
@@ -19,7 +19,7 @@
         </div>
       </div>
     </div>
-    <q-separator dark vertical inset v-if="watchProviders?.results['BR'].buy?.length" />
+    <q-separator dark vertical inset v-if="watchProviders?.results['BR'].buy?.length && watchProviders?.results['BR'].rent?.length" />
     <div class="col-auto" v-if="watchProviders?.results['BR'].buy?.length">
       <div class="text-h6">Comprar</div>
       <div class="row no-wrap q-py-xs q-gutter-sm">
@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 
 import { MovieWatchProvider } from 'src/types/movie/MovieType';
@@ -52,9 +52,12 @@ const props = defineProps<Props>();
 
 const watchProviders = ref<MovieWatchProvider>();
 
-onBeforeMount(async () => {
-  await loadWatchProviders();
-});
+watch(
+  () => props.tmdbId,
+  async () => {
+    await loadWatchProviders();
+  }
+);
 
 function showLoading() {
   $q.loading.show({
