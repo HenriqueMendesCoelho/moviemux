@@ -1,4 +1,4 @@
-import Movie from '@/domain/movie/movie';
+import Movie from 'src/domain/movie/movie';
 
 export type MovieSummaryTypeKit = {
   tmdb_id?: number;
@@ -95,4 +95,23 @@ export type MoviePageableType = {
   number_of_elements: boolean;
   first: boolean;
   empty: boolean;
+};
+
+export type MovieWatchProvider = {
+  id: number;
+  results: {
+    [key: string]: {
+      link: string;
+      flatrate?: Provider[];
+      rent?: Provider[];
+      buy?: Provider[];
+    };
+  };
+};
+
+type Provider = {
+  logo_path: string;
+  provider_id: number;
+  provider_name: string;
+  display_priority: number;
 };
