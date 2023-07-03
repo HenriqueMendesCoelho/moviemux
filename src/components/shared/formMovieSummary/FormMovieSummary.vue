@@ -133,7 +133,7 @@
         </div>
 
         <div class="col-12 row q-col-gutter-md">
-          <div class="col row justify-end">
+          <div class="col row justify-end" v-if="movieId">
             <MovieWatchProviders class="col-auto" :tmdb-id="movieId" />
           </div>
         </div>

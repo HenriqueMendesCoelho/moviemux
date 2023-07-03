@@ -193,7 +193,7 @@
             <div class="text-h6">Nota</div>
             <ChipNote size="xl" :movie="moviePage.selectedMovie" :dense="screenHeight <= 1080" />
           </div>
-          <div class="col offset-1 row justify-end">
+          <div class="col offset-1 row justify-end" v-if="moviePage.selectedMovie.tmdb_id">
             <MovieWatchProviders class="col-auto" :tmdb-id="moviePage.selectedMovie.tmdb_id" />
           </div>
         </div>
