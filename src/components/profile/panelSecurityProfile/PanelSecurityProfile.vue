@@ -16,8 +16,7 @@
         :label="'Confirme Nova Senha'"
         v-model="confirmNewPass"
         :type="'password'"
-        :customRules="newPass === confirmNewPass"
-        :customRulesText="'Deve ser igual a nova senha'"
+        :customRules="() => newPass === confirmNewPass || 'Deve ser igual a nova senha'"
       />
     </div>
     <div class="col-12" />

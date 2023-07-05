@@ -21,7 +21,7 @@
             class="col"
             :label="'Título PT-BR'"
             v-model="moviePage.selectedMovie.portuguese_title"
-            :readOnly="!isRegisterOrEditing"
+            :readonly="!isRegisterOrEditing"
             required
             :dense="screenHeight <= 1080"
           />
@@ -30,7 +30,7 @@
             class="col"
             :label="'Título Inglês'"
             v-model="moviePage.selectedMovie.english_title"
-            :readOnly="!isRegisterOrEditing"
+            :readonly="!isRegisterOrEditing"
             required
             :dense="screenHeight <= 1080"
           />
@@ -40,7 +40,7 @@
             class="col"
             :label="'Título Original'"
             v-model="moviePage.selectedMovie.original_title"
-            :readOnly="!isRegisterOrEditing"
+            :readonly="!isRegisterOrEditing"
             :dense="screenHeight <= 1080"
           />
         </div>
@@ -50,7 +50,7 @@
             class="col-8"
             :label="'Diretor'"
             v-model="moviePage.selectedMovie.director"
-            :readOnly="!isRegisterOrEditing"
+            :readonly="!isRegisterOrEditing"
             required
             :dense="screenHeight <= 1080"
           />
@@ -70,7 +70,7 @@
             class="col-2"
             :label="'Tempo de duração'"
             :modelValue="runtimeToText()"
-            :readOnly="true"
+            :readonly="true"
             :dense="screenHeight <= 1080"
           />
           <InputText
@@ -79,7 +79,7 @@
             :label="'Ano de lançamento'"
             :modelValue="moviePage.selectedMovie.release_date ? new Date(moviePage.selectedMovie.release_date).toLocaleDateString() : ''"
             @change="changeReleaseDate"
-            :readOnly="!isRegisterOrEditing"
+            :readonly="!isRegisterOrEditing"
             :mask="'##/##/####'"
             required
             :dense="screenHeight <= 1080"
@@ -137,17 +137,17 @@
               :dense="screenHeight <= 1080"
               :icon="!isRegisterOrEditing ? 'open_in_new' : ''"
               :iconTooltip="'Abrir tmdb'"
-              :iconFunction="openTmdbInNewTab"
+              @iconClick="openTmdbInNewTab"
             />
             <InputText
               class="col-12"
               :label="'Imdb ID'"
               v-model="moviePage.selectedMovie.imdb_id"
-              :readOnly="!isRegisterOrEditing"
+              :readonly="!isRegisterOrEditing"
               :dense="screenHeight <= 1080"
               :icon="!isRegisterOrEditing ? 'open_in_new' : ''"
               :iconTooltip="'Abrir imdb'"
-              :iconFunction="openImdbInNewTab"
+              @iconClick="openImdbInNewTab"
             />
           </div>
         </div>
@@ -159,7 +159,7 @@
             class="col-5"
             :label="'URL da Imagem'"
             v-model="moviePage.selectedMovie.url_image"
-            :readOnly="!isRegisterOrEditing"
+            :readonly="!isRegisterOrEditing"
             required
             :dense="screenHeight <= 1080"
           />
@@ -169,9 +169,12 @@
             :label="'URL do trailer dublado'"
             :model-value="moviePage.selectedMovie.portuguese_url_trailer"
             @change="changeTrailerPortuguese"
-            :readOnly="!isRegisterOrEditing"
-            :customRules="!!(moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer)"
-            :customRulesText="'É necessário ter url do trailer dublado ou legendado'"
+            :readonly="!isRegisterOrEditing"
+            :customRules="
+              () =>
+                !!(moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer) ||
+                'É necessário ter url do trailer dublado ou legendado'
+            "
             :hint="isRegisterOrEditing ? 'Insira a url do youtube ou key do video' : ''"
             :dense="screenHeight <= 1080"
           />
@@ -181,9 +184,12 @@
             :label="'URL do trailer legendado'"
             :model-value="moviePage.selectedMovie.english_url_trailer"
             @change="changeTrailerEnglish"
-            :readOnly="!isRegisterOrEditing"
-            :customRules="!!(moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer)"
-            :customRulesText="'É necessário ter url do trailer dublado ou legendado'"
+            :readonly="!isRegisterOrEditing"
+            :customRules="
+              () =>
+                !!(moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer) ||
+                'É necessário ter url do trailer dublado ou legendado'
+            "
             :hint="isRegisterOrEditing ? 'Insira a url do youtube ou key do video' : ''"
             :dense="screenHeight <= 1080"
           />

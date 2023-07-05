@@ -46,7 +46,7 @@
 
     <div class="flex"></div>
     <div class="menu justify-start">
-      <button class="button" @click="darkThemeToggle()">
+      <button class="button" @click="styleStore.darkThemeToggle()">
         <span class="material-icons" draggable="false" v-if="layoutSettings.darkMode"> light_mode </span>
         <span class="material-icons" draggable="false" v-else> dark_mode </span>
         <span class="text" draggable="false">Tema</span>
@@ -61,61 +61,48 @@
   </aside>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-import { mapActions, mapState } from 'pinia';
+<script setup lang="ts">
+import { computed, onMounted, ref, watch } from 'vue';
 
 import { useUserStore } from 'src/stores/UserStore';
 import { useStyleStore } from 'src/stores/StyleStore';
 
 import CustomTooltip from '../customTooltip/CustomTooltip.vue';
 
-export default defineComponent({
-  name: 'SideBar',
-  components: {
-    CustomTooltip,
-  },
-  data() {
-    return {
-      showTextsSideBar: false,
-    };
-  },
-  computed: {
-    ...mapState(useStyleStore, ['backgroundColor', 'layoutSettings']),
-    ...mapState(useUserStore, ['user']),
-    isAdmin() {
-      return this.user.roles.includes('ADM');
-    },
-  },
-  mounted() {
-    this.showTextsSideBar = this.layoutSettings.isSideBarExpanded;
-  },
-  methods: {
-    ...mapActions(useStyleStore, ['darkThemeToggle']),
-    ToggleMenu() {
-      this.layoutSettings.isSideBarExpanded = !this.layoutSettings.isSideBarExpanded;
-    },
-    logout() {
-      const userStore = useUserStore();
-      userStore.$reset();
-      localStorage.removeItem('auth-kb');
-    },
-  },
-  watch: {
-    layoutSettings: {
-      handler: function (val: { isSideBarExpanded: boolean }) {
-        if (val.isSideBarExpanded) {
-          setTimeout(() => {
-            this.showTextsSideBar = true;
-            return;
-          }, 80);
-        }
-        this.showTextsSideBar = false;
-      },
-      deep: true,
-    },
-  },
+const userStore = useUserStore();
+const styleStore = useStyleStore();
+
+const showTextsSideBar = ref(false);
+
+const layoutSettings = computed(() => styleStore.layoutSettings);
+const user = computed(() => userStore.user);
+const isAdmin = computed(() => user.value.roles.includes('ADM'));
+
+onMounted(() => {
+  showTextsSideBar.value = layoutSettings.value.isSideBarExpanded;
 });
+
+watch(
+  () => layoutSettings.value,
+  (val) => {
+    if (val.isSideBarExpanded) {
+      setTimeout(() => {
+        showTextsSideBar.value = true;
+        return;
+      }, 80);
+    }
+    showTextsSideBar.value = false;
+  },
+  { deep: true }
+);
+
+function ToggleMenu() {
+  layoutSettings.value.isSideBarExpanded = !layoutSettings.value.isSideBarExpanded;
+}
+function logout() {
+  userStore.$reset();
+  localStorage.removeItem('auth-kb');
+}
 </script>
 
 <style lang="scss" scoped>

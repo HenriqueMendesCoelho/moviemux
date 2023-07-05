@@ -111,7 +111,7 @@
               :dense="screenHeight <= 1080"
               :icon="'open_in_new'"
               :iconTooltip="'Abrir tmdb'"
-              :iconFunction="openTmdbInNewTab"
+              @iconClick="openTmdbInNewTab"
             />
             <InputText
               class="col-12"
@@ -121,7 +121,7 @@
               :dense="screenHeight <= 1080"
               :icon="'open_in_new'"
               :iconTooltip="'Abrir imdb'"
-              :iconFunction="openImdbInNewTab"
+              @iconClick="openImdbInNewTab"
             />
           </div>
         </div>
