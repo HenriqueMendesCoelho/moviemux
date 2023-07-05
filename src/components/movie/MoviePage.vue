@@ -68,7 +68,7 @@ export default defineComponent({
     const $q = useQuasar();
     const confirmDialogRef = ref<ConfirmDialogRefType>();
     const formMovieRef = ref<{
-      hasErrors: () => Promise<boolean>;
+      hasErrors: () => boolean;
       resetValidation: () => void;
     }>();
     return {
@@ -147,7 +147,7 @@ export default defineComponent({
       return this.routeName === 'movie';
     },
     async save(): Promise<void> {
-      if (await this.formMovieRef?.hasErrors()) {
+      if (this.formMovieRef?.hasErrors()) {
         return;
       }
       const movie = { ...this.moviePage.selectedMovie };

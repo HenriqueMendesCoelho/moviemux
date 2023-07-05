@@ -112,13 +112,13 @@ export default defineComponent({
     getRules(): Array<boolean | string> {
       return [this.defaultRules(), this.getCustomRules()];
     },
-    async hasErrors(): Promise<boolean> {
+    hasErrors(): boolean {
       let hasErrors = false;
       if (this.inputTextRef) {
-        await this.inputTextRef.validate();
+        this.inputTextRef.validate();
         hasErrors = this.inputTextRef?.hasError;
       }
-      return Promise.resolve(hasErrors);
+      return hasErrors;
     },
     resetValidation(): void {
       if (this.inputTextRef) {

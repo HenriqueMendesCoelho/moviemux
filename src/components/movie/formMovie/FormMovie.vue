@@ -268,50 +268,50 @@ function getImageAndAlt(): Array<string> {
 
   return [srcImage, altImage];
 }
-async function hasErrors(): Promise<boolean> {
+function hasErrors(): boolean {
   let hasError = false;
-  if (await inputTextPortugueseTitleRef.value?.hasErrors()) {
+  if (inputTextPortugueseTitleRef.value?.hasErrors()) {
     hasError = true;
   }
-  if (await inputTextEnglishTitleRef.value?.hasErrors()) {
+  if (inputTextEnglishTitleRef.value?.hasErrors()) {
     hasError = true;
   }
-  if (await inputTextOriginalTitleRef.value?.hasErrors()) {
+  if (inputTextOriginalTitleRef.value?.hasErrors()) {
     hasError = true;
   }
-  if (await inputTextDirectorRef.value?.hasErrors()) {
+  if (inputTextDirectorRef.value?.hasErrors()) {
     hasError = true;
   }
-  if (await inputTextReleaseDateRef.value?.hasErrors()) {
+  if (inputTextReleaseDateRef.value?.hasErrors()) {
     hasError = true;
   }
-  if (await inputTextReleaseDateRef.value?.hasErrors()) {
+  if (inputTextReleaseDateRef.value?.hasErrors()) {
     hasError = true;
   }
   if (qInputDescriptionRef.value) {
-    await qInputDescriptionRef.value.validate();
+    qInputDescriptionRef.value.validate();
     hasError = qInputDescriptionRef.value.hasError || hasError;
   }
   if (qSelectGenresRef.value) {
-    await qSelectGenresRef.value?.validate();
+    qSelectGenresRef.value?.validate();
     hasError = qSelectGenresRef.value?.hasError || hasError;
   }
-  if (await InputTextTmdbIdRef.value?.hasErrors()) {
+  if (InputTextTmdbIdRef.value?.hasErrors()) {
     hasError = true;
   }
-  if (await inputTextUrlImageRef.value?.hasErrors()) {
+  if (inputTextUrlImageRef.value?.hasErrors()) {
     hasError = true;
   }
-  if (await inputTextUrlTrailerBrRef.value?.hasErrors()) {
+  if (inputTextUrlTrailerBrRef.value?.hasErrors()) {
     hasError = true;
   }
-  if (await inputTextUrlTrailerEnRef.value?.hasErrors()) {
+  if (inputTextUrlTrailerEnRef.value?.hasErrors()) {
     hasError = true;
   }
-  if (await inputTextRuntimeRef.value?.hasErrors()) {
+  if (inputTextRuntimeRef.value?.hasErrors()) {
     hasError = true;
   }
-  return Promise.resolve(hasError);
+  return hasError;
 }
 function resetValidation(): void {
   inputTextPortugueseTitleRef.value?.resetValidation();
