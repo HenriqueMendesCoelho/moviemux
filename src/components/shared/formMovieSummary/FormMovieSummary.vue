@@ -127,7 +127,7 @@
         </div>
 
         <div class="col-12 row q-col-gutter-x-sm justify-center">
-          <div class="col-12 text-h5">Trailers</div>
+          <div class="col-12 text-h5" v-if="movie?.portuguese_url_trailer || movie?.english_url_trailer">Trailers</div>
           <q-video class="col" :src="getUrl(movie.portuguese_url_trailer)" style="height: 300px" v-if="movie?.portuguese_url_trailer" />
           <q-video class="col" :src="getUrl(movie.english_url_trailer)" style="height: 300px" v-if="movie?.english_url_trailer" />
         </div>
