@@ -1,25 +1,24 @@
 <template>
   <q-dialog v-model="moviePage.showImportMovieDialog">
     <q-card class="dialog-container">
-      <q-card-section class="row">
-        <div class="col-6">
-          <h5 class="title-container">Importar Filmes</h5>
+      <q-card-section class="col-12 row">
+        <div class="col-6 row text-white">
+          <q-icon color="white" name="download" size="lg" />
+          <div class="text-h5">Importar Filme do&nbsp;</div>
+          <div class="text-h5 cursor-pointer" @click="openURL('https://www.themoviedb.org/?language=pt-BR')">TMDB</div>
         </div>
-        <div class="col-1 row offset-md-5 justify-end">
+        <div class="col row justify-end">
           <q-btn color="white" icon="close" size="md" @click="moviePage.showImportMovieDialog = false" flat round />
         </div>
-        <SeparatorDivSolidLine class="q-mb-xl" />
-        <div class="col-4 q-mr-md"><InputText @keyup.enter="firstSearch()" v-model="text" :label="'Título Do Filme'" dense /></div>
-        <div class="col-auto">
-          <q-btn
-            style="width: 100%"
-            color="kb-primary"
-            text-color="black"
-            label="Pesquisar"
-            icon="search"
-            :disable="false"
-            @click="firstSearch()"
-          />
+        <SeparatorDivSolidLine />
+        <div class="col-12 row q-col-gutter-sm">
+          <div class="col-4"><InputText @keyup.enter="firstSearch()" v-model="text" :label="'Título Do Filme'" dense /></div>
+          <div class="col-auto">
+            <q-btn style="width: 100%" color="kb-primary" text-color="black" label="Pesquisar" icon="search" @click="firstSearch()" />
+          </div>
+          <div class="col-auto">
+            <q-btn style="width: 100%" color="white" icon="refresh" @click="refreshSearch()" flat round />
+          </div>
         </div>
         <SeparatorDivSolidLine />
       </q-card-section>
@@ -38,13 +37,18 @@
           <q-spinner color="kb-primary" size="50px" />
         </div>
       </q-card-section>
+      <q-card-section>
+        <div class="row justify-center">
+          <div class="text-h4 text-white">Faça uma pesquisa...</div>
+        </div>
+      </q-card-section>
     </q-card>
     <ConfirmDialog ref="confirmDialogRef" @ok="importMovie" />
   </q-dialog>
 </template>
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { useQuasar } from 'quasar';
+import { useQuasar, openURL } from 'quasar';
 
 import { useMovieStore } from 'src/stores/MovieStore';
 
@@ -196,6 +200,10 @@ function getGenres(genres?: Array<string>): Array<{ id: number; name: string }> 
   const genresStore = [...moviePage.value.genres];
 
   return genresStore.filter((g) => genres.some((gR) => g.name === gR));
+}
+function refreshSearch() {
+  text.value = '';
+  firstSearch();
 }
 </script>
 
