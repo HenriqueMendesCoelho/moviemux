@@ -142,7 +142,7 @@ async function refreshSearch(): Promise<void> {
   return Promise.resolve();
 }
 async function onLoad(index: number, done: (stop?: boolean) => void): Promise<void> {
-  if (page.value >= pagesFouded.value) {
+  if (page.value > pagesFouded.value) {
     done(true);
     return;
   }
