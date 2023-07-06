@@ -13,7 +13,7 @@
       <div class="col-6">
         <FormLogin v-model="tab" />
       </div>
-      <div class="absolute-bottom">
+      <div class="absolute-bottom cursor-pointer" @click="openURL('https://www.themoviedb.org/?language=pt-BR')">
         <div class="row justify-center">
           <div class="col-auto">
             <img class="" src="../../assets/tmdb-logo-long.svg" style="height: 20px" />
@@ -33,6 +33,7 @@
 <script setup lang="ts">
 import { computed, onActivated, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { openURL } from 'quasar';
 
 import { useUserStore } from 'src/stores/UserStore';
 
