@@ -29,7 +29,7 @@
         </template>
       </SearchToolbar>
 
-      <div class="row justify-center q-mt-lg relative-position">
+      <div class="row justify-center q-mt-lg">
         <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="1500">
           <div class="row justify-center q-col-gutter-xl">
             <div class="col-auto" v-for="(movie, index) in movies" :key="index">
