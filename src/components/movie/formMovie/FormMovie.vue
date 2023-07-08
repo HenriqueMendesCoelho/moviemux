@@ -125,7 +125,22 @@
               :readonly="!isRegisterOrEditing"
               :lazy-rules="true"
               :dense="screenHeight <= 1080"
-            />
+              use-chips
+            >
+              <template v-slot:selected-item="scope">
+                <q-chip
+                  :removable="isRegisterOrEditing"
+                  dense
+                  @remove="scope.removeAtIndex(scope.index)"
+                  :tabindex="scope.tabindex"
+                  color="grey-dark2"
+                  text-color="white"
+                  class="q-ma-none"
+                >
+                  {{ scope.opt.name }}
+                </q-chip>
+              </template>
+            </q-select>
             <InputText
               ref="inputTextTmdbIdRef"
               class="col-12"
