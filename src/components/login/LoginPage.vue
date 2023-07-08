@@ -1,33 +1,37 @@
 <template>
-  <main>
-    <div class="row items-center" style="height: 100%">
-      <div class="col-6">
-        <div class="row justify-center">
-          <h2 style="color: white">Bem-vindo ao Cineminha!</h2>
-          <SeparatorDivLineSolid class="q-my-md" style="opacity: 60%" />
-          <img class="left-img-login" src="../../assets/logo-kronus.png" alt="logo" draggable="false" @click="tab = 'login'" />
-          <div class="col-12" />
-          <p class="q-mt-xl" style="font-size: smaller; color: white">Powered by Kronus Platform</p>
+  <div class="row items-center justify-center full-height">
+    <div class="col-md-6 col-xs-12">
+      <div class="row justify-center">
+        <div class="text-h2 text-white desktop-only">Bem-vindo ao Cineminha!</div>
+        <SeparatorDivLineSolid class="q-my-md desktop-only" style="opacity: 60%" />
+        <img
+          class="left-img-login col-md-auto col-xs-6"
+          src="../../assets/logo-kronus.png"
+          alt="logo"
+          draggable="false"
+          @click="tab = 'login'"
+        />
+        <div class="col-12" />
+        <p class="q-mt-xl desktop-only" style="font-size: smaller; color: white">Powered by Kronus Platform</p>
+      </div>
+    </div>
+    <div class="col-md-5 col-xs-12 row justify-center">
+      <FormLogin class="col-md-6 col-xs-12 q-pa-xs" v-model="tab" />
+    </div>
+    <div class="absolute-bottom cursor-pointer desktop-only" @click="openURL('https://www.themoviedb.org/?language=pt-BR')">
+      <div class="row justify-center">
+        <div class="col-auto">
+          <img class="" src="../../assets/tmdb-logo-long.svg" style="height: 20px" />
         </div>
-      </div>
-      <div class="col-6">
-        <FormLogin v-model="tab" />
-      </div>
-      <div class="absolute-bottom cursor-pointer" @click="openURL('https://www.themoviedb.org/?language=pt-BR')">
-        <div class="row justify-center">
-          <div class="col-auto">
-            <img class="" src="../../assets/tmdb-logo-long.svg" style="height: 20px" />
-          </div>
-          <div class="col-12"></div>
-          <div class="col-auto">
-            <p class="q-mt-xs" style="font-size: smaller; color: white">
-              This product uses the TMDB API but is not endorsed or certified by TMDB.
-            </p>
-          </div>
+        <div class="col-12"></div>
+        <div class="col-auto">
+          <p class="q-mt-xs" style="font-size: smaller; color: white">
+            This product uses the TMDB API but is not endorsed or certified by TMDB.
+          </p>
         </div>
       </div>
     </div>
-  </main>
+  </div>
 </template>
 
 <script setup lang="ts">
