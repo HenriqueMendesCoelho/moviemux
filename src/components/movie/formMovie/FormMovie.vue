@@ -26,6 +26,7 @@
             :dense="screenHeight <= 1080"
           />
           <InputText
+            v-show="showEnglishTitle()"
             ref="inputTextEnglishTitleRef"
             class="col"
             :label="'Título Inglês'"
@@ -35,7 +36,6 @@
             :dense="screenHeight <= 1080"
           />
           <InputText
-            v-if="showOriginalTitle()"
             ref="inputTextOriginalTitleRef"
             class="col"
             :label="'Título Original'"
@@ -205,7 +205,7 @@
                 !!(moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer) ||
                 'É necessário ter url do trailer dublado ou legendado'
             "
-            :hint="isRegisterOrEditing ? 'Insira a url do youtube ou key do video' : ''"
+            :hint="props.isRegisterOrEditing ? 'Insira a url do youtube ou key do video' : ''"
             :dense="screenHeight <= 1080"
           />
         </div>
@@ -398,14 +398,8 @@ function runtimeToText() {
 
   return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
 }
-function showOriginalTitle() {
-  if (props.isRegisterOrEditing) {
-    return true;
-  }
-  if (moviePage.value.selectedMovie.original_title !== moviePage.value.selectedMovie.english_title) {
-    return true;
-  }
-  return false;
+function showEnglishTitle() {
+  return moviePage.value.selectedMovie.original_title !== moviePage.value.selectedMovie.english_title;
 }
 </script>
 
