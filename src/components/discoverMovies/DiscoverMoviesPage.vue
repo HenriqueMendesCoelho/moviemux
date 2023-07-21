@@ -33,7 +33,12 @@
         <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="1500">
           <div class="row justify-center q-col-gutter-xl">
             <div class="col-auto" v-for="(movie, index) in movies" :key="index">
-              <CardImageDiscoverMovies @click-on-image="showDialog(movie.id)" :movie="movie" @call-tmdb="cardCallTmdb($event, movie.id)" />
+              <CardImageDiscoverMovies
+                @click-on-image="showDialog(movie.id)"
+                :movie="movie"
+                @call-tmdb="cardCallTmdb($event, movie.id)"
+                @copy-url="copyMovie($event)"
+              />
             </div>
           </div>
         </q-infinite-scroll>
@@ -108,6 +113,13 @@ onMounted(() => {
   showDialog(movieParam);
 });
 
+function showSuccess(msg: string) {
+  $q.notify({
+    type: 'positive',
+    message: msg,
+    position: 'top',
+  });
+}
 function showError(msg: string) {
   $q.notify({
     type: 'negative',
@@ -282,6 +294,7 @@ function copyMovie(id?: number) {
 
   const url = `${window.location.origin}/movie/discover?movie=${id}`;
   navigator.clipboard.writeText(url);
+  showSuccess('URL copiada');
   return url ? url : '';
 }
 async function searchFromMenu(title: string) {

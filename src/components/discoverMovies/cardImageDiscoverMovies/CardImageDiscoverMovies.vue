@@ -45,7 +45,7 @@
         </q-list>
       </q-menu>
     </q-btn>
-    <ContextMenuDiscover :movie-id="props.movie.id" />
+    <ContextMenuDiscover :movie-id="props.movie.id" @copy-url="emit('copy-url', $event)" />
   </CardImage>
 </template>
 <script setup lang="ts">
@@ -63,6 +63,7 @@ interface Props {
 const emit = defineEmits<{
   (e: 'callTmdb', value: { label: string; value: string }): void;
   (e: 'clickOnImage', value: void): void;
+  (e: 'copy-url', value: number): void;
 }>();
 
 const props = defineProps<Props>();
