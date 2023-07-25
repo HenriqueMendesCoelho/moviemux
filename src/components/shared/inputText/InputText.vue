@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import type { ValidationRule } from 'quasar';
 
 import { InputValidateRefType } from './types/InputValidateRefType';
@@ -51,6 +51,10 @@ const emit = defineEmits<{
 
 const inputTextRef = ref<InputValidateRefType>();
 const text = ref('');
+
+onMounted(() => {
+  text.value = props.modelValue || '';
+});
 
 watch(
   () => props.modelValue,

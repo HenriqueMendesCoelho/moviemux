@@ -26,7 +26,7 @@
             :dense="screenHeight <= 1080"
           />
           <InputText
-            v-show="showEnglishTitle()"
+            v-if="showEnglishTitle()"
             ref="inputTextEnglishTitleRef"
             class="col"
             :label="'Título Inglês'"
