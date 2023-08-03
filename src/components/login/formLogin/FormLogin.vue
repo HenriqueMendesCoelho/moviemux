@@ -14,7 +14,7 @@
           </q-tab-panel>
         </q-tab-panels>
       </q-card-section>
-      <q-inner-loading :showing="loading" label="Aguarde..." color="kb-primary" label-class="text-white" :dark="true" />
+      <q-inner-loading :showing="loading" label="Aguarde..." color="kb-primary" label-class="text-white" dark />
     </q-card>
   </div>
 </template>

@@ -94,6 +94,14 @@ const routes: RouteRecordRaw[] = [
           roles: ['ADM', 'USER'],
         },
       },
+      {
+        path: '/movie/wishlist',
+        component: () => import('src/components/wishlist/WishlistPage.vue'),
+        name: 'wishlist',
+        meta: {
+          roles: ['ADM', 'USER'],
+        },
+      },
     ],
   },
 ];

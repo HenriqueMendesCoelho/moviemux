@@ -34,6 +34,7 @@
           <div class="row justify-center q-col-gutter-xl">
             <div class="col-auto" v-for="(movie, index) in movies" :key="index">
               <CardImageDiscoverMovies
+                v-model="wishlists"
                 @click-on-image="showDialog(movie.id)"
                 :movie="movie"
                 @call-tmdb="cardCallTmdb($event, movie.id)"
@@ -47,22 +48,18 @@
         </div>
         <FloatingActionBtnTop />
       </div>
-      <DialogFormMovieSummary
-        v-model="showDialogMovieSummary"
-        :movie-id="movieIdDialog"
-        position="standard"
-        @copy-url="copyMovie(movieIdDialog)"
-      />
+      <DialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" position="standard" />
     </div>
   </ContainerMain>
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onActivated, onMounted, onUpdated, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useRoute } from 'vue-router';
 
 import { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
+import { WishlistType } from 'src/types/wishlist/WishlistType';
 
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import SearchToolbar from '../shared/searchToolbar/SearchToolbar.vue';
@@ -72,6 +69,7 @@ import PageTitle from '../shared/pageTitle/PageTitle.vue';
 import DialogFormMovieSummary from '../shared/formMovieSummary/dialogFormMovieSummary/DialogFormMovieSummary.vue';
 import FloatingActionBtnTop from 'src/components/shared/floatingActionBtnTop/FloatingActionBtnTop.vue';
 
+import WishlistService from 'src/services/WishlistService';
 import KitService from 'src/services/KitService';
 
 const $q = useQuasar();
@@ -96,21 +94,11 @@ const loading = ref(false);
 const movieIdSelected = ref(0);
 const movieIdDialog = ref(0);
 const showDialogMovieSummary = ref(false);
-
 const menuIsFocused = ref(false);
+const wishlists = ref<WishlistType[]>([]);
 
 const showMenu = computed<boolean>(() => {
   return !!searchText.value && menuIsFocused.value && !!moviesWhenTyping.value?.length;
-});
-
-onMounted(() => {
-  const movieParam = parseInt(route.query.movie?.toString() || '');
-
-  if (!movieParam) {
-    return;
-  }
-
-  showDialog(movieParam);
 });
 
 function showSuccess(msg: string) {
@@ -128,11 +116,30 @@ function showError(msg: string) {
   });
 }
 
+onMounted(() => {
+  const movieParam = parseInt(route.query.movie?.toString() || '');
+
+  if (!movieParam) {
+    return;
+  }
+
+  showDialog(movieParam);
+});
+
 onMounted(async () => {
   page.value = 1;
   lastPage.value = 2;
   const res = await getMoviesPopular();
   movies.value = res;
+  await listWishlist();
+});
+
+onActivated(async () => {
+  await listWishlist();
+});
+
+onUpdated(async () => {
+  await listWishlist();
 });
 
 watch(
@@ -301,6 +308,10 @@ async function searchFromMenu(title: string) {
   searchText.value = title;
   selectOrder.value = undefined;
   await firstSearch();
+}
+async function listWishlist() {
+  const res = await WishlistService.listWishlists();
+  wishlists.value = res;
 }
 </script>
 
