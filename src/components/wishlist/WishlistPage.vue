@@ -4,7 +4,7 @@
       <WishlistPageTitle :wishlist="wishlist" />
       <SeparatorDivLineSolid class="q-mb-xl" />
       <MyWishlists v-if="tab === 'myWishlistsTab'" @click-on-card="changeTabToWishlist($event)" />
-      <WishlistTab v-else-if="tab === 'wishlistTab'" :wishlist="wishlist" @back="back()" :id-param="idParam" />
+      <WishlistTab v-else-if="tab === 'wishlistTab'" v-model:wishlist="wishlist" @back="back()" :id-param="idParam" />
     </div>
   </ContainerMain>
 </template>

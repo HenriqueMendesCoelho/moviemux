@@ -87,6 +87,7 @@ const props = defineProps<Props>();
 
 const emit = defineEmits<{
   (e: 'back', value: void): void;
+  (e: 'update:wishlist', value: WishlistType | undefined): void;
 }>();
 
 const userStore = useUserStore();
@@ -134,6 +135,14 @@ watch(
     moviesFiltered.value = props?.wishlist?.movies_wishlists;
     shareable.value = props?.wishlist?.shareable || false;
   }
+);
+
+watch(
+  () => _wishlist.value,
+  (val) => {
+    emit('update:wishlist', val);
+  },
+  { deep: true }
 );
 
 function showLoading() {
