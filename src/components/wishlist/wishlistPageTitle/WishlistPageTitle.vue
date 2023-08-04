@@ -1,7 +1,7 @@
 <template>
   <PageTitle :title="wishlist ? wishlist.name : 'Lista de Filmes'" icon="list">
     <q-popup-edit
-      v-if="_wishlist?.name"
+      v-if="_wishlist?.user.id === userId"
       class="bg-grey-mid2"
       :model-value="_wishlist.name"
       @save="updateNameWishlist($event)"
@@ -15,7 +15,7 @@
     >
       <q-input ref="inputNoteRef" color="kb-primary" dark v-model="scope.value" dense autofocus :rules="[(val) => ruleInput(val)]" />
     </q-popup-edit>
-    <CustomTooltip :delay="500">Clique para editar</CustomTooltip>
+    <CustomTooltip :delay="200" v-if="_wishlist?.user.id === userId">Clique para editar</CustomTooltip>
   </PageTitle>
 </template>
 <script setup lang="ts">
@@ -26,12 +26,16 @@ import { WishlistType } from 'src/types/wishlist/WishlistType';
 import PageTitle from 'src/components/shared/pageTitle/PageTitle.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
+import { useUserStore } from 'src/stores/UserStore';
 import WishlistService from 'src/services/WishlistService';
 
 interface Props {
   wishlist?: WishlistType;
 }
 const props = defineProps<Props>();
+
+const userStore = useUserStore();
+const userId = userStore.user.id;
 
 const _wishlist = ref<WishlistType>();
 
