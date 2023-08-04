@@ -21,7 +21,7 @@
     >
       <q-menu class="bg-grey-dark2" dark @before-show="selected = true" @before-hide="selected = false">
         <q-list>
-          <q-item clickable v-close-popup>
+          <q-item clickable v-close-popup @click="emit('removeMovie', props?.movie?.tmdb_id)">
             <q-item-section side>
               <q-icon name="delete" color="white" />
             </q-item-section>
@@ -46,7 +46,7 @@ interface Props {
 
 const emit = defineEmits<{
   (e: 'clickOnImage', value: number): void;
-  (e: 'delete', value: number): void;
+  (e: 'removeMovie', value: number): void;
 }>();
 
 const props = defineProps<Props>();

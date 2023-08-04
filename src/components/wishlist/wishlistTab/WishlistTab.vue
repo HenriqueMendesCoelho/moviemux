@@ -49,7 +49,7 @@
     <div class="row justify-center q-mt-lg">
       <div class="row justify-center q-col-gutter-xl" v-if="moviesFiltered?.length">
         <div class="col-auto" v-for="movie in moviesFiltered" :key="movie.tmdb_id">
-          <WishlistCardImage :movie="movie" @click-on-image="openDialogSummary($event)" />
+          <WishlistCardImage :movie="movie" @click-on-image="openDialogSummary($event)" @remove-movie="removeMovie($event)" />
         </div>
       </div>
       <div class="row justify-center" v-else>
@@ -214,9 +214,25 @@ async function changeShareable(val: boolean) {
 
   shareable.value = val;
   _wishlist.value.shareable = val;
+  await updateWishlist(_wishlist.value);
+}
+async function removeMovie(tmdbId: number) {
+  if (!_wishlist.value) {
+    return;
+  }
+
+  _wishlist.value.movies_wishlists = _wishlist.value?.movies_wishlists.filter((m) => m.tmdb_id !== tmdbId);
+  const res = await updateWishlist(_wishlist.value);
+  if (!res) {
+    return;
+  }
+  _wishlist.value = res;
+  moviesFiltered.value = res.movies_wishlists;
+}
+async function updateWishlist(wishlist: WishlistType) {
   try {
     showLoading();
-    WishlistService.updateWishlist(_wishlist.value);
+    return await WishlistService.updateWishlist(wishlist);
   } catch (error) {
     showError('Erro ao salvar lista de filmes');
   } finally {

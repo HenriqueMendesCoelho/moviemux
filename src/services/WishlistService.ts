@@ -31,7 +31,7 @@ export default {
       return Promise.reject(error);
     }
   },
-  async updateWishlist(wishlist: WishlistType) {
+  async updateWishlist(wishlist: WishlistType): Promise<WishlistType> {
     try {
       const res = await axios.put(`${API_WISHLIST}/${wishlist.id}/update`, wishlist);
       return Promise.resolve(res.data);
