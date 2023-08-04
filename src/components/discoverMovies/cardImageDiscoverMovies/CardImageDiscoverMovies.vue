@@ -64,7 +64,7 @@
   </CardImage>
 </template>
 <script setup lang="ts">
-import { onActivated, ref, watch } from 'vue';
+import { onActivated, onMounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 
 import { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
@@ -93,6 +93,10 @@ const props = defineProps<Props>();
 const selected = ref(false);
 const wishlists = ref<WishlistType[]>([]);
 const loading = ref(false);
+
+onMounted(() => {
+  wishlists.value = props.modelValue;
+});
 
 onActivated(() => {
   wishlists.value = props.modelValue;
