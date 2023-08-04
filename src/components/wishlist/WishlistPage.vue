@@ -10,8 +10,8 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 import { WishlistType } from 'src/types/wishlist/WishlistType';
 
@@ -22,7 +22,8 @@ import WishlistTab from './wishlistTab/WishlistTab.vue';
 import WishlistPageTitle from './wishlistPageTitle/WishlistPageTitle.vue';
 
 const route = useRoute();
-const idParam = ref('');
+const router = useRouter();
+const idParam = computed(() => route.query.id?.toString() || '');
 
 const tab = ref('myWishlistsTab');
 const wishlist = ref<WishlistType>();
@@ -44,11 +45,13 @@ function changeTab(_tab: 'myWishlistsTab' | 'wishlistTab') {
   tab.value = _tab;
 }
 function back() {
+  if (idParam.value) {
+    router.push({ name: 'wishlist' });
+  }
   wishlist.value = undefined;
   changeTab('myWishlistsTab');
 }
 function getIdParam() {
-  idParam.value = route.query.id?.toString() || '';
   if (idParam.value) {
     changeTab('wishlistTab');
   }
