@@ -14,13 +14,11 @@
         <template #input-search>
           <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
             <q-list dense dark>
-              <div v-for="movie in moviesSearchToolbar" :key="movie.id">
-                <q-item bordered clickable v-close-popup>
-                  <q-item-section v-close-popup class="q-pl-sm" @click="searchActionToolbar(movie.portuguese_title)">{{
-                    movie.portuguese_title
-                  }}</q-item-section>
+              <div v-for="movie in moviesSearchToolbar" :key="movie.id" @click="searchActionToolbar(movie.portuguese_title)">
+                <q-item bordered clickable>
+                  <q-item-section v-close-popup class="q-pl-sm">{{ movie.portuguese_title }}</q-item-section>
                 </q-item>
-                <q-separator dark />
+                <q-separator dark v-if="moviesSearchToolbar?.length > 1" />
               </div>
             </q-list>
           </q-menu>

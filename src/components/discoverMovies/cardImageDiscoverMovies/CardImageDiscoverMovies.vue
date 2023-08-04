@@ -47,10 +47,14 @@
 
             <q-menu anchor="top end" self="top start" class="bg-grey-dark2" dark>
               <q-list>
-                <q-item v-for="list in wishlists" :key="list.name" clickable :disable="disableList(list)">
-                  <q-item-section @click="addMovieToWishlist(list.id, props.movie?.id)" v-close-popup class="q-pl-sm">{{
-                    list.name
-                  }}</q-item-section>
+                <q-item
+                  v-for="list in wishlists"
+                  :key="list.name"
+                  clickable
+                  :disable="disableList(list)"
+                  @click="addMovieToWishlist(list.id, props.movie?.id)"
+                >
+                  <q-item-section v-close-popup class="q-pl-sm">{{ list.name }}</q-item-section>
                   <CustomTooltip v-if="disableList(list)" :delay="500">Filme já adicionado nessa lista</CustomTooltip>
                 </q-item>
               </q-list>

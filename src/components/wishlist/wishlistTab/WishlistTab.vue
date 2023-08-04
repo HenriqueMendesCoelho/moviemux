@@ -34,8 +34,8 @@
         <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
           <q-list dense dark>
             <div v-for="movie in moviesWhenTyping" :key="movie.tmdb_id">
-              <q-item bordered clickable v-close-popup>
-                <q-item-section v-close-popup class="q-pl-sm" @click="searchFromMenu(movie.title)">{{
+              <q-item v-ripple bordered clickable @click="searchFromMenu(movie.title)">
+                <q-item-section v-close-popup class="q-pl-sm">{{
                   movie.title || movie.title_english || 'Erro ao carregar título'
                 }}</q-item-section>
               </q-item>
