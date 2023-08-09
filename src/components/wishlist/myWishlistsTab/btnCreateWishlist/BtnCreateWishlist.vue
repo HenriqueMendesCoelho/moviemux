@@ -43,7 +43,6 @@ function showError(msg: string) {
 }
 
 function dialog() {
-  window.scrollTo(0, 0);
   $q.dialog({
     dark: true,
     message: 'Insira o nome da lista (Mínimo 3 caracteres e máximo de 30)',

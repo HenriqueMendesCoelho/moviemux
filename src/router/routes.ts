@@ -5,7 +5,7 @@ import LoginPage from 'src/components/login/LoginPage.vue';
 const routes: RouteRecordRaw[] = [
   {
     path: '',
-    component: () => import('src/layout/LayoutWithoutSideBar.vue'),
+    component: () => import('src/layout/layoutWithoutSideBar/LayoutWithoutSideBar.vue'),
     children: [
       {
         path: '',
@@ -44,7 +44,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '',
-    component: () => import('src/layout/LayoutWithSideBar.vue'),
+    component: () => import('src/layout/layoutWithSideBar/LayoutWithSideBar.vue'),
     children: [
       {
         path: '/home',

@@ -58,6 +58,8 @@ import { computed, onActivated, onMounted, onUpdated, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useRoute } from 'vue-router';
 
+import { useStyleStore } from 'src/stores/StyleStore';
+
 import { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
 import { WishlistType } from 'src/types/wishlist/WishlistType';
 
@@ -100,6 +102,9 @@ const wishlists = ref<WishlistType[]>([]);
 const showMenu = computed<boolean>(() => {
   return !!searchText.value && menuIsFocused.value && !!moviesWhenTyping.value?.length;
 });
+
+const styleStore = useStyleStore();
+const scrollToTop = () => styleStore.scrollToContainer(0, 0, 'smooth');
 
 function showSuccess(msg: string) {
   $q.notify({
@@ -187,11 +192,7 @@ async function onLoad(index: number, done: (stop?: boolean) => void) {
 }
 async function callTmdb() {
   if (page.value === 1) {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: 'smooth',
-    });
+    scrollToTop();
   }
 
   if (typeof selectOrder?.value === 'object') {

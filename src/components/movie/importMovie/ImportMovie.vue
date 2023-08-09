@@ -108,13 +108,9 @@ function showError(msg: string) {
 
 watch(
   () => moviePage.value.showImportMovieDialog,
-  (val: boolean) => {
+  () => {
     movies.value = [];
     text.value = '';
-
-    if (val) {
-      window.scrollTo(0, 0);
-    }
   }
 );
 

@@ -75,7 +75,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useUserStore } from 'src/stores/UserStore';
 import { useStyleStore } from 'src/stores/StyleStore';
 
-import CustomTooltip from '../customTooltip/CustomTooltip.vue';
+import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
 const userStore = useUserStore();
 const styleStore = useStyleStore();

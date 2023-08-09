@@ -16,7 +16,6 @@ export default defineComponent({
       cancel = 'Cancelar',
       persisstent = true
     ) {
-      window.scrollTo(0, 0);
       this.$q
         .dialog({
           dark: true,

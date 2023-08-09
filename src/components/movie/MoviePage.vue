@@ -36,6 +36,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 
 import { useMovieStore } from 'src/stores/MovieStore';
+import { useStyleStore } from 'src/stores/StyleStore';
 
 import { ConfirmDialogRefType } from '../shared/confirmDialog/types/ConfirmDialogType';
 
@@ -70,6 +71,9 @@ const moviePage = computed(() => movieStore.moviePage);
 const routeName = computed(() => route.name);
 const routeIDPath = computed(() => route.params.id?.toString());
 const isMobile = computed(() => $q.platform.is.mobile);
+
+const styleStore = useStyleStore();
+const scrollToTop = () => styleStore.scrollToContainer(0, 0, 'smooth');
 
 onMounted(async () => {
   setDocumentTitle();
@@ -138,7 +142,7 @@ async function save(): Promise<void> {
       res = await MovieService.updateMovie(request);
       moviePage.value.selectedMovie = res;
     } else {
-      window.scrollTo(0, 0);
+      scrollToTop();
       res = await MovieService.createMovie(request);
       resetForm();
       showNotifyMovie(res.portuguese_title, res.id);

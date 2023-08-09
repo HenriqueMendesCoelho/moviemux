@@ -36,7 +36,6 @@ const props = defineProps<{ modelValue: boolean; movieId?: number }>();
 
 const visible = ref(false);
 const formMovieSummaryRef = ref<{ getMovie: () => Promise<void> }>();
-const currentPosition = ref(0);
 const maximizedToggle = ref(false);
 
 const emit = defineEmits<{
@@ -66,12 +65,9 @@ function showSuccess(msg: string) {
 }
 
 async function loadMovie() {
-  currentPosition.value = document.documentElement.scrollTop || document.body.scrollTop;
-  window.scrollTo(0, 0);
   await formMovieSummaryRef.value?.getMovie();
 }
 function scrollBackToPosition() {
-  window.scrollTo(0, currentPosition.value);
   maximizedToggle.value = false;
 }
 function conditionalCardStyle() {

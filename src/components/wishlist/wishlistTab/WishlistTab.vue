@@ -15,7 +15,6 @@
           <CustomTooltip :delay="500">Voltar para minhas listas</CustomTooltip>
         </div>
       </template>
-
       <template #append v-if="_wishlist?.user.id === userId">
         <div>
           <q-toggle
@@ -29,7 +28,6 @@
           <CustomTooltip :delay="500">{{ shareable ? 'Lista Pública' : 'Lista Privada' }}</CustomTooltip>
         </div>
       </template>
-
       <template #input-search>
         <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
           <q-list dense dark>
@@ -46,11 +44,12 @@
       </template>
     </SearchToolbar>
 
-    <div class="row justify-center q-mt-lg">
+    <div class="row justify-center q-mt-lg relative-position">
       <div class="row justify-center q-col-gutter-xl" v-if="moviesFiltered?.length">
         <div class="col-auto" v-for="movie in moviesFiltered" :key="movie.tmdb_id">
           <WishlistCardImage :movie="movie" @click-on-image="openDialogSummary($event)" @remove-movie="removeMovie($event)" />
         </div>
+        <FloatingActionBtnTop />
       </div>
       <div class="row justify-center" v-else>
         <div class="text-h3 text-white">Ainda não há filmes nessa lista...</div>
@@ -72,6 +71,7 @@ import SearchToolbar from 'src/components/shared/searchToolbar/SearchToolbar.vue
 import WishlistCardImage from './wishlistCardImage/WishlistCardImage.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 import DialogFormMovieSummary from 'src/components/shared/formMovieSummary/dialogFormMovieSummary/DialogFormMovieSummary.vue';
+import FloatingActionBtnTop from 'src/components/shared/floatingActionBtnTop/FloatingActionBtnTop.vue';
 
 import { useUserStore } from 'src/stores/UserStore';
 import WishlistService from 'src/services/WishlistService';
