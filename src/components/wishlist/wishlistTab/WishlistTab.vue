@@ -47,7 +47,11 @@
     <div class="row justify-center q-mt-lg relative-position">
       <div class="row justify-center q-col-gutter-xl" v-if="moviesFiltered?.length">
         <div class="col-auto" v-for="movie in moviesFiltered" :key="movie.tmdb_id">
-          <WishlistCardImage :movie="movie" @click-on-image="openDialogSummary($event)" @remove-movie="removeMovie($event)" />
+          <WishlistCardImage
+            :movie="movie"
+            @click-on-image="openDialogSummary($event)"
+            @remove-movie="openConfirmDialogRemoveMovie($event)"
+          />
         </div>
         <FloatingActionBtnTop />
       </div>
@@ -55,7 +59,7 @@
         <div class="text-h3 text-white">Ainda não há filmes nessa lista...</div>
       </div>
     </div>
-
+    <ConfirmDialog ref="confirmDialogRef" @ok="deteleMovieFromWishlist()" />
     <DialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" />
   </div>
 </template>
@@ -66,12 +70,14 @@ import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
 
 import type { WishlistType } from 'src/types/wishlist/WishlistType';
+import type { ConfirmDialogRefType } from 'src/components/shared/confirmDialog/types/ConfirmDialogType';
 
 import SearchToolbar from 'src/components/shared/searchToolbar/SearchToolbar.vue';
 import WishlistCardImage from './wishlistCardImage/WishlistCardImage.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 import DialogFormMovieSummary from 'src/components/shared/formMovieSummary/dialogFormMovieSummary/DialogFormMovieSummary.vue';
 import FloatingActionBtnTop from 'src/components/shared/floatingActionBtnTop/FloatingActionBtnTop.vue';
+import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
 
 import { useUserStore } from 'src/stores/UserStore';
 import WishlistService from 'src/services/WishlistService';
@@ -101,6 +107,9 @@ const moviesWhenTyping = ref<WishlistType['movies_wishlists']>();
 const shareable = ref(false);
 const showDialogMovieSummary = ref(false);
 const movieIdDialog = ref<number>();
+const movieIdToDelete = ref<number>();
+
+const confirmDialogRef = ref<ConfirmDialogRefType>();
 
 const showMenu = computed<boolean>(() => {
   return !!searchText.value && menuIsFocused.value && !!moviesWhenTyping.value?.length;
@@ -152,6 +161,13 @@ function showLoading() {
 }
 function hideLoading() {
   $q.loading.hide();
+}
+function showSuccess(msg: string) {
+  $q.notify({
+    type: 'positive',
+    message: msg,
+    position: 'top',
+  });
 }
 function showError(msg: string) {
   $q.notify({
@@ -216,18 +232,23 @@ async function changeShareable(val: boolean) {
   _wishlist.value.shareable = val;
   await updateWishlist(_wishlist.value);
 }
-async function removeMovie(tmdbId: number) {
+function openConfirmDialogRemoveMovie(tmdbId: number) {
+  movieIdToDelete.value = tmdbId;
+  confirmDialogRef.value?.dialog('Caso delete não há como desfazer a ação. ', 'cancel', 'Quer mesmo deletar?', 'Sim');
+}
+async function deteleMovieFromWishlist() {
   if (!_wishlist.value) {
     return;
   }
 
-  _wishlist.value.movies_wishlists = _wishlist.value?.movies_wishlists.filter((m) => m.tmdb_id !== tmdbId);
+  _wishlist.value.movies_wishlists = _wishlist.value?.movies_wishlists.filter((m) => m.tmdb_id !== movieIdToDelete.value);
   const res = await updateWishlist(_wishlist.value);
   if (!res) {
     return;
   }
   _wishlist.value = res;
   moviesFiltered.value = res.movies_wishlists;
+  showSuccess('Filme deletado da lista');
 }
 async function updateWishlist(wishlist: WishlistType) {
   try {
