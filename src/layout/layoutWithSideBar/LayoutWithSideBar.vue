@@ -34,11 +34,9 @@ export default defineComponent({
   setup() {
     const containerLayoutRef = ref();
     const styleStore = useStyleStore();
-    console.log(containerLayoutRef.value);
 
     styleStore.$onAction(({ name, args }) => {
       if (name === 'scrollToContainer') {
-        console.log(args);
         containerLayoutRef.value?.scrollTo({
           top: args[0],
           left: args[1],
