@@ -49,6 +49,7 @@
         <div class="col-auto" v-for="movie in moviesFiltered" :key="movie.tmdb_id">
           <WishlistCardImage
             :movie="movie"
+            :wishlists="otherWishlists"
             @click-on-image="openDialogSummary($event)"
             @remove-movie="openConfirmDialogRemoveMovie($event)"
           />
@@ -87,6 +88,7 @@ const router = useRouter();
 
 interface Props {
   wishlist?: WishlistType;
+  wishlists: WishlistType[];
   idParam?: string;
 }
 const props = defineProps<Props>();
@@ -108,6 +110,7 @@ const shareable = ref(false);
 const showDialogMovieSummary = ref(false);
 const movieIdDialog = ref<number>();
 const movieIdToDelete = ref<number>();
+const otherWishlists = props.wishlists.filter((w) => w.id != props.wishlist?.id);
 
 const confirmDialogRef = ref<ConfirmDialogRefType>();
 

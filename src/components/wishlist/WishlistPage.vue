@@ -3,8 +3,14 @@
     <div class="row full-width justify-center">
       <WishlistPageTitle :wishlist="wishlist" />
       <SeparatorDivLineSolid class="q-mb-xl" />
-      <MyWishlists v-if="tab === 'myWishlistsTab'" @click-on-card="changeTabToWishlist($event)" />
-      <WishlistTab v-else-if="tab === 'wishlistTab'" v-model:wishlist="wishlist" @back="back()" :id-param="idParam" />
+      <MyWishlists v-if="tab === 'myWishlistsTab'" @click-on-card="changeTabToWishlist($event)" @wishlists="wishlists = $event" />
+      <WishlistTab
+        v-else-if="tab === 'wishlistTab'"
+        v-model:wishlist="wishlist"
+        @back="back()"
+        :id-param="idParam"
+        :wishlists="wishlists"
+      />
     </div>
   </ContainerMain>
 </template>
@@ -27,6 +33,7 @@ const idParam = computed(() => route.query.id?.toString() || '');
 
 const tab = ref('myWishlistsTab');
 const wishlist = ref<WishlistType>();
+const wishlists = ref<WishlistType[]>([]);
 
 onMounted(() => {
   document.title = 'Cineminha - Lista de Filmes';

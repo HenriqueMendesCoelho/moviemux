@@ -40,6 +40,7 @@ const wishlistToDelete = ref<string>('');
 
 const emit = defineEmits<{
   (e: 'clickOnCard', value: WishlistType): void;
+  (e: 'wishlists', value: WishlistType[]): void;
 }>();
 
 onMounted(async () => {
@@ -73,6 +74,7 @@ async function listWishlist() {
     showLoading();
     const res = await WishlistService.listWishlists();
     wishlists.value = res;
+    emit('wishlists', res);
   } catch {
     showError('Erro ao listar suas listas');
   } finally {
@@ -101,7 +103,7 @@ async function deleteWishlist() {
   try {
     showLoading();
     await WishlistService.deleteWishlist(wishlistToDelete.value);
-    wishlists.value = await WishlistService.listWishlists();
+    await listWishlist();
     showSuccess('Lista deletada com sucesso');
   } catch {
     showError('Erro ao listar suas listas');

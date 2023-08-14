@@ -6,7 +6,7 @@
     </div>
     <div class="absolute-top-left" style="background: none" v-if="isInAnyWishlist()">
       <div>
-        <q-icon name="playlist_add_check" color="white" size="sm" />
+        <q-icon name="playlist_add_check" color="white" size="md" />
         <CustomTooltip :delay="1000">Já está em uma lista</CustomTooltip>
       </div>
     </div>
@@ -35,7 +35,8 @@
             </q-item-section>
             <q-item-section class="q-pl-sm">Ver recomendações</q-item-section>
           </q-item>
-          <q-separator dark />
+
+          <q-separator dark v-if="wishlists?.length" />
           <q-item clickable v-if="wishlists?.length">
             <q-item-section side>
               <q-icon name="playlist_add" color="white" />
@@ -44,7 +45,6 @@
             <q-item-section side>
               <q-icon name="keyboard_arrow_right" color="white" />
             </q-item-section>
-
             <q-menu anchor="top end" self="top start" class="bg-grey-dark2" dark>
               <q-list>
                 <q-item
@@ -173,7 +173,6 @@ async function addMovieToWishlist(wishlistId: string, tmdbId: number) {
   } finally {
     loading.value = false;
   }
-  return;
 }
 function mergeResult(wishlistId: string, newWishlist: WishlistType) {
   const wishlist = wishlists.value.find((w) => w.id === wishlistId);
