@@ -19,7 +19,7 @@ Vue.js, Java 20, Spring Boot, Hibernate, Apache Maven, PostgreSQL, Discord API, 
 <br>
 <p align="center">
   <a href="https://www.cine.kronusboss.com/">
-    <img src="https://img.cine.kronusboss.com/bV2ZrxZKIm8tWF0iSjxi_K7DQAPn2L-oqOQdG43f/cine/icons-tech.png" />
+    <img src="https://img.cine.kronusboss.com/lC4jhG7iirCFLEbsXxannHISN6_F-jo7BzlQLUgT/cine/tech-icons.png" />
   </a>
 </p>
 <br>
