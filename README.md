@@ -17,18 +17,11 @@ Vue.js, Java 20, Spring Boot, Hibernate, Apache Maven, PostgreSQL, Discord API, 
 ```
 
 <br>
-<div class="relative-position">
-  <p align="center">
-    <a href="https://skillicons.dev">
-      <img src="https://skillicons.dev/icons?i=vue,java,spring,hibernate,maven,postgres,discord,git,github,docker,angular,bootstrap,nodejs,express,typescript,prisma,sqlite,html,css,scss,vscode&perline=11" />
-    </a>
-    <div >
-      <a href="https://skillicons.dev">
-        <img class="quasar-logo" src="https://cdn.quasar.dev/logo-v2/svg/logo.svg" />
-      </a>
-    </div>
-  </p>
-</div>
+<p align="center">
+  <a href="https://www.cine.kronusboss.com/">
+    <img src="https://img.cine.kronusboss.com/bV2ZrxZKIm8tWF0iSjxi_K7DQAPn2L-oqOQdG43f/cine/icons-tech.png" />
+  </a>
+</p>
 <br>
 
 ## Images
@@ -70,17 +63,3 @@ External integration aggregator projects<br>
 [Kronus Integration Tool Back-End](https://github.com/HenriqueMendesCoelho/kronus-integration-tool-api)
 
 ### This product uses the TMDB API but is not endorsed or certified by TMDB.
-
-<style>
-.relative-position{
-  position: relative;
-}
-.quasar-logo {
-  max-width:50px;
-  background-color: white; 
-  border-radius: 50%;
-  position: absolute; 
-  bottom: 5px; 
-  right: 5px;
-}
-</style>
