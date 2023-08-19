@@ -3,7 +3,7 @@
     <q-card class="bg-grey-dark2 dialog-container" :style="conditionalCardStyle()">
       <q-bar class="bg-grey-dark2 q-mt-xs">
         <q-space />
-        <q-btn round dense flat icon="link" color="white" size="md" @click="emit('copyUrl')">
+        <q-btn round dense flat icon="link" color="white" size="md" @click="copyMovie()">
           <CustomTooltip :delay="400">Copiar URL</CustomTooltip>
         </q-btn>
         <q-btn round dense flat icon="minimize" color="white" size="md" @click="maximizedToggle = false" :disable="!maximizedToggle">
@@ -26,20 +26,21 @@
 </template>
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import { useQuasar } from 'quasar';
 
 import FormMovieSummary from '../FormMovieSummary.vue';
 import CustomTooltip from '../../customTooltip/CustomTooltip.vue';
 
+const $q = useQuasar();
 const props = defineProps<{ modelValue: boolean; movieId?: number }>();
+
 const visible = ref(false);
 const formMovieSummaryRef = ref<{ getMovie: () => Promise<void> }>();
-const currentPosition = ref(0);
 const maximizedToggle = ref(false);
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'hide', value: number): void;
-  (e: 'copyUrl', value: void): void;
 }>();
 
 watch(
@@ -55,17 +56,32 @@ watch(
   }
 );
 
+function showSuccess(msg: string) {
+  $q.notify({
+    type: 'positive',
+    message: msg,
+    position: 'top',
+  });
+}
+
 async function loadMovie() {
-  currentPosition.value = document.documentElement.scrollTop || document.body.scrollTop;
-  window.scrollTo(0, 0);
   await formMovieSummaryRef.value?.getMovie();
 }
 function scrollBackToPosition() {
-  window.scrollTo(0, currentPosition.value);
   maximizedToggle.value = false;
 }
 function conditionalCardStyle() {
   return !maximizedToggle.value ? 'border-radius: 15px; border: var(--grey-mid) solid 5px;' : 'border-radius: 0px; border: none;';
+}
+function copyMovie() {
+  if (!props?.movieId) {
+    return;
+  }
+
+  const url = `${window.location.origin}/movie/discover?movie=${props?.movieId}`;
+  navigator.clipboard.writeText(url);
+  showSuccess('URL copiada');
+  return url ? url : '';
 }
 </script>
 <style lang="scss" scoped>

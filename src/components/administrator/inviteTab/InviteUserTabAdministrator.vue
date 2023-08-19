@@ -8,7 +8,7 @@
           <q-btn style="width: 100%; height: 100%" color="info" text-color="white" label="Gerar convite" @click="createInvite" />
         </div>
         <div class="q-pl-md col-5">
-          <InputText :label="'Convite gerado'" v-model="invite" :required="false" :readOnly="true" :dense="true" />
+          <InputText :label="'Convite gerado'" v-model="invite" :required="false" :readonly="true" :dense="true" />
         </div>
         <div class="col-12 q-mt-md">
           <TableCopyDelete
@@ -16,8 +16,8 @@
             :columns="columns"
             :edit="false"
             :rows="invites"
-            :actionCopy="actionCopy"
-            :actionDelete="deleteInvite"
+            @copy="actionCopy"
+            @delete="deleteInvite"
             :loading="loading"
           />
         </div>

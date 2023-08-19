@@ -1,13 +1,18 @@
 <template>
-  <CardImage :class="`${selected && 'img-movie-selected'}`" :src="getUrl()" @click="clickOnCard" :animate="!selected && !loading">
-    <div class="absolute-bottom hover-show-img text-center" v-if="!selected && !loading">
+  <CardImage
+    :class="`${selected && 'img-movie-selected'}`"
+    :src="getUrl()"
+    @click="emit('clickOnImage', props?.movie?.tmdb_id)"
+    :animate="!selected"
+  >
+    <div class="absolute-bottom hover-show-img text-center" v-if="!selected">
       {{ props.movie?.title }}<br />
       {{ getMovieDateLocale() }}
     </div>
     <div class="absolute-top-left" style="background: none" v-if="isInAnyWishlist()">
       <div>
-        <q-icon name="playlist_add_check" color="white" size="md" />
-        <CustomTooltip :delay="1000">Já está em uma lista</CustomTooltip>
+        <q-icon name="sym_o_data_alert" color="white" size="md" />
+        <CustomTooltip :delay="1000">Filme presente em múltiplas listas</CustomTooltip>
       </div>
     </div>
     <q-btn
@@ -22,18 +27,11 @@
     >
       <q-menu class="bg-grey-dark2" dark @before-show="selected = true" @before-hide="selected = false">
         <q-list>
-          <q-item clickable v-close-popup @click="clickSimilar">
+          <q-item clickable v-close-popup @click="emit('removeMovie', props?.movie?.tmdb_id)">
             <q-item-section side>
-              <q-icon name="search" color="white" />
+              <q-icon name="playlist_remove" color="white" />
             </q-item-section>
-            <q-item-section class="q-pl-sm">Ver filmes similares</q-item-section>
-          </q-item>
-
-          <q-item clickable v-close-popup @click="clickRecommendations">
-            <q-item-section side>
-              <q-icon name="search" color="white" />
-            </q-item-section>
-            <q-item-section class="q-pl-sm">Ver recomendações</q-item-section>
+            <q-item-section class="q-pl-sm">Remover da lista</q-item-section>
           </q-item>
 
           <q-separator dark v-if="wishlists?.length" />
@@ -41,18 +39,18 @@
             <q-item-section side>
               <q-icon name="playlist_add" color="white" />
             </q-item-section>
-            <q-item-section class="q-pl-sm">Adicionar a minha lista</q-item-section>
+            <q-item-section class="q-pl-sm">Adicionar a outra Lista</q-item-section>
             <q-item-section side>
               <q-icon name="keyboard_arrow_right" color="white" />
             </q-item-section>
             <q-menu anchor="top end" self="top start" class="bg-grey-dark2" dark>
               <q-list>
                 <q-item
-                  v-for="list in wishlists"
+                  v-for="list in _wishlists"
                   :key="list.name"
                   clickable
                   :disable="disableList(list)"
-                  @click="addMovieToWishlist(list.id, props.movie?.id)"
+                  @click="addMovieToWishlist(list.id, props.movie?.tmdb_id)"
                 >
                   <q-item-section v-close-popup class="q-pl-sm">{{ list.name }}</q-item-section>
                   <CustomTooltip v-if="disableList(list)" :delay="500">Filme já adicionado nessa lista</CustomTooltip>
@@ -63,64 +61,41 @@
         </q-list>
       </q-menu>
     </q-btn>
-    <ContextMenuDiscover :movie-id="props.movie.id" @copy-url="emit('copy-url', $event)" />
     <q-inner-loading :showing="loading" label="Aguarde..." color="kb-primary" label-class="text-white" dark />
   </CardImage>
 </template>
 <script setup lang="ts">
-import { onActivated, onMounted, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
-import { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
+import type { WishlistType } from 'src/types/wishlist/WishlistType';
+
 import CardImage from 'src/components/shared/cardImage/CardImage.vue';
-import ContextMenuDiscover from './contextMenuDiscover/ContextMenuDiscover.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
 import WishlistService from 'src/services/WishlistService';
-import { WishlistType } from 'src/types/wishlist/WishlistType';
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 interface Props {
-  movie: ArrayElement<MovieResultResponseTmdb['results']>;
-  modelValue: WishlistType[];
+  movie: ArrayElement<WishlistType['movies_wishlists']>;
+  wishlists: WishlistType[];
 }
+const props = defineProps<Props>();
 
-const emit = defineEmits<{
-  (e: 'callTmdb', value: { label: string; value: string }): void;
-  (e: 'clickOnImage', value: void): void;
-  (e: 'copy-url', value: number): void;
-  (e: 'update:model-value', value: WishlistType[]): void;
-}>();
+interface Emits {
+  (e: 'clickOnImage', value: number): void;
+  (e: 'removeMovie', value: number): void;
+}
+const emit = defineEmits<Emits>();
 
 const $q = useQuasar();
-const props = defineProps<Props>();
 const selected = ref(false);
-const wishlists = ref<WishlistType[]>([]);
 const loading = ref(false);
+const _wishlists = ref<WishlistType[]>([]);
 
 onMounted(() => {
-  wishlists.value = props.modelValue;
+  if (props.wishlists.length) _wishlists.value = [...props.wishlists];
 });
-
-onActivated(() => {
-  wishlists.value = props.modelValue;
-});
-
-watch(
-  () => props.modelValue,
-  (val) => {
-    wishlists.value = val;
-  },
-  { deep: true }
-);
-
-watch(
-  () => wishlists.value,
-  (val) => {
-    emit('update:model-value', val);
-  },
-  { deep: true }
-);
 
 function showSuccess(msg: string) {
   $q.notify({
@@ -138,9 +113,8 @@ function showError(msg: string) {
 }
 
 function getUrl() {
-  return `https://image.tmdb.org/t/p/w500${props.movie?.poster_path}`;
+  return `https://image.tmdb.org/t/p/w500${props.movie?.url_image}`;
 }
-
 function getMovieDateLocale() {
   if (!props.movie?.release_date) {
     return;
@@ -150,17 +124,8 @@ function getMovieDateLocale() {
     dateStyle: 'long',
   });
 }
-function clickRecommendations() {
-  emit('callTmdb', {
-    label: `Recomendações para ${props.movie.title}`,
-    value: 'recommendation',
-  });
-}
-function clickSimilar() {
-  emit('callTmdb', {
-    label: `Similares a ${props.movie.title}`,
-    value: 'similar',
-  });
+function disableList(list: WishlistType) {
+  return list.movies_wishlists?.some((m) => m.tmdb_id === props.movie.tmdb_id);
 }
 async function addMovieToWishlist(wishlistId: string, tmdbId: number) {
   try {
@@ -175,29 +140,20 @@ async function addMovieToWishlist(wishlistId: string, tmdbId: number) {
   }
 }
 function mergeResult(wishlistId: string, newWishlist: WishlistType) {
-  const wishlist = wishlists.value.find((w) => w.id === wishlistId);
+  const wishlist = _wishlists.value.find((w) => w.id === wishlistId);
 
   if (!wishlist) {
     return;
   }
 
-  const index = wishlists.value.indexOf(wishlist);
-  wishlists.value[index] = newWishlist;
-}
-function disableList(list: WishlistType) {
-  return list.movies_wishlists?.some((m) => m.tmdb_id === props.movie.id);
+  const index = _wishlists.value.indexOf(wishlist);
+  _wishlists.value[index] = newWishlist;
 }
 function isInAnyWishlist() {
-  return wishlists.value.some((w) => w.movies_wishlists.some((m) => m.tmdb_id === props.movie.id));
-}
-function clickOnCard() {
-  if (loading.value) {
-    return;
-  }
-
-  emit('clickOnImage');
+  return _wishlists.value.some((w) => w.movies_wishlists.some((m) => m.tmdb_id === props.movie.tmdb_id));
 }
 </script>
+
 <style lang="scss" scoped>
 .img-movie-selected {
   opacity: 0.7;

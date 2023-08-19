@@ -2,7 +2,7 @@
   <div class="row justify-center">
     <div class="row col-8">
       <div class="col-md-11 col-sm-12">
-        <InputText :label="'Nome'" v-model="user.name" :readOnly="allReadOnly" />
+        <InputText :label="'Nome'" v-model="user.name" :readonly="allReadOnly" />
       </div>
       <div class="col-md col-sm-12">
         <q-toggle
@@ -18,7 +18,7 @@
     </div>
     <div class="col-md-8 col-sm-12 q-mt-md">
       <div class="row q-col-gutter-md">
-        <InputText class="col" :label="'Email'" v-model="user.email" :readOnly="allReadOnly" />
+        <InputText class="col" :label="'Email'" v-model="user.email" :readonly="allReadOnly" />
         <q-input
           :model-value="user.statistics?.consecutive_failed_login_attempts"
           v-if="showAdmInfo"
@@ -117,65 +117,59 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from 'vue';
+<script setup lang="ts">
+import { onMounted, ref, watch } from 'vue';
 
 import User from 'src/domain/user/User';
 
 import InputText from 'src/components/shared/inputText/InputText.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
-export default defineComponent({
-  name: 'PanelUserInfo',
-  props: {
-    modelValue: {
-      type: Object as PropType<User>,
-      required: true,
-    },
-    allReadOnly: {
-      type: Boolean,
-      default: false,
-    },
-    showAdmInfo: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  components: { InputText, CustomTooltip },
-  data() {
-    return {
-      no: true,
-      user: new User(),
-      teste: true,
-    };
-  },
-  emits: ['update:modelValue'],
-  mounted() {
-    if (this.modelValue) {
-      this.user = this.modelValue;
-    }
-  },
-  methods: {
-    displayTimeToText() {
-      const runtime = this.user.statistics?.display_time;
-      if (!runtime) {
-        return '0';
-      }
-      const hours = Math.floor(runtime / 60);
-      const minutes = runtime % 60;
+interface Props {
+  modelValue: User;
+  allReadOnly?: boolean;
+  showAdmInfo?: boolean;
+}
 
-      return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
-    },
-  },
-  watch: {
-    modelValue() {
-      if (this.modelValue) {
-        this.user = this.modelValue;
-      }
-    },
-    user() {
-      this.$emit('update:modelValue', this.user);
-    },
-  },
+const props = withDefaults(defineProps<Props>(), {
+  allReadOnly: false,
+  showAdmInfo: false,
 });
+
+const user = ref(new User());
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: User): void;
+}>();
+
+onMounted(() => {
+  if (props.modelValue) {
+    user.value = props.modelValue;
+  }
+});
+
+watch(
+  () => props.modelValue,
+  (val) => {
+    user.value = val;
+  }
+);
+
+watch(
+  () => user.value,
+  (val) => {
+    emit('update:modelValue', val);
+  }
+);
+
+function displayTimeToText() {
+  const runtime = user.value?.statistics?.display_time;
+  if (!runtime) {
+    return '0';
+  }
+  const hours = Math.floor(runtime / 60);
+  const minutes = runtime % 60;
+
+  return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+}
 </script>

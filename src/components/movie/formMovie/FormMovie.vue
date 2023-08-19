@@ -21,26 +21,26 @@
             class="col"
             :label="'Título PT-BR'"
             v-model="moviePage.selectedMovie.portuguese_title"
-            :readOnly="!isRegisterOrEditing"
+            :readonly="!isRegisterOrEditing"
             required
             :dense="screenHeight <= 1080"
           />
           <InputText
+            v-if="showEnglishTitle()"
             ref="inputTextEnglishTitleRef"
             class="col"
             :label="'Título Inglês'"
             v-model="moviePage.selectedMovie.english_title"
-            :readOnly="!isRegisterOrEditing"
+            :readonly="!isRegisterOrEditing"
             required
             :dense="screenHeight <= 1080"
           />
           <InputText
-            v-if="showOriginalTitle()"
             ref="inputTextOriginalTitleRef"
             class="col"
             :label="'Título Original'"
             v-model="moviePage.selectedMovie.original_title"
-            :readOnly="!isRegisterOrEditing"
+            :readonly="!isRegisterOrEditing"
             :dense="screenHeight <= 1080"
           />
         </div>
@@ -50,7 +50,7 @@
             class="col-8"
             :label="'Diretor'"
             v-model="moviePage.selectedMovie.director"
-            :readOnly="!isRegisterOrEditing"
+            :readonly="!isRegisterOrEditing"
             required
             :dense="screenHeight <= 1080"
           />
@@ -70,7 +70,7 @@
             class="col-2"
             :label="'Tempo de duração'"
             :modelValue="runtimeToText()"
-            :readOnly="true"
+            :readonly="true"
             :dense="screenHeight <= 1080"
           />
           <InputText
@@ -79,7 +79,7 @@
             :label="'Ano de lançamento'"
             :modelValue="moviePage.selectedMovie.release_date ? new Date(moviePage.selectedMovie.release_date).toLocaleDateString() : ''"
             @change="changeReleaseDate"
-            :readOnly="!isRegisterOrEditing"
+            :readonly="!isRegisterOrEditing"
             :mask="'##/##/####'"
             required
             :dense="screenHeight <= 1080"
@@ -125,7 +125,22 @@
               :readonly="!isRegisterOrEditing"
               :lazy-rules="true"
               :dense="screenHeight <= 1080"
-            />
+              use-chips
+            >
+              <template v-slot:selected-item="scope">
+                <q-chip
+                  :removable="isRegisterOrEditing"
+                  dense
+                  @remove="scope.removeAtIndex(scope.index)"
+                  :tabindex="scope.tabindex"
+                  color="grey-dark2"
+                  text-color="white"
+                  class="q-ma-none"
+                >
+                  {{ scope.opt.name }}
+                </q-chip>
+              </template>
+            </q-select>
             <InputText
               ref="inputTextTmdbIdRef"
               class="col-12"
@@ -137,17 +152,17 @@
               :dense="screenHeight <= 1080"
               :icon="!isRegisterOrEditing ? 'open_in_new' : ''"
               :iconTooltip="'Abrir tmdb'"
-              :iconFunction="openTmdbInNewTab"
+              @iconClick="openTmdbInNewTab"
             />
             <InputText
               class="col-12"
               :label="'Imdb ID'"
               v-model="moviePage.selectedMovie.imdb_id"
-              :readOnly="!isRegisterOrEditing"
+              :readonly="!isRegisterOrEditing"
               :dense="screenHeight <= 1080"
               :icon="!isRegisterOrEditing ? 'open_in_new' : ''"
               :iconTooltip="'Abrir imdb'"
-              :iconFunction="openImdbInNewTab"
+              @iconClick="openImdbInNewTab"
             />
           </div>
         </div>
@@ -159,7 +174,7 @@
             class="col-5"
             :label="'URL da Imagem'"
             v-model="moviePage.selectedMovie.url_image"
-            :readOnly="!isRegisterOrEditing"
+            :readonly="!isRegisterOrEditing"
             required
             :dense="screenHeight <= 1080"
           />
@@ -169,9 +184,12 @@
             :label="'URL do trailer dublado'"
             :model-value="moviePage.selectedMovie.portuguese_url_trailer"
             @change="changeTrailerPortuguese"
-            :readOnly="!isRegisterOrEditing"
-            :customRules="!!(moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer)"
-            :customRulesText="'É necessário ter url do trailer dublado ou legendado'"
+            :readonly="!isRegisterOrEditing"
+            :customRules="
+              () =>
+                !!(moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer) ||
+                'É necessário ter url do trailer dublado ou legendado'
+            "
             :hint="isRegisterOrEditing ? 'Insira a url do youtube ou key do video' : ''"
             :dense="screenHeight <= 1080"
           />
@@ -181,10 +199,13 @@
             :label="'URL do trailer legendado'"
             :model-value="moviePage.selectedMovie.english_url_trailer"
             @change="changeTrailerEnglish"
-            :readOnly="!isRegisterOrEditing"
-            :customRules="!!(moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer)"
-            :customRulesText="'É necessário ter url do trailer dublado ou legendado'"
-            :hint="isRegisterOrEditing ? 'Insira a url do youtube ou key do video' : ''"
+            :readonly="!isRegisterOrEditing"
+            :customRules="
+              () =>
+                !!(moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer) ||
+                'É necessário ter url do trailer dublado ou legendado'
+            "
+            :hint="props.isRegisterOrEditing ? 'Insira a url do youtube ou key do video' : ''"
             :dense="screenHeight <= 1080"
           />
         </div>
@@ -193,7 +214,7 @@
             <div class="text-h6">Nota</div>
             <ChipNote size="xl" :movie="moviePage.selectedMovie" :dense="screenHeight <= 1080" />
           </div>
-          <div class="col offset-1 row justify-end">
+          <div class="col offset-1 row justify-end" v-if="moviePage.selectedMovie.tmdb_id">
             <MovieWatchProviders class="col-auto" :tmdb-id="moviePage.selectedMovie.tmdb_id" />
           </div>
         </div>
@@ -268,50 +289,50 @@ function getImageAndAlt(): Array<string> {
 
   return [srcImage, altImage];
 }
-async function hasErrors(): Promise<boolean> {
+function hasErrors(): boolean {
   let hasError = false;
-  if (await inputTextPortugueseTitleRef.value?.hasErrors()) {
+  if (inputTextPortugueseTitleRef.value?.hasErrors()) {
     hasError = true;
   }
-  if (await inputTextEnglishTitleRef.value?.hasErrors()) {
+  if (inputTextEnglishTitleRef.value?.hasErrors()) {
     hasError = true;
   }
-  if (await inputTextOriginalTitleRef.value?.hasErrors()) {
+  if (inputTextOriginalTitleRef.value?.hasErrors()) {
     hasError = true;
   }
-  if (await inputTextDirectorRef.value?.hasErrors()) {
+  if (inputTextDirectorRef.value?.hasErrors()) {
     hasError = true;
   }
-  if (await inputTextReleaseDateRef.value?.hasErrors()) {
+  if (inputTextReleaseDateRef.value?.hasErrors()) {
     hasError = true;
   }
-  if (await inputTextReleaseDateRef.value?.hasErrors()) {
+  if (inputTextReleaseDateRef.value?.hasErrors()) {
     hasError = true;
   }
   if (qInputDescriptionRef.value) {
-    await qInputDescriptionRef.value.validate();
+    qInputDescriptionRef.value.validate();
     hasError = qInputDescriptionRef.value.hasError || hasError;
   }
   if (qSelectGenresRef.value) {
-    await qSelectGenresRef.value?.validate();
+    qSelectGenresRef.value?.validate();
     hasError = qSelectGenresRef.value?.hasError || hasError;
   }
-  if (await InputTextTmdbIdRef.value?.hasErrors()) {
+  if (InputTextTmdbIdRef.value?.hasErrors()) {
     hasError = true;
   }
-  if (await inputTextUrlImageRef.value?.hasErrors()) {
+  if (inputTextUrlImageRef.value?.hasErrors()) {
     hasError = true;
   }
-  if (await inputTextUrlTrailerBrRef.value?.hasErrors()) {
+  if (inputTextUrlTrailerBrRef.value?.hasErrors()) {
     hasError = true;
   }
-  if (await inputTextUrlTrailerEnRef.value?.hasErrors()) {
+  if (inputTextUrlTrailerEnRef.value?.hasErrors()) {
     hasError = true;
   }
-  if (await inputTextRuntimeRef.value?.hasErrors()) {
+  if (inputTextRuntimeRef.value?.hasErrors()) {
     hasError = true;
   }
-  return Promise.resolve(hasError);
+  return hasError;
 }
 function resetValidation(): void {
   inputTextPortugueseTitleRef.value?.resetValidation();
@@ -377,14 +398,8 @@ function runtimeToText() {
 
   return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
 }
-function showOriginalTitle() {
-  if (props.isRegisterOrEditing) {
-    return true;
-  }
-  if (moviePage.value.selectedMovie.original_title !== moviePage.value.selectedMovie.english_title) {
-    return true;
-  }
-  return false;
+function showEnglishTitle() {
+  return moviePage.value.selectedMovie.original_title !== moviePage.value.selectedMovie.english_title;
 }
 </script>
 

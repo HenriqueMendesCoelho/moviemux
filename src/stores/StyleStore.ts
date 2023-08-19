@@ -5,6 +5,7 @@ export const useStyleStore = defineStore('StyleStore', {
     return {
       backgroundColor: '#0b0e14',
       layoutSettings: { isSideBarExpanded: false, darkMode: true },
+      containerLayout: Element,
     };
   },
   actions: {
@@ -19,5 +20,7 @@ export const useStyleStore = defineStore('StyleStore', {
         this.layoutSettings.darkMode = true;
       }
     },
+    // eslint-disable-next-line
+    scrollToContainer: (_top: number, _left: number, _behavior: 'smooth' | 'auto') => null,
   },
 });

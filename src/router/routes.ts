@@ -5,7 +5,7 @@ import LoginPage from 'src/components/login/LoginPage.vue';
 const routes: RouteRecordRaw[] = [
   {
     path: '',
-    component: () => import('src/layout/LayoutWithoutSideBar.vue'),
+    component: () => import('src/layout/layoutWithoutSideBar/LayoutWithoutSideBar.vue'),
     children: [
       {
         path: '',
@@ -44,7 +44,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '',
-    component: () => import('src/layout/LayoutWithSideBar.vue'),
+    component: () => import('src/layout/layoutWithSideBar/LayoutWithSideBar.vue'),
     children: [
       {
         path: '/home',
@@ -90,6 +90,14 @@ const routes: RouteRecordRaw[] = [
         path: '/movie/discover',
         component: () => import('src/components/discoverMovies/DiscoverMoviesPage.vue'),
         name: 'discoverMovies',
+        meta: {
+          roles: ['ADM', 'USER'],
+        },
+      },
+      {
+        path: '/movie/wishlist',
+        component: () => import('src/components/wishlist/WishlistPage.vue'),
+        name: 'wishlist',
         meta: {
           roles: ['ADM', 'USER'],
         },

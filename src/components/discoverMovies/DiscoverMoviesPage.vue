@@ -18,22 +18,28 @@
         <template #input-search>
           <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
             <q-list dense dark>
-              <div v-for="movie in moviesWhenTyping" :key="movie.id">
-                <q-item bordered clickable v-close-popup>
-                  <q-item-section v-close-popup class="q-pl-sm" @click="searchFromMenu(movie.title)">{{ movie.title }}</q-item-section>
+              <div v-for="movie in moviesWhenTyping" :key="movie.id" @click="searchFromMenu(movie.title)">
+                <q-item bordered clickable>
+                  <q-item-section v-close-popup class="q-pl-sm">{{ movie.title }}</q-item-section>
                 </q-item>
-                <q-separator dark />
+                <q-separator dark v-if="!!moviesWhenTyping ? moviesWhenTyping?.length > 1 : false" />
               </div>
             </q-list>
           </q-menu>
         </template>
       </SearchToolbar>
 
-      <div class="row justify-center q-mt-lg relative-position">
+      <div class="row justify-center q-mt-lg">
         <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="1500">
           <div class="row justify-center q-col-gutter-xl">
             <div class="col-auto" v-for="(movie, index) in movies" :key="index">
-              <CardImageDiscoverMovies @click-on-image="showDialog(movie.id)" :movie="movie" @call-tmdb="cardCallTmdb($event, movie.id)" />
+              <CardImageDiscoverMovies
+                v-model="wishlists"
+                @click-on-image="showDialog(movie.id)"
+                :movie="movie"
+                @call-tmdb="cardCallTmdb($event, movie.id)"
+                @copy-url="copyMovie($event)"
+              />
             </div>
           </div>
         </q-infinite-scroll>
@@ -42,22 +48,20 @@
         </div>
         <FloatingActionBtnTop />
       </div>
-      <DialogFormMovieSummary
-        v-model="showDialogMovieSummary"
-        :movie-id="movieIdDialog"
-        position="standard"
-        @copy-url="copyMovie(movieIdDialog)"
-      />
+      <DialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" position="standard" />
     </div>
   </ContainerMain>
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onActivated, onMounted, onUpdated, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useRoute } from 'vue-router';
 
+import { useStyleStore } from 'src/stores/StyleStore';
+
 import { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
+import { WishlistType } from 'src/types/wishlist/WishlistType';
 
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import SearchToolbar from '../shared/searchToolbar/SearchToolbar.vue';
@@ -67,6 +71,7 @@ import PageTitle from '../shared/pageTitle/PageTitle.vue';
 import DialogFormMovieSummary from '../shared/formMovieSummary/dialogFormMovieSummary/DialogFormMovieSummary.vue';
 import FloatingActionBtnTop from 'src/components/shared/floatingActionBtnTop/FloatingActionBtnTop.vue';
 
+import WishlistService from 'src/services/WishlistService';
 import KitService from 'src/services/KitService';
 
 const $q = useQuasar();
@@ -91,12 +96,30 @@ const loading = ref(false);
 const movieIdSelected = ref(0);
 const movieIdDialog = ref(0);
 const showDialogMovieSummary = ref(false);
-
 const menuIsFocused = ref(false);
+const wishlists = ref<WishlistType[]>([]);
 
 const showMenu = computed<boolean>(() => {
   return !!searchText.value && menuIsFocused.value && !!moviesWhenTyping.value?.length;
 });
+
+const styleStore = useStyleStore();
+const scrollToTop = () => styleStore.scrollToContainer(0, 0, 'smooth');
+
+function showSuccess(msg: string) {
+  $q.notify({
+    type: 'positive',
+    message: msg,
+    position: 'top',
+  });
+}
+function showError(msg: string) {
+  $q.notify({
+    type: 'negative',
+    message: msg,
+    position: 'top',
+  });
+}
 
 onMounted(() => {
   const movieParam = parseInt(route.query.movie?.toString() || '');
@@ -108,19 +131,20 @@ onMounted(() => {
   showDialog(movieParam);
 });
 
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
-
 onMounted(async () => {
   page.value = 1;
   lastPage.value = 2;
   const res = await getMoviesPopular();
   movies.value = res;
+  await listWishlist();
+});
+
+onActivated(async () => {
+  await listWishlist();
+});
+
+onUpdated(async () => {
+  await listWishlist();
 });
 
 watch(
@@ -168,11 +192,7 @@ async function onLoad(index: number, done: (stop?: boolean) => void) {
 }
 async function callTmdb() {
   if (page.value === 1) {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: 'smooth',
-    });
+    scrollToTop();
   }
 
   if (typeof selectOrder?.value === 'object') {
@@ -282,12 +302,17 @@ function copyMovie(id?: number) {
 
   const url = `${window.location.origin}/movie/discover?movie=${id}`;
   navigator.clipboard.writeText(url);
+  showSuccess('URL copiada');
   return url ? url : '';
 }
 async function searchFromMenu(title: string) {
   searchText.value = title;
   selectOrder.value = undefined;
   await firstSearch();
+}
+async function listWishlist() {
+  const res = await WishlistService.listWishlists();
+  wishlists.value = res;
 }
 </script>
 

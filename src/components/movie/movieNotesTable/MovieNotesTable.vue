@@ -181,7 +181,11 @@ function showConfirmDialogDelete() {
 function showConfirmPromptDelete() {
   confirmDialogPromptRef.value?.dialog();
 }
-async function createNote(note: string) {
+async function createNote(note: string | undefined) {
+  if (!note) {
+    return false;
+  }
+
   const noteConverted = parseInt(note);
   if (typeof noteConverted !== 'number') {
     return false;

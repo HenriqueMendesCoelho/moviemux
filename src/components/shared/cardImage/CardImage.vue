@@ -2,7 +2,7 @@
   <q-img :class="`${props.animate && 'animate'}`" class="img-movie" width="250px" height="380px" :no-native-menu="true" :draggable="false">
     <slot></slot>
     <template v-slot:loading>
-      <q-skeleton width="250px" height="380px" animation="fade" dark bordered />
+      <q-skeleton width="250px" height="380px" animation="fade" dark />
     </template>
     <template v-slot:error>
       <div class="absolute-full flex flex-center bg-grey-mid text-white">

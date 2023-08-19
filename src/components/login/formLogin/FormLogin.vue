@@ -1,8 +1,8 @@
 <template>
   <div class="row justify-center">
-    <q-card class="form-login col-5" style="border-radius: 15px; min-width: 550px" v-auto-animate>
+    <q-card class="col form-login" v-auto-animate>
       <q-card-section class="row justify-center">
-        <q-tab-panels v-model="tab" class="tabs col-12" animated style="min-height: 460px">
+        <q-tab-panels v-model="tab" class="tabs" animated>
           <q-tab-panel name="login">
             <TabLogin @change-tab="tab = $event" @loading="loading = $event" :createAccount="createAccount" />
           </q-tab-panel>
@@ -14,7 +14,7 @@
           </q-tab-panel>
         </q-tab-panels>
       </q-card-section>
-      <q-inner-loading :showing="loading" label="Aguarde..." color="kb-primary" label-class="text-white" :dark="true" />
+      <q-inner-loading :showing="loading" label="Aguarde..." color="kb-primary" label-class="text-white" dark />
     </q-card>
   </div>
 </template>
@@ -62,6 +62,7 @@ watch(
 .form-login {
   background-color: var(--grey-mid);
   box-shadow: 0 10px 30px var(--shadow);
+  border-radius: 15px;
 
   .tabs {
     background-color: transparent;

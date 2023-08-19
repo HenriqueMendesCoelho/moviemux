@@ -1,6 +1,6 @@
 <template>
-  <div class="row justify-center full-height" style="overflow-y: hidden">
-    <div class="text-h3 title">Recuperação de conta</div>
+  <div class="row justify-center full-height">
+    <div class="text-h3 title">Recuperar conta</div>
     <SeparatorDivLineSolid />
     <div class="col-10">
       <q-input
@@ -19,7 +19,7 @@
         </template>
       </q-input>
     </div>
-    <div class="col-10 q-mt-xl">
+    <div class="col-10 q-mt-xl q-mb-xs">
       <button class="btn-underline text-white" @click="changeTab('login')">Volta para login</button>
     </div>
     <div class="col-10">
