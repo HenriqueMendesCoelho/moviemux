@@ -19,7 +19,7 @@
             color="red"
             text-color="white"
             label="Cancelar"
-            :disable="!movieStore.selectedMovieHasAnyFieldFilled()"
+            :disable="!selectedMovieHasAnyFieldFilled()"
             @click="showConfirmDialogCancel()"
           />
         </div>
@@ -30,13 +30,13 @@
   </ContainerMain>
 </template>
 
-<script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUpdate } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+<script lang="ts">
+import { defineComponent, ref } from 'vue';
+import { RouteRecordName } from 'vue-router';
 import { useQuasar } from 'quasar';
+import { mapActions, mapState } from 'pinia';
 
 import { useMovieStore } from 'src/stores/MovieStore';
-import { useStyleStore } from 'src/stores/StyleStore';
 
 import { ConfirmDialogRefType } from '../shared/confirmDialog/types/ConfirmDialogType';
 
@@ -52,177 +52,211 @@ import ImportMovie from './importMovie/ImportMovie.vue';
 import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
 import Movie from 'src/domain/movie/movie';
 
-const $q = useQuasar();
-const confirmDialogRef = ref<ConfirmDialogRefType>();
-const formMovieRef = ref<{
-  hasErrors: () => boolean;
-  resetValidation: () => void;
-}>();
-
-const route = useRoute();
-const router = useRouter();
-
-const movieStore = useMovieStore();
-
-const idPathParam = ref(route.params.id?.toString());
-const alreadyEditing = ref(false);
-
-const moviePage = computed(() => movieStore.moviePage);
-const routeName = computed(() => route.name);
-const routeIDPath = computed(() => route.params.id?.toString());
-const isMobile = computed(() => $q.platform.is.mobile);
-
-const styleStore = useStyleStore();
-const scrollToTop = () => styleStore.scrollToContainer(0, 0, 'smooth');
-
-onMounted(async () => {
-  setDocumentTitle();
-  await loadMovie();
-  if (routeName.value === 'add') {
-    resetForm();
-  }
-  if (routeName.value === 'movie') {
-    moviePage.value.isEditing = false;
-  }
-  return;
-});
-
-onBeforeUpdate(async () => {
-  setDocumentTitle();
-  if (routeName.value === 'add') {
-    if (!alreadyEditing.value) {
-      resetForm();
-    }
-    alreadyEditing.value = true;
-    idPathParam.value = '';
-    return;
-  }
-  await loadMovie();
-  return;
-});
-
-function showLoading() {
-  $q.loading.show({
-    spinnerColor: 'kb-primary',
-  });
-}
-function hideLoading() {
-  $q.loading.hide();
-}
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
-
-async function save(): Promise<void> {
-  if (formMovieRef.value?.hasErrors()) {
-    return;
-  }
-  const movie = { ...moviePage.value.selectedMovie };
-  const request = { ...moviePage.value.selectedMovie, genres: movie.genres?.map((g: { id: number }) => g.id) };
-  if (!request) {
-    return;
-  }
-
-  try {
-    showLoading();
-    let res: Movie;
-    if (request.id) {
-      moviePage.value.isEditing = !moviePage.value.isEditing;
-      res = await MovieService.updateMovie(request);
-      moviePage.value.selectedMovie = res;
-    } else {
-      scrollToTop();
-      res = await MovieService.createMovie(request);
-      resetForm();
-      showNotifyMovie(res.portuguese_title, res.id);
-    }
-    showSuccess('Filme foi salvo com sucesso');
-  } catch {
-    showError('Erro ao salvar filme');
-  } finally {
-    hideLoading();
-  }
-}
-function showConfirmDialogCancel() {
-  confirmDialogRef.value?.dialog(
-    'Caso cancele todos os dados serão limpos. Você quer cancelar? ',
-    'cancel',
-    'Confirme o cancelamento',
-    'Sim'
-  );
-}
-function resetForm() {
-  movieStore.$reset();
-  moviePage.value.isEditing = false;
-  formMovieRef.value?.resetValidation();
-}
-function isRegisterOrEditing() {
-  if (!routeIDPath.value) {
-    return true;
-  }
-  if (routeIDPath.value && moviePage.value.isEditing) {
-    return true;
-  }
-  return false;
-}
-function setDocumentTitle() {
-  if (routeName.value === 'add') {
-    document.title = 'Cineminha - Cadastrar Filme';
-  } else {
-    document.title = `Cineminha - ${moviePage.value.selectedMovie.portuguese_title}`;
-  }
-}
-async function loadMovie(): Promise<void> {
-  if (!routeIDPath.value) {
-    return;
-  }
-  const res = await MovieService.getMovie(routeIDPath.value);
-  moviePage.value.selectedMovie = res;
-  setDocumentTitle();
-  return;
-}
-function showNotifyMovie(movieTitle?: string, movieId?: string) {
-  if (!movieTitle || !movieId) {
-    return;
-  }
-  $q.notify({
-    progress: true,
-    message: `Acesse o filme '${movieTitle}' que acabou de cadastrar!`,
-    multiLine: true,
-    position: 'bottom-left',
-    color: 'grey-mid2',
-    timeout: 10000,
-    actions: [
-      {
-        label: 'Acessar',
-        color: 'kb-primary',
-        handler: () => {
-          router.push(`/movie/${movieId}`);
-        },
+export default defineComponent({
+  name: 'MoviePage',
+  components: {
+    ContainerMain,
+    SeparatorDivSolidLine,
+    VideoEmbedded,
+    SuperiorButtonsMovie,
+    FormMovie,
+    MovieNotesTable,
+    ImportMovie,
+    ConfirmDialog,
+  },
+  setup() {
+    const $q = useQuasar();
+    const confirmDialogRef = ref<ConfirmDialogRefType>();
+    const formMovieRef = ref<{
+      hasErrors: () => Promise<boolean>;
+      resetValidation: () => void;
+    }>();
+    return {
+      confirmDialogRef,
+      formMovieRef,
+      showLoading() {
+        $q.loading.show({
+          spinnerColor: 'kb-primary',
+        });
       },
-    ],
-  });
-}
-async function cancel() {
-  if (routeName.value === 'add') {
-    resetForm();
+      hideLoading() {
+        $q.loading.hide();
+      },
+      showSuccess(msg: string) {
+        $q.notify({
+          type: 'positive',
+          message: msg,
+          position: 'top',
+        });
+      },
+      showError(msg: string) {
+        $q.notify({
+          type: 'negative',
+          message: msg,
+          position: 'top',
+        });
+      },
+    };
+  },
+  data() {
+    return {
+      idPathParam: this.$route.params.id,
+      notesVisible: true,
+      alreadyEditing: false,
+    };
+  },
+  computed: {
+    ...mapState(useMovieStore, ['moviePage']),
+    routeName(): RouteRecordName | null | undefined {
+      return this.$route.name;
+    },
+    routeIDPath(): string | string[] {
+      return this.$route.params.id;
+    },
+    isMobile(): boolean | undefined {
+      return this.$q.platform.is.mobile;
+    },
+  },
+  async mounted() {
+    this.setDocumentTitle();
+    await this.loadMovie();
+    if (this.routeName === 'add') {
+      this.resetForm();
+    }
+    if (this.routeName === 'movie') {
+      this.moviePage.isEditing = false;
+    }
+    return Promise.resolve();
+  },
+  async beforeUpdate() {
+    this.setDocumentTitle();
+    if (this.routeName === 'add') {
+      if (!this.alreadyEditing) {
+        this.resetForm();
+      }
+      this.alreadyEditing = true;
+      this.idPathParam = '';
+      return;
+    }
+    await this.loadMovie();
     return;
-  }
+  },
+  methods: {
+    ...mapActions(useMovieStore, ['resetSelectedMovie', 'selectedMovieHasAnyFieldFilled']),
+    showTopButtons() {
+      return this.routeName === 'movie';
+    },
+    async save(): Promise<void> {
+      if (await this.formMovieRef?.hasErrors()) {
+        return;
+      }
+      const movie = { ...this.moviePage.selectedMovie };
+      const request = { ...this.moviePage.selectedMovie, genres: movie.genres?.map((g: { id: number }) => g.id) };
+      if (!request) {
+        return;
+      }
 
-  moviePage.value.isEditing = false;
-  await loadMovie();
-}
+      try {
+        this.showLoading();
+        let res: Movie;
+        if (request.id) {
+          this.moviePage.isEditing = !this.moviePage.isEditing;
+          res = await MovieService.updateMovie(request);
+          this.moviePage.selectedMovie = res;
+        } else {
+          window.scrollTo(0, 0);
+          res = await MovieService.createMovie(request);
+          this.resetForm();
+          this.showNotifyMovie(res.portuguese_title, res.id);
+        }
+        this.showSuccess('Filme foi salvo com sucesso');
+      } catch {
+        this.showError('Erro ao salvar filme');
+      } finally {
+        this.hideLoading();
+      }
+      return Promise.resolve();
+    },
+    showConfirmDialogCancel() {
+      this.confirmDialogRef?.dialog(
+        'Caso cancele todos os dados serão limpos. Você quer cancelar? ',
+        'cancel',
+        'Confirme o cancelamento',
+        'Sim'
+      );
+    },
+    resetForm() {
+      const movieStore = useMovieStore();
+      movieStore.$reset();
+      this.moviePage.isEditing = false;
+      this.formMovieRef?.resetValidation();
+    },
+    cantEdit() {
+      return false;
+    },
+    copyMovieURL(url?: string) {
+      if (url) {
+        navigator.clipboard.writeText(url);
+      }
+    },
+    isRegisterOrEditing() {
+      if (!this.routeIDPath) {
+        return true;
+      }
+      if (this.routeIDPath && this.moviePage.isEditing) {
+        return true;
+      }
+      return false;
+    },
+    setDocumentTitle() {
+      if (this.routeName === 'add') {
+        document.title = 'Cineminha - Cadastrar Filme';
+      } else {
+        document.title = `Cineminha - ${this.moviePage.selectedMovie.portuguese_title}`;
+      }
+    },
+    async loadMovie(): Promise<void> {
+      if (!this.routeIDPath) {
+        return Promise.resolve();
+      }
+      const res = await MovieService.getMovie(this.routeIDPath.toString());
+      this.moviePage.selectedMovie = res;
+      this.setDocumentTitle();
+      return Promise.resolve();
+    },
+    showNotifyMovie(movieTitle?: string, movieId?: string) {
+      if (!movieTitle || !movieId) {
+        return;
+      }
+      this.$q.notify({
+        progress: true,
+        message: `Acesse o filme '${movieTitle}' que acabou de cadastrar!`,
+        multiLine: true,
+        position: 'bottom-left',
+        color: 'grey-mid2',
+        timeout: 10000,
+        actions: [
+          {
+            label: 'Acessar',
+            color: 'kb-primary',
+            handler: () => {
+              this.$router.push(`/movie/${movieId}`);
+            },
+          },
+        ],
+      });
+    },
+    async cancel() {
+      if (this.routeName === 'add') {
+        this.resetForm();
+        return;
+      }
+
+      this.moviePage.isEditing = false;
+      await this.loadMovie();
+    },
+  },
+});
 </script>
 
 <style lang="scss" scoped>

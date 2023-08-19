@@ -2,7 +2,13 @@
   <div class="container-m"><slot></slot></div>
 </template>
 
-<script setup lang="ts"></script>
+<script>
+import { defineComponent } from 'vue';
+
+export default defineComponent({
+  name: 'ContainerMain',
+});
+</script>
 
 <style lang="scss" scoped>
 .container-m {

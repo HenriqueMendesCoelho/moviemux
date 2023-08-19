@@ -8,8 +8,8 @@
         :columns="columns"
         :edit="false"
         :rows="users"
-        @copy="actionCopy"
-        @delete="actionDelete"
+        :actionCopy="actionCopy"
+        :actionDelete="actionDelete"
         :loading="loading"
       />
     </div>

@@ -66,7 +66,7 @@
       <q-btn class="btn-login" label="Criar conta" color="kb-primary" text-color="black" style="width: 100%" @click="create" />
     </div>
     <div class="col-10 justify-center">
-      <button class="btn-underline q-mt-xs" style="color: white" @click="changeTab('login')">Volta para login</button>
+      <button class="btn-underline q-mt-md" style="color: white" @click="changeTab('login')">Volta para login</button>
     </div>
   </div>
 </template>

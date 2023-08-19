@@ -79,7 +79,6 @@ body {
 
   max-width: 100%;
   overflow-x: hidden;
-  background-color: var(--grey-dark);
 }
 
 button {
@@ -97,9 +96,13 @@ button {
 
 .main-app {
   display: flex;
+  background-color: var(--grey-dark);
 
   main {
     flex: 1 1 0;
+    @media (max-width: 768px) {
+      padding-left: 0.8rem;
+    }
   }
 }
 

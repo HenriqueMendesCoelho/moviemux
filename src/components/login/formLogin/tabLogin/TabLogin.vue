@@ -115,10 +115,6 @@ async function login() {
         return;
       }
 
-      if (validateIsMobile()) {
-        return;
-      }
-
       router.push('/home');
     } else {
       window.location.reload();
@@ -140,15 +136,6 @@ function hasErrors() {
     hasErrors = inputPasswordRef.value.hasError;
   }
   return hasErrors;
-}
-function validateIsMobile() {
-  if ($q.platform.is.mobile) {
-    showError('Não temos uma experiência pronta para mobile por enquanto :(');
-    localStorage.removeItem('auth-kb');
-    return true;
-  }
-
-  return false;
 }
 </script>
 

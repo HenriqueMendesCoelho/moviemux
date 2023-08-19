@@ -17,8 +17,11 @@
 </template>
 
 <script lang="ts" setup>
-import { useStyleStore } from 'src/stores/StyleStore';
-
-const styleStore = useStyleStore();
-const scrollToTop = () => styleStore.scrollToContainer(0, 0, 'smooth');
+function scrollToTop(): void {
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: 'smooth',
+  });
+}
 </script>

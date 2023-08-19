@@ -14,6 +14,7 @@ const emit = defineEmits<{
 }>();
 
 function dialog() {
+  window.scrollTo(0, 0);
   $q.dialog({
     dark: true,
     message: 'Insira uma nota de 0 a 10',

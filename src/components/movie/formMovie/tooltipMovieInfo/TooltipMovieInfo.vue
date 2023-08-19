@@ -6,7 +6,7 @@
           <q-icon color="white" name="fa-solid fa-crown" />
         </q-item-section>
         <q-item-section>Cadastrado por:</q-item-section>
-        <q-item-section>{{ movie.user_name || 'Usuário desconhecido' }}</q-item-section>
+        <q-item-section>{{ movie.user_name }}</q-item-section>
       </q-item>
       <q-separator dark />
       <q-item>

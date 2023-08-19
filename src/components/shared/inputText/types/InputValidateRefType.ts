@@ -1,6 +1,6 @@
 export type InputValidateRefType = {
   hasError: boolean;
-  validate: () => boolean;
+  validate: () => Promise<boolean>;
   resetValidation: () => void;
 };
 
