@@ -1,6 +1,6 @@
 <template>
   <div class="row justify-center full-height" style="overflow-y: hidden">
-    <div class="text-h3 title">Login</div>
+    <h2 class="text-h3 title">Login</h2>
     <SeparatorDivLineSolid />
     <div class="col-10 justify-center">
       <q-input
