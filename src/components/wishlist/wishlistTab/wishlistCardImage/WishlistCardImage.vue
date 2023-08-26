@@ -24,6 +24,7 @@
       dark
       round
       @click.stop
+      v-if="showBtnMenu"
     >
       <q-menu class="bg-grey-dark2" dark @before-show="selected = true" @before-hide="selected = false">
         <q-list>
@@ -79,6 +80,7 @@ type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends read
 interface Props {
   movie: ArrayElement<WishlistType['movies_wishlists']>;
   wishlists: WishlistType[];
+  showBtnMenu: boolean;
 }
 const props = defineProps<Props>();
 
