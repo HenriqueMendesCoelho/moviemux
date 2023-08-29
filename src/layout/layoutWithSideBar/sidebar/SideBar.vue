@@ -12,7 +12,7 @@
     </div>
     <p v-if="showTextsSideBar">Olá, {{ user.name }}</p>
     <h3>Menu</h3>
-    <div class="menu overflow-auto" style="max-height: 100%; margin-top: -1rem">
+    <div class="menu menu-scroll">
       <router-link to="/home" class="button">
         <span class="material-icons">home</span>
         <span class="text" v-if="showTextsSideBar">Home</span>
@@ -52,7 +52,7 @@
       </router-link>
     </div>
     <div class="flex"></div>
-    <div class="menu justify-start">
+    <div class="menu menu-bottom">
       <button class="button" @click="styleStore.darkThemeToggle()">
         <span class="material-icons" draggable="false" v-if="layoutSettings.darkMode"> light_mode </span>
         <span class="material-icons" draggable="false" v-else> dark_mode </span>
@@ -151,7 +151,6 @@ aside {
   .menu-toggle-wrap {
     display: flex;
     justify-content: flex-end;
-    //margin-bottom: 1rem;
 
     position: relative;
     top: 0;
@@ -237,6 +236,16 @@ aside {
         border-right: 5px solid var(--primary);
       }
     }
+  }
+
+  .menu-scroll {
+    margin-top: -1rem !important;
+    overflow-y: auto;
+    max-height: 100%;
+  }
+
+  .menu-bottom {
+    margin-bottom: -1rem !important;
   }
 
   &.is-expanded {
