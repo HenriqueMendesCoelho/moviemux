@@ -1,5 +1,5 @@
 <template>
-  <aside :class="`${layoutSettings.isSideBarExpanded && 'is-expanded'}`">
+  <aside :class="`${layoutSettings.isSideBarExpanded && 'is-expanded'}`" class="overflow-hidden-y">
     <div class="row logo">
       <router-link to="/home">
         <img src="../../../assets/logo-kronus.png" alt="logo" draggable="false" style="z-index: 99" />
@@ -12,7 +12,7 @@
     </div>
     <p v-if="showTextsSideBar">Olá, {{ user.name }}</p>
     <h3>Menu</h3>
-    <div class="menu">
+    <div class="menu overflow-auto" style="max-height: 100%; margin-top: -1rem">
       <router-link to="/home" class="button">
         <span class="material-icons">home</span>
         <span class="text" v-if="showTextsSideBar">Home</span>
@@ -51,7 +51,6 @@
         >
       </router-link>
     </div>
-
     <div class="flex"></div>
     <div class="menu justify-start">
       <button class="button" @click="styleStore.darkThemeToggle()">
@@ -119,7 +118,7 @@ aside {
   flex-direction: column;
   width: calc(3rem + 32px);
   overflow: hidden;
-  min-height: 100vh;
+  height: 100vh;
   padding: 1rem;
 
   position: fixed;
@@ -195,7 +194,7 @@ aside {
   }
 
   .menu {
-    margin: -1rem;
+    margin: auto -1rem;
 
     button {
       width: 100%;
