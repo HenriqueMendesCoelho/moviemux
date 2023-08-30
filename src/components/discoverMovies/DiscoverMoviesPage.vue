@@ -33,14 +33,12 @@
         <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="1500">
           <div class="row justify-center q-col-gutter-xl">
             <div class="col-auto" v-for="(movie, index) in movies" :key="index">
-              <router-link :to="`/movie/discover?movie=${movie.id}`" class="button">
-                <CardImageDiscoverMovies
-                  v-model="wishlists"
-                  :movie="movie"
-                  @call-tmdb="cardCallTmdb($event, movie.id)"
-                  @copy-url="copyMovie($event)"
-                />
-              </router-link>
+              <CardImageDiscoverMovies
+                v-model="wishlists"
+                :movie="movie"
+                @call-tmdb="cardCallTmdb($event, movie.id)"
+                @copy-url="copyMovie($event)"
+              />
             </div>
           </div>
         </q-infinite-scroll>
