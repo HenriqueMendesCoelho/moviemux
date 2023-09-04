@@ -26,6 +26,7 @@ import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue
 import MyWishlists from './myWishlistsTab/MyWishlistsTab.vue';
 import WishlistTab from './wishlistTab/WishlistTab.vue';
 import WishlistPageTitle from './wishlistPageTitle/WishlistPageTitle.vue';
+import WishlistService from 'src/services/WishlistService';
 
 const route = useRoute();
 const router = useRouter();
@@ -35,9 +36,9 @@ const tab = ref('myWishlistsTab');
 const wishlist = ref<WishlistType>();
 const wishlists = ref<WishlistType[]>([]);
 
-onMounted(() => {
+onMounted(async () => {
   document.title = 'Cineminha - Lista de Filmes';
-  getIdParam();
+  await getIdParam();
 });
 
 function changeTabToWishlist(list: WishlistType) {
@@ -58,9 +59,14 @@ function back() {
   wishlist.value = undefined;
   changeTab('myWishlistsTab');
 }
-function getIdParam() {
-  if (idParam.value) {
-    changeTab('wishlistTab');
+async function getIdParam() {
+  if (!idParam.value) {
+    return;
   }
+
+  try {
+    wishlists.value = await WishlistService.listWishlists();
+  } catch {}
+  changeTab('wishlistTab');
 }
 </script>

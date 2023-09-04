@@ -52,7 +52,7 @@
             :wishlists="otherWishlists"
             @click-on-image="openDialogSummary($event)"
             @remove-movie="openConfirmDialogRemoveMovie($event)"
-            :show-btn-menu="wishlist?.user.id === userId"
+            :show-remove-item="wishlist?.user.id === userId"
           />
         </div>
         <FloatingActionBtnTop />
