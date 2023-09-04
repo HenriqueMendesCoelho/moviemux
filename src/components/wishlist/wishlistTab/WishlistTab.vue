@@ -50,8 +50,8 @@
           <WishlistCardImage
             :movie="movie"
             :wishlists="otherWishlists"
-            @click-on-image="openDialogSummary($event)"
-            @remove-movie="openConfirmDialogRemoveMovie($event)"
+            @click-on-image="openDialogSummary(movie.tmdb_id)"
+            @remove-movie="openConfirmDialogRemoveMovie(movie)"
             :show-remove-item="wishlist?.user.id === userId"
           />
         </div>
@@ -87,6 +87,7 @@ import WishlistService from 'src/services/WishlistService';
 const $q = useQuasar();
 const router = useRouter();
 
+type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 interface Props {
   wishlist?: WishlistType;
   wishlists: WishlistType[];
@@ -236,9 +237,14 @@ async function changeShareable(val: boolean) {
   _wishlist.value.shareable = val;
   await updateWishlist(_wishlist.value);
 }
-function openConfirmDialogRemoveMovie(tmdbId: number) {
-  movieIdToDelete.value = tmdbId;
-  confirmDialogRef.value?.dialog('Caso delete não há como desfazer a ação. ', 'cancel', 'Quer mesmo deletar?', 'Sim');
+function openConfirmDialogRemoveMovie(movie: ArrayElement<WishlistType['movies_wishlists']>) {
+  movieIdToDelete.value = movie.tmdb_id;
+  confirmDialogRef.value?.dialog(
+    `Tem certeza que deseja remover '${movie.title || movie.title_english}' dessa lista? Caso remova não há como desfazer a ação.`,
+    'cancel',
+    'Quer mesmo remover?',
+    'Sim'
+  );
 }
 async function deteleMovieFromWishlist() {
   if (!_wishlist.value) {

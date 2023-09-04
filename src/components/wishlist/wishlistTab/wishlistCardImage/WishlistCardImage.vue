@@ -1,10 +1,5 @@
 <template>
-  <CardImage
-    :class="`${selected && 'img-movie-selected'}`"
-    :src="getUrl()"
-    @click="emit('clickOnImage', props?.movie?.tmdb_id)"
-    :animate="!selected"
-  >
+  <CardImage :class="`${selected && 'img-movie-selected'}`" :src="getUrl()" @click="emit('clickOnImage')" :animate="!selected">
     <div class="absolute-bottom hover-show-img text-center" v-if="!selected">
       {{ props.movie?.title }}<br />
       {{ getMovieDateLocale() }}
@@ -32,7 +27,7 @@
     >
       <q-menu class="bg-grey-dark2" dark @before-show="selected = true" @before-hide="selected = false">
         <q-list>
-          <q-item v-if="showRemoveItem" @click="emit('removeMovie', props?.movie?.tmdb_id)" clickable v-close-popup>
+          <q-item v-if="showRemoveItem" @click="emit('removeMovie')" clickable v-close-popup>
             <q-item-section side>
               <q-icon name="playlist_remove" color="white" />
             </q-item-section>
@@ -89,8 +84,8 @@ interface Props {
 const props = defineProps<Props>();
 
 interface Emits {
-  (e: 'clickOnImage', value: number): void;
-  (e: 'removeMovie', value: number): void;
+  (e: 'clickOnImage', value: void): void;
+  (e: 'removeMovie', value: void): void;
 }
 const emit = defineEmits<Emits>();
 
