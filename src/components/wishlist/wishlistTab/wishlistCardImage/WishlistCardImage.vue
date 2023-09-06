@@ -23,7 +23,7 @@
       dark
       round
       @click.stop
-      v-if="wishlists?.length"
+      v-if="showRemoveItem || _wishlists?.length"
     >
       <q-menu class="bg-grey-dark2" dark @before-show="selected = true" @before-hide="selected = false">
         <q-list>
@@ -35,7 +35,7 @@
           </q-item>
 
           <q-separator dark />
-          <q-item clickable>
+          <q-item clickable v-if="_wishlists?.length">
             <q-item-section side>
               <q-icon name="playlist_add" color="white" />
             </q-item-section>
@@ -96,7 +96,7 @@ const loading = ref(false);
 const _wishlists = ref<WishlistType[]>([]);
 
 onMounted(() => {
-  if (props.wishlists.length) _wishlists.value = [...props.wishlists];
+  if (props.wishlists?.length) _wishlists.value = [...props.wishlists];
 });
 
 function showSuccess(msg: string) {

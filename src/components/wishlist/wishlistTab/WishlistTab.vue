@@ -43,7 +43,6 @@
         </q-menu>
       </template>
     </SearchToolbar>
-
     <div class="row justify-center q-mt-lg relative-position">
       <div class="row justify-center q-col-gutter-xl" v-if="moviesFiltered?.length">
         <div class="col-auto" v-for="movie in moviesFiltered" :key="movie.tmdb_id">
