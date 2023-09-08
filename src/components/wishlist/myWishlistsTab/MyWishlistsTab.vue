@@ -8,7 +8,7 @@
           class="col"
           :wishlist="list"
           @click-on-card="emit('clickOnCard', list)"
-          @copy-url="copyUrl(list.id)"
+          @copy-url="copyWishlistUrl(list.id)"
           @delete="openDialogConfirm(list)"
         />
       </div>
@@ -81,12 +81,12 @@ async function listWishlist() {
     hideLoading();
   }
 }
-function copyUrl(id?: string) {
+function copyWishlistUrl(id?: string) {
   if (!id) {
     return;
   }
 
-  const url = `${window.location.origin}/movie/discover?movie=${id}`;
+  const url = `${window.location.origin}/movie/wishlist?id=${id}`;
   navigator.clipboard.writeText(url);
   showSuccess('URL copiada');
   return url ? url : '';

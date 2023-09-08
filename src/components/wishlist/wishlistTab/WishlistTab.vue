@@ -52,7 +52,7 @@
             :show-remove-item="wishlist?.user.id === userId"
             @click-on-image="openDialogSummary(movie.tmdb_id)"
             @remove-movie="openConfirmDialogRemoveMovie(movie)"
-            @copy-url="copyUrl(movie.tmdb_id)"
+            @copy-url="copyMovieUrl(movie.tmdb_id)"
           />
         </div>
         <FloatingActionBtnTop />
@@ -278,12 +278,12 @@ function openDialogSummary(tmdbId: number) {
   movieIdDialog.value = tmdbId;
   showDialogMovieSummary.value = true;
 }
-function copyUrl(id: number) {
+function copyMovieUrl(id: number) {
   if (!id) {
     return;
   }
 
-  copyToClipboard(`${window.location.origin}/movie/wishlist?id=${id}`);
+  copyToClipboard(`${window.location.origin}/movie/discover?movie=${id}`);
   showSuccess('URL copiada');
 }
 </script>
