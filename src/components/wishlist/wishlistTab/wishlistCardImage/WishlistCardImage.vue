@@ -66,7 +66,7 @@
   </CardImage>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 
 import type { WishlistType } from 'src/types/wishlist/WishlistType';
@@ -99,8 +99,15 @@ const loading = ref(false);
 const _wishlists = ref<WishlistType[]>([]);
 
 onMounted(() => {
-  if (props.wishlists?.length) _wishlists.value = [...props.wishlists];
+  setWishlists();
 });
+
+watch(
+  () => props.wishlists,
+  () => {
+    setWishlists();
+  }
+);
 
 function showSuccess(msg: string) {
   $q.notify({
@@ -156,6 +163,11 @@ function mergeResult(wishlistId: string, newWishlist: WishlistType) {
 }
 function isInAnyWishlist() {
   return _wishlists.value.some((w) => w.movies_wishlists.some((m) => m.tmdb_id === props.movie.tmdb_id));
+}
+function setWishlists() {
+  if (props.wishlists?.length) {
+    _wishlists.value = [...props.wishlists];
+  }
 }
 </script>
 

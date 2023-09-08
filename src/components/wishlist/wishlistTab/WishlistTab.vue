@@ -113,7 +113,7 @@ const shareable = ref(false);
 const showDialogMovieSummary = ref(false);
 const movieIdDialog = ref<number>();
 const movieIdToDelete = ref<number>();
-const otherWishlists = props.wishlists.filter((w) => w.id != props.wishlist?.id);
+const otherWishlists = ref<WishlistType[]>([]);
 
 const confirmDialogRef = ref<ConfirmDialogRefType>();
 
@@ -124,12 +124,8 @@ const showMenu = computed<boolean>(() => {
 onMounted(async () => {
   if (props?.idParam) {
     await searchWishlistById();
-    return;
   }
-
-  _wishlist.value = props?.wishlist;
-  moviesFiltered.value = props?.wishlist?.movies_wishlists;
-  shareable.value = props?.wishlist?.shareable || false;
+  initializeVars();
 });
 
 watch(
@@ -205,6 +201,12 @@ function filterMovies() {
 function searchFromMenu(title?: string) {
   searchText.value = title || '';
   searchMoviesAction();
+}
+function initializeVars() {
+  _wishlist.value = !_wishlist.value?.id ? props?.wishlist : _wishlist.value;
+  otherWishlists.value = props.wishlists.filter((w) => w.id !== _wishlist.value?.id);
+  moviesFiltered.value = props?.wishlist?.movies_wishlists;
+  shareable.value = props?.wishlist?.shareable || false;
 }
 async function searchWishlistById() {
   if (!props?.idParam) {
