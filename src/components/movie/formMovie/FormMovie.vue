@@ -358,6 +358,10 @@ function changeTrailerEnglish(url: string) {
   moviePage.value.selectedMovie.english_url_trailer = key;
 }
 function getYoutubeVideoKey(url: string) {
+  if (!url) {
+    return;
+  }
+
   const split = url.split(/(vi\/|v=|\/b\/|youtu\.be\/|\/embed\/)/);
 
   const param = split[2] !== undefined ? split[2].split(/[^0-9a-z_\-]/i)[0] : split[0].split(/[^0-9a-z_\-]/i)[0];
