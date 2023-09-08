@@ -61,6 +61,7 @@
         </q-list>
       </q-menu>
     </q-btn>
+    <ContextMenuWishlistImage @copy-url="emit('copy-url')" />
     <q-inner-loading :showing="loading" label="Aguarde..." color="kb-primary" label-class="text-white" dark />
   </CardImage>
 </template>
@@ -72,6 +73,7 @@ import type { WishlistType } from 'src/types/wishlist/WishlistType';
 
 import CardImage from 'src/components/shared/cardImage/CardImage.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import ContextMenuWishlistImage from './contextMenuWishlistImage/ContextMenuWishlistImage.vue';
 
 import WishlistService from 'src/services/WishlistService';
 
@@ -86,6 +88,7 @@ const props = defineProps<Props>();
 interface Emits {
   (e: 'clickOnImage', value: void): void;
   (e: 'removeMovie', value: void): void;
+  (e: 'copy-url', value: void): void;
 }
 const emit = defineEmits<Emits>();
 

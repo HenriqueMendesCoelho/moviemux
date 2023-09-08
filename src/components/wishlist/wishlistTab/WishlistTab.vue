@@ -49,9 +49,10 @@
           <WishlistCardImage
             :movie="movie"
             :wishlists="otherWishlists"
+            :show-remove-item="wishlist?.user.id === userId"
             @click-on-image="openDialogSummary(movie.tmdb_id)"
             @remove-movie="openConfirmDialogRemoveMovie(movie)"
-            :show-remove-item="wishlist?.user.id === userId"
+            @copy-url="copyUrl(movie.tmdb_id)"
           />
         </div>
         <FloatingActionBtnTop />
@@ -68,6 +69,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
+import { copyToClipboard } from 'quasar';
 import { useRouter } from 'vue-router';
 
 import type { WishlistType } from 'src/types/wishlist/WishlistType';
@@ -275,5 +277,13 @@ function openDialogSummary(tmdbId: number) {
   }
   movieIdDialog.value = tmdbId;
   showDialogMovieSummary.value = true;
+}
+function copyUrl(id: number) {
+  if (!id) {
+    return;
+  }
+
+  copyToClipboard(`${window.location.origin}/movie/wishlist?id=${id}`);
+  showSuccess('URL copiada');
 }
 </script>
