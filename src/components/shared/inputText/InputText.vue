@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, nextTick } from 'vue';
 import type { ValidationRule } from 'quasar';
 
 import { InputValidateRefType } from './types/InputValidateRefType';
@@ -88,8 +88,8 @@ function hasErrors(): boolean {
   return hasErrors;
 }
 function resetValidation(): void {
-  if (inputTextRef.value) {
-    inputTextRef.value.resetValidation();
-  }
+  nextTick(() => {
+    inputTextRef.value?.resetValidation();
+  });
 }
 </script>
