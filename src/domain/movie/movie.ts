@@ -1,4 +1,4 @@
-import { MovieNoteType } from '@/types/movie/MovieType';
+import { MovieNoteType } from 'src/types/movie/MovieType';
 
 export default class Movie {
   constructor(

@@ -1,18 +1,17 @@
 <template>
-  <CardImage
-    :class="`${selected && 'img-movie-selected'}`"
-    :src="getUrl()"
-    @click="emit('clickOnImage', props?.movie?.tmdb_id)"
-    :animate="!selected"
-  >
+  <CardImage :class="`${selected && 'img-movie-selected'}`" :src="getUrl()" @click="emit('clickOnImage')" :animate="!selected">
     <div class="absolute-bottom hover-show-img text-center" v-if="!selected">
       {{ props.movie?.title }}<br />
       {{ getMovieDateLocale() }}
     </div>
     <div class="absolute-top-left" style="background: none" v-if="isInAnyWishlist()">
-      <div>
+      <div v-if="showRemoveItem">
         <q-icon name="sym_o_data_alert" color="white" size="md" />
         <CustomTooltip :delay="1000">Filme presente em múltiplas listas</CustomTooltip>
+      </div>
+      <div v-else>
+        <q-icon name="playlist_add_check" color="white" size="md" />
+        <CustomTooltip :delay="1000">Já está em uma lista</CustomTooltip>
       </div>
     </div>
     <q-btn
@@ -24,18 +23,19 @@
       dark
       round
       @click.stop
+      v-if="showRemoveItem || _wishlists?.length"
     >
       <q-menu class="bg-grey-dark2" dark @before-show="selected = true" @before-hide="selected = false">
         <q-list>
-          <q-item clickable v-close-popup @click="emit('removeMovie', props?.movie?.tmdb_id)">
+          <q-item v-if="showRemoveItem" @click="emit('removeMovie')" clickable v-close-popup>
             <q-item-section side>
               <q-icon name="playlist_remove" color="white" />
             </q-item-section>
             <q-item-section class="q-pl-sm">Remover da lista</q-item-section>
           </q-item>
 
-          <q-separator dark v-if="wishlists?.length" />
-          <q-item clickable v-if="wishlists?.length">
+          <q-separator dark />
+          <q-item clickable v-if="_wishlists?.length">
             <q-item-section side>
               <q-icon name="playlist_add" color="white" />
             </q-item-section>
@@ -61,17 +61,19 @@
         </q-list>
       </q-menu>
     </q-btn>
+    <ContextMenuWishlistImage @copy-url="emit('copy-url')" />
     <q-inner-loading :showing="loading" label="Aguarde..." color="kb-primary" label-class="text-white" dark />
   </CardImage>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 
 import type { WishlistType } from 'src/types/wishlist/WishlistType';
 
 import CardImage from 'src/components/shared/cardImage/CardImage.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import ContextMenuWishlistImage from './contextMenuWishlistImage/ContextMenuWishlistImage.vue';
 
 import WishlistService from 'src/services/WishlistService';
 
@@ -79,23 +81,33 @@ type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends read
 interface Props {
   movie: ArrayElement<WishlistType['movies_wishlists']>;
   wishlists: WishlistType[];
+  showRemoveItem: boolean;
 }
 const props = defineProps<Props>();
 
 interface Emits {
-  (e: 'clickOnImage', value: number): void;
-  (e: 'removeMovie', value: number): void;
+  (e: 'clickOnImage', value: void): void;
+  (e: 'removeMovie', value: void): void;
+  (e: 'copy-url', value: void): void;
 }
 const emit = defineEmits<Emits>();
 
 const $q = useQuasar();
+
 const selected = ref(false);
 const loading = ref(false);
 const _wishlists = ref<WishlistType[]>([]);
 
 onMounted(() => {
-  if (props.wishlists.length) _wishlists.value = [...props.wishlists];
+  setWishlists();
 });
+
+watch(
+  () => props.wishlists,
+  () => {
+    setWishlists();
+  }
+);
 
 function showSuccess(msg: string) {
   $q.notify({
@@ -151,6 +163,11 @@ function mergeResult(wishlistId: string, newWishlist: WishlistType) {
 }
 function isInAnyWishlist() {
   return _wishlists.value.some((w) => w.movies_wishlists.some((m) => m.tmdb_id === props.movie.tmdb_id));
+}
+function setWishlists() {
+  if (props.wishlists?.length) {
+    _wishlists.value = [...props.wishlists];
+  }
 }
 </script>
 

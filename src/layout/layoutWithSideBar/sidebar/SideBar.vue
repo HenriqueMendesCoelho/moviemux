@@ -1,5 +1,5 @@
 <template>
-  <aside :class="`${layoutSettings.isSideBarExpanded && 'is-expanded'}`">
+  <aside :class="`${layoutSettings.isSideBarExpanded && 'is-expanded'}`" class="overflow-hidden-y">
     <div class="row logo">
       <router-link to="/home">
         <img src="../../../assets/logo-kronus.png" alt="logo" draggable="false" style="z-index: 99" />
@@ -12,7 +12,7 @@
     </div>
     <p v-if="showTextsSideBar">Olá, {{ user.name }}</p>
     <h3>Menu</h3>
-    <div class="menu">
+    <div class="menu menu-scroll">
       <router-link to="/home" class="button">
         <span class="material-icons">home</span>
         <span class="text" v-if="showTextsSideBar">Home</span>
@@ -51,9 +51,8 @@
         >
       </router-link>
     </div>
-
     <div class="flex"></div>
-    <div class="menu justify-start">
+    <div class="menu menu-bottom">
       <button class="button" @click="styleStore.darkThemeToggle()">
         <span class="material-icons" draggable="false" v-if="layoutSettings.darkMode"> light_mode </span>
         <span class="material-icons" draggable="false" v-else> dark_mode </span>
@@ -119,7 +118,7 @@ aside {
   flex-direction: column;
   width: calc(3rem + 32px);
   overflow: hidden;
-  min-height: 100vh;
+  height: 100vh;
   padding: 1rem;
 
   position: fixed;
@@ -152,7 +151,6 @@ aside {
   .menu-toggle-wrap {
     display: flex;
     justify-content: flex-end;
-    //margin-bottom: 1rem;
 
     position: relative;
     top: 0;
@@ -195,7 +193,7 @@ aside {
   }
 
   .menu {
-    margin: -1rem;
+    margin: auto -1rem;
 
     button {
       width: 100%;
@@ -238,6 +236,16 @@ aside {
         border-right: 5px solid var(--primary);
       }
     }
+  }
+
+  .menu-scroll {
+    margin-top: -1rem !important;
+    overflow-y: auto;
+    max-height: 100%;
+  }
+
+  .menu-bottom {
+    margin-bottom: -1rem !important;
   }
 
   &.is-expanded {

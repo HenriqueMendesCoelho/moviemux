@@ -2,7 +2,7 @@
   <div class="row items-center justify-center full-height">
     <div class="col-md-6 col-xs-12">
       <div class="row justify-center">
-        <div class="text-h2 text-white desktop-only">Bem-vindo ao Cineminha!</div>
+        <h1 class="text-white desktop-only text-h2">Bem-vindo ao Cineminha!</h1>
         <SeparatorDivLineSolid class="q-my-md desktop-only" style="opacity: 60%" />
         <img
           class="left-img-login col-md-auto col-xs-6"

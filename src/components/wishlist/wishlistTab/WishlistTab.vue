@@ -43,15 +43,16 @@
         </q-menu>
       </template>
     </SearchToolbar>
-
     <div class="row justify-center q-mt-lg relative-position">
       <div class="row justify-center q-col-gutter-xl" v-if="moviesFiltered?.length">
         <div class="col-auto" v-for="movie in moviesFiltered" :key="movie.tmdb_id">
           <WishlistCardImage
             :movie="movie"
             :wishlists="otherWishlists"
-            @click-on-image="openDialogSummary($event)"
-            @remove-movie="openConfirmDialogRemoveMovie($event)"
+            :show-remove-item="wishlist?.user.id === userId"
+            @click-on-image="openDialogSummary(movie.tmdb_id)"
+            @remove-movie="openConfirmDialogRemoveMovie(movie)"
+            @copy-url="copyMovieUrl(movie.tmdb_id)"
           />
         </div>
         <FloatingActionBtnTop />
@@ -68,6 +69,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
+import { copyToClipboard } from 'quasar';
 import { useRouter } from 'vue-router';
 
 import type { WishlistType } from 'src/types/wishlist/WishlistType';
@@ -86,6 +88,7 @@ import WishlistService from 'src/services/WishlistService';
 const $q = useQuasar();
 const router = useRouter();
 
+type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 interface Props {
   wishlist?: WishlistType;
   wishlists: WishlistType[];
@@ -110,7 +113,7 @@ const shareable = ref(false);
 const showDialogMovieSummary = ref(false);
 const movieIdDialog = ref<number>();
 const movieIdToDelete = ref<number>();
-const otherWishlists = props.wishlists.filter((w) => w.id != props.wishlist?.id);
+const otherWishlists = ref<WishlistType[]>([]);
 
 const confirmDialogRef = ref<ConfirmDialogRefType>();
 
@@ -121,12 +124,8 @@ const showMenu = computed<boolean>(() => {
 onMounted(async () => {
   if (props?.idParam) {
     await searchWishlistById();
-    return;
   }
-
-  _wishlist.value = props?.wishlist;
-  moviesFiltered.value = props?.wishlist?.movies_wishlists;
-  shareable.value = props?.wishlist?.shareable || false;
+  initializeVars();
 });
 
 watch(
@@ -203,6 +202,12 @@ function searchFromMenu(title?: string) {
   searchText.value = title || '';
   searchMoviesAction();
 }
+function initializeVars() {
+  _wishlist.value = !_wishlist.value?.id ? props?.wishlist : _wishlist.value;
+  otherWishlists.value = props.wishlists.filter((w) => w.id !== _wishlist.value?.id);
+  moviesFiltered.value = props?.wishlist?.movies_wishlists;
+  shareable.value = props?.wishlist?.shareable || false;
+}
 async function searchWishlistById() {
   if (!props?.idParam) {
     return;
@@ -235,9 +240,14 @@ async function changeShareable(val: boolean) {
   _wishlist.value.shareable = val;
   await updateWishlist(_wishlist.value);
 }
-function openConfirmDialogRemoveMovie(tmdbId: number) {
-  movieIdToDelete.value = tmdbId;
-  confirmDialogRef.value?.dialog('Caso delete não há como desfazer a ação. ', 'cancel', 'Quer mesmo deletar?', 'Sim');
+function openConfirmDialogRemoveMovie(movie: ArrayElement<WishlistType['movies_wishlists']>) {
+  movieIdToDelete.value = movie.tmdb_id;
+  confirmDialogRef.value?.dialog(
+    `Tem certeza que deseja remover '${movie.title || movie.title_english}' dessa lista? Caso remova não há como desfazer a ação.`,
+    'cancel',
+    'Quer mesmo remover?',
+    'Sim'
+  );
 }
 async function deteleMovieFromWishlist() {
   if (!_wishlist.value) {
@@ -269,5 +279,13 @@ function openDialogSummary(tmdbId: number) {
   }
   movieIdDialog.value = tmdbId;
   showDialogMovieSummary.value = true;
+}
+function copyMovieUrl(id: number) {
+  if (!id) {
+    return;
+  }
+
+  copyToClipboard(`${window.location.origin}/movie/discover?movie=${id}`);
+  showSuccess('URL copiada');
 }
 </script>

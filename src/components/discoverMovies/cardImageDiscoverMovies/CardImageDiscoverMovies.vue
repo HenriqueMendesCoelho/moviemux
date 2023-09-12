@@ -1,17 +1,23 @@
 <template>
-  <CardImage :class="`${selected && 'img-movie-selected'}`" :src="getUrl()" @click="clickOnCard" :animate="!selected && !loading">
-    <div class="absolute-bottom hover-show-img text-center" v-if="!selected && !loading">
-      {{ props.movie?.title }}<br />
-      {{ getMovieDateLocale() }}
-    </div>
-    <div class="absolute-top-left" style="background: none" v-if="isInAnyWishlist()">
-      <div>
-        <q-icon name="playlist_add_check" color="white" size="md" />
-        <CustomTooltip :delay="1000">Já está em uma lista</CustomTooltip>
-      </div>
-    </div>
+  <div class="card-discover" :class="`${!selected && !loading && 'animate'}`">
+    <router-link :to="`/movie/discover?movie=${movie.id}`">
+      <CardImage :class="`${selected && 'img-movie-selected'}`" :src="getUrl()" @click="clickOnCard" :animate="false">
+        <div class="absolute-bottom hover-show-img text-center" v-if="!selected && !loading">
+          {{ props.movie?.title }}<br />
+          {{ getMovieDateLocale() }}
+        </div>
+        <div class="absolute-top-left" style="background: none" v-if="isInAnyWishlist()">
+          <div>
+            <q-icon name="playlist_add_check" color="white" size="md" />
+            <CustomTooltip :delay="1000">Já está em uma lista</CustomTooltip>
+          </div>
+        </div>
+        <ContextMenuDiscover :movie-id="props.movie.id" @copy-url="emit('copy-url', $event)" />
+        <q-inner-loading :showing="loading" label="Aguarde..." color="kb-primary" label-class="text-white" dark />
+      </CardImage>
+    </router-link>
     <q-btn
-      class="absolute all-pointer-events cursor-pointer"
+      class="absolute-top-right all-pointer-events cursor-pointer btn-ham animate"
       icon="more_horiz"
       color="grey-mid2"
       style="top: 8px; right: 8px"
@@ -63,9 +69,7 @@
         </q-list>
       </q-menu>
     </q-btn>
-    <ContextMenuDiscover :movie-id="props.movie.id" @copy-url="emit('copy-url', $event)" />
-    <q-inner-loading :showing="loading" label="Aguarde..." color="kb-primary" label-class="text-white" dark />
-  </CardImage>
+  </div>
 </template>
 <script setup lang="ts">
 import { onActivated, onMounted, ref, watch } from 'vue';
@@ -94,6 +98,7 @@ const emit = defineEmits<{
 
 const $q = useQuasar();
 const props = defineProps<Props>();
+
 const selected = ref(false);
 const wishlists = ref<WishlistType[]>([]);
 const loading = ref(false);
@@ -140,7 +145,6 @@ function showError(msg: string) {
 function getUrl() {
   return `https://image.tmdb.org/t/p/w500${props.movie?.poster_path}`;
 }
-
 function getMovieDateLocale() {
   if (!props.movie?.release_date) {
     return;
@@ -202,5 +206,12 @@ function clickOnCard() {
 .img-movie-selected {
   opacity: 0.7;
   filter: blur(2px);
+}
+.card-discover {
+  transition: 0.2s ease-out;
+  position: relative;
+  &:hover.animate {
+    transform: scale(1.1);
+  }
 }
 </style>

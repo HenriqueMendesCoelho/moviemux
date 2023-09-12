@@ -35,7 +35,6 @@
             <div class="col-auto" v-for="(movie, index) in movies" :key="index">
               <CardImageDiscoverMovies
                 v-model="wishlists"
-                @click-on-image="showDialog(movie.id)"
                 :movie="movie"
                 @call-tmdb="cardCallTmdb($event, movie.id)"
                 @copy-url="copyMovie($event)"
@@ -48,7 +47,7 @@
         </div>
         <FloatingActionBtnTop />
       </div>
-      <DialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" position="standard" />
+      <DialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" position="standard" @hide="onHideDialog()" />
     </div>
   </ContainerMain>
 </template>
@@ -57,6 +56,7 @@
 import { computed, onActivated, onMounted, onUpdated, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 
 import { useStyleStore } from 'src/stores/StyleStore';
 
@@ -76,6 +76,7 @@ import KitService from 'src/services/KitService';
 
 const $q = useQuasar();
 const route = useRoute();
+const router = useRouter();
 
 const searchText = ref('');
 const filterOptions = ref([
@@ -121,22 +122,13 @@ function showError(msg: string) {
   });
 }
 
-onMounted(() => {
-  const movieParam = parseInt(route.query.movie?.toString() || '');
-
-  if (!movieParam) {
-    return;
-  }
-
-  showDialog(movieParam);
-});
-
 onMounted(async () => {
   page.value = 1;
   lastPage.value = 2;
   const res = await getMoviesPopular();
   movies.value = res;
   await listWishlist();
+  showDialogByParam();
 });
 
 onActivated(async () => {
@@ -145,6 +137,7 @@ onActivated(async () => {
 
 onUpdated(async () => {
   await listWishlist();
+  showDialogByParam();
 });
 
 watch(
@@ -154,6 +147,18 @@ watch(
   }
 );
 
+function onHideDialog() {
+  router.push('/movie/discover');
+}
+function showDialogByParam() {
+  const movieParam = parseInt(route.query.movie?.toString() || '');
+
+  if (!movieParam) {
+    return;
+  }
+
+  showDialog(movieParam);
+}
 async function cardCallTmdb(typeSearch: { label: string; value: string }, movieId: number) {
   movieIdSelected.value = movieId;
   selectOrder.value = typeSearch;

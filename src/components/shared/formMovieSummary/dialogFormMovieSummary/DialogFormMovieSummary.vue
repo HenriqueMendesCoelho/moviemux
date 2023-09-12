@@ -1,5 +1,5 @@
 <template>
-  <q-dialog @beforeShow="loadMovie" @hide="scrollBackToPosition()" v-model="visible" :maximized="maximizedToggle">
+  <q-dialog @beforeShow="loadMovie" @hide="onHide()" v-model="visible" :maximized="maximizedToggle">
     <q-card class="bg-grey-dark2 dialog-container" :style="conditionalCardStyle()">
       <q-bar class="bg-grey-dark2 q-mt-xs">
         <q-space />
@@ -40,7 +40,7 @@ const maximizedToggle = ref(false);
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
-  (e: 'hide', value: number): void;
+  (e: 'hide', value: void): void;
 }>();
 
 watch(
@@ -67,8 +67,9 @@ function showSuccess(msg: string) {
 async function loadMovie() {
   await formMovieSummaryRef.value?.getMovie();
 }
-function scrollBackToPosition() {
+function onHide() {
   maximizedToggle.value = false;
+  emit('hide');
 }
 function conditionalCardStyle() {
   return !maximizedToggle.value ? 'border-radius: 15px; border: var(--grey-mid) solid 5px;' : 'border-radius: 0px; border: none;';

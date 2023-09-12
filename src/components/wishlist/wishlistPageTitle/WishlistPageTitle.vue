@@ -1,21 +1,26 @@
 <template>
   <PageTitle :title="wishlist ? wishlist.name : 'Lista de Filmes'" icon="list">
-    <q-popup-edit
-      v-if="_wishlist?.user.id === userId"
-      class="bg-grey-mid2"
-      :model-value="_wishlist.name"
-      @save="updateNameWishlist($event)"
-      title="Atualizar Nome"
-      buttons
-      v-slot="scope"
-      color="kb-primary"
-      dark
-      label-set="Salvar"
-      :validate="(val) => !!val && val.length >= 3 && val.length <= 30"
-    >
-      <q-input ref="inputNoteRef" color="kb-primary" dark v-model="scope.value" dense autofocus :rules="[(val) => ruleInput(val)]" />
-    </q-popup-edit>
-    <CustomTooltip :delay="200" v-if="_wishlist?.user.id === userId">Clique para editar</CustomTooltip>
+    <template #title>
+      <q-popup-edit
+        v-if="_wishlist?.user.id === userId"
+        class="bg-grey-mid2"
+        :model-value="_wishlist.name"
+        @save="updateNameWishlist($event)"
+        title="Atualizar Nome"
+        buttons
+        v-slot="scope"
+        color="kb-primary"
+        dark
+        label-set="Salvar"
+        :validate="(val) => !!val && val.length >= 3 && val.length <= 30"
+      >
+        <q-input ref="inputNoteRef" color="kb-primary" dark v-model="scope.value" dense autofocus :rules="[(val) => ruleInput(val)]" />
+      </q-popup-edit>
+      <CustomTooltip :delay="200" v-if="_wishlist?.user.id === userId">Clique para editar</CustomTooltip>
+    </template>
+    <template #after-icon v-if="wishlist">
+      <TooltipWishlistInfo :wishlist="wishlist" />
+    </template>
   </PageTitle>
 </template>
 <script setup lang="ts">
@@ -25,6 +30,7 @@ import { WishlistType } from 'src/types/wishlist/WishlistType';
 
 import PageTitle from 'src/components/shared/pageTitle/PageTitle.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import TooltipWishlistInfo from './tooltipWishlistInfo/TooltipWishlistInfo.vue';
 
 import { useUserStore } from 'src/stores/UserStore';
 import WishlistService from 'src/services/WishlistService';

@@ -17,7 +17,7 @@
   </q-input>
 </template>
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import type { InputValidateRefType } from '../inputText/types/InputValidateRefType';
 import type { ValidationRule } from 'quasar';
 
@@ -98,6 +98,8 @@ function hasErrors() {
   return false;
 }
 function resetValidation() {
-  inputPasswordRef.value?.resetValidation();
+  nextTick(() => {
+    inputPasswordRef.value?.resetValidation();
+  });
 }
 </script>

@@ -8,8 +8,8 @@
           class="col"
           :wishlist="list"
           @click-on-card="emit('clickOnCard', list)"
-          @copy-url="copyUrl(list.id)"
-          @delete="openDialogConfirm(list.id)"
+          @copy-url="copyWishlistUrl(list.id)"
+          @delete="openDialogConfirm(list)"
         />
       </div>
     </div>
@@ -81,7 +81,7 @@ async function listWishlist() {
     hideLoading();
   }
 }
-function copyUrl(id?: string) {
+function copyWishlistUrl(id?: string) {
   if (!id) {
     return;
   }
@@ -91,9 +91,14 @@ function copyUrl(id?: string) {
   showSuccess('URL copiada');
   return url ? url : '';
 }
-function openDialogConfirm(id: string) {
-  wishlistToDelete.value = id;
-  confirmDialogRef.value?.dialog('Tem certeza que deseja deletar? Caso delete não há como desfazer a ação. ', 'cancel', 'Confirme', 'Sim');
+function openDialogConfirm(wishlist: WishlistType) {
+  wishlistToDelete.value = wishlist.id;
+  confirmDialogRef.value?.dialog(
+    `Tem certeza que deseja deletar '${wishlist.name}'? Caso delete não há como desfazer a ação.`,
+    'cancel',
+    'Quer mesmo deletar?',
+    'Sim'
+  );
 }
 async function deleteWishlist() {
   if (!wishlistToDelete.value) {
