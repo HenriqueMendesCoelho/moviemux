@@ -37,7 +37,7 @@
           <q-spinner color="kb-primary" size="50px" />
         </div>
       </q-card-section>
-      <q-card-section>
+      <q-card-section v-else>
         <div class="row justify-center">
           <div class="text-h4 text-white">Faça uma pesquisa...</div>
         </div>
