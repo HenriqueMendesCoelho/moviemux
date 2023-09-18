@@ -83,7 +83,7 @@ export type MoviePageableType = {
     paged: boolean;
   };
   last: boolean;
-  total_elements: boolean;
+  total_elements: number;
   total_pages: number;
   size: number;
   number: number;
