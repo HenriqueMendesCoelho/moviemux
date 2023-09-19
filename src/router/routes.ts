@@ -95,7 +95,7 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
-        path: '/movie/wishlist',
+        path: '/movie/wishlist/:id?',
         component: () => import('src/components/wishlist/WishlistPage.vue'),
         name: 'wishlist',
         meta: {
