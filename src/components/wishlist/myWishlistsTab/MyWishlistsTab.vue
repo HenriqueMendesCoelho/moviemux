@@ -91,7 +91,7 @@ function copyWishlistUrl(id?: string) {
     return;
   }
 
-  const url = `${window.location.origin}/movie/wishlist?id=${id}`;
+  const url = `${window.location.origin}/movie/wishlist/${id}`;
   navigator.clipboard.writeText(url);
   showSuccess('URL copiada');
   return url ? url : '';
