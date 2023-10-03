@@ -42,8 +42,7 @@
           >DESCOBRIR FILMES</CustomTooltip
         >
       </router-link>
-      <router-link :to="{ name: 'wishlist' }" class="button" style="position: relative">
-        <q-badge class="q-mr-sm" label="novo" color="kb-primary" rounded floating />
+      <router-link :to="{ name: 'wishlist' }" class="button">
         <span class="material-icons">list</span>
         <span class="text" v-if="showTextsSideBar" id="textAddMovie">LISTA DE FILMES</span>
         <CustomTooltip anchor="top right" :offset="[65, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500"
