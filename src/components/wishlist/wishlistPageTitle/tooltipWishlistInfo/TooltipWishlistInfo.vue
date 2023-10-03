@@ -29,7 +29,7 @@
         <q-item-section side>
           <q-icon color="white" name="event" />
         </q-item-section>
-        <q-item-section>Atulizada em:</q-item-section>
+        <q-item-section>Atualizada em:</q-item-section>
         <q-item-section side class="text-white">{{ stringUtils.dateToLocaleString(wishlist?.updated_at) }}</q-item-section>
       </q-item>
     </q-list>
