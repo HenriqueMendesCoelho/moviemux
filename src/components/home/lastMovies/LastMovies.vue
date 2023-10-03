@@ -24,11 +24,12 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { onActivated, onMounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 
 import Movie from 'src/domain/movie/movie';
 import MovieService from 'src/services/MovieService';
+import { socketAllMovies, stateSocketAllMovies } from 'src/boot/socket';
 
 import CardImageMovie from './cardImageLastMovies/CardImageLastMovies.vue';
 
@@ -40,7 +41,25 @@ const loading = ref(false);
 
 onMounted(async () => {
   await loadLastMovies();
+
+  if (!stateSocketAllMovies.connected) {
+    socketAllMovies.connect();
+  }
 });
+
+onActivated(async () => {
+  if (stateSocketAllMovies.connected && stateSocketAllMovies.hasToExecuteUpdate) {
+    await loadLastMoviesOnSocketEvent();
+  }
+});
+
+watch(
+  () => stateSocketAllMovies.updateEvents,
+  async () => {
+    await loadLastMoviesOnSocketEvent();
+  },
+  { deep: true }
+);
 
 function showError(msg: string) {
   $q.notify({
@@ -60,6 +79,10 @@ async function loadLastMovies() {
   }
   const res = await MovieService.listMoviesPageable(1, 10, 'createdAt,desc');
   movies.value = res.content;
+}
+async function loadLastMoviesOnSocketEvent() {
+  await loadLastMovies();
+  stateSocketAllMovies.hasToExecuteUpdate = false;
 }
 </script>
 
