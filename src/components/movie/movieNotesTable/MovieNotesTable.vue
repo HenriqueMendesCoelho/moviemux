@@ -27,7 +27,6 @@
           />
           <CustomTooltip anchor="bottom right" :delay="500" :hide-delay="300">Alternar visibilidade das notas</CustomTooltip>
         </div>
-        {{ stateSocketMovie.connected }}
         <div>
           <q-btn class="q-mr-sm" flat round icon="add" @click="showConfirmPromptDelete" :disable="isUserAlreadyVoted" />
           <CustomTooltip anchor="bottom right" :delay="500" :hide-delay="300" v-if="isUserAlreadyVoted"
