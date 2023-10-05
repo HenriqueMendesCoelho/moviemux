@@ -37,12 +37,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, toRaw, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 
 import { useMovieStore } from 'src/stores/MovieStore';
 import { useUserStore } from 'src/stores/UserStore';
+
+import { stateSocketMovie } from 'src/boot/socket';
 
 import MovieService from 'src/services/MovieService';
 
@@ -56,6 +58,19 @@ const moviePage = computed(() => movieStore.moviePage);
 const user = computed(() => userStore.user);
 const routeName = computed(() => route.name);
 const routeIDPath = computed(() => route.params.id);
+
+watch(
+  () => stateSocketMovie.updateMovie,
+  async (val) => {
+    const lastEvent = toRaw(val)[val.length - 1];
+    const movieSelected = moviePage.value.selectedMovie;
+    if (lastEvent.movie !== movieSelected.id) {
+      return;
+    }
+    await loadMovie(false);
+  },
+  { deep: true }
+);
 
 function showSuccess(msg: string) {
   $q.notify({
@@ -91,12 +106,12 @@ function showEditAndDeleteButton() {
     return true;
   }
 }
-async function loadMovie() {
+async function loadMovie(showDialog = true) {
   if (routeIDPath.value) {
     try {
       const res = await MovieService.getMovie(routeIDPath.value.toString());
       moviePage.value.selectedMovie = res;
-      showSuccess('Pagina atualizada com sucesso');
+      if (showDialog) showSuccess('Pagina atualizada com sucesso');
     } catch {
       showError('Erro ao buscar filme');
     }

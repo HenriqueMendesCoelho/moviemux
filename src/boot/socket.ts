@@ -1,7 +1,10 @@
 import { reactive } from 'vue';
 import { io } from 'socket.io-client';
+import { MovieNoteType } from 'src/types/movie/MovieType';
 
-const BASE_URL = process.env.VUE_APP_KB_CINE_API;
+const BASE_URL = process.env.VUE_APP_KB_CINE_WEBSOCKET;
+
+type eventMovieNote = { event: string; movie: string; content: MovieNoteType };
 
 export const stateSocketAllMovies = reactive({
   connected: false,
@@ -16,7 +19,6 @@ export const socketAllMovies = io(`${BASE_URL}/movie/all`, {
     });
   },
   path: '/ws',
-  autoConnect: false,
   secure: true,
 });
 
@@ -31,4 +33,46 @@ socketAllMovies.on('disconnect', () => {
 socketAllMovies.on('update', (args: { event: string }) => {
   stateSocketAllMovies.updateEvents.push(args);
   stateSocketAllMovies.hasToExecuteUpdate = true;
+});
+
+export const stateSocketMovie = reactive({
+  connected: false,
+  updateMovie: [] as eventMovieNote[],
+  createNote: [] as eventMovieNote[],
+  updateNote: [] as eventMovieNote[],
+  deleteNote: [] as eventMovieNote[],
+});
+
+export const socketMovie = io(`${BASE_URL}/movie/note`, {
+  auth: (cb) => {
+    cb({
+      token: localStorage.getItem('auth-kb'),
+    });
+  },
+  path: '/ws',
+  secure: true,
+});
+
+socketMovie.on('connect', () => {
+  stateSocketMovie.connected = true;
+});
+
+socketMovie.on('disconnect', () => {
+  stateSocketMovie.connected = false;
+});
+
+socketMovie.on('update-movie', (args: eventMovieNote) => {
+  stateSocketMovie.updateMovie.push(args);
+});
+
+socketMovie.on('create-note', (args: eventMovieNote) => {
+  stateSocketMovie.createNote.push(args);
+});
+
+socketMovie.on('update-note', (args: eventMovieNote) => {
+  stateSocketMovie.updateNote.push(args);
+});
+
+socketMovie.on('delete-note', (args: eventMovieNote) => {
+  stateSocketMovie.deleteNote.push(args);
 });

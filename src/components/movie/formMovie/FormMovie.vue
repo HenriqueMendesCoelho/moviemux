@@ -210,7 +210,7 @@
           />
         </div>
         <div class="col-12 row q-col-gutter-md">
-          <div class="col-auto" v-if="moviePage.selectedMovie.notes?.length">
+          <div class="col-auto" v-if="moviePage.selectedMovie.notes?.length && moviePage.selectedMovie.show_notes">
             <div class="text-h6">Nota</div>
             <ChipNote size="xl" :movie="moviePage.selectedMovie" :dense="screenHeight <= 1080" />
           </div>

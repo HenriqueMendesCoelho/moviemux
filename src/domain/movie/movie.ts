@@ -23,6 +23,7 @@ export default class Movie {
     public user_id?: string,
     public user_name?: string,
     public created_at?: Date,
-    public updated_at?: Date
+    public updated_at?: Date,
+    public show_notes?: boolean
   ) {}
 }
