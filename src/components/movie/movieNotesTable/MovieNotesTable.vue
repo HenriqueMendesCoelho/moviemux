@@ -248,7 +248,8 @@ function showCrown(row: MovieNoteType): boolean {
   return row.user.id === moviePage.value.selectedMovie.user_id;
 }
 function showToggleVisibility() {
-  return user.value.roles.includes('ADM') || user.value.id === moviePage.value.selectedMovie.user_id;
+  const timeSinceCreation = moviePage.value.selectedMovie.time_since_creation || 0;
+  return (user.value.roles.includes('ADM') || user.value.id === moviePage.value.selectedMovie.user_id) && timeSinceCreation < 1800;
 }
 function showConfirmDialogDelete() {
   confirmDialogRef.value?.dialog('Quer mesmo excluir sua nota?', 'cancel', 'Confirme a exclusão', 'Deletar');
