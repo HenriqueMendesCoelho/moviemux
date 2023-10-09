@@ -11,6 +11,14 @@
         @search="btnSearchAction()"
         @input-search-focus="menuIsFocused = $event"
       >
+        <template #prepend>
+          <div>
+            <q-icon name="menu" size="sm" />
+            <CustomTooltip :delay="1200"
+              >Total de filmes cadastrados: <strong>{{ totalNumberOfMovies }}</strong></CustomTooltip
+            >
+          </div>
+        </template>
         <template #input-search>
           <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
             <q-list dense dark>
@@ -42,13 +50,15 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 
+import { MoviePageableType } from 'src/types/movie/MovieType';
+
 import Movie from 'src/domain/movie/movie';
 
 import CardImageAllMovies from './cardImageAllMovies/CardImageAllMovies.vue';
 import MovieService from 'src/services/MovieService';
 import FloatingActionButton from './floatingActionButton/FloatingActionButton.vue';
 import SearchToolbar from 'src/components/shared/searchToolbar/SearchToolbar.vue';
-import { MoviePageableType } from 'src/types/movie/MovieType';
+import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
 const infinitScrollRef = ref<{
   resume: () => void;
@@ -58,6 +68,7 @@ const $q = useQuasar();
 
 const movies = ref<Movie[]>([]);
 const moviesSearchToolbar = ref<Movie[]>([]);
+const totalNumberOfMovies = ref(0);
 const loading = ref(false);
 const pagesFouded = ref(2);
 const page = ref(1);
@@ -170,6 +181,7 @@ async function searchMoviePageable(): Promise<Movie[]> {
       const res = await searchMovies(typeof orderOption.value === 'object' ? orderOption.value.value : orderOption.value, page.value);
       pagesFouded.value = res?.total_pages;
       page.value++;
+      totalNumberOfMovies.value = res.total_elements;
       if (page.value >= pagesFouded.value) {
         loading.value = true;
       }

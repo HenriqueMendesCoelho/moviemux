@@ -11,10 +11,10 @@
         {{ movie?.portuguese_title }}<br />
         {{ getMovieDateLocale() }}
       </div>
-      <q-icon class="absolute all-pointer-events" size="32px" name="info" color="grey-4" style="top: 8px; left: 8px" v-if="!isRating()">
+      <q-icon class="absolute all-pointer-events" size="32px" name="info" color="grey-4" style="top: 8px; left: 8px" v-if="!showChipNote()">
         <CustomTooltip :delay="500"> Esse filme ainda não tem notas </CustomTooltip>
       </q-icon>
-      <ChipNote class="hover-show-img" size="lg" :movie="movie" style="top: 8px; left: 8px" v-if="isRating()" dense />
+      <ChipNote class="hover-show-img" size="lg" :movie="movie" style="top: 8px; left: 8px" v-if="showChipNote()" dense />
     </CardImage>
     <ContextMenuHome :movie-id="movie?.id || ''" />
   </router-link>
@@ -37,8 +37,8 @@ interface Props {
 const props = defineProps<Props>();
 const showInfos = ref(false);
 
-function isRating() {
-  return props.movie?.notes?.length;
+function showChipNote() {
+  return props.movie?.notes?.length && props.movie?.show_notes;
 }
 function getMovieDateLocale() {
   if (!props.movie?.release_date) {

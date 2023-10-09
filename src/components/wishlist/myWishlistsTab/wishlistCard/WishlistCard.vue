@@ -9,10 +9,10 @@
           <q-item-label class="text-subtitle1">{{ wishlist.name }}</q-item-label>
         </q-item-section>
         <q-item-section side>
-          <q-btn icon="link" color="white" size="md" flat round @click.stop="emit('copy-url')" />
+          <q-btn icon="link" color="white" size="md" flat round @click.prevent.stop="emit('copy-url')" />
         </q-item-section>
         <q-item-section side>
-          <q-btn icon="delete" color="white" size="md" flat round @click.stop="emit('delete')" />
+          <q-btn icon="delete" color="white" size="md" flat round @click.prevent.stop="emit('delete')" />
         </q-item-section>
       </q-item>
       <q-separator dark />

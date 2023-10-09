@@ -15,7 +15,10 @@
         dark
         vertical
         inset
-        v-if="watchProviders?.results['BR']?.rent?.length && watchProviders?.results['BR'].flatrate?.length"
+        v-if="
+          (watchProviders?.results['BR']?.rent?.length && watchProviders?.results['BR'].flatrate?.length) ||
+          (watchProviders?.results['BR']?.buy?.length && watchProviders?.results['BR'].flatrate?.length)
+        "
       />
       <div class="col-auto" v-if="watchProviders?.results['BR']?.rent?.length">
         <div class="text-h6">Alugar</div>
@@ -52,13 +55,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch, onBeforeMount } from 'vue';
 
 import { MovieWatchProvider } from 'src/types/movie/MovieType';
 
-import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
-
 import KitService from 'src/services/KitService';
+
+import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
 interface Props {
   tmdbId?: number;
@@ -66,13 +69,26 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const watchProviders = ref<MovieWatchProvider>();
+const watchProviders = ref<MovieWatchProvider | undefined>();
+
+onBeforeMount(() => {
+  watchProviders.value = undefined;
+});
 
 onMounted(async () => {
+  watchProviders.value = undefined;
   if (props.tmdbId) {
     await loadWatchProviders();
   }
 });
+
+watch(
+  () => props.tmdbId,
+  async (val) => {
+    watchProviders.value = undefined;
+    if (val) await loadWatchProviders();
+  }
+);
 
 async function loadWatchProviders(): Promise<void> {
   if (!props?.tmdbId) {

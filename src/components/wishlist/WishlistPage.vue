@@ -8,7 +8,7 @@
         v-else-if="tab === 'wishlistTab'"
         v-model:wishlist="wishlist"
         @back="back()"
-        :id-param="idParam"
+        :id-param="idPathParam"
         :wishlists="wishlists"
       />
     </div>
@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUpdated, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { WishlistType } from 'src/types/wishlist/WishlistType';
@@ -30,7 +30,7 @@ import WishlistService from 'src/services/WishlistService';
 
 const route = useRoute();
 const router = useRouter();
-const idParam = computed(() => route.query.id?.toString() || '');
+const idPathParam = computed(() => route.params.id?.toString() || '');
 
 const tab = ref('myWishlistsTab');
 const wishlist = ref<WishlistType>();
@@ -38,6 +38,10 @@ const wishlists = ref<WishlistType[]>([]);
 
 onMounted(async () => {
   document.title = 'Cineminha - Lista de Filmes';
+  await getIdParam();
+});
+
+onUpdated(async () => {
   await getIdParam();
 });
 
@@ -53,14 +57,14 @@ function changeTab(_tab: 'myWishlistsTab' | 'wishlistTab') {
   tab.value = _tab;
 }
 function back() {
-  if (idParam.value) {
+  if (idPathParam.value) {
     router.push({ name: 'wishlist' });
   }
   wishlist.value = undefined;
   changeTab('myWishlistsTab');
 }
 async function getIdParam() {
-  if (!idParam.value) {
+  if (!idPathParam.value) {
     return;
   }
 

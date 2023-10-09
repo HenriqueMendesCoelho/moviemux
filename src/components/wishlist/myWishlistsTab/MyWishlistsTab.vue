@@ -3,7 +3,12 @@
     <div class="text-h4 text-white">Minhas Listas ({{ wishlists?.length ? wishlists.length : 0 }}/10)</div>
     <BtnCreateWishlist @ok="listWishlist()" />
     <div class="col-12 row q-col-gutter-md" v-if="wishlists?.length">
-      <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 text-white row" v-for="list in wishlists" :key="list.name">
+      <router-link
+        class="col-xs-12 col-sm-6 col-md-4 col-lg-3 text-white row text-decoration-none"
+        :to="{ name: 'wishlist', params: { id: list?.id } }"
+        v-for="list in wishlists"
+        :key="list.name"
+      >
         <WishlistCard
           class="col"
           :wishlist="list"
@@ -11,7 +16,7 @@
           @copy-url="copyWishlistUrl(list.id)"
           @delete="openDialogConfirm(list)"
         />
-      </div>
+      </router-link>
     </div>
     <div class="col-12 row justify-center" v-else>
       <div class="text-h4 text-white q-mt-md">Você ainda não tem nenhuma lista criada...</div>
@@ -86,7 +91,7 @@ function copyWishlistUrl(id?: string) {
     return;
   }
 
-  const url = `${window.location.origin}/movie/wishlist?id=${id}`;
+  const url = `${window.location.origin}/movie/wishlist/${id}`;
   navigator.clipboard.writeText(url);
   showSuccess('URL copiada');
   return url ? url : '';
@@ -117,3 +122,9 @@ async function deleteWishlist() {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.text-decoration-none {
+  text-decoration: none;
+}
+</style>

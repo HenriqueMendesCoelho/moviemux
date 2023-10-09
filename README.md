@@ -13,7 +13,7 @@ The project takes inspiration from renowned platforms such as IMDB (Internet Mov
 ## Technologies
 
 ```
-Vue.js, Java 20, Spring Boot, Hibernate, Apache Maven, PostgreSQL, Discord API, Git, Github, Docker, Angular 16, Bootstrap, NodeJS, ExpressJS, Typescript, Prisma, SQLite, HTML, CSS, SASS, VSCode, Quasar Framework...
+Vue.js, Java 20, Spring Boot, Hibernate, Apache Maven, PostgreSQL, Discord API, Git, Github, Docker, Angular 16, Bootstrap, NodeJS, ExpressJS, Axios,Typescript, Prisma, SQLite, HTML, CSS, SASS, VSCode, Quasar Framework, TypeORM, Socket.io...
 ```
 
 <br>
@@ -57,6 +57,7 @@ Discover Page
 ### Project Ecosystem:
 
 [Cine KronusBoss Back-End](https://github.com/HenriqueMendesCoelho/cine-kronusBoss-api) - A corresponding backend project complements the frontend, ensuring the cohesive operation of the movie rating portal.<br>
+[Cine KronusBoss Socket.io Back-End](https://github.com/HenriqueMendesCoelho/cine-kronusboss-websocket) - Designed and implemented a real-time update system using Socket.io
 
 External integration aggregator projects<br>
 [Kronus Integration Tool Front-End](https://github.com/HenriqueMendesCoelho/kronus-integration-tool-frontend)<br>

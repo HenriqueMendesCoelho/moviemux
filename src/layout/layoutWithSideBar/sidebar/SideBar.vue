@@ -13,37 +13,36 @@
     <p v-if="showTextsSideBar">Olá, {{ user.name }}</p>
     <h3>Menu</h3>
     <div class="menu menu-scroll">
-      <router-link to="/home" class="button">
+      <router-link :to="{ name: 'home' }" class="button">
         <span class="material-icons">home</span>
         <span class="text" v-if="showTextsSideBar">Home</span>
         <CustomTooltip anchor="top right" :offset="[35, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">HOME</CustomTooltip>
       </router-link>
-      <router-link to="/adm" class="button" v-if="isAdmin">
+      <router-link :to="{ name: 'adm' }" class="button" v-if="isAdmin">
         <span class="material-icons">admin_panel_settings</span>
         <span class="text" v-if="showTextsSideBar">Painel ADM</span>
         <CustomTooltip anchor="top right" :offset="[50, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">PAINEL ADM</CustomTooltip>
       </router-link>
-      <router-link to="/profile" class="button">
+      <router-link :to="{ name: 'profile' }" class="button">
         <span class="material-icons">person</span>
         <span class="text" v-if="showTextsSideBar">PERFIL</span>
         <CustomTooltip anchor="top right" :offset="[35, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">PERFIL</CustomTooltip>
       </router-link>
-      <router-link to="/movie/add" class="button">
+      <router-link :to="{ name: 'add' }" class="button">
         <span class="material-icons">add</span>
         <span class="text" v-if="showTextsSideBar" id="textAddMovie">ADICIONAR FILME</span>
         <CustomTooltip anchor="top right" :offset="[65, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500"
           >ADICIONAR FILME</CustomTooltip
         >
       </router-link>
-      <router-link to="/movie/discover" class="button">
+      <router-link :to="{ name: 'discoverMovies' }" class="button">
         <span class="material-icons">search</span>
         <span class="text" v-if="showTextsSideBar" id="textAddMovie">DESCOBRIR FILMES</span>
         <CustomTooltip anchor="top right" :offset="[65, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500"
           >DESCOBRIR FILMES</CustomTooltip
         >
       </router-link>
-      <router-link to="/movie/wishlist" class="button" style="position: relative">
-        <q-badge class="q-mr-sm" label="novo" color="kb-primary" rounded floating />
+      <router-link :to="{ name: 'wishlist' }" class="button">
         <span class="material-icons">list</span>
         <span class="text" v-if="showTextsSideBar" id="textAddMovie">LISTA DE FILMES</span>
         <CustomTooltip anchor="top right" :offset="[65, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500"
