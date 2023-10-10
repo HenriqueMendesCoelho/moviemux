@@ -16,6 +16,7 @@
         </div>
       </template>
       <template #append v-if="_wishlist?.user.id === userId">
+        <BtnMoviesAlreadyRated :wishlist="_wishlist" @update:wishlist="_wishlist = $event" />
         <div>
           <q-toggle
             :model-value="shareable"
@@ -81,6 +82,7 @@ import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue
 import DialogFormMovieSummary from 'src/components/shared/formMovieSummary/dialogFormMovieSummary/DialogFormMovieSummary.vue';
 import FloatingActionBtnTop from 'src/components/shared/floatingActionBtnTop/FloatingActionBtnTop.vue';
 import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
+import BtnMoviesAlreadyRated from './btnMoviesAlreadyRated/BtnMoviesAlreadyRated.vue';
 
 import { useUserStore } from 'src/stores/UserStore';
 import WishlistService from 'src/services/WishlistService';

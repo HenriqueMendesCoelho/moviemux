@@ -22,6 +22,14 @@ export default {
       return Promise.reject(error);
     }
   },
+  async searchWishlistMoviesRated(wishlistId: string): Promise<{ movie_tmdb_ids: number[] }> {
+    try {
+      const res = await axios.get(`${API_WISHLIST}/${wishlistId}/movies-rated`);
+      return Promise.resolve(res.data);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
   async createWishlist(wishlistName: string): Promise<WishlistType> {
     const params = StringUtils.getStringParams({ name: wishlistName });
     try {
