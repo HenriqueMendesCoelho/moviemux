@@ -1,47 +1,46 @@
-<template>
-  <div></div>
-</template>
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script lang="ts" setup>
+import { useQuasar } from 'quasar';
 
-export default defineComponent({
-  name: 'ConfirmDialog',
-  emits: ['ok', 'cancel'],
-  methods: {
-    dialog(
-      message: string,
-      focus: 'ok' | 'cancel' | 'none' = 'ok',
-      title = 'Confirme',
-      ok = 'Ok',
-      cancel = 'Cancelar',
-      persisstent = true
-    ) {
-      this.$q
-        .dialog({
-          dark: true,
-          title: title,
-          message: message,
-          persistent: persisstent,
-          color: 'kb-primary',
-          class: 'bg-grey-mid',
-          ok: {
-            label: ok,
-            flat: true,
-          },
-          cancel: {
-            label: cancel,
-            flat: true,
-          },
-          seamless: false,
-          focus,
-        })
-        .onOk(() => {
-          this.$emit('ok');
-        })
-        .onCancel(() => {
-          this.$emit('cancel');
-        });
+const emit = defineEmits<{
+  (e: 'ok', value: void): void;
+  (e: 'cancel', value: void): void;
+}>();
+
+const $q = useQuasar();
+
+defineExpose({ dialog });
+
+function dialog(
+  message: string,
+  focus: 'ok' | 'cancel' | 'none' = 'ok',
+  title = 'Confirme',
+  ok = 'Ok',
+  cancel = 'Cancelar',
+  persisstent = true
+) {
+  $q.dialog({
+    dark: true,
+    title: title,
+    message: message,
+    persistent: persisstent,
+    color: 'kb-primary',
+    class: 'bg-grey-mid',
+    ok: {
+      label: ok,
+      flat: true,
     },
-  },
-});
+    cancel: {
+      label: cancel,
+      flat: true,
+    },
+    seamless: false,
+    focus,
+  })
+    .onOk(() => {
+      emit('ok');
+    })
+    .onCancel(() => {
+      emit('cancel');
+    });
+}
 </script>
