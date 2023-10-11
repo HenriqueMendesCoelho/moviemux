@@ -123,7 +123,9 @@ async function showNotifyMovie(showNotify = true) {
 function showDialogConfirm() {
   const names = getMoviesNames();
   confirmDialogRef.value?.dialog(
-    `Tem certeza que deseja remover os filmes '${names.join(', ')}' dessa lista? Caso remova não há como desfazer a ação.`,
+    `Tem certeza que deseja remover ${names?.length > 1 ? 'os filmes' : 'o filme'} '${names.join(
+      ', '
+    )}' dessa lista? Caso remova não há como desfazer a ação.`,
     'cancel',
     'Quer mesmo remover?',
     'Sim'
