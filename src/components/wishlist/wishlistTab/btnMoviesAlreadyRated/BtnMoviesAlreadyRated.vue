@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div>
-      <q-btn @click="showNotifyMovie(false)" icon="playlist_remove" size="lg" flat round />
-      <CustomTooltip>Remover filmes já cadastrados no ranking do cineminha da lista</CustomTooltip>
+    <div v-if="tmdbIds?.length">
+      <q-btn @click="showNotifyMovie(false)" icon="playlist_remove" size="md" round />
+      <CustomTooltip>Remover filmes já estão cadastrados no ranking do cineminha</CustomTooltip>
     </div>
     <ConfirmDialog ref="confirmDialogRef" @ok="deteleMoviesFromWishlist" />
   </div>
