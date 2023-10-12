@@ -52,8 +52,7 @@ import { useQuasar, openURL } from 'quasar';
 
 import { useMovieStore } from 'src/stores/MovieStore';
 
-import { ConfirmDialogRefType } from 'src/components/shared/confirmDialog/types/ConfirmDialogType';
-import { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
+import type { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
 
 import KitService from 'src/services/KitService';
 
@@ -70,7 +69,7 @@ type divScrollTopRef = {
 };
 
 const $q = useQuasar();
-const confirmDialogRef = ref<ConfirmDialogRefType>();
+const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
 const cardScrollRef = ref<divScrollTopRef>();
 const movieStore = useMovieStore();
 

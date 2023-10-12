@@ -29,7 +29,6 @@ import { onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
 import type { WishlistType } from 'src/types/wishlist/WishlistType';
-import type { ConfirmDialogRefType } from 'src/components/shared/confirmDialog/types/ConfirmDialogType';
 
 import WishlistCard from './wishlistCard/WishlistCard.vue';
 import BtnCreateWishlist from './btnCreateWishlist/BtnCreateWishlist.vue';
@@ -40,7 +39,7 @@ import WishlistService from 'src/services/WishlistService';
 const $q = useQuasar();
 
 const wishlists = ref<WishlistType[]>([]);
-const confirmDialogRef = ref<ConfirmDialogRefType>();
+const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
 const wishlistToDelete = ref<string>('');
 
 const emit = defineEmits<{

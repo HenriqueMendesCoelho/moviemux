@@ -13,7 +13,6 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 
 import type { WishlistType } from 'src/types/wishlist/WishlistType';
-import type { ConfirmDialogRefType } from 'src/components/shared/confirmDialog/types/ConfirmDialogType';
 
 import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
@@ -36,7 +35,7 @@ const user = userStore.user;
 const isOwner = computed(() => user.id === props.wishlist?.user.id);
 const tmdbIds = ref<number[]>([]);
 
-const confirmDialogRef = ref<ConfirmDialogRefType>();
+const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
 
 onMounted(() => {
   if (props.wishlist?.id) {

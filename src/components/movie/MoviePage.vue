@@ -38,8 +38,6 @@ import { useQuasar } from 'quasar';
 import { useMovieStore } from 'src/stores/MovieStore';
 import { useStyleStore } from 'src/stores/StyleStore';
 
-import { ConfirmDialogRefType } from '../shared/confirmDialog/types/ConfirmDialogType';
-
 import MovieService from 'src/services/MovieService';
 
 import FormMovie from './formMovie/FormMovie.vue';
@@ -53,7 +51,7 @@ import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue
 import Movie from 'src/domain/movie/movie';
 
 const $q = useQuasar();
-const confirmDialogRef = ref<ConfirmDialogRefType>();
+const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
 const formMovieRef = ref<{
   hasErrors: () => boolean;
   resetValidation: () => void;

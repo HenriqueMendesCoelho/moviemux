@@ -74,7 +74,6 @@ import { copyToClipboard } from 'quasar';
 import { useRouter } from 'vue-router';
 
 import type { WishlistType } from 'src/types/wishlist/WishlistType';
-import type { ConfirmDialogRefType } from 'src/components/shared/confirmDialog/types/ConfirmDialogType';
 
 import SearchToolbar from 'src/components/shared/searchToolbar/SearchToolbar.vue';
 import WishlistCardImage from './wishlistCardImage/WishlistCardImage.vue';
@@ -117,7 +116,7 @@ const movieIdDialog = ref<number>();
 const movieIdToDelete = ref<number>();
 const otherWishlists = ref<WishlistType[]>([]);
 
-const confirmDialogRef = ref<ConfirmDialogRefType>();
+const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
 
 const showMenu = computed<boolean>(() => {
   return !!searchText.value && menuIsFocused.value && !!moviesWhenTyping.value?.length;

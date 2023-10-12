@@ -89,8 +89,6 @@ import { useQuasar } from 'quasar';
 import type { QTableProps } from 'quasar';
 import { MovieNoteType } from 'src/types/movie/MovieType';
 import { InputTextRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
-import { ConfirmDialogRefType } from 'src/components/shared/confirmDialog/types/ConfirmDialogType';
-import { ConfirmDialogPromptRefType } from './confirmDialogPrompt/types/ConfirmDialogPrompt';
 
 import { useUserStore } from 'src/stores/UserStore';
 import { useMovieStore } from 'src/stores/MovieStore';
@@ -155,8 +153,8 @@ const columns = ref<QTableProps['columns']>([
 
 const $q = useQuasar();
 const inputNoteRef = ref<InputTextRefType>();
-const confirmDialogRef = ref<ConfirmDialogRefType>();
-const confirmDialogPromptRef = ref<ConfirmDialogPromptRefType>();
+const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
+const confirmDialogPromptRef = ref<InstanceType<typeof ConfirmDialogPrompt>>();
 
 const movieStore = useMovieStore();
 const userStore = useUserStore();
