@@ -14,9 +14,7 @@
   </main>
 </template>
 
-<script lang="ts" setup>
-document.title = 'Cineminha - 404';
-</script>
+<script lang="ts" setup></script>
 
 <style lang="scss" scoped>
 main {

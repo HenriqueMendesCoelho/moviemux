@@ -10,12 +10,13 @@ export const stateSocketAllMovies = reactive({
   connected: false,
   updateEvents: [] as { event: string }[],
   hasToExecuteUpdate: false,
+  token: '',
 });
 
 export const socketAllMovies = io(`${BASE_URL}/movie/all`, {
   auth: (cb) => {
     cb({
-      token: localStorage.getItem('auth-kb'),
+      token: stateSocketAllMovies.token,
     });
   },
   path: '/ws',
@@ -41,12 +42,13 @@ export const stateSocketMovie = reactive({
   createNote: [] as eventMovieNote[],
   updateNote: [] as eventMovieNote[],
   deleteNote: [] as eventMovieNote[],
+  token: '',
 });
 
 export const socketMovie = io(`${BASE_URL}/movie/note`, {
   auth: (cb) => {
     cb({
-      token: localStorage.getItem('auth-kb'),
+      token: stateSocketMovie.token,
     });
   },
   path: '/ws',

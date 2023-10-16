@@ -95,10 +95,6 @@ const inputConfirmPasswordRef = ref<{
 
 const keyPathParam = computed(() => route.params?.key?.toString());
 
-onActivated(() => {
-  document.title = 'Cineminha - Alterar senha';
-});
-
 onMounted(() => {
   if (!keyPathParam.value || keyPathParam.value?.length !== 200) {
     router.push('/login');

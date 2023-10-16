@@ -51,10 +51,6 @@ const user = computed(() => userStore.user);
 
 const tab = ref('login');
 
-onActivated(() => {
-  document.title = 'Cineminha - Login';
-});
-
 onMounted(() => {
   if (user.value.isLoged) {
     router.push('/home');

@@ -13,7 +13,7 @@
       <div style="flex: 1 1 0"></div>
       <q-btn icon="refresh" color="white" round flat @click="loadLastMovies()" :loading="loading" />
     </div>
-    <div class="row justify-center q-mt-md" v-auto-animate>
+    <div class="row justify-center q-mt-md">
       <div class="col-auto row no-wrap scroll q-col-gutter-lg justify-center-md" v-if="isVisibleLastFilms">
         <div v-for="movie of movies" :key="movie.id">
           <CardImageMovie class="col-auto" :id="movie.id" :title="movie.portuguese_title" :url="movie.url_image" :footer="true" />
@@ -25,7 +25,7 @@
 
 <script lang="ts" setup>
 import { onActivated, onMounted, ref, watch } from 'vue';
-import { useQuasar } from 'quasar';
+import { useQuasar, Cookies } from 'quasar';
 
 import Movie from 'src/domain/movie/movie';
 import MovieService from 'src/services/MovieService';
@@ -43,6 +43,7 @@ onMounted(async () => {
   await loadLastMovies();
 
   if (!stateSocketAllMovies.connected) {
+    stateSocketAllMovies.token = Cookies.get('auth-kb');
     socketAllMovies.connect();
   }
 });

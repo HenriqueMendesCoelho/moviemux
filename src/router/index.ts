@@ -1,5 +1,6 @@
 import { route } from 'quasar/wrappers';
-import { createMemoryHistory, createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
+import { Cookies, useMeta } from 'quasar';
+import { RouteLocationNormalized, createMemoryHistory, createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
 
 import routes from './routes';
 import { useUserStore } from 'src/stores/UserStore';
@@ -13,7 +14,7 @@ import { useUserStore } from 'src/stores/UserStore';
  * with the Router instance.
  */
 
-export default route(function (/* { store, ssrContext } */) {
+export default route(function (/* { store, ssrContext } */ { ssrContext }) {
   const createHistory = process.env.SERVER
     ? createMemoryHistory
     : process.env.VUE_ROUTER_MODE === 'history'
@@ -34,7 +35,8 @@ export default route(function (/* { store, ssrContext } */) {
     const loginStore = useUserStore();
     const user = loginStore.user;
 
-    const token = localStorage.getItem('auth-kb');
+    const cookies = process.env.SERVER ? Cookies.parseSSR(ssrContext) : Cookies;
+    const token = cookies.get('auth-kb');
     if (token) {
       loginStore.decodeToken(token);
     }
@@ -70,5 +72,38 @@ export default route(function (/* { store, ssrContext } */) {
     }
   });
 
+  Router.afterEach((to) => {
+    setMetaTags(to);
+  });
+
   return Router;
 });
+
+function setMetaTags(route: RouteLocationNormalized) {
+  const defaultTitle = 'Cineminha - KronusBoss';
+  const defaultDescription = 'Descubra o melhor do cinema, classificações e informações sobre filmes.';
+  const defaultImage = 'https://img.cine.kronusboss.com/m3AJqU9tUmOpFgTb-VH3RlGd7tp6GD7QngPMqhSc/cine/kb_1200.png';
+  const routeMeta = route.meta as {
+    tags: {
+      set: boolean;
+      title?: string;
+    };
+  };
+
+  const meta: { title?: string; meta: { [prop: string]: object } } = { title: undefined, meta: {} };
+
+  if (routeMeta.tags.set) {
+    meta['title'] = routeMeta.tags?.title || defaultTitle;
+    meta.meta['title'] = { name: 'title', content: routeMeta.tags?.title || defaultTitle };
+    meta.meta['description'] = { name: 'description', content: defaultDescription };
+
+    meta.meta['ogTitle'] = { property: 'og:title', content: routeMeta.tags?.title || defaultTitle };
+    meta.meta['ogDescription'] = { property: 'og:description', content: defaultDescription };
+    meta.meta['ogImage'] = { property: 'og:image', content: defaultImage };
+
+    meta.meta['twitterTitle'] = { property: 'twitter:title', content: routeMeta.tags?.title || defaultTitle };
+    meta.meta['twitterDescription'] = { property: 'twitter:description', content: defaultDescription };
+    meta.meta['twitterTmage'] = { property: 'twitter:image', content: defaultImage };
+  }
+  useMeta(meta);
+}

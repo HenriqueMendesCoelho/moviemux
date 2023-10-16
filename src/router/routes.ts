@@ -1,5 +1,4 @@
 import { RouteRecordRaw } from 'vue-router';
-import HomePage from 'src/components/home/HomePage.vue';
 import LoginPage from 'src/components/login/LoginPage.vue';
 
 const routes: RouteRecordRaw[] = [
@@ -13,6 +12,10 @@ const routes: RouteRecordRaw[] = [
         name: 'login',
         meta: {
           roles: ['UNSECURE'],
+          tags: {
+            set: true,
+            title: 'Cineminha - KronusBoss',
+          },
         },
       },
       {
@@ -21,6 +24,10 @@ const routes: RouteRecordRaw[] = [
         component: () => import('src/components/changeForgottenPassword/ChangeForgottenPassword.vue'),
         meta: {
           roles: ['UNSECURE'],
+          tags: {
+            set: true,
+            title: 'Cineminha - Alterar Senha',
+          },
         },
       },
       {
@@ -38,6 +45,10 @@ const routes: RouteRecordRaw[] = [
         component: () => import('src/components/notFound/NotFound.vue'),
         meta: {
           roles: ['UNSECURE'],
+          tags: {
+            set: true,
+            title: 'Cineminha - Página não encontrada',
+          },
         },
       },
     ],
@@ -48,10 +59,14 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         path: '/home',
-        component: HomePage,
+        component: () => import('src/components/home/HomePage.vue'),
         name: 'home',
         meta: {
           roles: ['ADM', 'USER'],
+          tags: {
+            set: true,
+            title: 'Cineminha - Home',
+          },
         },
       },
       {
@@ -60,6 +75,10 @@ const routes: RouteRecordRaw[] = [
         name: 'adm',
         meta: {
           roles: ['ADM'],
+          tags: {
+            set: true,
+            title: 'Cineminha - ADM',
+          },
         },
       },
       {
@@ -68,6 +87,9 @@ const routes: RouteRecordRaw[] = [
         name: 'movie',
         meta: {
           roles: ['ADM', 'USER'],
+          tags: {
+            set: false,
+          },
         },
       },
       {
@@ -76,6 +98,10 @@ const routes: RouteRecordRaw[] = [
         name: 'add',
         meta: {
           roles: ['ADM', 'USER'],
+          tags: {
+            set: true,
+            title: 'Cineminha - Cadastrar Filme',
+          },
         },
       },
       {
@@ -84,6 +110,10 @@ const routes: RouteRecordRaw[] = [
         name: 'profile',
         meta: {
           roles: ['ADM', 'USER'],
+          tags: {
+            set: true,
+            title: 'Cineminha - Perfil',
+          },
         },
       },
       {
@@ -92,6 +122,9 @@ const routes: RouteRecordRaw[] = [
         name: 'discoverMovies',
         meta: {
           roles: ['ADM', 'USER'],
+          tags: {
+            set: false,
+          },
         },
       },
       {
@@ -100,6 +133,10 @@ const routes: RouteRecordRaw[] = [
         name: 'wishlist',
         meta: {
           roles: ['ADM', 'USER'],
+          tags: {
+            set: true,
+            title: 'Cineminha - Lista de Filmes',
+          },
         },
       },
     ],

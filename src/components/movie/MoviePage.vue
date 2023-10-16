@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUpdate } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useQuasar } from 'quasar';
+import { useQuasar, useMeta } from 'quasar';
 
 import { useMovieStore } from 'src/stores/MovieStore';
 import { useStyleStore } from 'src/stores/StyleStore';
@@ -175,10 +175,10 @@ function isRegisterOrEditing() {
   return false;
 }
 function setDocumentTitle() {
-  if (routeName.value === 'add') {
-    document.title = 'Cineminha - Cadastrar Filme';
-  } else {
-    document.title = `Cineminha - ${moviePage.value.selectedMovie.portuguese_title}`;
+  if (routeName.value === 'movie') {
+    useMeta({
+      title: `Cineminha - ${moviePage.value.selectedMovie.portuguese_title}`,
+    });
   }
 }
 async function loadMovie(): Promise<void> {

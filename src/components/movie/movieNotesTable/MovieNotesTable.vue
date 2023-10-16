@@ -84,7 +84,7 @@
 </template>
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch, toRaw } from 'vue';
-import { useQuasar } from 'quasar';
+import { useQuasar, Cookies } from 'quasar';
 
 import type { QTableProps } from 'quasar';
 import { MovieNoteType } from 'src/types/movie/MovieType';
@@ -167,12 +167,14 @@ const user = computed(() => userStore.user);
 
 onMounted(() => {
   if (!stateSocketMovie.connected) {
+    stateSocketMovie.token = Cookies.get('auth-kb');
     socketMovie.connect();
   }
 });
 
 onBeforeUnmount(() => {
   if (stateSocketMovie.connected) {
+    stateSocketMovie.token = Cookies.get('auth-kb');
     socketMovie.disconnect();
   }
 });

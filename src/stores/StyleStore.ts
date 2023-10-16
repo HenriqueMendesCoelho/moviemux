@@ -1,21 +1,21 @@
 import { defineStore } from 'pinia';
+import { Cookies } from 'quasar';
 
 export const useStyleStore = defineStore('StyleStore', {
   state: () => {
     return {
       backgroundColor: '#0b0e14',
       layoutSettings: { isSideBarExpanded: false, darkMode: true },
-      containerLayout: Element,
     };
   },
   actions: {
     darkThemeToggle() {
-      if (localStorage.getItem('theme') == 'dark') {
-        localStorage.setItem('theme', 'light');
+      if (Cookies.get('theme') == 'dark') {
+        Cookies.set('theme', 'light');
         document.documentElement.setAttribute('data-theme', 'light');
         this.layoutSettings.darkMode = false;
       } else {
-        localStorage.setItem('theme', 'dark');
+        Cookies.set('theme', 'dark');
         document.documentElement.setAttribute('data-theme', 'dark');
         this.layoutSettings.darkMode = true;
       }

@@ -54,7 +54,7 @@
 
 <script lang="ts" setup>
 import { computed, onActivated, onMounted, onUpdated, ref, watch } from 'vue';
-import { useQuasar } from 'quasar';
+import { useQuasar, useMeta } from 'quasar';
 import { useRoute } from 'vue-router';
 import { useRouter } from 'vue-router';
 
@@ -129,10 +129,12 @@ onMounted(async () => {
 });
 
 onActivated(async () => {
+  await setDocumentTitle();
   await listWishlist();
 });
 
 onUpdated(async () => {
+  await setDocumentTitle();
   await listWishlist();
   showDialogByParam();
 });
@@ -144,6 +146,20 @@ watch(
   }
 );
 
+async function setDocumentTitle() {
+  const movieParam = parseInt(route.query.movie?.toString() || '');
+
+  if (movieParam) {
+    const sum = await KitService.summary({ tmdb_id: movieParam });
+    useMeta({
+      title: `Cineminha - Descobrir - ${sum.portuguese_title}`,
+    });
+    return;
+  }
+  useMeta({
+    title: 'Cineminha - Descobrir',
+  });
+}
 function onHideDialog() {
   router.push('/movie/discover');
 }
@@ -322,14 +338,4 @@ async function listWishlist() {
   const res = await WishlistService.listWishlists();
   wishlists.value = res;
 }
-</script>
-
-<script lang="ts">
-import { defineComponent } from 'vue';
-export default defineComponent({
-  name: 'DiscoverMoviesPage',
-  beforeRouteEnter() {
-    document.title = 'Cineminha - Descobrir';
-  },
-});
 </script>

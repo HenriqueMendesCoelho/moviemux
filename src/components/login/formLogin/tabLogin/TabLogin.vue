@@ -45,7 +45,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { useQuasar } from 'quasar';
+import { useQuasar, Cookies } from 'quasar';
 import { onMounted, ref } from 'vue';
 
 import { InputValidateRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
@@ -144,7 +144,7 @@ function hasErrors() {
 function validateIsMobile() {
   if ($q.platform.is.mobile) {
     showError('Não temos uma experiência pronta para mobile por enquanto :(');
-    localStorage.removeItem('auth-kb');
+    Cookies.remove('auth-kb');
     return true;
   }
 

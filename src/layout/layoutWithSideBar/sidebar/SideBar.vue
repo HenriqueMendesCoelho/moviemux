@@ -69,6 +69,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
+import { useQuasar, Cookies } from 'quasar';
 
 import { useUserStore } from 'src/stores/UserStore';
 import { useStyleStore } from 'src/stores/StyleStore';
@@ -77,6 +78,7 @@ import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue
 
 const userStore = useUserStore();
 const styleStore = useStyleStore();
+const $q = useQuasar();
 
 const showTextsSideBar = ref(false);
 
@@ -107,7 +109,7 @@ function ToggleMenu() {
 }
 function logout() {
   userStore.$reset();
-  localStorage.removeItem('auth-kb');
+  Cookies.remove('auth-kb');
 }
 </script>
 
