@@ -103,7 +103,7 @@ function setMetaTags(route: RouteLocationNormalized) {
 
     meta.meta['twitterTitle'] = { property: 'twitter:title', content: routeMeta.tags?.title || defaultTitle };
     meta.meta['twitterDescription'] = { property: 'twitter:description', content: defaultDescription };
-    meta.meta['twitterTmage'] = { property: 'twitter:image', content: defaultImage };
+    meta.meta['twitterImage'] = { property: 'twitter:image', content: defaultImage };
   }
   useMeta(meta);
 }

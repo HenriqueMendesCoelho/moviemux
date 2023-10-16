@@ -17,6 +17,12 @@ export type MovieSummaryTypeKit = {
   runtime?: number;
 };
 
+export type MovieInfoTypeKit = {
+  title: string;
+  url_image: string;
+  description: string;
+};
+
 export type MovieResultResponseTmdb = {
   page: number;
   results: Array<{

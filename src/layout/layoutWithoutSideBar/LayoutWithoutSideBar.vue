@@ -1,15 +1,21 @@
 <template>
-  <main>
+  <main v-if="name === 'login'">
+    <Suspense>
+      <router-view></router-view>
+    </Suspense>
+  </main>
+  <main v-else>
     <router-view></router-view>
   </main>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script lang="ts" setup>
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 
-export default defineComponent({
-  name: 'LayoutWithoutSideBar',
-});
+const route = useRoute();
+
+const name = computed(() => route.name);
 </script>
 
 <style lang="scss" scoped>
