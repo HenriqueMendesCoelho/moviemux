@@ -3,7 +3,7 @@ WORKDIR /usr/src/app
 COPY . .
 RUN corepack enable
 RUN yarn install
-RUN yarn build:ssr
+RUN yarn build
 
 FROM node:20.5.1-slim as production-stage
 WORKDIR /usr/src/app
