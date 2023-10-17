@@ -14,11 +14,13 @@
       <q-btn icon="refresh" color="white" round flat @click="loadLastMovies()" :loading="loading" />
     </div>
     <div class="row justify-center q-mt-md">
-      <div class="col-auto row no-wrap scroll q-col-gutter-lg justify-center-md" v-if="isVisibleLastFilms">
-        <div v-for="movie of movies" :key="movie.id">
-          <CardImageMovie class="col-auto" :id="movie.id" :title="movie.portuguese_title" :url="movie.url_image" :footer="true" />
+      <q-slide-transition>
+        <div class="col-auto row no-wrap scroll q-col-gutter-lg justify-center-md" v-show="isVisibleLastFilms">
+          <div v-for="movie of movies" :key="movie.id">
+            <CardImageMovie class="col-auto" :id="movie.id" :title="movie.portuguese_title" :url="movie.url_image" :footer="true" />
+          </div>
         </div>
-      </div>
+      </q-slide-transition>
     </div>
   </div>
 </template>
