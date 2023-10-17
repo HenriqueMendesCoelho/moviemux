@@ -33,13 +33,13 @@ import CustomTooltip from '../customTooltip/CustomTooltip.vue';
 interface Props {
   title: string;
   columns: QTableProps['columns'];
-  rows?: any[];
+  rows?: object[];
 }
 
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  (e: 'copy', value: any): void;
-  (e: 'delete', value: any): void;
+  (e: 'copy', value: object): void;
+  (e: 'delete', value: object): void;
 }>();
 </script>
