@@ -123,7 +123,8 @@ const routes: RouteRecordRaw[] = [
         meta: {
           roles: ['ADM', 'USER'],
           tags: {
-            set: false,
+            set: true,
+            title: 'Cineminha - Descobrir',
           },
         },
       },
