@@ -67,7 +67,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, onMounted, onActivated, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 
@@ -94,10 +94,6 @@ const inputConfirmPasswordRef = ref<{
 }>();
 
 const keyPathParam = computed(() => route.params?.key?.toString());
-
-onActivated(() => {
-  document.title = 'Cineminha - Alterar senha';
-});
 
 onMounted(() => {
   if (!keyPathParam.value || keyPathParam.value?.length !== 200) {

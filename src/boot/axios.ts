@@ -1,6 +1,7 @@
 import { boot } from 'quasar/wrappers';
 import axios, { AxiosInstance } from 'axios';
 import { useUserStore } from 'src/stores/UserStore';
+import { Cookies } from 'quasar';
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
@@ -16,7 +17,7 @@ declare module '@vue/runtime-core' {
 // for each client)
 const api = axios.create({ baseURL: 'https://api.example.com' });
 
-export default boot(({ app }) => {
+export default boot(({ app, ssrContext }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
 
   app.config.globalProperties.$axios = axios;
@@ -29,7 +30,8 @@ export default boot(({ app }) => {
 
   axios.interceptors.request.use(
     (request) => {
-      const token = localStorage.getItem('auth-kb');
+      const cookies = process.env.SERVER ? Cookies.parseSSR(ssrContext) : Cookies;
+      const token = cookies.get('auth-kb');
 
       if (token) {
         const userStore = useUserStore();

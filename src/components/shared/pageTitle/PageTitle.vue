@@ -20,7 +20,6 @@ const props = defineProps<Props>();
   background-color: var(--grey-mid);
   border-radius: 15px;
   border: 3px solid var(--grey-mid2);
-
   box-shadow: 0 5px 20px var(--shadow);
 }
 </style>

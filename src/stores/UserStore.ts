@@ -1,6 +1,7 @@
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 import { defineStore } from 'pinia';
+import { Cookies } from 'quasar';
 
 import { tokenPayload } from 'src/types/token/TokenType';
 
@@ -46,7 +47,7 @@ export const useUserStore = defineStore('UserStore', {
         const responsePayload = res.data;
         const token = responsePayload.access_token;
 
-        localStorage.setItem('auth-kb', token);
+        Cookies.set('auth-kb', token, { expires: new Date(responsePayload.expires), secure: true });
         this.user.isLoged = true;
         this.showDialogLogin = false;
         this.decodeToken(token);

@@ -26,9 +26,6 @@
 import { defineComponent } from 'vue';
 export default defineComponent({
   name: 'ProfilePage',
-  beforeRouteEnter() {
-    document.title = 'Cineminha - Meus dados';
-  },
 });
 </script>
 

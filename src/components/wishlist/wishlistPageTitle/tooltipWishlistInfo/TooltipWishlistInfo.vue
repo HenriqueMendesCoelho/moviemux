@@ -22,7 +22,7 @@
           <q-icon color="white" name="event" />
         </q-item-section>
         <q-item-section>Criada em:</q-item-section>
-        <q-item-section side class="text-white">{{ stringUtils.dateToLocaleString(wishlist?.created_at) }}</q-item-section>
+        <q-item-section side class="text-white">{{ StringUtils.dateToLocaleString(wishlist?.created_at) }}</q-item-section>
       </q-item>
       <q-separator dark />
       <q-item>
@@ -30,7 +30,7 @@
           <q-icon color="white" name="event" />
         </q-item-section>
         <q-item-section>Atualizada em:</q-item-section>
-        <q-item-section side class="text-white">{{ stringUtils.dateToLocaleString(wishlist?.updated_at) }}</q-item-section>
+        <q-item-section side class="text-white">{{ StringUtils.dateToLocaleString(wishlist?.updated_at) }}</q-item-section>
       </q-item>
     </q-list>
   </CustomTooltip>
@@ -40,7 +40,7 @@ import { WishlistType } from 'src/types/wishlist/WishlistType';
 
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
-import stringUtils from 'src/utils/stringUtils';
+import StringUtils from 'src/utils/StringUtils';
 
 interface Props {
   wishlist: WishlistType;

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import User from 'src/domain/user/User';
 
-import StringUtils from 'src/utils/stringUtils';
+import StringUtils from 'src/utils/StringUtils';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;
 const API_USER = `${BASE_URL}/api/user`;

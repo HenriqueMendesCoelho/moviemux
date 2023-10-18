@@ -33,12 +33,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUpdate } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useQuasar } from 'quasar';
+import { useQuasar, useMeta } from 'quasar';
 
 import { useMovieStore } from 'src/stores/MovieStore';
 import { useStyleStore } from 'src/stores/StyleStore';
-
-import { ConfirmDialogRefType } from '../shared/confirmDialog/types/ConfirmDialogType';
 
 import MovieService from 'src/services/MovieService';
 
@@ -53,7 +51,7 @@ import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue
 import Movie from 'src/domain/movie/movie';
 
 const $q = useQuasar();
-const confirmDialogRef = ref<ConfirmDialogRefType>();
+const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
 const formMovieRef = ref<{
   hasErrors: () => boolean;
   resetValidation: () => void;
@@ -177,10 +175,10 @@ function isRegisterOrEditing() {
   return false;
 }
 function setDocumentTitle() {
-  if (routeName.value === 'add') {
-    document.title = 'Cineminha - Cadastrar Filme';
-  } else {
-    document.title = `Cineminha - ${moviePage.value.selectedMovie.portuguese_title}`;
+  if (routeName.value === 'movie') {
+    useMeta({
+      title: `Cineminha - ${moviePage.value.selectedMovie.portuguese_title}`,
+    });
   }
 }
 async function loadMovie(): Promise<void> {

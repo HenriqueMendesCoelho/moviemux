@@ -34,32 +34,81 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, onActivated, onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { openURL } from 'quasar';
+<script lang="ts" setup>
+import { computed, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { openURL, useMeta } from 'quasar';
 
 import { useUserStore } from 'src/stores/UserStore';
 
 import FormLogin from './formLogin/FormLogin.vue';
 import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue';
 
+import KitService from 'src/services/KitService';
+
 const userStore = useUserStore();
 const router = useRouter();
+const route = useRoute();
 
 const user = computed(() => userStore.user);
 
 const tab = ref('login');
 
-onActivated(() => {
-  document.title = 'Cineminha - Login';
-});
+const movieId = Number(route.query?.from?.toString()?.split('discover?movie=')[1]);
+if (movieId) {
+  const res = await KitService.info({ tmdb_id: movieId });
+
+  const title = `Cineminha - Descobrir - ${res.title}`;
+
+  useMeta({
+    title: title,
+    meta: {
+      title: { name: 'title', content: title },
+      description: { name: 'description', content: res.description },
+
+      ogTitle: { property: 'og:title', content: title },
+      ogDescription: { property: 'og:description', content: res.description },
+      ogImage: { property: 'og:image', content: getImageUrl(res.url_image) },
+
+      twitterTitle: { property: 'twitter:title', content: title },
+      twitterDescription: { property: 'twitter:description', content: res.description },
+      twitterImage: { property: 'twitter:image', content: getImageUrl(res.url_image) },
+    },
+  });
+} else {
+  const defaultTitle = 'Cineminha - KronusBoss';
+  const defaultDescription = 'Descubra o melhor do cinema, classificações e informações sobre filmes.';
+  const defaultImage = 'https://img.cine.kronusboss.com/m3AJqU9tUmOpFgTb-VH3RlGd7tp6GD7QngPMqhSc/cine/kb_1200.png';
+
+  useMeta({
+    title: defaultTitle,
+    meta: {
+      title: { name: 'title', content: defaultTitle },
+      description: { name: 'description', content: defaultDescription },
+
+      ogTitle: { property: 'og:title', content: defaultTitle },
+      ogDescription: { property: 'og:description', content: defaultDescription },
+      ogImage: { property: 'og:image', content: defaultImage },
+
+      twitterTitle: { property: 'twitter:title', content: defaultTitle },
+      twitterDescription: { property: 'twitter:description', content: defaultDescription },
+      twitterImage: { property: 'twitter:image', content: defaultImage },
+    },
+  });
+}
 
 onMounted(() => {
   if (user.value.isLoged) {
     router.push('/home');
   }
 });
+
+function getImageUrl(path?: string, size = 'w342') {
+  if (!path) {
+    return;
+  }
+  return `${process.env.VUE_APP_TMDB_IMAGE_BASE}/${size}${path}`;
+}
 </script>
 
 <style lang="scss" scoped>

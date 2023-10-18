@@ -238,6 +238,8 @@ import ChipNote from 'src/components/shared/chipNote/ChipNote.vue';
 import TooltipMovieInfo from './tooltipMovieInfo/TooltipMovieInfo.vue';
 import MovieWatchProviders from 'src/components/shared/formMovieSummary/movieWatchProviders/MovieWatchProviders.vue';
 
+import StringUtils from 'src/utils/StringUtils';
+
 interface Props {
   isRegisterOrEditing: boolean;
 }
@@ -393,14 +395,7 @@ function changeReleaseDate(val: string) {
   moviePage.value.selectedMovie.release_date = dateChange;
 }
 function runtimeToText() {
-  const runtime = moviePage.value.selectedMovie.runtime;
-  if (!runtime) {
-    return '0';
-  }
-  const hours = Math.floor(runtime / 60);
-  const minutes = runtime - 60 * hours;
-
-  return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+  return StringUtils.runtimeToText(moviePage.value.selectedMovie.runtime);
 }
 function showEnglishTitle() {
   return moviePage.value.selectedMovie.original_title !== moviePage.value.selectedMovie.english_title;

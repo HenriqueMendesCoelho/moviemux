@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { WishlistType } from 'src/types/wishlist/WishlistType';
-import StringUtils from 'src/utils/stringUtils';
+import StringUtils from 'src/utils/StringUtils';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;
 const API_WISHLIST = `${BASE_URL}/api/user/wishlist`;
@@ -17,6 +17,14 @@ export default {
   async searchWishlistById(wishlistId: string): Promise<WishlistType> {
     try {
       const res = await axios.get(`${API_WISHLIST}/${wishlistId}`);
+      return Promise.resolve(res.data);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
+  async searchWishlistMoviesRated(wishlistId: string): Promise<{ movie_tmdb_ids: number[] }> {
+    try {
+      const res = await axios.get(`${API_WISHLIST}/${wishlistId}/movies-rated`);
       return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);

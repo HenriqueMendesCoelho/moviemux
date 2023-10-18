@@ -7,6 +7,7 @@
 <script lang="ts">
 import { mapState } from 'pinia';
 import { defineComponent } from 'vue';
+import { Cookies } from 'quasar';
 
 import { useStyleStore } from './stores/StyleStore';
 
@@ -16,19 +17,19 @@ export default defineComponent({
     ...mapState(useStyleStore, ['layoutSettings']),
   },
   mounted() {
-    if (localStorage.getItem('theme') === 'dark') {
+    if (Cookies.get('theme') === 'dark') {
       document.documentElement.setAttribute('data-theme', 'dark');
       return;
-    } else if (localStorage.getItem('theme') === 'light') {
+    } else if (Cookies.get('theme') === 'light') {
       document.documentElement.setAttribute('data-theme', 'light');
       return;
     }
 
     if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      localStorage.setItem('theme', 'dark');
+      Cookies.set('theme', 'dark');
       document.documentElement.setAttribute('data-theme', 'dark');
     } else {
-      localStorage.setItem('theme', 'light');
+      Cookies.set('theme', 'light');
       document.documentElement.setAttribute('data-theme', 'light');
     }
   },

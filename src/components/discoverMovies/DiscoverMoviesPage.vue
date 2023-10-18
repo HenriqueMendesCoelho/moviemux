@@ -123,10 +123,7 @@ function showError(msg: string) {
 }
 
 onMounted(async () => {
-  page.value = 1;
-  lastPage.value = 2;
-  const res = await getMoviesPopular();
-  movies.value = res;
+  await firstSearch();
   await listWishlist();
   showDialogByParam();
 });
@@ -183,15 +180,21 @@ async function resetSearch() {
   movies.value = result;
 }
 async function onLoad(index: number, done: (stop?: boolean) => void) {
+  if (loading.value) {
+    return;
+  }
+
   if (page.value > lastPage.value && page.value <= 500) {
     done(true);
     return;
   }
+
   loading.value = true;
   const result = await callTmdb();
   if (result?.length) {
     movies.value?.push(...result);
   }
+
   done();
   loading.value = false;
 }
@@ -319,14 +322,4 @@ async function listWishlist() {
   const res = await WishlistService.listWishlists();
   wishlists.value = res;
 }
-</script>
-
-<script lang="ts">
-import { defineComponent } from 'vue';
-export default defineComponent({
-  name: 'DiscoverMoviesPage',
-  beforeRouteEnter() {
-    document.title = 'Cineminha - Descobrir';
-  },
-});
 </script>

@@ -125,6 +125,8 @@ import User from 'src/domain/user/User';
 import InputText from 'src/components/shared/inputText/InputText.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
+import StringUtils from 'src/utils/StringUtils';
+
 interface Props {
   modelValue: User;
   allReadOnly?: boolean;
@@ -163,13 +165,7 @@ watch(
 );
 
 function displayTimeToText() {
-  const runtime = user.value?.statistics?.display_time;
-  if (!runtime) {
-    return '0';
-  }
-  const hours = Math.floor(runtime / 60);
-  const minutes = runtime % 60;
-
-  return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+  return StringUtils.runtimeToText(user.value?.statistics?.display_time);
 }
 </script>
+src/utils/StringUtils

@@ -25,26 +25,32 @@
       </router-link>
       <router-link :to="{ name: 'profile' }" class="button">
         <span class="material-icons">person</span>
-        <span class="text" v-if="showTextsSideBar">PERFIL</span>
+        <span class="text" v-if="showTextsSideBar">Perfil</span>
         <CustomTooltip anchor="top right" :offset="[35, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">PERFIL</CustomTooltip>
       </router-link>
       <router-link :to="{ name: 'add' }" class="button">
         <span class="material-icons">add</span>
-        <span class="text" v-if="showTextsSideBar" id="textAddMovie">ADICIONAR FILME</span>
+        <span class="text" v-if="showTextsSideBar" id="textAddMovie">Adicionar Filme</span>
         <CustomTooltip anchor="top right" :offset="[65, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500"
           >ADICIONAR FILME</CustomTooltip
         >
       </router-link>
+      <router-link :to="{ name: 'charts' }" class="button relative-position">
+        <q-badge class="q-mr-sm" label="novo" color="kb-primary" rounded floating />
+        <span class="material-icons">dashboard</span>
+        <span class="text" v-if="showTextsSideBar" id="textAddMovie">Dashboard</span>
+        <CustomTooltip anchor="top right" :offset="[65, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">DASHBOARD</CustomTooltip>
+      </router-link>
       <router-link :to="{ name: 'discoverMovies' }" class="button">
         <span class="material-icons">search</span>
-        <span class="text" v-if="showTextsSideBar" id="textAddMovie">DESCOBRIR FILMES</span>
+        <span class="text" v-if="showTextsSideBar" id="textAddMovie">Descobrir Filmes</span>
         <CustomTooltip anchor="top right" :offset="[65, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500"
           >DESCOBRIR FILMES</CustomTooltip
         >
       </router-link>
       <router-link :to="{ name: 'wishlist' }" class="button">
         <span class="material-icons">list</span>
-        <span class="text" v-if="showTextsSideBar" id="textAddMovie">LISTA DE FILMES</span>
+        <span class="text" v-if="showTextsSideBar" id="textAddMovie">Lista de Filmes</span>
         <CustomTooltip anchor="top right" :offset="[65, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500"
           >LISTA DE FILMES</CustomTooltip
         >
@@ -69,6 +75,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
+import { Cookies } from 'quasar';
 
 import { useUserStore } from 'src/stores/UserStore';
 import { useStyleStore } from 'src/stores/StyleStore';
@@ -107,7 +114,7 @@ function ToggleMenu() {
 }
 function logout() {
   userStore.$reset();
-  localStorage.removeItem('auth-kb');
+  Cookies.remove('auth-kb');
 }
 </script>
 

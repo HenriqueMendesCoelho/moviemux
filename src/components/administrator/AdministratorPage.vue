@@ -37,8 +37,6 @@ import ListUserTabAdministrator from './listUserTab/ListUserTabAdministrator.vue
 import InviteUserTabAdmiminstrator from './inviteTab/InviteUserTabAdministrator.vue';
 import PageTitle from '../shared/pageTitle/PageTitle.vue';
 
-document.title = 'Cineminha - ADM';
-
 const tab = ref('users');
 const $q = useQuasar();
 const isMobile = computed(() => $q.platform.is.mobile);

@@ -1,6 +1,6 @@
 <template>
   <div class="row justify-center">
-    <q-card class="col form-login" v-auto-animate>
+    <q-card class="col form-login">
       <q-card-section class="row justify-center">
         <q-tab-panels v-model="tab" class="tabs" animated>
           <q-tab-panel name="login">

@@ -84,19 +84,17 @@
 </template>
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch, toRaw } from 'vue';
-import { useQuasar } from 'quasar';
+import { useQuasar, Cookies } from 'quasar';
 
 import type { QTableProps } from 'quasar';
 import { MovieNoteType } from 'src/types/movie/MovieType';
 import { InputTextRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
-import { ConfirmDialogRefType } from 'src/components/shared/confirmDialog/types/ConfirmDialogType';
-import { ConfirmDialogPromptRefType } from './confirmDialogPrompt/types/ConfirmDialogPrompt';
 
 import { useUserStore } from 'src/stores/UserStore';
 import { useMovieStore } from 'src/stores/MovieStore';
 
 import MovieService from 'src/services/MovieService';
-import stringUtils from 'src/utils/stringUtils';
+import StringUtils from 'src/utils/StringUtils';
 import { socketMovie, stateSocketMovie } from 'src/boot/socket';
 
 import SeparatorDivSolidLine from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
@@ -136,14 +134,14 @@ const columns = ref<QTableProps['columns']>([
     label: 'Criado em',
     field: 'created_at',
     align: 'center',
-    format: (val) => stringUtils.dateToLocaleString(val),
+    format: (val) => StringUtils.dateToLocaleString(val),
   },
   {
     name: 'updatedAt',
     label: 'Atualizado em',
     field: 'updated_at',
     align: 'center',
-    format: (val) => stringUtils.dateToLocaleString(val),
+    format: (val) => StringUtils.dateToLocaleString(val),
   },
   {
     name: 'actions',
@@ -155,8 +153,8 @@ const columns = ref<QTableProps['columns']>([
 
 const $q = useQuasar();
 const inputNoteRef = ref<InputTextRefType>();
-const confirmDialogRef = ref<ConfirmDialogRefType>();
-const confirmDialogPromptRef = ref<ConfirmDialogPromptRefType>();
+const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
+const confirmDialogPromptRef = ref<InstanceType<typeof ConfirmDialogPrompt>>();
 
 const movieStore = useMovieStore();
 const userStore = useUserStore();
@@ -169,12 +167,14 @@ const user = computed(() => userStore.user);
 
 onMounted(() => {
   if (!stateSocketMovie.connected) {
+    stateSocketMovie.token = Cookies.get('auth-kb');
     socketMovie.connect();
   }
 });
 
 onBeforeUnmount(() => {
   if (stateSocketMovie.connected) {
+    stateSocketMovie.token = Cookies.get('auth-kb');
     socketMovie.disconnect();
   }
 });
