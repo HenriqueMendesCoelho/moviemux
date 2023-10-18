@@ -34,7 +34,7 @@ const chartOptions = ref({
     floating: false,
     style: {
       fontSize: '20px',
-      fontWeight: 'bold',
+      fontWeight: '300',
       color: '#fff',
     },
   },
