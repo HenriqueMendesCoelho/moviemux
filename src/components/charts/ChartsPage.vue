@@ -50,6 +50,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+import { useQuasar } from 'quasar';
 
 import type { MovieStatistics } from 'src/types/statistics/Statistics';
 
@@ -62,6 +63,8 @@ import MovieByGenderChart from './movieByGenderChart/MovieByGenderChart.vue';
 import StatisticService from 'src/services/StatisticService';
 import StringUtils from 'src/utils/StringUtils';
 
+const $q = useQuasar();
+
 const chartsData = ref<MovieStatistics>();
 const knobAvgNote = ref<number>(0);
 
@@ -69,13 +72,32 @@ onMounted(async () => {
   await getChartsData();
 });
 
+function showLoading() {
+  $q.loading.show({
+    spinnerColor: 'kb-primary',
+  });
+}
+function hideLoading() {
+  $q.loading.hide();
+}
+function showError(msg: string) {
+  $q.notify({
+    type: 'negative',
+    message: msg,
+    position: 'top',
+  });
+}
+
 async function getChartsData() {
   try {
+    showLoading();
     const res = await StatisticService.movies();
     chartsData.value = res;
     knobAvgNote.value = res.average_rate || 0;
   } catch {
-    console.log('erro ao buscar dados');
+    showError('Erro ao buscar dados. Tente novamente mais tarde.');
+  } finally {
+    hideLoading();
   }
 }
 </script>
