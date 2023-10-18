@@ -140,6 +140,18 @@ const routes: RouteRecordRaw[] = [
           },
         },
       },
+      {
+        path: '/movie/charts',
+        component: () => import('src/components/charts/ChartsPage.vue'),
+        name: 'charts',
+        meta: {
+          roles: ['ADM', 'USER'],
+          tags: {
+            set: true,
+            title: 'Cineminha - Dashboard',
+          },
+        },
+      },
     ],
   },
 ];
