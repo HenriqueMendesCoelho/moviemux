@@ -160,6 +160,8 @@ import MovieService from 'src/services/MovieService';
 import InputText from '../inputText/InputText.vue';
 import MovieWatchProviders from './movieWatchProviders/MovieWatchProviders.vue';
 
+import StringUtils from 'src/utils/StringUtils';
+
 const $q = useQuasar();
 const movie = ref(new Movie());
 
@@ -198,14 +200,7 @@ function hideLoading() {
 }
 
 function runtimeToText() {
-  const runtime = movie.value.runtime;
-  if (!runtime) {
-    return '0';
-  }
-  const hours = Math.floor(runtime / 60);
-  const minutes = runtime - 60 * hours;
-
-  return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+  return StringUtils.runtimeToText(movie.value.runtime);
 }
 function showEnglishTitle() {
   return movie.value.original_title !== movie.value.english_title;
@@ -277,3 +272,4 @@ function getUrl(key: string) {
   return key ? `https://www.youtube.com/embed/${key}` : '';
 }
 </script>
+src/utils/StringUtils

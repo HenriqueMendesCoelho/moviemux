@@ -46,7 +46,7 @@
           <q-item-label>Criada em</q-item-label>
         </q-item-section>
         <q-item-section side>
-          <q-item-label>{{ stringUtils.dateToLocaleString(props.wishlist.created_at) }}</q-item-label>
+          <q-item-label>{{ StringUtils.dateToLocaleString(props.wishlist.created_at) }}</q-item-label>
         </q-item-section>
       </q-item>
       <q-item dark>
@@ -57,7 +57,7 @@
           <q-item-label>Última atualização</q-item-label>
         </q-item-section>
         <q-item-section side>
-          <q-item-label>{{ stringUtils.dateToLocaleString(props.wishlist.updated_at) }}</q-item-label>
+          <q-item-label>{{ StringUtils.dateToLocaleString(props.wishlist.updated_at) }}</q-item-label>
         </q-item-section>
       </q-item>
     </q-list>
@@ -67,7 +67,7 @@
 <script setup lang="ts">
 import type { WishlistType } from 'src/types/wishlist/WishlistType';
 
-import stringUtils from 'src/utils/stringUtils';
+import StringUtils from 'src/utils/StringUtils';
 
 import ContextMenuWishlistCard from './contextMenuWishlistCard/ContextMenuWishlistCard,.vue';
 

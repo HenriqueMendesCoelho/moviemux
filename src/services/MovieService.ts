@@ -1,5 +1,5 @@
 import axios from 'axios';
-import StringUtils from 'src/utils/stringUtils';
+import StringUtils from 'src/utils/StringUtils';
 
 import {
   MovieResultResponseTmdb,

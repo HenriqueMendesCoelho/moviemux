@@ -1,6 +1,6 @@
 import { MovieInfoTypeKit, MovieResultResponseTmdb, MovieSummaryTypeKit, MovieWatchProvider } from 'src/types/movie/MovieType';
 import axios from 'axios';
-import StringUtils from 'src/utils/stringUtils';
+import StringUtils from 'src/utils/StringUtils';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;
 const API_KIT = `${BASE_URL}/api/movie/tmdb`;
