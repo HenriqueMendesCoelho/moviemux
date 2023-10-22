@@ -1,22 +1,15 @@
 <template>
-  <main v-if="name === 'login'">
+  <main>
     <Suspense>
       <router-view></router-view>
+      <template #fallback>
+        <div class="text-h2">Loading...</div>
+      </template>
     </Suspense>
-  </main>
-  <main v-else>
-    <router-view></router-view>
   </main>
 </template>
 
-<script lang="ts" setup>
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
-
-const route = useRoute();
-
-const name = computed(() => route.name);
-</script>
+<script lang="ts" setup></script>
 
 <style lang="scss" scoped>
 main {
