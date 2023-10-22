@@ -47,7 +47,6 @@ import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue
 
 const userStore = useUserStore();
 const router = useRouter();
-
 const user = computed(() => userStore.user);
 
 const tab = ref('login');
@@ -96,6 +95,8 @@ if (Object.keys(movieInfo)?.length) {
 
 defineOptions({
   async preFetch({ store, currentRoute }) {
+    const userStore = useUserStore(store);
+    userStore.$reset();
     const metaStore = useMetaTagsStore(store);
     const movieId = Number(currentRoute.query.from?.toString().split('discover?movie=')[1]);
     if (movieId) {

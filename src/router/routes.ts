@@ -13,7 +13,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           roles: ['UNSECURE'],
           tags: {
-            set: true,
+            set: false,
             title: 'Cineminha - KronusBoss',
           },
         },

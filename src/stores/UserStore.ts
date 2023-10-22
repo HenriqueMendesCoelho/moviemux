@@ -32,13 +32,6 @@ export const useUserStore = defineStore('UserStore', {
 
       return result;
     },
-    sessionIsCloseToExpire(): boolean | null {
-      if (!this.user.isLoged) {
-        return null;
-      }
-
-      return this.timeToExpire <= 10;
-    },
   },
   actions: {
     async login(payload: { email: string; password: string }): Promise<void> {
@@ -78,7 +71,7 @@ export const useUserStore = defineStore('UserStore', {
       this.user.username = tokenPayload.aud;
       this.user.expirationToken = tokenPayload.exp;
 
-      if (this.timeToExpire > 0) {
+      if (this.timeToExpire > 2) {
         this.user.isLoged = true;
       }
     },
