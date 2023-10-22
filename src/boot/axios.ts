@@ -34,9 +34,7 @@ export default boot(({ app, ssrContext }) => {
       const token = cookies.get('auth-kb');
 
       if (token) {
-        const userStore = useUserStore();
         request.headers['Authorization'] = `Bearer ${token}`;
-        userStore.user.isLoged = true;
       }
 
       return request;
