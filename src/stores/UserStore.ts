@@ -15,7 +15,7 @@ export const useUserStore = defineStore('UserStore', {
         name: '',
         username: '',
         roles: [''],
-        expirationToken: Date.now(),
+        expirationToken: Date.now() / 1000,
         isLoged: false,
       },
       showDialogLogin: false,
@@ -70,10 +70,7 @@ export const useUserStore = defineStore('UserStore', {
       this.user.roles = tokenPayload.roles;
       this.user.username = tokenPayload.aud;
       this.user.expirationToken = tokenPayload.exp;
-
-      if (this.timeToExpire > 2) {
-        this.user.isLoged = true;
-      }
+      this.user.isLoged = this.timeToExpire > 2;
     },
   },
 });
