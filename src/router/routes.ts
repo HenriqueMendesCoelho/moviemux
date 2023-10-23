@@ -13,7 +13,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           roles: ['UNSECURE'],
           tags: {
-            set: true,
+            set: false,
             title: 'Cineminha - KronusBoss',
           },
         },
@@ -141,7 +141,7 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
-        path: '/movie/charts',
+        path: '/movie/dashboard',
         component: () => import('src/components/charts/ChartsPage.vue'),
         name: 'charts',
         meta: {

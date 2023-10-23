@@ -57,7 +57,7 @@ export default {
       return Promise.reject(error);
     }
   },
-  async listMoviesByTitlePageable(page: number, title: string, size = 50, sort = 'portuguese_title,asc'): Promise<MoviePageableType> {
+  async listMoviesByTitlePageable(page: number, title: string, size = 50, sort = 'portugueseTitle,asc'): Promise<MoviePageableType> {
     try {
       const res = await axios.get(`${API_MOVIE}?page=${page}&query=${title}&size=${size}&sort=${sort}`);
       return Promise.resolve(res.data);

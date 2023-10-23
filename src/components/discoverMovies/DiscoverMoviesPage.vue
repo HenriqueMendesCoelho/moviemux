@@ -47,7 +47,20 @@
         </div>
         <FloatingActionBtnTop />
       </div>
-      <DialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" position="standard" @hide="onHideDialog()" />
+      <DialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" position="standard" @hide="onHideDialog()">
+        <template #prepend:bar>
+          <q-btn round dense flat icon="playlist_add" color="white" size="md">
+            <MenuAddMovieWishlist
+              @add-movie="addMovieToWishlist($event, movieIdDialog)"
+              :wishlists="wishlists"
+              :movie="movieIdDialog"
+              anchor="bottom middle"
+              self="top middle"
+            />
+            <CustomTooltip anchor="center left" self="center end" :delay="400">Adicionar a uma lista</CustomTooltip>
+          </q-btn>
+        </template>
+      </DialogFormMovieSummary>
     </div>
   </ContainerMain>
 </template>
@@ -70,6 +83,8 @@ import CardImageDiscoverMovies from './cardImageDiscoverMovies/CardImageDiscover
 import PageTitle from '../shared/pageTitle/PageTitle.vue';
 import DialogFormMovieSummary from '../shared/formMovieSummary/dialogFormMovieSummary/DialogFormMovieSummary.vue';
 import FloatingActionBtnTop from 'src/components/shared/floatingActionBtnTop/FloatingActionBtnTop.vue';
+import MenuAddMovieWishlist from './cardImageDiscoverMovies/menuAddMovieWishlist/MenuAddMovieWishlist.vue';
+import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
 import WishlistService from 'src/services/WishlistService';
 import KitService from 'src/services/KitService';
@@ -107,6 +122,14 @@ const showMenu = computed<boolean>(() => {
 const styleStore = useStyleStore();
 const scrollToTop = () => styleStore.scrollToContainer(0, 0, 'smooth');
 
+function showLoading() {
+  $q.loading.show({
+    spinnerColor: 'kb-primary',
+  });
+}
+function hideLoading() {
+  $q.loading.hide();
+}
 function showSuccess(msg: string) {
   $q.notify({
     type: 'positive',
@@ -321,5 +344,27 @@ async function searchFromMenu(title: string) {
 async function listWishlist() {
   const res = await WishlistService.listWishlists();
   wishlists.value = res;
+}
+async function addMovieToWishlist(wishlistId: string, tmdbId: number) {
+  try {
+    showLoading();
+    const res = await WishlistService.addMovieToWishlist(wishlistId, tmdbId);
+    mergeResult(wishlistId, res);
+    showSuccess('Filme adicionado a lista com sucesso');
+  } catch (error) {
+    showError('Erro ao adicionar filme na lista');
+  } finally {
+    hideLoading();
+  }
+}
+function mergeResult(wishlistId: string, newWishlist: WishlistType) {
+  const wishlist = wishlists.value.find((w) => w.id === wishlistId);
+
+  if (!wishlist) {
+    return;
+  }
+
+  const index = wishlists.value.indexOf(wishlist);
+  wishlists.value[index] = newWishlist;
 }
 </script>

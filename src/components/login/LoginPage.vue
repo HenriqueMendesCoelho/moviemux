@@ -36,43 +36,39 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { openURL, useMeta } from 'quasar';
 
 import { useUserStore } from 'src/stores/UserStore';
+import { useMetaTagsStore } from 'src/stores/MetaTagsStore';
 
 import FormLogin from './formLogin/FormLogin.vue';
 import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue';
 
-import KitService from 'src/services/KitService';
-
 const userStore = useUserStore();
 const router = useRouter();
-const route = useRoute();
-
 const user = computed(() => userStore.user);
 
 const tab = ref('login');
 
-const movieId = Number(route.query?.from?.toString()?.split('discover?movie=')[1]);
-if (movieId) {
-  const res = await KitService.info({ tmdb_id: movieId });
-
-  const title = `Cineminha - Descobrir - ${res.title}`;
+const metaTagsStore = useMetaTagsStore();
+const movieInfo = metaTagsStore.info;
+if (Object.keys(movieInfo)?.length) {
+  const title = `Cineminha - Descobrir - ${metaTagsStore.info.title}`;
 
   useMeta({
     title: title,
     meta: {
       title: { name: 'title', content: title },
-      description: { name: 'description', content: res.description },
+      description: { name: 'description', content: metaTagsStore.info.description },
 
       ogTitle: { property: 'og:title', content: title },
-      ogDescription: { property: 'og:description', content: res.description },
-      ogImage: { property: 'og:image', content: getImageUrl(res.url_image) },
+      ogDescription: { property: 'og:description', content: metaTagsStore.info.description },
+      ogImage: { property: 'og:image', content: getImageUrl(metaTagsStore.info.url_image) },
 
       twitterTitle: { property: 'twitter:title', content: title },
-      twitterDescription: { property: 'twitter:description', content: res.description },
-      twitterImage: { property: 'twitter:image', content: getImageUrl(res.url_image) },
+      twitterDescription: { property: 'twitter:description', content: metaTagsStore.info.description },
+      twitterImage: { property: 'twitter:image', content: getImageUrl(metaTagsStore.info.url_image) },
     },
   });
 } else {
@@ -96,6 +92,19 @@ if (movieId) {
     },
   });
 }
+
+defineOptions({
+  async preFetch({ store, currentRoute }) {
+    const userStore = useUserStore(store);
+    userStore.$reset();
+    const metaStore = useMetaTagsStore(store);
+    const movieId = Number(currentRoute.query.from?.toString().split('discover?movie=')[1]);
+    if (movieId) {
+      return await metaStore.getMovieInfo(movieId);
+    }
+    return;
+  },
+});
 
 onMounted(() => {
   if (user.value.isLoged) {

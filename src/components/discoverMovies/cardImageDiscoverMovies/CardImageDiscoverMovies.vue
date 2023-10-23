@@ -51,20 +51,7 @@
             <q-item-section side>
               <q-icon name="keyboard_arrow_right" color="white" />
             </q-item-section>
-            <q-menu anchor="top end" self="top start" class="bg-grey-dark2" dark>
-              <q-list>
-                <q-item
-                  v-for="list in wishlists"
-                  :key="list.name"
-                  clickable
-                  :disable="disableList(list)"
-                  @click="addMovieToWishlist(list.id, props.movie?.id)"
-                >
-                  <q-item-section v-close-popup class="q-pl-sm">{{ list.name }}</q-item-section>
-                  <CustomTooltip v-if="disableList(list)" :delay="500">Filme já adicionado nessa lista</CustomTooltip>
-                </q-item>
-              </q-list>
-            </q-menu>
+            <MenuAddMovieWishlist @add-movie="addMovieToWishlist($event, movie.id)" :wishlists="wishlists" :movie="movie.id" />
           </q-item>
         </q-list>
       </q-menu>
@@ -79,6 +66,7 @@ import { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
 import CardImage from 'src/components/shared/cardImage/CardImage.vue';
 import ContextMenuDiscover from './contextMenuDiscover/ContextMenuDiscover.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import MenuAddMovieWishlist from './menuAddMovieWishlist/MenuAddMovieWishlist.vue';
 
 import WishlistService from 'src/services/WishlistService';
 import { WishlistType } from 'src/types/wishlist/WishlistType';
@@ -187,9 +175,6 @@ function mergeResult(wishlistId: string, newWishlist: WishlistType) {
 
   const index = wishlists.value.indexOf(wishlist);
   wishlists.value[index] = newWishlist;
-}
-function disableList(list: WishlistType) {
-  return list.movies_wishlists?.some((m) => m.tmdb_id === props.movie.id);
 }
 function isInAnyWishlist() {
   return wishlists.value.some((w) => w.movies_wishlists.some((m) => m.tmdb_id === props.movie.id));
