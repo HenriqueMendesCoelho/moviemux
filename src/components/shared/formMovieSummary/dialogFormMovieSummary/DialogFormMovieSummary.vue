@@ -3,6 +3,7 @@
     <q-card class="bg-grey-dark2 dialog-container" :style="conditionalCardStyle()">
       <q-bar class="bg-grey-dark2 q-mt-xs">
         <q-space />
+        <slot name="prepend:bar" />
         <q-btn round dense flat icon="link" color="white" size="md" @click="copyMovie()">
           <CustomTooltip :delay="400">Copiar URL</CustomTooltip>
         </q-btn>
