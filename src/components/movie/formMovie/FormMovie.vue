@@ -225,11 +225,9 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
-import { useQuasar, date } from 'quasar';
+import { useQuasar, date, QInput, QSelect } from 'quasar';
 
 import { useMovieStore } from 'src/stores/MovieStore';
-
-import { InputTextRefType, InputValidateRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
 
 import MovieService from 'src/services/MovieService';
 
@@ -247,18 +245,18 @@ interface Props {
 const props = defineProps<Props>();
 
 const $q = useQuasar();
-const inputTextPortugueseTitleRef = ref<InputTextRefType>();
-const inputTextEnglishTitleRef = ref<InputTextRefType>();
-const inputTextOriginalTitleRef = ref<InputTextRefType>();
-const inputTextDirectorRef = ref<InputTextRefType>();
-const inputTextReleaseDateRef = ref<InputTextRefType>();
-const qInputDescriptionRef = ref<InputValidateRefType>();
-const qSelectGenresRef = ref<InputValidateRefType>();
-const InputTextTmdbIdRef = ref<InputTextRefType>();
-const inputTextUrlImageRef = ref<InputTextRefType>();
-const inputTextUrlTrailerBrRef = ref<InputTextRefType>();
-const inputTextUrlTrailerEnRef = ref<InputTextRefType>();
-const inputTextRuntimeRef = ref<InputTextRefType>();
+const inputTextPortugueseTitleRef = ref<InstanceType<typeof InputText>>();
+const inputTextEnglishTitleRef = ref<InstanceType<typeof InputText>>();
+const inputTextOriginalTitleRef = ref<InstanceType<typeof InputText>>();
+const inputTextDirectorRef = ref<InstanceType<typeof InputText>>();
+const inputTextReleaseDateRef = ref<InstanceType<typeof InputText>>();
+const qInputDescriptionRef = ref<InstanceType<typeof QInput>>();
+const qSelectGenresRef = ref<InstanceType<typeof QSelect>>();
+const InputTextTmdbIdRef = ref<InstanceType<typeof InputText>>();
+const inputTextUrlImageRef = ref<InstanceType<typeof InputText>>();
+const inputTextUrlTrailerBrRef = ref<InstanceType<typeof InputText>>();
+const inputTextUrlTrailerEnRef = ref<InstanceType<typeof InputText>>();
+const inputTextRuntimeRef = ref<InstanceType<typeof InputText>>();
 
 const loadingGenres = ref(false);
 
