@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
@@ -77,11 +77,13 @@ async function createWishlist(name?: string) {
     await WishlistService.createWishlist(name);
     showSuccess('Lista de filmes criada com sucesso');
     emit('ok');
-  } catch (error: unknown | AxiosError) {
+  } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
       if (error.response?.data?.message === 'User has reached wishlits limit') {
         showError('Você atingiu o limite de 10 listas que podem ser criadas');
-      } else if (error.response?.data?.message.includes('Wishlist already created with the name')) {
+      }
+
+      if (error.response?.data?.message.includes('Wishlist already created with the name')) {
         showError('Já existe uma lista criada com o nome ' + name);
       }
     } else {

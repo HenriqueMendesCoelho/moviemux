@@ -32,14 +32,12 @@
       <template #input-search>
         <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
           <q-list dense dark>
-            <div v-for="movie in moviesWhenTyping" :key="movie.tmdb_id" @click="searchFromMenu(movie.title)">
-              <q-item bordered clickable>
-                <q-item-section v-close-popup class="q-pl-sm">{{
-                  movie.title || movie.title_english || 'Erro ao carregar título'
-                }}</q-item-section>
-              </q-item>
-              <q-separator dark v-if="moviesWhenTyping?.length ? moviesWhenTyping?.length > 1 : false" />
-            </div>
+            <q-item v-for="movie in moviesWhenTyping" :key="movie.tmdb_id" bordered clickable>
+              <q-item-section @click="searchFromMenu(movie.title)" v-close-popup class="q-pl-sm">{{
+                movie.title || movie.title_english || 'Erro ao carregar título'
+              }}</q-item-section>
+            </q-item>
+            <q-separator dark v-if="moviesWhenTyping?.length ? moviesWhenTyping?.length > 1 : false" />
           </q-list>
         </q-menu>
       </template>

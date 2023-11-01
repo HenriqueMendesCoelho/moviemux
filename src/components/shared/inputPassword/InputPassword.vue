@@ -18,12 +18,11 @@
 </template>
 <script lang="ts" setup>
 import { ref, watch, nextTick } from 'vue';
-import type { InputValidateRefType } from '../inputText/types/InputValidateRefType';
-import type { ValidationRule } from 'quasar';
+import type { QInput, ValidationRule } from 'quasar';
 
 const password = ref<string>('');
 const regexPassword = ref<RegExp>(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{8,70}$/);
-const inputPasswordRef = ref<InputValidateRefType>();
+const inputPasswordRef = ref<InstanceType<typeof QInput>>();
 const visibility = ref(false);
 
 interface Props {
