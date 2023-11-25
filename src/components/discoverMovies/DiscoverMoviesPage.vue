@@ -25,6 +25,42 @@
             </q-list>
           </q-menu>
         </template>
+        <template #append>
+          <q-separator class="q-mx-md" dark vertical inset />
+          <q-select
+            class="col-2"
+            borderless
+            :options="genresOptions"
+            v-model="genresSelected"
+            label="Gêneros"
+            standout="text-kb-primary"
+            color="kb-primary"
+            dark
+            popup-content-class="bg-grey-dark2"
+            clearable
+            option-label="name"
+            option-value="tmdb_id"
+            options-dense
+            emit-value
+            map-options
+            multiple
+            use-chips
+          >
+            <template v-slot:selected-item="scope">
+              <q-chip
+                removable
+                dense
+                @remove="scope.removeAtIndex(scope.index)"
+                :tabindex="scope.tabindex"
+                color="grey-dark2"
+                text-color="white"
+                class="q-ma-none"
+              >
+                {{ scope.opt.name }}
+              </q-chip>
+            </template>
+          </q-select>
+        </template>
       </SearchToolbar>
 
       <div class="row justify-center q-mt-lg">
@@ -64,7 +100,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onActivated, onMounted, onUpdated, ref, watch } from 'vue';
+import { computed, onActivated, onMounted, onUpdated, ref, watch, nextTick } from 'vue';
 import { useQuasar } from 'quasar';
 import { useRoute } from 'vue-router';
 import { useRouter } from 'vue-router';
@@ -86,6 +122,7 @@ import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue
 
 import WishlistService from 'src/services/WishlistService';
 import KitService from 'src/services/KitService';
+import MovieService from 'src/services/MovieService';
 
 const $q = useQuasar();
 const route = useRoute();
@@ -112,6 +149,8 @@ const movieIdDialog = ref(0);
 const showDialogMovieSummary = ref(false);
 const menuIsFocused = ref(false);
 const wishlists = ref<WishlistType[]>([]);
+const genresOptions = ref<{ id: number; name: string; tmdb_id: number }[]>();
+const genresSelected = ref<{ id: number; name: string; tmdb_id: number }[]>();
 
 const showMenu = computed<boolean>(() => {
   return !!searchText.value && menuIsFocused.value && !!moviesWhenTyping.value?.length;
@@ -119,6 +158,16 @@ const showMenu = computed<boolean>(() => {
 
 const styleStore = useStyleStore();
 const scrollToTop = () => styleStore.scrollToContainer(0, 0, 'smooth');
+
+watch(
+  () => genresSelected.value,
+  () => {
+    selectOrder.value = undefined;
+    searchText.value = '';
+    firstSearch();
+  },
+  { deep: true }
+);
 
 function showLoading() {
   $q.loading.show({
@@ -151,6 +200,7 @@ onMounted(async () => {
 
 onActivated(async () => {
   await listWishlist();
+  await loadGenres();
 });
 
 onUpdated(async () => {
@@ -187,13 +237,16 @@ async function cardCallTmdb(typeSearch: { label: string; value: string }, movieI
 
 async function firstSearch() {
   page.value = 1;
-  infinitScrollRef.value?.resume();
   const result = await callTmdb();
   movies.value = result;
+  nextTick(() => {
+    infinitScrollRef.value?.resume();
+  });
 }
 async function resetSearch() {
   searchText.value = '';
   selectOrder.value = '';
+  genresSelected.value = [];
   page.value = 1;
   lastPage.value = 2;
   infinitScrollRef.value?.resume();
@@ -239,13 +292,17 @@ async function callTmdb() {
     return await getMoviesByName({ query: searchText.value, page: page.value });
   }
 
+  if (genresSelected.value?.length) {
+    return await getMoviesDiscover({ with_genres: genresSelected.value.join(',') });
+  }
+
   switch (selectOrder.value) {
     case 'playingNow':
       return await getMoviesNowPlaying();
     case 'topRated':
       return await getMoviesTopRated();
     case 'voteAverageAsc':
-      return await getMoviesDiscover('vote_average.asc');
+      return await getMoviesDiscover({ sort: 'vote_average.asc' });
     default:
       return await getMoviesPopular();
   }
@@ -280,7 +337,7 @@ async function getMoviesTopRated() {
     showError('Não foi possível realizar a consulta');
   }
 }
-async function getMoviesDiscover(sort?: string, year?: number, with_genres?: string) {
+async function getMoviesDiscover({ sort, year, with_genres }: { sort?: string; year?: number; with_genres?: string }) {
   try {
     const res = await KitService.getMoviesDiscover(sort, page.value, year, with_genres);
     lastPage.value = res.total_pages;
@@ -364,5 +421,12 @@ function mergeResult(wishlistId: string, newWishlist: WishlistType) {
 
   const index = wishlists.value.indexOf(wishlist);
   wishlists.value[index] = newWishlist;
+}
+async function loadGenres(): Promise<void> {
+  try {
+    genresOptions.value = await MovieService.getMoviesGenres();
+  } catch {
+    showError('Erro ao carregar gêneros');
+  }
 }
 </script>

@@ -223,7 +223,7 @@ function openNewWindow(url: string) {
     w.focus();
   }
 }
-async function getGenres(genres?: Array<string>): Promise<Array<{ id: number; name: string }>> {
+async function getGenres(genres?: Array<string>): Promise<Array<{ id: number; name: string; tmdb_id: number }>> {
   if (!genres?.length) {
     return [];
   }

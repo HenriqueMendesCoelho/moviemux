@@ -111,7 +111,7 @@
               outlined
               :options="moviePage.genres"
               v-model="moviePage.selectedMovie.genres"
-              label="Generos"
+              label="Gêneros"
               standout="text-info"
               color="info"
               bg-color="grey-mid2"

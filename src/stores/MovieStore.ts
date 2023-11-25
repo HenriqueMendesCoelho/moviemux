@@ -11,7 +11,7 @@ export const useMovieStore = defineStore('MovieStore', {
         isEditing: false,
         selectedMovie: new Movie(),
         showImportMovieDialog: false,
-        genres: [] as Array<{ id: number; name: string }>,
+        genres: [] as Array<{ id: number; name: string; tmdb_id: number }>,
       },
     };
   },
