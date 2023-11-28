@@ -85,8 +85,8 @@ const orderOptions = [
     label: 'Data de Lançamento (Mais Antigo)',
     value: 'releaseDate,portugueseTitle,asc',
   },
-  { label: 'Nota (Mais alta)', value: '&sortJoin=notes,desc' },
-  { label: 'Nota (Mais baixa)', value: '&sortJoin=notes,asc' },
+  { label: 'Nota (Mais alta)', value: 'portugueseTitle,asc&sortJoin=notes,desc' },
+  { label: 'Nota (Mais baixa)', value: 'portugueseTitle,asc&sortJoin=notes,asc' },
   {
     label: 'Data de Cadastro (Mais Novo)',
     value: 'createdAt,portugueseTitle,desc',
@@ -162,34 +162,22 @@ async function onLoad(index: number, done: (stop?: boolean) => void): Promise<vo
   return Promise.resolve();
 }
 async function searchMoviePageable(): Promise<Movie[]> {
-  if (searchText.value) {
-    try {
-      const res = await searchMoviesByTitle(searchText.value, page.value);
-      pagesFouded.value = res.total_pages;
-      page.value++;
-      if (page.value >= pagesFouded.value) {
-        loading.value = true;
-      }
-
-      return res.content;
-    } catch (error) {
-      showError();
-      return [] as Movie[];
+  try {
+    const res = await searchMovies({
+      title: searchText.value,
+      sort: typeof orderOption.value === 'object' ? orderOption.value.value || undefined : orderOption.value || undefined,
+      page: page.value,
+    });
+    pagesFouded.value = res?.total_pages;
+    page.value++;
+    totalNumberOfMovies.value = res.total_elements;
+    if (page.value >= pagesFouded.value) {
+      loading.value = true;
     }
-  } else {
-    try {
-      const res = await searchMovies(typeof orderOption.value === 'object' ? orderOption.value.value : orderOption.value, page.value);
-      pagesFouded.value = res?.total_pages;
-      page.value++;
-      totalNumberOfMovies.value = res.total_elements;
-      if (page.value >= pagesFouded.value) {
-        loading.value = true;
-      }
-      return res.content;
-    } catch (error) {
-      showError();
-      return [] as Movie[];
-    }
+    return res.content;
+  } catch (error) {
+    showError();
+    return [] as Movie[];
   }
 }
 async function searchMoviesByTitle(title: string, page = 1) {
@@ -200,9 +188,19 @@ async function searchMoviesByTitle(title: string, page = 1) {
     return Promise.reject(error);
   }
 }
-async function searchMovies(sort: string | undefined, page = 1, size = 30): Promise<MoviePageableType> {
+async function searchMovies({
+  title,
+  sort,
+  page = 1,
+  size = 30,
+}: {
+  title?: string;
+  sort?: string;
+  page?: number;
+  size?: number;
+}): Promise<MoviePageableType> {
   try {
-    const res = await MovieService.listMoviesPageable(page, size, sort);
+    const res = await MovieService.listMoviesPageable({ title, page, size, sort });
     return res;
   } catch (error) {
     return Promise.reject(error);

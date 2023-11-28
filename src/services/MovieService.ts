@@ -42,16 +42,25 @@ export default {
       return Promise.reject(error);
     }
   },
-  async listMoviesPageable(page: number, size = 50, sort?: string): Promise<MoviePageableType> {
+  async listMoviesPageable({
+    title,
+    sort,
+    page = 1,
+    size = 30,
+  }: {
+    title?: string;
+    sort?: string;
+    page?: number;
+    size?: number;
+  }): Promise<MoviePageableType> {
     let sortParam;
     if (!sort) {
       sortParam = '&sort=portugueseTitle,asc';
     } else {
       sortParam = sort.includes('order') ? sort : `&sort=${sort}`;
     }
-
     try {
-      const res = await axios.get(`${API_MOVIE}/list?page=${page}${sortParam}&size=${size}`);
+      const res = await axios.get(`${API_MOVIE}/list?page=${page}${sortParam}&size=${size}${title ? `&title=${title}` : ''}`);
       return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
