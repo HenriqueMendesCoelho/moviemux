@@ -195,6 +195,7 @@ async function search(pageParam = 1): Promise<void> {
 async function refreshSearch(): Promise<void> {
   orderOption.value = '';
   searchText.value = '';
+  genresSelected.value = [];
   await search();
   infinitScrollRef.value?.resume();
   return Promise.resolve();
