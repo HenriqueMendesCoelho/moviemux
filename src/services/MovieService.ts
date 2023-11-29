@@ -1,6 +1,5 @@
 import axios from 'axios';
 import StringUtils from 'src/utils/StringUtils';
-
 import {
   MovieResultResponseTmdb,
   MovieNoteType,
@@ -53,22 +52,13 @@ export default {
     page?: number;
     size?: number;
   }): Promise<MoviePageableType> {
-    let sortParam;
-    if (!sort) {
-      sortParam = '&sort=portugueseTitle,asc';
-    } else {
-      sortParam = sort.includes('order') ? sort : `&sort=${sort}`;
-    }
+    let queryParams = `?sort=${sort || 'portugueseTitle,asc'}`;
+    queryParams += title ? `&title=${encodeURIComponent(title)}` : '';
+    queryParams += page ? `&page=${page}` : '';
+    queryParams += size ? `&size=${size}` : '';
+
     try {
-      const res = await axios.get(`${API_MOVIE}/list?page=${page}${sortParam}&size=${size}${title ? `&title=${title}` : ''}`);
-      return Promise.resolve(res.data);
-    } catch (error) {
-      return Promise.reject(error);
-    }
-  },
-  async listMoviesByTitlePageable(page: number, title: string, size = 50, sort = 'portugueseTitle,asc'): Promise<MoviePageableType> {
-    try {
-      const res = await axios.get(`${API_MOVIE}?page=${page}&query=${title}&size=${size}&sort=${sort}`);
+      const res = await axios.get(`${API_MOVIE}${queryParams}`);
       return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);

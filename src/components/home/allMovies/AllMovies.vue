@@ -116,7 +116,7 @@ watch(
   async (val: string) => {
     pagesFouded.value = 2;
     page.value = 1;
-    moviesSearchToolbar.value = (await searchMoviesByTitle(val)).content;
+    moviesSearchToolbar.value = (await searchMovies({ title: val })).content;
   }
 );
 
@@ -178,14 +178,6 @@ async function searchMoviePageable(): Promise<Movie[]> {
   } catch (error) {
     showError();
     return [] as Movie[];
-  }
-}
-async function searchMoviesByTitle(title: string, page = 1) {
-  try {
-    const res = await MovieService.listMoviesByTitlePageable(page, title);
-    return res;
-  } catch (error) {
-    return Promise.reject(error);
   }
 }
 async function searchMovies({
