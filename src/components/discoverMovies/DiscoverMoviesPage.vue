@@ -45,6 +45,7 @@
             map-options
             multiple
             use-chips
+            :loading="loadingGenres"
           >
             <template v-slot:selected-item="scope">
               <q-chip
@@ -151,13 +152,35 @@ const menuIsFocused = ref(false);
 const wishlists = ref<WishlistType[]>([]);
 const genresOptions = ref<{ id: number; name: string; tmdb_id: number }[]>();
 const genresSelected = ref<{ id: number; name: string; tmdb_id: number }[]>();
-
+const loadingGenres = ref(false);
 const showMenu = computed<boolean>(() => {
   return !!searchText.value && menuIsFocused.value && !!moviesWhenTyping.value?.length;
 });
-
 const styleStore = useStyleStore();
 const scrollToTop = () => styleStore.scrollToContainer(0, 0, 'smooth');
+
+onMounted(async () => {
+  await firstSearch();
+  await listWishlist();
+  await loadGenres();
+  showDialogByParam();
+});
+
+onActivated(async () => {
+  await listWishlist();
+});
+
+onUpdated(async () => {
+  await listWishlist();
+  showDialogByParam();
+});
+
+watch(
+  () => searchText.value,
+  async (val: string) => {
+    moviesWhenTyping.value = await getMoviesByName({ query: val });
+  }
+);
 
 watch(
   () => genresSelected.value,
@@ -191,29 +214,6 @@ function showError(msg: string) {
     position: 'top',
   });
 }
-
-onMounted(async () => {
-  await firstSearch();
-  await listWishlist();
-  showDialogByParam();
-});
-
-onActivated(async () => {
-  await listWishlist();
-  await loadGenres();
-});
-
-onUpdated(async () => {
-  await listWishlist();
-  showDialogByParam();
-});
-
-watch(
-  () => searchText.value,
-  async (val: string) => {
-    moviesWhenTyping.value = await getMoviesByName({ query: val });
-  }
-);
 
 function onHideDialog() {
   router.push('/movie/discover');
@@ -424,9 +424,12 @@ function mergeResult(wishlistId: string, newWishlist: WishlistType) {
 }
 async function loadGenres(): Promise<void> {
   try {
+    loadingGenres.value = true;
     genresOptions.value = await MovieService.getMoviesGenres();
   } catch {
     showError('Erro ao carregar gêneros');
+  } finally {
+    loadingGenres.value = false;
   }
 }
 </script>
