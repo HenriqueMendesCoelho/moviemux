@@ -46,16 +46,19 @@ export default {
     sort,
     page = 1,
     size = 30,
+    withGenres,
   }: {
     title?: string;
     sort?: string;
     page?: number;
     size?: number;
+    withGenres?: string;
   }): Promise<MoviePageableType> {
     let queryParams = `?sort=${sort || 'portugueseTitle,asc'}`;
     queryParams += title ? `&title=${encodeURIComponent(title)}` : '';
     queryParams += page ? `&page=${page}` : '';
     queryParams += size ? `&size=${size}` : '';
+    queryParams += withGenres ? `&withGenres=${withGenres}` : '';
 
     try {
       const res = await axios.get(`${API_MOVIE}${queryParams}`);

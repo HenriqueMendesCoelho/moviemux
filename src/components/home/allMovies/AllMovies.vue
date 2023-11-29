@@ -31,6 +31,43 @@
             </q-list>
           </q-menu>
         </template>
+        <template #append>
+          <q-separator class="q-mx-md" dark vertical inset />
+          <q-select
+            class="col-2"
+            borderless
+            :options="genresOptions"
+            v-model="genresSelected"
+            label="Gêneros"
+            standout="text-kb-primary"
+            color="kb-primary"
+            dark
+            popup-content-class="bg-grey-dark2"
+            clearable
+            option-label="name"
+            option-value="id"
+            options-dense
+            emit-value
+            map-options
+            multiple
+            use-chips
+            :loading="loadingGenres"
+          >
+            <template v-slot:selected-item="scope">
+              <q-chip
+                removable
+                dense
+                @remove="scope.removeAtIndex(scope.index)"
+                :tabindex="scope.tabindex"
+                color="grey-dark2"
+                text-color="white"
+                class="q-ma-none"
+              >
+                {{ scope.opt.name }}
+              </q-chip>
+            </template>
+          </q-select>
+        </template>
       </SearchToolbar>
     </div>
     <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="10">
@@ -73,6 +110,9 @@ const loading = ref(false);
 const pagesFouded = ref(2);
 const page = ref(1);
 const searchText = ref('');
+const genresOptions = ref<{ id: number; name: string; tmdb_id: number }[]>();
+const genresSelected = ref<{ id: number; name: string; tmdb_id: number }[]>();
+const loadingGenres = ref(false);
 const orderOption = ref<string | { label: string; value: string } | undefined>('');
 const orderOptions = [
   { label: 'Título (A-Z)', value: 'portugueseTitle,asc' },
@@ -109,6 +149,7 @@ onMounted(() => {
   loading.value = false;
   pagesFouded.value = 2;
   page.value = 1;
+  loadGenres();
 });
 
 watch(
@@ -118,6 +159,14 @@ watch(
     page.value = 1;
     moviesSearchToolbar.value = (await searchMovies({ title: val })).content;
   }
+);
+
+watch(
+  () => genresSelected.value,
+  () => {
+    search();
+  },
+  { deep: true }
 );
 
 function showError(msg = 'Erro ao executar ação, tente novamente mais tarde') {
@@ -167,6 +216,7 @@ async function searchMoviePageable(): Promise<Movie[]> {
       title: searchText.value,
       sort: typeof orderOption.value === 'object' ? orderOption.value.value || undefined : orderOption.value || undefined,
       page: page.value,
+      withGenres: genresSelected.value?.join(','),
     });
     pagesFouded.value = res?.total_pages;
     page.value++;
@@ -185,14 +235,16 @@ async function searchMovies({
   sort,
   page = 1,
   size = 30,
+  withGenres,
 }: {
   title?: string;
   sort?: string;
   page?: number;
   size?: number;
+  withGenres?: string;
 }): Promise<MoviePageableType> {
   try {
-    const res = await MovieService.listMoviesPageable({ title, page, size, sort });
+    const res = await MovieService.listMoviesPageable({ title, page, size, sort, withGenres });
     return res;
   } catch (error) {
     return Promise.reject(error);
@@ -204,5 +256,15 @@ async function searchActionToolbar(title?: string): Promise<void> {
   }
   searchText.value = title;
   await btnSearchAction();
+}
+async function loadGenres(): Promise<void> {
+  try {
+    loadingGenres.value = true;
+    genresOptions.value = await MovieService.getMoviesGenres();
+  } catch {
+    showError('Erro ao carregar gêneros');
+  } finally {
+    loadingGenres.value = false;
+  }
 }
 </script>
