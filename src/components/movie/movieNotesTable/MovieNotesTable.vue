@@ -94,7 +94,7 @@ import { useUserStore } from 'src/stores/UserStore';
 import { useMovieStore } from 'src/stores/MovieStore';
 
 import MovieService from 'src/services/MovieService';
-import StringUtils from 'src/utils/StringUtils';
+import DateUtils from 'src/utils/DateUtils';
 import { socketMovie, stateSocketMovie } from 'src/boot/socket';
 
 import SeparatorDivSolidLine from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
@@ -134,14 +134,14 @@ const columns = ref<QTableProps['columns']>([
     label: 'Criado em',
     field: 'created_at',
     align: 'center',
-    format: (val) => StringUtils.dateToLocaleString(val),
+    format: (val) => DateUtils.toLocaleString(val),
   },
   {
     name: 'updatedAt',
     label: 'Atualizado em',
     field: 'updated_at',
     align: 'center',
-    format: (val) => StringUtils.dateToLocaleString(val),
+    format: (val) => DateUtils.toLocaleString(val),
   },
   {
     name: 'actions',

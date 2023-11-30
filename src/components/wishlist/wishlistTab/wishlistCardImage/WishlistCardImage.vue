@@ -2,7 +2,7 @@
   <CardImage :class="`${selected && 'img-movie-selected'}`" :src="getUrl()" @click="emit('clickOnImage')" :animate="!selected">
     <div class="absolute-bottom hover-show-img text-center" v-if="!selected">
       {{ props.movie?.title }}<br />
-      {{ getMovieDateLocale() }}
+      {{ DateUtils.toLocaleDateStringLong(props.movie.release_date) }}
     </div>
     <div class="absolute-top-left" style="background: none" v-if="isInAnyWishlist()">
       <div v-if="showRemoveItem">
@@ -75,6 +75,8 @@ import CardImage from 'src/components/shared/cardImage/CardImage.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 import ContextMenuWishlistImage from './contextMenuWishlistImage/ContextMenuWishlistImage.vue';
 
+import DateUtils from 'src/utils/DateUtils';
+
 import WishlistService from 'src/services/WishlistService';
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
@@ -126,15 +128,6 @@ function showError(msg: string) {
 
 function getUrl() {
   return `https://image.tmdb.org/t/p/w500${props.movie?.url_image}`;
-}
-function getMovieDateLocale() {
-  if (!props.movie?.release_date) {
-    return;
-  }
-  const date = new Date(props.movie.release_date);
-  return date.toLocaleString('pt-Br', {
-    dateStyle: 'long',
-  });
 }
 function disableList(list: WishlistType) {
   return list.movies_wishlists?.some((m) => m.tmdb_id === props.movie.tmdb_id);
