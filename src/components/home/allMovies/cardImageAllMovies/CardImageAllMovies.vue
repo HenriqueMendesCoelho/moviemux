@@ -7,7 +7,7 @@
     @mouseleave="showInfos = false"
   >
     <CardImage :src="movie?.url_image" :key="movie?.id">
-      <div class="absolute-bottom hover-show-img">
+      <div class="absolute-bottom hover-show-img text-center">
         {{ movie?.portuguese_title }}<br />
         {{ DateUtils.toLocaleDateStringLong(props.movie?.release_date) }}
       </div>
