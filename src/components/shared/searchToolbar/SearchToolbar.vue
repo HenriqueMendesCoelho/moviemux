@@ -21,7 +21,7 @@
     <q-separator class="q-mx-md" dark vertical inset v-if="showSelect || !isSlotAppendEmpty()" />
     <q-select
       v-if="showSelect"
-      class="col-3"
+      :class="isSlotAppendEmpty() ? 'col-3' : 'col-2'"
       borderless
       :options="orderOptions"
       v-model="orderOption"

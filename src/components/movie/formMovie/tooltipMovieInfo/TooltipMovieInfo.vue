@@ -33,7 +33,7 @@ import { computed } from 'vue';
 
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
-import StringUtils from 'src/utils/StringUtils';
+import DateUtils from 'src/utils/DateUtils';
 
 const movieStore = useMovieStore();
 
@@ -44,7 +44,7 @@ function getCreatedAt() {
     return 'Erro ao carregar';
   }
 
-  return StringUtils.dateToLocaleString(movie.value.created_at);
+  return DateUtils.toLocaleString(movie.value.created_at);
 }
 
 function getUpdatedAt() {
@@ -52,6 +52,6 @@ function getUpdatedAt() {
     return 'Erro ao carregar';
   }
 
-  return StringUtils.dateToLocaleString(movie.value.updated_at);
+  return DateUtils.toLocaleString(movie.value.updated_at);
 }
 </script>

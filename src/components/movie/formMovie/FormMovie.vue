@@ -77,7 +77,7 @@
             ref="inputTextReleaseDateRef"
             class="col-2"
             :label="'Ano de lançamento'"
-            :modelValue="moviePage.selectedMovie.release_date ? new Date(moviePage.selectedMovie.release_date).toLocaleDateString() : ''"
+            :modelValue="moviePage.selectedMovie.release_date ? DateUtils.toLocaleDateString(moviePage.selectedMovie.release_date) : ''"
             @change="changeReleaseDate"
             :readonly="!isRegisterOrEditing"
             :mask="'##/##/####'"
@@ -111,7 +111,7 @@
               outlined
               :options="moviePage.genres"
               v-model="moviePage.selectedMovie.genres"
-              label="Generos"
+              label="Gêneros"
               standout="text-info"
               color="info"
               bg-color="grey-mid2"
@@ -225,7 +225,7 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
-import { useQuasar, date, QInput, QSelect } from 'quasar';
+import { useQuasar, QInput, QSelect } from 'quasar';
 
 import { useMovieStore } from 'src/stores/MovieStore';
 
@@ -237,6 +237,7 @@ import TooltipMovieInfo from './tooltipMovieInfo/TooltipMovieInfo.vue';
 import MovieWatchProviders from 'src/components/shared/formMovieSummary/movieWatchProviders/MovieWatchProviders.vue';
 
 import StringUtils from 'src/utils/StringUtils';
+import DateUtils from 'src/utils/DateUtils';
 
 interface Props {
   isRegisterOrEditing: boolean;
@@ -389,7 +390,7 @@ function changeReleaseDate(val: string) {
   if (val.split('/').length < 3) {
     return;
   }
-  const dateChange = date.extractDate(val, 'DD/MM/YYYY');
+  const dateChange = DateUtils.extractDate(val, 'DD/MM/YYYY');
   moviePage.value.selectedMovie.release_date = dateChange;
 }
 function runtimeToText() {

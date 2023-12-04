@@ -4,7 +4,7 @@
       <CardImage :class="`${selected && 'img-movie-selected'}`" :src="getUrl()" @click="clickOnCard" :animate="false">
         <div class="absolute-bottom hover-show-img text-center" v-if="!selected && !loading">
           {{ props.movie?.title }}<br />
-          {{ getMovieDateLocale() }}
+          {{ DateUtils.toLocaleDateStringLong(props.movie.release_date) }}
         </div>
         <div class="absolute-top-left" style="background: none" v-if="isInAnyWishlist()">
           <div>
@@ -67,6 +67,8 @@ import CardImage from 'src/components/shared/cardImage/CardImage.vue';
 import ContextMenuDiscover from './contextMenuDiscover/ContextMenuDiscover.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 import MenuAddMovieWishlist from './menuAddMovieWishlist/MenuAddMovieWishlist.vue';
+
+import DateUtils from 'src/utils/DateUtils';
 
 import WishlistService from 'src/services/WishlistService';
 import { WishlistType } from 'src/types/wishlist/WishlistType';
@@ -132,15 +134,6 @@ function showError(msg: string) {
 
 function getUrl() {
   return `https://image.tmdb.org/t/p/w500${props.movie?.poster_path}`;
-}
-function getMovieDateLocale() {
-  if (!props.movie?.release_date) {
-    return;
-  }
-  const date = new Date(props.movie.release_date);
-  return date.toLocaleString('pt-Br', {
-    dateStyle: 'long',
-  });
 }
 function clickRecommendations() {
   emit('callTmdb', {

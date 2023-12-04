@@ -15,8 +15,8 @@
         <p class="q-mt-xl desktop-only" style="font-size: smaller; color: white">Powered by Kronus Platform</p>
       </div>
     </div>
-    <div class="col-md-5 col-xs-12 row justify-center">
-      <FormLogin class="col-md-6 col-xs-12 q-pa-xs" v-model="tab" />
+    <div class="col-md-6 col-xs-12 row justify-center">
+      <FormLogin class="col-xs-12 col-md-8 col-xl-7 col-xxl-5 q-pa-xs" v-model="tab" />
     </div>
     <div class="absolute-bottom cursor-pointer desktop-only" @click="openURL('https://www.themoviedb.org/?language=pt-BR')">
       <div class="row justify-center">
@@ -129,6 +129,12 @@ function getImageUrl(path?: string, size = 'w342') {
   &:hover {
     box-shadow: 0px 0px 30px -12px var(--primary);
     transition: 0.2s ease-in-out;
+  }
+}
+.col-xxl-5 {
+  @media (min-width: 2560px) {
+    flex: 0 0 41.66667%;
+    max-width: 41.66667%;
   }
 }
 </style>

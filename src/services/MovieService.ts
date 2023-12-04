@@ -1,6 +1,5 @@
 import axios from 'axios';
 import StringUtils from 'src/utils/StringUtils';
-
 import {
   MovieResultResponseTmdb,
   MovieNoteType,
@@ -42,24 +41,27 @@ export default {
       return Promise.reject(error);
     }
   },
-  async listMoviesPageable(page: number, size = 50, sort?: string): Promise<MoviePageableType> {
-    let sortParam;
-    if (!sort) {
-      sortParam = '&sort=portugueseTitle,asc';
-    } else {
-      sortParam = sort.includes('order') ? sort : `&sort=${sort}`;
-    }
+  async listMoviesPageable({
+    title,
+    sort,
+    page = 1,
+    size = 30,
+    withGenres,
+  }: {
+    title?: string;
+    sort?: string;
+    page?: number;
+    size?: number;
+    withGenres?: string;
+  }): Promise<MoviePageableType> {
+    let queryParams = `?sort=${sort || 'portugueseTitle,asc'}`;
+    queryParams += title ? `&title=${encodeURIComponent(title)}` : '';
+    queryParams += page ? `&page=${page}` : '';
+    queryParams += size ? `&size=${size}` : '';
+    queryParams += withGenres ? `&withGenres=${withGenres}` : '';
 
     try {
-      const res = await axios.get(`${API_MOVIE}/list?page=${page}${sortParam}&size=${size}`);
-      return Promise.resolve(res.data);
-    } catch (error) {
-      return Promise.reject(error);
-    }
-  },
-  async listMoviesByTitlePageable(page: number, title: string, size = 50, sort = 'portugueseTitle,asc'): Promise<MoviePageableType> {
-    try {
-      const res = await axios.get(`${API_MOVIE}?page=${page}&query=${title}&size=${size}&sort=${sort}`);
+      const res = await axios.get(`${API_MOVIE}${queryParams}`);
       return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
@@ -91,7 +93,7 @@ export default {
   },
 
   //Genres
-  async getMoviesGenres(): Promise<Array<{ id: number; name: string }>> {
+  async getMoviesGenres(): Promise<Array<{ id: number; name: string; tmdb_id: number }>> {
     try {
       const res = await axios.get(`${API_MOVIE}/genre`);
       return res.data;

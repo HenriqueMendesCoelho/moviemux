@@ -31,6 +31,43 @@
             </q-list>
           </q-menu>
         </template>
+        <template #append>
+          <q-separator class="q-mx-md" dark vertical inset />
+          <q-select
+            class="col-2"
+            borderless
+            :options="genresOptions"
+            v-model="genresSelected"
+            label="Gêneros"
+            standout="text-kb-primary"
+            color="kb-primary"
+            dark
+            popup-content-class="bg-grey-dark2"
+            clearable
+            option-label="name"
+            option-value="id"
+            options-dense
+            emit-value
+            map-options
+            multiple
+            use-chips
+            :loading="loadingGenres"
+          >
+            <template v-slot:selected-item="scope">
+              <q-chip
+                removable
+                dense
+                @remove="scope.removeAtIndex(scope.index)"
+                :tabindex="scope.tabindex"
+                color="grey-dark2"
+                text-color="white"
+                class="q-ma-none"
+              >
+                {{ scope.opt.name }}
+              </q-chip>
+            </template>
+          </q-select>
+        </template>
       </SearchToolbar>
     </div>
     <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="10">
@@ -73,6 +110,9 @@ const loading = ref(false);
 const pagesFouded = ref(2);
 const page = ref(1);
 const searchText = ref('');
+const genresOptions = ref<{ id: number; name: string; tmdb_id: number }[]>();
+const genresSelected = ref<{ id: number; name: string; tmdb_id: number }[]>();
+const loadingGenres = ref(false);
 const orderOption = ref<string | { label: string; value: string } | undefined>('');
 const orderOptions = [
   { label: 'Título (A-Z)', value: 'portugueseTitle,asc' },
@@ -85,8 +125,8 @@ const orderOptions = [
     label: 'Data de Lançamento (Mais Antigo)',
     value: 'releaseDate,portugueseTitle,asc',
   },
-  { label: 'Nota (Mais alta)', value: '&sortJoin=notes,desc' },
-  { label: 'Nota (Mais baixa)', value: '&sortJoin=notes,asc' },
+  { label: 'Nota (Mais alta)', value: 'portugueseTitle,asc&sortJoin=notes,desc' },
+  { label: 'Nota (Mais baixa)', value: 'portugueseTitle,asc&sortJoin=notes,asc' },
   {
     label: 'Data de Cadastro (Mais Novo)',
     value: 'createdAt,portugueseTitle,desc',
@@ -109,6 +149,7 @@ onMounted(() => {
   loading.value = false;
   pagesFouded.value = 2;
   page.value = 1;
+  loadGenres();
 });
 
 watch(
@@ -116,8 +157,16 @@ watch(
   async (val: string) => {
     pagesFouded.value = 2;
     page.value = 1;
-    moviesSearchToolbar.value = (await searchMoviesByTitle(val)).content;
+    moviesSearchToolbar.value = (await searchMovies({ title: val })).content;
   }
+);
+
+watch(
+  () => genresSelected.value,
+  () => {
+    search();
+  },
+  { deep: true }
 );
 
 function showError(msg = 'Erro ao executar ação, tente novamente mais tarde') {
@@ -146,6 +195,7 @@ async function search(pageParam = 1): Promise<void> {
 async function refreshSearch(): Promise<void> {
   orderOption.value = '';
   searchText.value = '';
+  genresSelected.value = [];
   await search();
   infinitScrollRef.value?.resume();
   return Promise.resolve();
@@ -162,47 +212,40 @@ async function onLoad(index: number, done: (stop?: boolean) => void): Promise<vo
   return Promise.resolve();
 }
 async function searchMoviePageable(): Promise<Movie[]> {
-  if (searchText.value) {
-    try {
-      const res = await searchMoviesByTitle(searchText.value, page.value);
-      pagesFouded.value = res.total_pages;
-      page.value++;
-      if (page.value >= pagesFouded.value) {
-        loading.value = true;
-      }
-
-      return res.content;
-    } catch (error) {
-      showError();
-      return [] as Movie[];
-    }
-  } else {
-    try {
-      const res = await searchMovies(typeof orderOption.value === 'object' ? orderOption.value.value : orderOption.value, page.value);
-      pagesFouded.value = res?.total_pages;
-      page.value++;
-      totalNumberOfMovies.value = res.total_elements;
-      if (page.value >= pagesFouded.value) {
-        loading.value = true;
-      }
-      return res.content;
-    } catch (error) {
-      showError();
-      return [] as Movie[];
-    }
-  }
-}
-async function searchMoviesByTitle(title: string, page = 1) {
   try {
-    const res = await MovieService.listMoviesByTitlePageable(page, title);
-    return res;
+    const res = await searchMovies({
+      title: searchText.value,
+      sort: typeof orderOption.value === 'object' ? orderOption.value.value || undefined : orderOption.value || undefined,
+      page: page.value,
+      withGenres: genresSelected.value?.join(','),
+    });
+    pagesFouded.value = res?.total_pages;
+    page.value++;
+    totalNumberOfMovies.value = res.total_elements;
+    if (page.value >= pagesFouded.value) {
+      loading.value = true;
+    }
+    return res.content;
   } catch (error) {
-    return Promise.reject(error);
+    showError();
+    return [] as Movie[];
   }
 }
-async function searchMovies(sort: string | undefined, page = 1, size = 30): Promise<MoviePageableType> {
+async function searchMovies({
+  title,
+  sort,
+  page = 1,
+  size = 30,
+  withGenres,
+}: {
+  title?: string;
+  sort?: string;
+  page?: number;
+  size?: number;
+  withGenres?: string;
+}): Promise<MoviePageableType> {
   try {
-    const res = await MovieService.listMoviesPageable(page, size, sort);
+    const res = await MovieService.listMoviesPageable({ title, page, size, sort, withGenres });
     return res;
   } catch (error) {
     return Promise.reject(error);
@@ -214,5 +257,15 @@ async function searchActionToolbar(title?: string): Promise<void> {
   }
   searchText.value = title;
   await btnSearchAction();
+}
+async function loadGenres(): Promise<void> {
+  try {
+    loadingGenres.value = true;
+    genresOptions.value = await MovieService.getMoviesGenres();
+  } catch {
+    showError('Erro ao carregar gêneros');
+  } finally {
+    loadingGenres.value = false;
+  }
 }
 </script>
