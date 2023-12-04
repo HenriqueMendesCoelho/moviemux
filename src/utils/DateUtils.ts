@@ -16,7 +16,7 @@ export default {
       return '';
     }
 
-    return new Date(date.toString().split(/T|\s/)[0]).toLocaleString('pt-br');
+    return new Date(date.toString().split(/T|\s/)[0] + 'T12:00:00').toLocaleDateString();
   },
   toLocaleDateStringLong(date: string | Date | undefined) {
     if (!date) {
