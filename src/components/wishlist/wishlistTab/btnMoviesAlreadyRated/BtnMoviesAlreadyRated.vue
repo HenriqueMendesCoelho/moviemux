@@ -100,7 +100,7 @@ async function showNotifyMovie(showNotify = true) {
   }
   $q.notify({
     type: 'warning',
-    message: 'Existem filmes nessa lista que já estão cadastrados no ranking do cineminha! Deseja removê-los?',
+    message: 'Existem filmes nessa lista que já estão cadastrados no ranking do cineminha. Deseja removê-los?',
     multiLine: false,
     position: 'top',
     timeout: 15000,
@@ -157,6 +157,7 @@ async function deteleMoviesFromWishlist() {
   if (!res) {
     return;
   }
+  await searchMoviesRated();
   showSuccess('Filmes removidos da lista');
   emit('update:wishlist', res);
 }
