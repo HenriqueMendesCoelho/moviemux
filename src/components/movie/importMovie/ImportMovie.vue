@@ -174,6 +174,7 @@ async function importMovie() {
       new Date(res.release_date || new Date()),
       res.runtime
     );
+
     moviePage.value.showImportMovieDialog = false;
     showSuccess('Filme importado com sucesso');
   } catch {

@@ -11,12 +11,17 @@ export default {
       timeStyle: 'short',
     });
   },
-  toLocaleDateString(date: string | Date) {
+  toLocaleDateString(date: string | Date | undefined) {
     if (!date) {
       return '';
     }
 
-    return new Date(date.toString().split(/T|\s/)[0] + 'T12:00:00').toLocaleDateString();
+    switch (true) {
+      case date instanceof Date:
+        return new Date(date.toISOString().split(/T|\s/)[0] + 'T12:00:00').toLocaleDateString();
+      case date instanceof String:
+        return new Date(date.toString().split(/T|\s/)[0] + 'T12:00:00').toLocaleDateString();
+    }
   },
   toLocaleDateStringLong(date: string | Date | undefined) {
     if (!date) {

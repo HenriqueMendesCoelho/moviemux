@@ -77,7 +77,7 @@
             ref="inputTextReleaseDateRef"
             class="col-2"
             :label="'Ano de lançamento'"
-            :modelValue="moviePage.selectedMovie.release_date ? DateUtils.toLocaleDateString(moviePage.selectedMovie.release_date) : ''"
+            :modelValue="DateUtils.toLocaleDateString(moviePage.selectedMovie.release_date)"
             @change="changeReleaseDate"
             :readonly="!isRegisterOrEditing"
             :mask="'##/##/####'"
