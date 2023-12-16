@@ -11,15 +11,13 @@ export default {
       timeStyle: 'short',
     });
   },
-  toLocaleDateString(date: string | Date | undefined) {
-    if (!date) {
-      return '';
-    }
-
+  toLocaleDateString(date?: string | Date) {
     switch (true) {
+      case !date:
+        return 'Invalid date';
       case date instanceof Date:
         return new Date(date.toISOString().split(/T|\s/)[0] + 'T12:00:00').toLocaleDateString();
-      case date instanceof String:
+      default:
         return new Date(date.toString().split(/T|\s/)[0] + 'T12:00:00').toLocaleDateString();
     }
   },
