@@ -139,6 +139,9 @@
         </div>
 
         <div class="col-12 row q-col-gutter-md">
+          <div class="col-auto" v-if="movieId">
+            <BtnDialogCast :movie-id="movieId" />
+          </div>
           <div class="col row justify-end" v-if="movieId">
             <MovieWatchProviders class="col-auto" :tmdb-id="movieId" />
           </div>
@@ -159,6 +162,7 @@ import MovieService from 'src/services/MovieService';
 
 import InputText from '../inputText/InputText.vue';
 import MovieWatchProviders from './movieWatchProviders/MovieWatchProviders.vue';
+import BtnDialogCast from '../dialogCast/BtnDialogCast.vue';
 
 import StringUtils from 'src/utils/StringUtils';
 
@@ -170,7 +174,6 @@ const screenHeight = computed(() => {
 });
 
 const props = defineProps<{ movieId: number }>();
-
 const emit = defineEmits<{
   (e: 'error', value: void): void;
 }>();

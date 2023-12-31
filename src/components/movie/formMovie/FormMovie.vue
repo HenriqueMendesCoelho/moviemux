@@ -214,6 +214,9 @@
             <div class="text-h6">Nota</div>
             <ChipNote size="xl" :movie="moviePage.selectedMovie" :dense="screenHeight <= 1080" />
           </div>
+          <div class="col-auto">
+            <BtnDialogCast :movie-id="moviePage.selectedMovie.tmdb_id" />
+          </div>
           <div class="col offset-1 row justify-end" v-if="moviePage.selectedMovie.tmdb_id">
             <MovieWatchProviders class="col-auto" :tmdb-id="moviePage.selectedMovie.tmdb_id" />
           </div>
@@ -235,6 +238,7 @@ import InputText from 'src/components/shared/inputText/InputText.vue';
 import ChipNote from 'src/components/shared/chipNote/ChipNote.vue';
 import TooltipMovieInfo from './tooltipMovieInfo/TooltipMovieInfo.vue';
 import MovieWatchProviders from 'src/components/shared/formMovieSummary/movieWatchProviders/MovieWatchProviders.vue';
+import BtnDialogCast from 'src/components/shared/dialogCast/BtnDialogCast.vue';
 
 import StringUtils from 'src/utils/StringUtils';
 import DateUtils from 'src/utils/DateUtils';
