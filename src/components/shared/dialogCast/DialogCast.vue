@@ -1,13 +1,15 @@
 <template>
   <q-dialog v-model="visible" @hide="emit('hide')" @before-show="getCredits">
-    <q-card class="dialog-container q-pa-md scroll">
+    <q-card class="dialog-container q-pa-md relative-position">
+      <div class="btn-absolute-wrapper">
+        <q-btn style="position: fixed" color="white" icon="close" size="md" @click="visible = false" flat round />
+      </div>
+
       <div class="row q-ml-md q-mb-md">
         <q-icon class="q-mr-md" color="white" name="groups" size="lg" />
         <div class="col-auto text-h4 text-white">Elenco</div>
-        <div class="col row justify-end">
-          <q-btn color="white" icon="close" size="md" @click="visible = false" flat round />
-        </div>
       </div>
+
       <div class="justify-center align-center">
         <div class="row col-auto q-col-gutter-lg justify-center" v-if="credits?.cast.length">
           <div class="col-auto" v-for="(castMember, index) in credits.cast" :key="index">
@@ -198,10 +200,15 @@ function crewText(crewMember: CrewMember) {
   min-width: 40vw !important;
   min-height: 60vh !important;
 
-  //overflow-y: hidden;
-
   border: var(--grey-mid) solid 5px;
   border-radius: 15px;
+}
+
+.btn-absolute-wrapper {
+  position: absolute;
+  top: 10px;
+  right: 50px;
+  z-index: 1;
 }
 
 .img-person {
