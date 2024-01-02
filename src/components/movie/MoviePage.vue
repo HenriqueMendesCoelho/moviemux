@@ -185,10 +185,14 @@ async function loadMovie(): Promise<void> {
   if (!routeIDPath.value) {
     return;
   }
-  const res = await MovieService.getMovie(routeIDPath.value);
-  moviePage.value.selectedMovie = res;
-  setDocumentTitle();
-  return;
+  try {
+    const res = await MovieService.getMovie(routeIDPath.value);
+    moviePage.value.selectedMovie = res;
+    setDocumentTitle();
+  } catch {
+    showError('Erro ao buscar filme. Tente novamente mais tarde.');
+    router.push('/home');
+  }
 }
 function showNotifyMovie(movieTitle?: string, movieId?: string) {
   if (!movieTitle || !movieId) {
