@@ -18,7 +18,7 @@
         <span class="text" v-if="showTextsSideBar">Home</span>
         <CustomTooltip anchor="top right" :offset="[35, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">HOME</CustomTooltip>
       </router-link>
-      <router-link :to="{ name: 'adm' }" class="button" v-if="isAdmin">
+      <router-link :to="{ name: 'adm' }" class="button" v-if="userStore.isAdmin">
         <span class="material-icons">admin_panel_settings</span>
         <span class="text" v-if="showTextsSideBar">Painel ADM</span>
         <CustomTooltip anchor="top right" :offset="[50, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">PAINEL ADM</CustomTooltip>
@@ -89,7 +89,6 @@ const showTextsSideBar = ref(false);
 
 const layoutSettings = computed(() => styleStore.layoutSettings);
 const user = computed(() => userStore.user);
-const isAdmin = computed(() => user.value.roles.includes('ADM'));
 
 onMounted(() => {
   showTextsSideBar.value = layoutSettings.value.isSideBarExpanded;
