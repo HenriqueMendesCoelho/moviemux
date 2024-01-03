@@ -6,9 +6,10 @@
       :src="getImageAndAlt()[0]"
       :alt="getImageAndAlt()[1]"
       :draggable="false"
-      :height="'100%'"
+      height="100%"
       v-if="moviePage.selectedMovie?.url_image"
     >
+      <ContextMenuFormMovieImage />
       <TooltipMovieInfo />
     </q-img>
     <q-skeleton class="col-3" v-else width="600px" height="750px" animation="fade" dark bordered />
@@ -239,6 +240,7 @@ import ChipNote from 'src/components/shared/chipNote/ChipNote.vue';
 import TooltipMovieInfo from './tooltipMovieInfo/TooltipMovieInfo.vue';
 import MovieWatchProviders from 'src/components/shared/formMovieSummary/movieWatchProviders/MovieWatchProviders.vue';
 import BtnDialogCast from 'src/components/shared/dialogCast/BtnDialogCast.vue';
+import ContextMenuFormMovieImage from './contextMenuFormMovieImage/ContextMenuFormMovieImage.vue';
 
 import StringUtils from 'src/utils/StringUtils';
 import DateUtils from 'src/utils/DateUtils';
