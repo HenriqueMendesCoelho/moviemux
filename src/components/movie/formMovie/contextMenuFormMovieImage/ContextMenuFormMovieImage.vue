@@ -1,26 +1,28 @@
 <template>
   <ContextMenu v-if="userStore.isAdmin">
     <q-list style="min-width: 100px">
-      <q-item clickable @click="sendDiscordMessage()" v-close-popup>
+      <q-item clickable @click="showConfirmDialog('send')" v-close-popup>
         <span class="material-icons" style="font-size: 25pt"> send </span>
         <q-item-section class="q-pl-sm">Enviar mensagem no Discord</q-item-section>
       </q-item>
-      <q-item clickable @click="updateDiscordMessage()" v-close-popup>
+      <q-item clickable @click="showConfirmDialog('update')" v-close-popup>
         <span class="material-icons" style="font-size: 25pt"> update </span>
         <q-item-section class="q-pl-sm">Atualizar mensagem do Discord</q-item-section>
       </q-item>
     </q-list>
   </ContextMenu>
+  <ConfirmDialog ref="confirmDialogRef" @ok="sendOrUpdateDiscordMessage($event)" />
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
 import { useMovieStore } from 'src/stores/MovieStore';
 import { useUserStore } from 'src/stores/UserStore';
 
 import ContextMenu from 'src/components/shared/contextMenu/ContextMenu.vue';
+import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
 
 import DiscordService from 'src/services/DiscordService';
 
@@ -29,6 +31,8 @@ const movieStore = useMovieStore();
 const movie = computed(() => movieStore.moviePage.selectedMovie);
 
 const userStore = useUserStore();
+
+const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
 
 function showSuccess(msg: string) {
   $q.notify({
@@ -45,6 +49,29 @@ function showError(msg: string) {
   });
 }
 
+function showConfirmDialog(action: string) {
+  const actionTextMessage = action === 'send' ? 'enviar' : 'atualizar';
+  const actionTextTitle = action === 'send' ? 'o envio' : 'a atualização';
+
+  confirmDialogRef.value?.show({
+    title: `Confirme ${actionTextTitle}`,
+    message: `Deseja ${actionTextMessage} a mensagem para o discord? Do filme ${
+      movie.value.portuguese_title || movie.value.english_title
+    }.`,
+    focus: 'cancel',
+    ok: 'Sim',
+    cancel: 'Não',
+    event: action,
+  });
+}
+async function sendOrUpdateDiscordMessage(action: string) {
+  if (action === 'send') {
+    await sendDiscordMessage();
+    return;
+  }
+
+  await updateDiscordMessage();
+}
 async function sendDiscordMessage() {
   if (!movie.value.id) {
     return;
