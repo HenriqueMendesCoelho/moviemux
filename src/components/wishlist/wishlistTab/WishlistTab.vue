@@ -241,12 +241,12 @@ async function changeShareable(val: boolean) {
 }
 function openConfirmDialogRemoveMovie(movie: ArrayElement<WishlistType['movies_wishlists']>) {
   movieIdToDelete.value = movie.tmdb_id;
-  confirmDialogRef.value?.dialog(
-    `Tem certeza que deseja remover '${movie.title || movie.title_english}' dessa lista? Caso remova não há como desfazer a ação.`,
-    'cancel',
-    'Quer mesmo remover?',
-    'Sim'
-  );
+  confirmDialogRef.value?.show({
+    message: `Tem certeza que deseja remover '${movie.title || movie.title_english}' dessa lista? Caso remova não há como desfazer a ação.`,
+    focus: 'cancel',
+    title: 'Quer mesmo remover?',
+    ok: 'Sim',
+  });
 }
 async function deteleMovieFromWishlist() {
   if (!_wishlist.value) {

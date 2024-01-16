@@ -252,7 +252,12 @@ function showToggleVisibility() {
   return (user.value.roles.includes('ADM') || user.value.id === moviePage.value.selectedMovie.user_id) && timeSinceCreation < 1800;
 }
 function showConfirmDialogDelete() {
-  confirmDialogRef.value?.dialog('Quer mesmo excluir sua nota?', 'cancel', 'Confirme a exclusão', 'Deletar');
+  confirmDialogRef.value?.show({
+    message: 'Quer mesmo excluir sua nota?',
+    focus: 'cancel',
+    title: 'Confirme a exclusão',
+    cancel: 'Deletar',
+  });
 }
 function showConfirmPromptDelete() {
   confirmDialogPromptRef.value?.dialog();

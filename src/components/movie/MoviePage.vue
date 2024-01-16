@@ -153,12 +153,12 @@ async function save(): Promise<void> {
   }
 }
 function showConfirmDialogCancel() {
-  confirmDialogRef.value?.dialog(
-    'Caso cancele todos os dados serão limpos. Você quer cancelar? ',
-    'cancel',
-    'Confirme o cancelamento',
-    'Sim'
-  );
+  confirmDialogRef.value?.show({
+    message: 'Caso cancele todos os dados serão limpos. Você quer cancelar? ',
+    focus: 'cancel',
+    title: 'Confirme o cancelamento',
+    ok: 'Sim',
+  });
 }
 function resetForm() {
   movieStore.$reset();

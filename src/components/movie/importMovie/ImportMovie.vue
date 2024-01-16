@@ -185,7 +185,12 @@ async function importMovie() {
   }
 }
 function showConfirmDialog(movie: MovieResultResponseTmdb['results'][0]) {
-  confirmDialogRef.value?.dialog(`Você quer mesmo importar o filme ${movie.title}?`, 'ok', 'Confirme sua importação', 'Sim');
+  confirmDialogRef.value?.show({
+    message: `Você quer mesmo importar o filme ${movie.title}?`,
+    focus: 'ok',
+    title: 'Confirme sua importação',
+    ok: 'Sim',
+  });
   movieId.value = movie.id;
 }
 function getGenres(genres?: Array<string>): Array<{ id: number; name: string }> {

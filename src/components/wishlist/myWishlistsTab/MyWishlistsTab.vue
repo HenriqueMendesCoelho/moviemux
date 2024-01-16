@@ -97,12 +97,12 @@ function copyWishlistUrl(id?: string) {
 }
 function openDialogConfirm(wishlist: WishlistType) {
   wishlistToDelete.value = wishlist.id;
-  confirmDialogRef.value?.dialog(
-    `Tem certeza que deseja deletar '${wishlist.name}'? Caso delete não há como desfazer a ação.`,
-    'cancel',
-    'Quer mesmo deletar?',
-    'Sim'
-  );
+  confirmDialogRef.value?.show({
+    message: `Tem certeza que deseja deletar '${wishlist.name}'? Caso delete não há como desfazer a ação.`,
+    focus: 'cancel',
+    title: 'Quer mesmo deletar?',
+    ok: 'Sim',
+  });
 }
 async function deleteWishlist() {
   if (!wishlistToDelete.value) {
