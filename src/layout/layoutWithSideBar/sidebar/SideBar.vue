@@ -35,8 +35,7 @@
           >ADICIONAR FILME</CustomTooltip
         >
       </router-link>
-      <router-link :to="{ name: 'charts' }" class="button relative-position">
-        <q-badge class="q-mr-sm" label="novo" color="kb-primary" rounded floating />
+      <router-link :to="{ name: 'charts' }" class="button">
         <span class="material-icons">dashboard</span>
         <span class="text" v-if="showTextsSideBar" id="textAddMovie">Dashboard</span>
         <CustomTooltip anchor="top right" :offset="[65, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">DASHBOARD</CustomTooltip>
