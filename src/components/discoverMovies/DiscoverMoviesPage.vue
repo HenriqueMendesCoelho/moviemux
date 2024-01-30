@@ -3,70 +3,70 @@
     <div class="row full-width justify-center">
       <PageTitle title="Descobrir Filmes" icon="fa-solid fa-film" />
       <SeparatorDivLineSolid class="q-mb-xl" />
-      <SearchToolbar
-        class="col-12"
-        :order-options="filterOptions"
-        :input-search="searchText"
-        @input-search="searchText = $event"
-        :select-order="selectOrder"
-        @select-order="selectOrder = $event"
-        select-order-label="filtrar"
-        @search="firstSearch()"
-        @refresh="resetSearch()"
-        @input-search-focus="menuIsFocused = $event"
-      >
-        <template #input-search>
-          <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
-            <q-list dense dark>
-              <q-item v-for="movie in moviesWhenTyping" :key="movie.id" bordered clickable>
-                <q-item-section @click="searchFromMenu(movie.title)" v-close-popup class="q-pl-sm">{{ movie.title }}</q-item-section>
-              </q-item>
-              <q-separator dark v-if="!!moviesWhenTyping ? moviesWhenTyping?.length > 1 : false" />
-            </q-list>
-          </q-menu>
-        </template>
-        <template #append>
-          <q-separator class="q-mx-md" dark vertical inset />
-          <q-select
-            class="col-2"
-            borderless
-            :options="genresOptions"
-            v-model="genresSelected"
-            label="Gêneros"
-            standout="text-kb-primary"
-            color="kb-primary"
-            dark
-            popup-content-class="bg-grey-dark2"
-            clearable
-            option-label="name"
-            option-value="tmdb_id"
-            options-dense
-            emit-value
-            map-options
-            multiple
-            use-chips
-            :loading="loadingGenres"
-          >
-            <template v-slot:selected-item="scope">
-              <q-chip
-                removable
-                dense
-                @remove="scope.removeAtIndex(scope.index)"
-                :tabindex="scope.tabindex"
-                color="grey-dark2"
-                text-color="white"
-                class="q-ma-none"
-              >
-                {{ scope.opt.name }}
-              </q-chip>
-            </template>
-          </q-select>
-        </template>
-      </SearchToolbar>
-
+      <div class="scroll col-12">
+        <SearchToolbar
+          :order-options="filterOptions"
+          :input-search="searchText"
+          @input-search="searchText = $event"
+          :select-order="selectOrder"
+          @select-order="selectOrder = $event"
+          select-order-label="filtrar"
+          @search="firstSearch()"
+          @refresh="resetSearch()"
+          @input-search-focus="menuIsFocused = $event"
+        >
+          <template #input-search>
+            <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
+              <q-list dense dark>
+                <q-item v-for="movie in moviesWhenTyping" :key="movie.id" bordered clickable>
+                  <q-item-section @click="searchFromMenu(movie.title)" v-close-popup class="q-pl-sm">{{ movie.title }}</q-item-section>
+                </q-item>
+                <q-separator dark v-if="!!moviesWhenTyping ? moviesWhenTyping?.length > 1 : false" />
+              </q-list>
+            </q-menu>
+          </template>
+          <template #append>
+            <q-separator class="q-mx-md" dark vertical inset />
+            <q-select
+              class="col-2"
+              borderless
+              :options="genresOptions"
+              v-model="genresSelected"
+              label="Gêneros"
+              standout="text-kb-primary"
+              color="kb-primary"
+              dark
+              popup-content-class="bg-grey-dark2"
+              clearable
+              option-label="name"
+              option-value="tmdb_id"
+              options-dense
+              emit-value
+              map-options
+              multiple
+              use-chips
+              :loading="loadingGenres"
+            >
+              <template v-slot:selected-item="scope">
+                <q-chip
+                  removable
+                  dense
+                  @remove="scope.removeAtIndex(scope.index)"
+                  :tabindex="scope.tabindex"
+                  color="grey-dark2"
+                  text-color="white"
+                  class="q-ma-none"
+                >
+                  {{ scope.opt.name }}
+                </q-chip>
+              </template>
+            </q-select>
+          </template>
+        </SearchToolbar>
+      </div>
       <div class="row justify-center q-mt-lg">
         <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="1500">
-          <div class="row justify-center q-col-gutter-xl">
+          <div class="row justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'">
             <div class="col-auto" v-for="(movie, index) in movies" :key="index">
               <CardImageDiscoverMovies
                 v-model="wishlists"
@@ -126,6 +126,7 @@ import KitService from 'src/services/KitService';
 import MovieService from 'src/services/MovieService';
 
 const $q = useQuasar();
+const isDesktop = $q.platform.is.desktop;
 const route = useRoute();
 const router = useRouter();
 

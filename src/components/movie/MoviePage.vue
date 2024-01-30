@@ -10,10 +10,10 @@
       <VideoEmbedded :width="isMobile ? '100%' : '560px'" />
       <div class="row justify-center" v-if="isRegisterOrEditing()">
         <SeparatorDivSolidLine />
-        <div :class="isMobile ? 'col-4' : 'col-2'">
+        <div class="col-md-4 col-xs-2">
           <q-btn style="width: 100%" color="positive" text-color="white" label="Salvar" :disable="false" @click="save()" />
         </div>
-        <div :class="isMobile ? 'col-4 q-ml-md' : 'col-2 q-ml-md'">
+        <div class="col-md-4 col-xs-2 q-ml-md">
           <q-btn
             style="width: 100%"
             color="red"
@@ -68,7 +68,7 @@ const alreadyEditing = ref(false);
 const moviePage = computed(() => movieStore.moviePage);
 const routeName = computed(() => route.name);
 const routeIDPath = computed(() => route.params.id?.toString());
-const isMobile = computed(() => $q.platform.is.mobile);
+const isMobile = $q.platform.is.mobile;
 
 const styleStore = useStyleStore();
 const scrollToTop = () => styleStore.scrollToContainer(0, 0, 'smooth');

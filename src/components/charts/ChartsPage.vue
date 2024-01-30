@@ -5,19 +5,19 @@
       <SeparatorDivLineSolidVue />
       <div class="col-12 row justify-center q-mt-lg q-gutter-x-lg">
         <div class="card-bordered justify-center text-center text-white q-pa-md">
-          <h4>Total de filmes</h4>
+          <div class="text-title-responsive-2">Total de filmes</div>
           <q-chip class="q-mt-md" color="kb-primary" text-color="white" icon="movie" size="30px">
             {{ chartsData?.total_number_of_movies }}
           </q-chip>
         </div>
         <div class="card-bordered justify-center text-center text-white q-pa-md">
-          <h4>Tempo médio dos filmes</h4>
+          <div class="text-title-responsive-2">Tempo médio dos filmes</div>
           <q-chip class="q-mt-md" color="kb-primary" text-color="white" icon="hourglass_empty" size="30px">
             {{ StringUtils.runtimeToText(chartsData?.average_runtime) }}
           </q-chip>
         </div>
         <div class="card-bordered justify-center text-center text-center text-white q-pa-md">
-          <h4>Nota Média</h4>
+          <div class="text-title-responsive-2">Nota Média</div>
           <q-knob
             class="text-white q-ma-md"
             v-model="knobAvgNote"
@@ -68,8 +68,8 @@ const $q = useQuasar();
 const chartsData = ref<MovieStatistics>();
 const knobAvgNote = ref<number>(0);
 
-onMounted(async () => {
-  await getChartsData();
+onMounted(() => {
+  getChartsData();
 });
 
 function showLoading() {
@@ -108,5 +108,9 @@ async function getChartsData() {
   border: 3px solid var(--grey-mid2);
   box-shadow: 0 5px 20px var(--shadow);
   background-color: var(--grey-mid);
+
+  @media only screen and (max-width: $breakpoint-md-min) {
+    margin-top: 15px;
+  }
 }
 </style>

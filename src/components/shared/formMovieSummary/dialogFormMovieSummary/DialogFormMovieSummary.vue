@@ -90,8 +90,10 @@ function copyMovie() {
 .dialog-container {
   background-color: var(--grey-dark2);
 
-  overflow-y: hidden;
-
   min-width: 80vw;
+
+  @media only screen and (max-width: $breakpoint-md-min) {
+    min-width: 100svw;
+  }
 }
 </style>

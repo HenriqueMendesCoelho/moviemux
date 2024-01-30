@@ -2,12 +2,12 @@
   <div class="row justify-center">
     <h5>Gerenciamento de convites</h5>
     <SeparatorDivLineSolid />
-    <div class="col-10 q-mt-md">
+    <div class="col-md-10 q-mt-md">
       <div class="row">
-        <div class="col-2">
+        <div class="col-md-2 col-xs-6">
           <q-btn style="width: 100%; height: 100%" color="info" text-color="white" label="Gerar convite" @click="createInvite" />
         </div>
-        <div class="q-pl-md col-5">
+        <div class="q-pl-md col-md-5 col-xs-6">
           <InputText :label="'Convite gerado'" v-model="invite" :required="false" :readonly="true" :dense="true" />
         </div>
         <div class="col-12 q-mt-md">

@@ -1,5 +1,5 @@
 <template>
-  <q-toolbar class="bg-grey-mid text-white row" style="border-radius: 15px">
+  <q-toolbar class="bg-grey-mid text-white row toolbar">
     <q-icon name="menu" size="sm" v-if="isSlotPrependEmpty()" />
     <slot name="prepend"></slot>
     <q-separator class="q-mx-md" dark vertical inset />
@@ -104,3 +104,10 @@ function isSlotAppendEmpty() {
   return !slots.append || slots.append().length === 0;
 }
 </script>
+
+<style lang="scss" scoped>
+.toolbar {
+  border-radius: 15px;
+  min-width: 700px;
+}
+</style>

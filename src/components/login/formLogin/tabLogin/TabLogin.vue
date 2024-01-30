@@ -34,6 +34,9 @@
         style="width: 100%"
       />
     </div>
+    <div class="col-10 q-mt-xl">
+      <div class="g-signin2" data-onsuccess="onSignIn"></div>
+    </div>
     <div class="col-12 row justify-center q-mt-md">
       <div class="row" v-if="props.createAccount">
         <p style="color: white">
@@ -45,7 +48,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { useQuasar, Cookies } from 'quasar';
+import { useQuasar, useMeta } from 'quasar';
 import { onMounted, ref } from 'vue';
 
 import { InputValidateRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
@@ -53,6 +56,16 @@ import { useUserStore } from 'src/stores/UserStore';
 import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 import InputPassword from 'src/components/shared/inputPassword/InputPassword.vue';
 import { useRoute, useRouter } from 'vue-router';
+
+useMeta({
+  script: {
+    googleScript: {
+      src: 'https://apis.google.com/js/platform.js',
+      async: void 0,
+      defer: true,
+    },
+  },
+});
 
 type btnFocusRefType = {
   $el: {
@@ -115,10 +128,6 @@ async function login() {
         return;
       }
 
-      if (validateIsMobile()) {
-        return;
-      }
-
       router.push('/home');
     } else {
       window.location.reload();
@@ -140,15 +149,6 @@ function hasErrors() {
     hasErrors = inputPasswordRef.value.hasError;
   }
   return hasErrors;
-}
-function validateIsMobile() {
-  if ($q.platform.is.mobile) {
-    showError('Não temos uma experiência pronta para mobile por enquanto :(');
-    Cookies.remove('auth-kb');
-    return true;
-  }
-
-  return false;
 }
 </script>
 

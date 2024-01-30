@@ -4,10 +4,10 @@
       <div class="row col-10 justify-center">
         <PageTitle title="Menu Administrativo" icon="admin_panel_settings" />
       </div>
-      <div :class="isMobile ? 'col-12 q-my-xl' : 'col-10 q-my-xl'">
+      <div class="col-md-10 col-xs-12 q-my-xl">
         <q-tabs v-model="tab" class="tabs-selector" active-color="kb-primary" indicator-color="kb-primary" align="justify">
-          <q-tab :class="isMobile ? '' : 'tab-style-right'" name="users" label="Gerenciamento Usuário" />
-          <q-tab :class="isMobile ? '' : 'tab-style-right'" name="listUsers" label="Lista de Usuários" />
+          <q-tab class="tab-style-right" name="users" label="Gerenciamento Usuário" />
+          <q-tab class="tab-style-right" name="listUsers" label="Lista de Usuários" />
           <q-tab name="invite" label="Gerencimento de Convite" />
         </q-tabs>
 
@@ -28,8 +28,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
-import { useQuasar } from 'quasar';
+import { ref } from 'vue';
 
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import UserTabAdministrator from './userTab/UserTabAdministrator.vue';
@@ -38,8 +37,6 @@ import InviteUserTabAdmiminstrator from './inviteTab/InviteUserTabAdministrator.
 import PageTitle from '../shared/pageTitle/PageTitle.vue';
 
 const tab = ref('users');
-const $q = useQuasar();
-const isMobile = computed(() => $q.platform.is.mobile);
 </script>
 
 <style lang="scss" scoped>
@@ -57,6 +54,10 @@ const isMobile = computed(() => $q.platform.is.mobile);
 
   .tab-style-right {
     border-right: 3px solid var(--grey-mid);
+
+    @media only screen and (max-width: $breakpoint-md-min) {
+      border-right: none;
+    }
   }
 }
 

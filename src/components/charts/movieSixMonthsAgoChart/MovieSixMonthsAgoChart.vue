@@ -1,15 +1,23 @@
 <template>
-  <apexchart v-if="showChart" width="600" type="bar" :options="chartOptions" :series="series" />
+  <apexchart v-if="showChart" :height="height" :width="width" type="bar" :options="chartOptions" :series="series" />
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
+import { useQuasar } from 'quasar';
 
 import type { MovieStatistics } from 'src/types/statistics/Statistics';
 
 const props = defineProps<{
   chartsData?: MovieStatistics;
 }>();
+
+const $q = useQuasar();
+const isDesktop = $q.platform.is.desktop;
+const chartTitle = ref(isDesktop ? 'Quantidade de Filmes Assistidos nos Últimos 6 Meses' : 'Qtd de Filmes nos Últimos 6 Meses');
+const chartFontSize = ref(isDesktop ? '20px' : '15px');
+const height = isDesktop ? 'auto' : '300px';
+const width = isDesktop ? '600px' : '100%';
 
 const chartOptions = ref({
   chart: {
@@ -26,14 +34,14 @@ const chartOptions = ref({
     enabled: false,
   },
   title: {
-    text: 'Quantidade de Filmes Assistidos nos Últimos 6 Meses',
-    align: 'left',
+    text: chartTitle.value,
+    align: 'center',
     margin: 10,
     offsetX: 0,
     offsetY: 0,
     floating: false,
     style: {
-      fontSize: '20px',
+      fontSize: chartFontSize.value,
       fontWeight: '300',
       color: '#fff',
     },

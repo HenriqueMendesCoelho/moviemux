@@ -1,6 +1,6 @@
 <template>
   <CardImage :class="`${selected && 'img-movie-selected'}`" :src="getUrl()" @click="emit('clickOnImage')" :animate="!selected">
-    <div class="absolute-bottom hover-show-img text-center" v-if="!selected">
+    <div class="absolute-bottom hover-show-img text-center desktop-only" v-if="!selected">
       {{ props.movie?.title }}<br />
       {{ DateUtils.toLocaleDateStringLong(props.movie.release_date) }}
     </div>
@@ -19,7 +19,7 @@
       icon="more_horiz"
       color="grey-mid2"
       style="top: 8px; right: 8px"
-      size="sm"
+      :size="isDesktop ? 'sm' : 'xs'"
       dark
       round
       @click.stop
@@ -95,6 +95,7 @@ interface Emits {
 const emit = defineEmits<Emits>();
 
 const $q = useQuasar();
+const isDesktop = $q.platform.is.desktop;
 
 const selected = ref(false);
 const loading = ref(false);

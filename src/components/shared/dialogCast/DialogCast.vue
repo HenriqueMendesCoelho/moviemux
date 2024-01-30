@@ -11,7 +11,7 @@
       </div>
 
       <div class="justify-center align-center">
-        <div class="row col-auto q-col-gutter-lg justify-center" v-if="credits?.cast.length">
+        <div class="row col-auto justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-sm'" v-if="credits?.cast.length">
           <div class="col-auto" v-for="(castMember, index) in credits.cast" :key="index">
             <q-img
               class="img-person"
@@ -19,8 +19,8 @@
               :src="getImageUrl(castMember.profile_path)"
               :no-native-menu="true"
               :draggable="false"
-              width="160px"
-              height="230px"
+              :width="getWidth()"
+              :height="getHeight()"
             >
               <div class="absolute-bottom text-caption text-center hover-show-img">{{ castText(castMember) }}</div>
               <template v-slot:loading>
@@ -55,7 +55,12 @@
           />
         </div>
         <q-slide-transition>
-          <div class="row col-auto q-col-gutter-lg justify-center" v-if="credits?.cast.length" v-show="showCrew">
+          <div
+            class="row col-auto justify-center"
+            :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-sm'"
+            v-if="credits?.cast.length"
+            v-show="showCrew"
+          >
             <div class="col-auto" v-for="(crewMember, index) in credits.crew" :key="index">
               <q-img
                 class="img-person"
@@ -63,8 +68,8 @@
                 :src="getImageUrl(crewMember.profile_path)"
                 :no-native-menu="true"
                 :draggable="false"
-                width="160px"
-                height="230px"
+                :width="getWidth()"
+                :height="getHeight()"
               >
                 <div class="absolute-bottom text-caption text-center hover-show-img">
                   {{ crewText(crewMember) }}
@@ -108,6 +113,8 @@ const emit = defineEmits<{
   (e: 'hide', value: void): void;
 }>();
 const $q = useQuasar();
+const isMobile = $q.platform.is.mobile;
+const isDesktop = $q.platform.is.desktop;
 
 const visible = ref(false);
 const credits = ref<Credits>();
@@ -190,6 +197,20 @@ function crewText(crewMember: CrewMember) {
     result += crewMember.job;
   }
   return result;
+}
+function getHeight() {
+  if (isMobile) {
+    return '120px';
+  }
+
+  return '230px';
+}
+function getWidth() {
+  if (isMobile) {
+    return '80px';
+  }
+
+  return '160px';
 }
 </script>
 

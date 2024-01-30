@@ -8,7 +8,7 @@
         </div>
         <div class="absolute-top-left" style="background: none" v-if="isInAnyWishlist()">
           <div>
-            <q-icon name="playlist_add_check" color="white" size="md" />
+            <q-icon name="playlist_add_check" color="white" :size="$q.platform.is.desktop ? 'md' : 'sm'" />
             <CustomTooltip :delay="1000">Já está em uma lista</CustomTooltip>
           </div>
         </div>
@@ -21,7 +21,7 @@
       icon="more_horiz"
       color="grey-mid2"
       style="top: 8px; right: 8px"
-      size="sm"
+      :size="$q.platform.is.desktop ? 'sm' : 'xs'"
       dark
       round
       @click.stop

@@ -37,6 +37,8 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+@import 'src/components/shared/scss/style.scss';
+
 :root {
   --primary: #00f6ff;
   --grey-dark: #0b0e14;
@@ -105,6 +107,13 @@ button {
 
 ::-webkit-scrollbar {
   width: 0.5rem;
+  height: 0.5rem;
+}
+
+@media only screen and (max-width: $breakpoint-md-min) {
+  ::-webkit-scrollbar {
+    height: 0.25rem;
+  }
 }
 
 ::-webkit-scrollbar-track {

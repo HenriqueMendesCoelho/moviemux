@@ -2,22 +2,22 @@
   <q-dialog v-model="moviePage.showImportMovieDialog">
     <q-card class="dialog-container">
       <q-card-section class="col-12 row">
-        <div class="col-6 row text-white">
+        <div class="col-md-6 col-xs-10 row text-white">
           <q-icon color="white" name="download" size="lg" />
-          <div class="text-h5">Importar Filme do&nbsp;</div>
-          <div class="text-h5 cursor-pointer" @click="openURL('https://www.themoviedb.org/?language=pt-BR')">TMDB</div>
+          <div class="text-title-responsive-2">Importar Filme do&nbsp;</div>
+          <div class="text-title-responsive-2 cursor-pointer" @click="openURL('https://www.themoviedb.org/?language=pt-BR')">TMDB</div>
         </div>
         <div class="col row justify-end">
           <q-btn color="white" icon="close" size="md" @click="moviePage.showImportMovieDialog = false" flat round />
         </div>
         <SeparatorDivSolidLine />
         <div class="col-12 row q-col-gutter-sm">
-          <div class="col-4"><InputText @keyup.enter="firstSearch()" v-model="text" :label="'Título Do Filme'" dense /></div>
+          <div class="col-md-4 col-xs-6"><InputText @keyup.enter="firstSearch()" v-model="text" :label="'Título Do Filme'" dense /></div>
           <div class="col-auto">
-            <q-btn style="width: 100%" color="kb-primary" text-color="black" label="Pesquisar" icon="search" @click="firstSearch()" />
+            <q-btn color="kb-primary" text-color="black" :label="isDesktop ? 'Pesquisar' : ''" icon="search" @click="firstSearch()" />
           </div>
-          <div class="col-auto">
-            <q-btn style="width: 100%" color="white" icon="refresh" @click="refreshSearch()" flat round />
+          <div class="col-auto col-xs-2">
+            <q-btn color="white" icon="refresh" @click="refreshSearch()" flat round />
           </div>
         </div>
         <SeparatorDivSolidLine />
@@ -25,10 +25,16 @@
       <q-separator />
       <q-card-section ref="cardScrollRef" class="scroll" style="max-height: 60vh" v-if="movies?.length">
         <q-infinite-scroll class="q-mt-md" @load="onLoad" :offset="50">
-          <div class="row justify-center q-col-gutter-xl">
+          <div class="row justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'">
             <div class="col-auto" v-for="movie in movies" :key="movie.id">
-              <CardImage :src="getImageUrl(movie.poster_path)" @click="showConfirmDialog(movie)" :animate="false">
-                <div class="absolute-bottom text-h6">{{ movie.title }}</div>
+              <CardImage
+                :height="getHeight()"
+                :width="getWidth()"
+                :src="getImageUrl(movie.poster_path)"
+                @click="showConfirmDialog(movie)"
+                :animate="false"
+              >
+                <div class="absolute-bottom text-title-responsive-3">{{ movie.title }}</div>
               </CardImage>
             </div>
           </div>
@@ -69,6 +75,9 @@ type divScrollTopRef = {
 };
 
 const $q = useQuasar();
+const isDesktop = $q.platform.is.desktop;
+const isMobile = $q.platform.is.mobile;
+
 const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
 const cardScrollRef = ref<divScrollTopRef>();
 const movieStore = useMovieStore();
@@ -205,6 +214,20 @@ function getGenres(genres?: Array<string>): Array<{ id: number; name: string }> 
 function refreshSearch() {
   text.value = '';
   firstSearch();
+}
+function getHeight() {
+  if (isMobile) {
+    return '150px';
+  }
+
+  return '380px';
+}
+function getWidth() {
+  if (isMobile) {
+    return '100px';
+  }
+
+  return '250px';
 }
 </script>
 

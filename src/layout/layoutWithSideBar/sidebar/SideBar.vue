@@ -1,8 +1,18 @@
 <template>
+  <q-btn
+    class="mobile-only btn-open-sidebar"
+    style="color: white"
+    icon="keyboard_double_arrow_right"
+    size="md"
+    color="grey-mid"
+    rounded
+    @click="ToggleMenu"
+    v-if="false"
+  />
   <aside :class="`${layoutSettings.isSideBarExpanded && 'is-expanded'}`" class="overflow-hidden-y">
     <div class="row logo">
       <router-link to="/home">
-        <img src="../../../assets/logo-kronus.png" alt="logo" draggable="false" style="z-index: 99" />
+        <img src="/src/assets/logo-kronus.png" alt="logo" draggable="false" style="z-index: 11" />
       </router-link>
     </div>
     <div class="menu-toggle-wrap">
@@ -117,6 +127,13 @@ function logout() {
 </script>
 
 <style lang="scss" scoped>
+.btn-open-sidebar {
+  position: fixed;
+  z-index: 10;
+  top: 30px;
+  left: 20px;
+}
+
 aside {
   display: flex;
   flex-direction: column;
@@ -132,6 +149,15 @@ aside {
   color: var(--light-grey2);
 
   transition: 0.2s ease-out;
+
+  @media only screen and (max-width: $breakpoint-md-min) {
+    &:not(.is-expanded) {
+      visibility: hidden;
+      transform: translateX(-80px);
+      transition: 0.2s ease-out;
+    }
+  }
+
   .logo {
     margin-bottom: 1rem;
     width: 3rem;
@@ -161,13 +187,10 @@ aside {
     transition: 0.2s ease-out;
 
     .menu-toggle {
-      transition: 0.2s ease-out;
-
       .material-icons {
+        transition: 0.2s ease-out;
         font-size: 2rem;
         color: var(--light-grey2);
-
-        transition: 0.2s ease-out;
       }
 
       &:hover {
@@ -198,6 +221,11 @@ aside {
 
   .menu {
     margin: auto -1rem;
+    transition: 0.2s ease-out;
+
+    @media only screen and (max-width: $breakpoint-md-min) {
+      transition: none;
+    }
 
     button {
       width: 100%;
@@ -207,23 +235,16 @@ aside {
       display: flex;
       align-items: center;
       text-decoration: none;
-
       padding: 0.5rem 1rem;
-      transition: 0.2s ease-out;
-
       cursor: pointer;
 
       .material-icons {
         font-size: 2rem;
         color: var(--light-grey2);
-
-        transition: 0.2s ease-out;
       }
 
       .text {
         color: var(--light-grey2);
-
-        transition: 0.2 ease out;
       }
 
       &:hover,
@@ -272,11 +293,6 @@ aside {
         margin-right: 1rem;
       }
     }
-  }
-
-  @media (max-width: 768px) {
-    position: fixed;
-    z-index: 99;
   }
 }
 </style>

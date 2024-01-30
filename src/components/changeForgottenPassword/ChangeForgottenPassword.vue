@@ -6,7 +6,7 @@
           <q-icon name="menu" class="q-mr-sm" size="sm" />
           <q-btn to="/" round flat>
             <q-avatar>
-              <img src="../../assets/logo-kronus.png" />
+              <img src="/src/assets/logo-kronus.png" />
             </q-avatar>
           </q-btn>
 

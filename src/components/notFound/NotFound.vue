@@ -3,7 +3,7 @@
     <div class="row justify-center">
       <div>
         <router-link to="/">
-          <img src="../../assets/logo-kronus.png" class="left-img-login" alt="logo" draggable="false" />
+          <img src="/src/assets/logo-kronus.png" class="left-img-login" alt="logo" draggable="false" />
         </router-link>
       </div>
       <div class="col-12"></div>

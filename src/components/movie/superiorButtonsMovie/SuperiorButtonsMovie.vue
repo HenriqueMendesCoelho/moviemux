@@ -1,28 +1,20 @@
 <template>
-  <div class="row q-col-gutter-sm">
-    <div class="col-md-auto col-sm-12 q-ml-md" v-if="showTopButtons()">
+  <div class="row" :class="isDesktop ? 'q-col-gutter-md' : 'q-col-gutter-sm'">
+    <div class="col-auto" v-if="showTopButtons()">
       <q-btn color="grey-mid2" text-color="white" round icon="refresh" @click="loadMovie()" />
     </div>
-    <div class="col-md-auto col-sm-12 q-ml-md" v-if="showEditAndDeleteButton() && showTopButtons()">
-      <q-btn
-        style="width: 100%"
-        color="primary"
-        text-color="white"
-        label="Editar"
-        icon="edit"
-        @click="moviePage.isEditing = !moviePage.isEditing"
-      />
+    <div class="col-auto" v-if="showEditAndDeleteButton() && showTopButtons()">
+      <q-btn color="primary" text-color="white" label="Editar" icon="edit" @click="moviePage.isEditing = !moviePage.isEditing" />
     </div>
-    <div class="col-md-auto col-sm-12 q-ml-md" v-if="showEditAndDeleteButton() && showTopButtons()">
-      <q-btn style="width: 100%" color="red" text-color="white" label="Deletar" icon="delete" @click="deleteMovie" />
+    <div class="col-auto" v-if="showEditAndDeleteButton() && showTopButtons()">
+      <q-btn color="red" text-color="white" label="Deletar" icon="delete" @click="deleteMovie" />
     </div>
 
-    <div class="col-md-grow col-sm-12">
+    <div class="col-auto">
       <div class="row justify-end">
         <div class="col-auto">
           <q-btn
             @click="moviePage.showImportMovieDialog = !moviePage.showImportMovieDialog"
-            style="width: 100%"
             color="primary"
             text-color="white"
             label="Importar do TMDB"
@@ -49,6 +41,7 @@ import { stateSocketMovie } from 'src/boot/socket';
 import MovieService from 'src/services/MovieService';
 
 const $q = useQuasar();
+const isDesktop = $q.platform.is.desktop;
 const movieStore = useMovieStore();
 const userStore = useUserStore();
 const route = useRoute();

@@ -1,6 +1,6 @@
 <template>
   <div class="row relative-position">
-    <div class="row full-width q-my-md">
+    <div class="row full-width q-my-md scroll">
       <SearchToolbar
         :order-options="orderOptions"
         :input-search="searchText"
@@ -71,7 +71,7 @@
       </SearchToolbar>
     </div>
     <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="10">
-      <div class="row justify-center q-col-gutter-xl">
+      <div class="row justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'">
         <div class="col-auto" v-for="movie in movies" :key="movie.id">
           <CardImageAllMovies :movie="movie" />
         </div>
@@ -102,6 +102,7 @@ const infinitScrollRef = ref<{
 }>();
 
 const $q = useQuasar();
+const isDesktop = $q.platform.is.desktop;
 
 const movies = ref<Movie[]>([]);
 const moviesSearchToolbar = ref<Movie[]>([]);

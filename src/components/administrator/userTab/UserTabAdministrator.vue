@@ -2,11 +2,11 @@
   <div class="row justify-center q-gutter-y-md">
     <h5>Gerenciamento do usuário</h5>
     <SeparatorDivLineSolid />
-    <div class="col-10 row q-mt-md">
-      <InputText class="col-10 q-pr-sm" :label="'E-mail usuário alvo'" v-model="email" :required="false" :dense="true" />
+    <div class="col-md-10 col-xs-12 row q-mt-md">
+      <InputText class="col-md-10 col-xs-6 q-pr-sm" :label="'E-mail usuário alvo'" v-model="email" :required="false" :dense="true" />
       <q-btn-dropdown
         icon="settings"
-        class="col-2 q-pl-sm"
+        class="col-md-2 col-xs-6 q-pl-sm"
         color="kb-primary"
         label="Ações"
         content-style="background-color: #343c4c; color: white"
@@ -44,7 +44,7 @@
         </q-list>
       </q-btn-dropdown>
     </div>
-    <div class="col-10 q-pt-xl">
+    <div class="col-md-10 col-xs-12 q-pt-xl">
       <PanelUserInfo v-model="user" :allReadOnly="true" :showAdmInfo="true" />
     </div>
   </div>

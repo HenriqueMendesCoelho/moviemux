@@ -1,8 +1,8 @@
 <template>
   <div class="row justify-center">
-    <h5>Lista de usuários</h5>
+    <div class="text-responsive-2">Lista de usuários</div>
     <SeparatorDivLineSolid />
-    <div class="col-10 q-my-md">
+    <div class="col-md-10 col-xs-12 q-my-md">
       <TableCopyDelete
         :title="'Lista de usuários'"
         :columns="columns"

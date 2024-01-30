@@ -1,6 +1,6 @@
 <template>
   <div class="row justify-center q-pt-lg q-px-lg page-title">
-    <div class="text-h3 text-white q-mb-lg">{{ props.title }} <slot name="title"></slot></div>
+    <div class="text-title-responsive text-white q-mb-lg">{{ props.title }} <slot name="title"></slot></div>
     <div>
       <q-icon class="q-ml-md" :name="props.icon" color="white" size="xl" />
       <slot name="after-icon"></slot>

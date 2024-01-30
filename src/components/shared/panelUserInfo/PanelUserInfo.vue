@@ -1,10 +1,10 @@
 <template>
   <div class="row justify-center">
-    <div class="row col-8">
-      <div class="col-md-11 col-sm-12">
+    <div class="row col-md-8 col-xs-12">
+      <div class="col-md-11 col-xs-9">
         <InputText :label="'Nome'" v-model="user.name" :readonly="allReadOnly" />
       </div>
-      <div class="col-md col-sm-12">
+      <div class="col">
         <q-toggle
           v-model="user.preferences.notify"
           size="xl"
@@ -16,13 +16,13 @@
         <CustomTooltip anchor="bottom middle" :delay="500" style="font-size: 10pt">Notificações por e-mail</CustomTooltip>
       </div>
     </div>
-    <div class="col-md-8 col-sm-12 q-mt-md">
+    <div class="col-md-8 col-xs-12 q-mt-md">
       <div class="row q-col-gutter-md">
         <InputText class="col" :label="'Email'" v-model="user.email" :readonly="allReadOnly" />
         <q-input
           :model-value="user.statistics?.consecutive_failed_login_attempts"
           v-if="showAdmInfo"
-          class="col-md-6 col-sm-12"
+          class="col-md-6 col-xs-12"
           square
           filled
           standout="text-info"
@@ -34,9 +34,9 @@
         />
       </div>
     </div>
-    <div class="col-md-8 col-sm-12 q-mt-md">
+    <div class="col-md-8 col-xs-12 q-mt-md">
       <div class="row q-col-gutter-md">
-        <div class="col-md col-sm-12">
+        <div class="col-md col-xs-12">
           <q-input
             :model-value="user.roles?.join(', ')"
             square
@@ -48,7 +48,7 @@
             :readonly="true"
           />
         </div>
-        <div class="col-md col-sm-12">
+        <div class="col-md col-xs-12">
           <q-input
             :model-value="new Date(user.created_at).toLocaleString()"
             square
@@ -62,9 +62,9 @@
         </div>
       </div>
     </div>
-    <div class="col-md-8 col-sm-12 q-mt-md">
+    <div class="col-md-8 col-xs-12 q-mt-md">
       <div class="row q-col-gutter-md">
-        <div class="col-md col-sm-12">
+        <div class="col-md col-xs-6">
           <q-input
             :model-value="user.statistics.registered_movies"
             square
@@ -76,7 +76,7 @@
             :readonly="true"
           />
         </div>
-        <div class="col-md col-sm-12">
+        <div class="col-md col-xs-6">
           <q-input
             :model-value="user.statistics?.ratings_given"
             square
@@ -88,7 +88,7 @@
             :readonly="true"
           />
         </div>
-        <div class="col-md col-sm-12">
+        <div class="col-md col-xs-6">
           <q-input
             :model-value="displayTimeToText()"
             square
@@ -100,7 +100,7 @@
             :readonly="true"
           />
         </div>
-        <div class="col-md col-sm-12">
+        <div class="col-md col-xs-6">
           <q-input
             :model-value="user.statistics.average_rating_movies?.toFixed(2)"
             square

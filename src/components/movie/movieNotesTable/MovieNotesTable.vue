@@ -2,7 +2,7 @@
   <SeparatorDivSolidLine v-if="!isRegisterOrEditing" />
   <div class="row justify-center q-mt-md" v-if="!isRegisterOrEditing">
     <q-table
-      class="col-8"
+      class="col-md-8 col-xs-12"
       title="Notas"
       :rows="moviePage.selectedMovie.notes"
       dense
@@ -138,7 +138,7 @@ const columns = ref<QTableProps['columns']>([
   },
   {
     name: 'updatedAt',
-    label: 'Atualizado em',
+    label: 'Última atualização',
     field: 'updated_at',
     align: 'center',
     format: (val) => DateUtils.toLocaleString(val),
