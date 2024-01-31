@@ -175,7 +175,7 @@ async function importMovie() {
       res.english_title,
       res.original_title,
       res.director,
-      getImageUrl(res.url_image_portuguese || res.url_image_english, 'w500'),
+      getImageUrl(res.url_image_portuguese || res.url_image_english),
       res.portuguese_url_trailer,
       res.english_url_trailer,
       res.description,
