@@ -3,10 +3,8 @@
     <div class="row full-width q-my-md scroll">
       <SearchToolbar
         :order-options="orderOptions"
-        :input-search="searchText"
-        @input-search="searchText = $event"
-        :select-order="orderOption"
-        @select-order="orderOption = $event"
+        v-model:input-search="searchText"
+        v-model:select-order="orderOption"
         @refresh="refreshSearch()"
         @search="btnSearchAction()"
         @input-search-focus="menuIsFocused = $event"

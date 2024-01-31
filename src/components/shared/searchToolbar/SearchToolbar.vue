@@ -4,16 +4,23 @@
     <slot name="prepend"></slot>
     <q-separator class="q-mx-md" dark vertical inset />
     <q-input
-      borderless
       class="col q-mr-sm"
       label="Digite"
       v-model="searchText"
       dark
       color="kb-primary"
       maxlength="150"
-      @keyup.enter="emit('search')"
-      @focus="emit('inputSearchFocus', true)"
+      @keyup.enter="
+        () => {
+          emit('search');
+          emit('inputSearchFocus', false);
+        }
+      "
+      @update:model-value="emit('inputSearchFocus', true)"
       @blur="emit('inputSearchFocus', false)"
+      @clear="emit('refresh')"
+      clearable
+      borderless
     >
       <slot name="input-search"></slot>
     </q-input>
@@ -59,9 +66,9 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  (e: 'inputSearch', value: string): void;
+  (e: 'update:inputSearch', value: string): void;
   (e: 'inputSearchFocus', value: boolean): void;
-  (e: 'selectOrder', value: string | undefined | { label: string; value: string }): void;
+  (e: 'update:selectOrder', value: string | undefined | { label: string; value: string }): void;
   (e: 'search', value: void): void;
   (e: 'refresh', value: void): void;
 }>();
@@ -75,7 +82,7 @@ onMounted(() => {
   orderOption.value = props.selectOrder;
 }),
   watch(searchText, (val: string) => {
-    emit('inputSearch', val);
+    emit('update:inputSearch', val);
   });
 
 watch(
@@ -86,7 +93,7 @@ watch(
 );
 
 watch(orderOption, (val: string | undefined | { label: string; value: string }) => {
-  emit('selectOrder', val);
+  emit('update:selectOrder', val);
   emit('search');
 });
 

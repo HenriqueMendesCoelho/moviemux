@@ -6,10 +6,8 @@
       <div class="scroll col-12">
         <SearchToolbar
           :order-options="filterOptions"
-          :input-search="searchText"
-          @input-search="searchText = $event"
-          :select-order="selectOrder"
-          @select-order="selectOrder = $event"
+          v-model:input-search="searchText"
+          v-model:select-order="selectOrder"
           select-order-label="filtrar"
           @search="firstSearch()"
           @refresh="resetSearch()"

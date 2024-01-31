@@ -2,8 +2,7 @@
   <div class="row full-width justify-center">
     <div class="col-12 scroll">
       <SearchToolbar
-        :input-search="searchText"
-        @input-search="searchText = $event"
+        v-model:input-search="searchText"
         @search="firstSearch()"
         @refresh="resetSearch()"
         @input-search-focus="menuIsFocused = $event"
