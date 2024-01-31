@@ -1,7 +1,7 @@
 <template>
   <div class="row justify-center items-center">
     <router-link :to="{ name: 'movie', params: { id: id } }" class="container-img" style="border-radius: 50px">
-      <CardImage class="card" :src="url" height="95%" :width="getWidth()" :animate="false"> </CardImage>
+      <CardImage class="card" :src="url" height="90%" :width="getWidth()" :animate="false"> </CardImage>
       <figcaption>{{ getTitle() }}</figcaption>
       <ContextMenuHome :movie-id="id || ''" />
     </router-link>
@@ -42,7 +42,7 @@ function getWidth() {
     return '75px';
   }
 
-  return '210px';
+  return '200px';
 }
 </script>
 
