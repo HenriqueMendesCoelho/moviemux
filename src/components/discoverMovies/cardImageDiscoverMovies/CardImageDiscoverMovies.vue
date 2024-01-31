@@ -133,7 +133,7 @@ function showError(msg: string) {
 }
 
 function getUrl() {
-  return `https://image.tmdb.org/t/p/w500${props.movie?.poster_path}`;
+  return `https://image.tmdb.org/t/p/w342${props.movie?.poster_path}`;
 }
 function clickRecommendations() {
   emit('callTmdb', {
