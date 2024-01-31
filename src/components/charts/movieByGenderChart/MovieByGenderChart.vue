@@ -1,15 +1,27 @@
 <template>
-  <apexchart v-if="showChart" width="600" type="donut" :options="chartOptions" :series="series" />
+  <apexchart
+    v-if="showChart"
+    :height="isDesktop ? '' : '400px'"
+    :width="isDesktop ? '600px' : '100%'"
+    type="donut"
+    :options="chartOptions"
+    :series="series"
+  />
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
+import { useQuasar } from 'quasar';
 
 import type { MovieStatistics } from 'src/types/statistics/Statistics';
 
 const props = defineProps<{
   chartsData?: MovieStatistics;
 }>();
+
+const $q = useQuasar();
+const isDesktop = $q.platform.is.desktop;
+const chartFontSize = ref(isDesktop ? '20px' : '15px');
 
 const chartOptions = ref({
   chart: {
@@ -23,15 +35,18 @@ const chartOptions = ref({
   tooltip: {
     enabled: true,
   },
+  legend: {
+    position: 'bottom', // Position the legend at the bottom
+  },
   title: {
     text: 'Distribuição de Gêneros dos Filmes',
-    align: 'left',
+    align: 'center',
     margin: 10,
     offsetX: 0,
     offsetY: 0,
     floating: false,
     style: {
-      fontSize: '20px',
+      fontSize: chartFontSize.value,
       fontWeight: '300',
       color: '#fff',
     },

@@ -1,6 +1,6 @@
 <template>
   <div class="col-md-12 col-lg-10 col-xl-9 row q-col-gutter-md q-py-md">
-    <div class="text-h4 text-white">Minhas Listas ({{ wishlists?.length ? wishlists.length : 0 }}/10)</div>
+    <div class="text-title-responsive-2 text-white">Minhas Listas ({{ wishlists?.length ? wishlists.length : 0 }}/10)</div>
     <BtnCreateWishlist @ok="listWishlist()" />
     <div class="col-12 row q-col-gutter-md" v-if="wishlists?.length">
       <router-link
@@ -97,12 +97,12 @@ function copyWishlistUrl(id?: string) {
 }
 function openDialogConfirm(wishlist: WishlistType) {
   wishlistToDelete.value = wishlist.id;
-  confirmDialogRef.value?.dialog(
-    `Tem certeza que deseja deletar '${wishlist.name}'? Caso delete não há como desfazer a ação.`,
-    'cancel',
-    'Quer mesmo deletar?',
-    'Sim'
-  );
+  confirmDialogRef.value?.show({
+    message: `Tem certeza que deseja deletar '${wishlist.name}'? Caso delete não há como desfazer a ação.`,
+    focus: 'cancel',
+    title: 'Quer mesmo deletar?',
+    ok: 'Sim',
+  });
 }
 async function deleteWishlist() {
   if (!wishlistToDelete.value) {

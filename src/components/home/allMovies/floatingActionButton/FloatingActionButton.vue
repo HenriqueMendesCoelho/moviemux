@@ -1,5 +1,5 @@
 <template>
-  <FloatingActionBtnTop>
+  <FloatingActionBtnTop class="desktop-only">
     <template v-slot:after-top>
       <q-fab-action
         color="grey-mid2"

@@ -2,27 +2,36 @@
 import { useQuasar } from 'quasar';
 
 const emit = defineEmits<{
-  (e: 'ok', value: void): void;
-  (e: 'cancel', value: void): void;
+  (e: 'ok', value: void | string): void;
+  (e: 'cancel', value: void | string): void;
 }>();
 
 const $q = useQuasar();
 
-defineExpose({ dialog });
+defineExpose({ show });
 
-function dialog(
-  message: string,
-  focus: 'ok' | 'cancel' | 'none' = 'ok',
+function show({
+  message,
+  focus = 'ok',
   title = 'Confirme',
   ok = 'Ok',
   cancel = 'Cancelar',
-  persisstent = true
-) {
+  persistent = true,
+  event,
+}: {
+  message?: string;
+  focus?: 'ok' | 'cancel' | 'none';
+  title?: string;
+  ok?: string;
+  cancel?: string;
+  persistent?: boolean;
+  event?: string;
+}) {
   $q.dialog({
     dark: true,
     title: title,
     message: message,
-    persistent: persisstent,
+    persistent: persistent,
     color: 'kb-primary',
     class: 'bg-grey-mid',
     ok: {
@@ -37,10 +46,10 @@ function dialog(
     focus,
   })
     .onOk(() => {
-      emit('ok');
+      emit('ok', event);
     })
     .onCancel(() => {
-      emit('cancel');
+      emit('cancel', event);
     });
 }
 </script>

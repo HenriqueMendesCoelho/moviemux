@@ -1,6 +1,6 @@
 <template>
   <div class="row justify-center" :class="isMobile ? 'q-pt-xs' : 'q-pt-md'">
-    <h5>Dados pessoais</h5>
+    <div class="text-responsive-2">Dados pessoais</div>
     <SeparatorDivLineSolid />
     <PanelUserInfo class="col-12 q-mt-md" v-model="user" />
     <div class="row justify-center full-width q-col-gutter-md">
@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
 import User from 'src/domain/user/User';
@@ -29,7 +29,7 @@ import PanelUserInfo from 'src/components/shared/panelUserInfo/PanelUserInfo.vue
 const $q = useQuasar();
 const user = ref(new User());
 
-const isMobile = computed(() => $q.platform.is.mobile);
+const isMobile = $q.platform.is.mobile;
 
 function showLoading() {
   $q.loading.show({

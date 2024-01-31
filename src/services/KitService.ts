@@ -1,4 +1,4 @@
-import { MovieInfoTypeKit, MovieResultResponseTmdb, MovieSummaryTypeKit, MovieWatchProvider } from 'src/types/movie/MovieType';
+import { Credits, MovieInfoTypeKit, MovieResultResponseTmdb, MovieSummaryTypeKit, MovieWatchProvider } from 'src/types/movie/MovieType';
 import axios from 'axios';
 import StringUtils from 'src/utils/StringUtils';
 
@@ -84,6 +84,14 @@ export default {
   async getWatchProviders(tmdb_id: number): Promise<MovieWatchProvider> {
     try {
       const res = await axios.get(`${API_KIT}/${tmdb_id}/watch-providers`);
+      return Promise.resolve(res.data);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
+  async getMovieCredits(tmdb_id: number): Promise<Credits> {
+    try {
+      const res = await axios.get(`${API_KIT}/${tmdb_id}/credits`);
       return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);

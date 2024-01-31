@@ -1,11 +1,6 @@
 <template>
   <SideBar />
-  <div
-    ref="containerLayoutRef"
-    :class="layoutSettings.isSideBarExpanded ? 'expanded-sidebar' : 'not-expanded-sidebar'"
-    class="scroll"
-    style="height: 100vh"
-  >
+  <div v-touch-swipe.mouse.right="showSideBar" ref="containerLayoutRef" :class="getClass()" class="scroll" style="height: 100vh">
     <router-view v-slot="{ Component }">
       <KeepAlive :include="['HomePage', 'DiscoverMoviesPage']">
         <component :is="Component" />
@@ -15,9 +10,9 @@
   <DialogLogin v-model="showDialogLogin" :actionLogin="login" />
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue';
-import { mapState } from 'pinia';
+<script setup lang="ts">
+import { computed, ref } from 'vue';
+import { useQuasar } from 'quasar';
 
 import { useUserStore } from 'src/stores/UserStore';
 import { useStyleStore } from 'src/stores/StyleStore';
@@ -25,40 +20,41 @@ import { useStyleStore } from 'src/stores/StyleStore';
 import SideBar from './sidebar/SideBar.vue';
 import DialogLogin from 'src/components/login/DialogLogin.vue';
 
-export default defineComponent({
-  name: 'LayoutWithSideBar',
-  components: {
-    SideBar,
-    DialogLogin,
-  },
-  setup() {
-    const containerLayoutRef = ref();
-    const styleStore = useStyleStore();
+const $q = useQuasar();
+const isMobile = $q.platform.is.mobile;
 
-    styleStore.$onAction(({ name, args }) => {
-      if (name === 'scrollToContainer') {
-        containerLayoutRef.value?.scrollTo({
-          top: args[0],
-          left: args[1],
-          behavior: args[2],
-        });
-      }
+const userStore = useUserStore();
+
+const user = computed(() => userStore.user);
+const showDialogLogin = computed(() => userStore.showDialogLogin);
+
+const containerLayoutRef = ref();
+const styleStore = useStyleStore();
+const isSideBarExpanded = computed(() => styleStore.layoutSettings.isSideBarExpanded);
+
+styleStore.$onAction(({ name, args }) => {
+  if (name === 'scrollToContainer') {
+    containerLayoutRef.value?.scrollTo({
+      top: args[0],
+      left: args[1],
+      behavior: args[2],
     });
-
-    return {
-      containerLayoutRef,
-    };
-  },
-  computed: {
-    ...mapState(useUserStore, ['user', 'showDialogLogin']),
-    ...mapState(useStyleStore, ['layoutSettings']),
-  },
-  methods: {
-    login() {
-      this.user.isLoged = false;
-    },
-  },
+  }
 });
+
+function login() {
+  user.value.isLoged = false;
+}
+function getClass() {
+  if (isMobile) {
+    return;
+  }
+
+  return isSideBarExpanded.value ? 'expanded-sidebar' : 'not-expanded-sidebar';
+}
+function showSideBar() {
+  styleStore.layoutSettings.isSideBarExpanded = true;
+}
 </script>
 
 <style lang="scss" scoped>

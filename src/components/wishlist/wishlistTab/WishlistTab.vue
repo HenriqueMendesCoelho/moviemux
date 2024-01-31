@@ -1,49 +1,49 @@
 <template>
   <div class="row full-width justify-center">
-    <SearchToolbar
-      class="col-12"
-      :input-search="searchText"
-      @input-search="searchText = $event"
-      @search="firstSearch()"
-      @refresh="resetSearch()"
-      @input-search-focus="menuIsFocused = $event"
-      :show-select="false"
-    >
-      <template #prepend>
-        <div>
-          <q-btn icon="arrow_back_ios" flat round @click="emit('back')" />
-          <CustomTooltip :delay="500">Voltar para minhas listas</CustomTooltip>
-        </div>
-      </template>
-      <template #append v-if="_wishlist?.user.id === userId">
-        <BtnMoviesAlreadyRated :wishlist="_wishlist" @update:wishlist="_wishlist = $event" />
-        <div>
-          <q-toggle
-            :model-value="shareable"
-            @update:model-value="changeShareable"
-            size="xl"
-            color="kb-primary"
-            checked-icon="public"
-            unchecked-icon="public_off"
-          />
-          <CustomTooltip :delay="500">{{ shareable ? 'Lista Pública' : 'Lista Privada' }}</CustomTooltip>
-        </div>
-      </template>
-      <template #input-search>
-        <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
-          <q-list dense dark>
-            <q-item v-for="movie in moviesWhenTyping" :key="movie.tmdb_id" bordered clickable>
-              <q-item-section @click="searchFromMenu(movie.title)" v-close-popup class="q-pl-sm">{{
-                movie.title || movie.title_english || 'Erro ao carregar título'
-              }}</q-item-section>
-            </q-item>
-            <q-separator dark v-if="moviesWhenTyping?.length ? moviesWhenTyping?.length > 1 : false" />
-          </q-list>
-        </q-menu>
-      </template>
-    </SearchToolbar>
+    <div class="col-12 scroll">
+      <SearchToolbar
+        v-model:input-search="searchText"
+        @search="firstSearch()"
+        @refresh="resetSearch()"
+        @input-search-focus="menuIsFocused = $event"
+        :show-select="false"
+      >
+        <template #prepend>
+          <div>
+            <q-btn icon="arrow_back_ios" flat round @click="emit('back')" />
+            <CustomTooltip :delay="500">Voltar para minhas listas</CustomTooltip>
+          </div>
+        </template>
+        <template #append v-if="_wishlist?.user.id === userId">
+          <BtnMoviesAlreadyRated :wishlist="_wishlist" @update:wishlist="_wishlist = $event" />
+          <div>
+            <q-toggle
+              :model-value="shareable"
+              @update:model-value="changeShareable"
+              size="xl"
+              color="kb-primary"
+              checked-icon="public"
+              unchecked-icon="public_off"
+            />
+            <CustomTooltip :delay="500">{{ shareable ? 'Lista Pública' : 'Lista Privada' }}</CustomTooltip>
+          </div>
+        </template>
+        <template #input-search>
+          <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
+            <q-list dense dark>
+              <q-item v-for="movie in moviesWhenTyping" :key="movie.tmdb_id" bordered clickable>
+                <q-item-section @click="searchFromMenu(movie.title)" v-close-popup class="q-pl-sm">{{
+                  movie.title || movie.title_english || 'Erro ao carregar título'
+                }}</q-item-section>
+              </q-item>
+              <q-separator dark v-if="moviesWhenTyping?.length ? moviesWhenTyping?.length > 1 : false" />
+            </q-list>
+          </q-menu>
+        </template>
+      </SearchToolbar>
+    </div>
     <div class="row justify-center q-mt-lg relative-position">
-      <div class="row justify-center q-col-gutter-xl" v-if="moviesFiltered?.length">
+      <div class="row justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'" v-if="moviesFiltered?.length">
         <div class="col-auto" v-for="movie in moviesFiltered" :key="movie.tmdb_id">
           <WishlistCardImage
             :movie="movie"
@@ -54,7 +54,7 @@
             @copy-url="copyMovieUrl(movie.tmdb_id)"
           />
         </div>
-        <FloatingActionBtnTop />
+        <FloatingActionBtnTop class="desktop-only" />
       </div>
       <div class="row justify-center" v-else>
         <div class="text-h3 text-white">Ainda não há filmes nessa lista...</div>
@@ -85,6 +85,7 @@ import { useUserStore } from 'src/stores/UserStore';
 import WishlistService from 'src/services/WishlistService';
 
 const $q = useQuasar();
+const isDesktop = $q.platform.is.desktop;
 const router = useRouter();
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
@@ -241,12 +242,12 @@ async function changeShareable(val: boolean) {
 }
 function openConfirmDialogRemoveMovie(movie: ArrayElement<WishlistType['movies_wishlists']>) {
   movieIdToDelete.value = movie.tmdb_id;
-  confirmDialogRef.value?.dialog(
-    `Tem certeza que deseja remover '${movie.title || movie.title_english}' dessa lista? Caso remova não há como desfazer a ação.`,
-    'cancel',
-    'Quer mesmo remover?',
-    'Sim'
-  );
+  confirmDialogRef.value?.show({
+    message: `Tem certeza que deseja remover '${movie.title || movie.title_english}' dessa lista? Caso remova não há como desfazer a ação.`,
+    focus: 'cancel',
+    title: 'Quer mesmo remover?',
+    ok: 'Sim',
+  });
 }
 async function deteleMovieFromWishlist() {
   if (!_wishlist.value) {

@@ -95,7 +95,15 @@ export default {
   //Genres
   async getMoviesGenres(): Promise<Array<{ id: number; name: string; tmdb_id: number }>> {
     try {
-      const res = await axios.get(`${API_MOVIE}/genre`);
+      const res = await axios.get(`${API_MOVIE}/genres`);
+      return res.data;
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
+  async getMoviesGenresWithMovies(): Promise<Array<{ id: number; name: string; tmdb_id: number }>> {
+    try {
+      const res = await axios.get(`${API_MOVIE}/genres-with-movies`);
       return res.data;
     } catch (error) {
       return Promise.reject(error);

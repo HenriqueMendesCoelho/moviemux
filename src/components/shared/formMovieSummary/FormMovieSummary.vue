@@ -1,24 +1,25 @@
 <template>
-  <div class="row justify-center q-mx-md text-white" style="overflow: auto">
-    <div>
+  <div class="row justify-center text-white" :class="!isMobile && 'q-mx-md'">
+    <div class="col-md-3 col-xs-12 q-px-lg text-center justify-center row">
       <q-img
-        style="border-radius: 20px"
-        class="col-3 q-mx-xl q-py-xs"
+        class="col-12"
+        style="border-radius: 20px; max-height: 100% !important"
         :src="movie.url_image"
         :draggable="false"
-        :height="screenHeight > 1080 ? '750px' : '600px'"
-        :width="screenHeight > 1080 ? '500px' : '400px'"
+        :width="isMobile ? '200px' : '600px'"
+        :height="isMobile ? '350px' : '750px'"
         v-if="movie?.url_image"
       />
-      <q-skeleton class="col-3" v-else width="600px" height="750px" animation="fade" dark bordered />
+      <q-skeleton v-else width="600px" height="750px" animation="fade" dark bordered />
     </div>
-    <div class="col q-ml-xl">
-      <div class="row q-col-gutter-y-md">
-        <div class="col-12" :class="screenHeight > 1080 ? 'text-h3' : 'text-h4'">Informações</div>
+
+    <div class="col-md-9 col-xs-12">
+      <div class="row" :class="screenHeight > 1080 ? 'q-col-gutter-y-lg' : 'q-col-gutter-y-md'">
+        <div class="col-12 text-title-responsive-2">Informações</div>
         <div class="col-12 row q-col-gutter-sm">
           <InputText
             ref="inputTextPortugueseTitleRef"
-            class="col"
+            class="col-md col-xs-12"
             :label="'Título PT-BR'"
             v-model="movie.portuguese_title"
             readonly
@@ -27,37 +28,42 @@
           />
           <InputText
             v-if="showEnglishTitle()"
-            ref="inputTextOriginalTitleRef"
-            class="col"
-            :label="'Título Original'"
-            v-model="movie.original_title"
+            ref="inputTextEnglishTitleRef"
+            class="col-md col-xs-12"
+            :label="'Título Inglês'"
+            v-model="movie.english_title"
             readonly
             :dense="screenHeight <= 1080"
           />
           <InputText
-            ref="inputTextEnglishTitleRef"
-            class="col"
-            :label="'Título Inglês'"
-            v-model="movie.english_title"
+            ref="inputTextOriginalTitleRef"
+            class="col-md col-xs-12"
+            :label="'Título Original'"
+            v-model="movie.original_title"
             readonly
-            required
             :dense="screenHeight <= 1080"
           />
         </div>
         <div class="col-12 row q-col-gutter-sm">
           <InputText
             ref="inputTextDirectorRef"
-            class="col-8"
+            class="col-md-8 col-xs-12"
             :label="'Diretor'"
             v-model="movie.director"
             readonly
             required
             :dense="screenHeight <= 1080"
           />
-          <InputText class="col-2" :label="'Tempo de duração'" :modelValue="runtimeToText()" readonly :dense="screenHeight <= 1080" />
+          <InputText
+            class="col-md-2 col-xs-6"
+            :label="'Tempo de duração'"
+            :modelValue="runtimeToText()"
+            readonly
+            :dense="screenHeight <= 1080"
+          />
           <InputText
             ref="inputTextReleaseDateRef"
-            class="col-2"
+            class="col-md-2 col-xs-6"
             :label="'Ano de lançamento'"
             :modelValue="movie.release_date ? new Date(movie.release_date).toLocaleDateString() : ''"
             readonly
@@ -66,10 +72,10 @@
             :dense="screenHeight <= 1080"
           />
         </div>
-        <div class="col-12 row q-col-gutter-sm">
+        <div class="col-12 row q-col-gutter-x-sm">
           <q-input
             ref="qInputDescriptionRef"
-            class="col-7"
+            class="col-md-7 col-xs-12"
             standout="text-info"
             color="info"
             outlined
@@ -83,7 +89,7 @@
             readonly
             :dense="screenHeight <= 1080"
           />
-          <div class="col-5 row">
+          <div class="col-md-5 col-xs-12 row" :class="isMobile && 'q-col-gutter-y-sm q-mt-md'">
             <q-select
               ref="qSelectGenresRef"
               class="col-12"
@@ -132,13 +138,26 @@
           </div>
         </div>
 
-        <div class="col-12 row q-col-gutter-x-sm justify-center">
-          <div class="col-12 text-h5" v-if="movie?.portuguese_url_trailer || movie?.english_url_trailer">Trailers</div>
-          <q-video class="col" :src="getUrl(movie.portuguese_url_trailer)" style="height: 300px" v-if="movie?.portuguese_url_trailer" />
-          <q-video class="col" :src="getUrl(movie.english_url_trailer)" style="height: 300px" v-if="movie?.english_url_trailer" />
+        <div class="col-12 row q-col-gutter-sm">
+          <div class="col-12 text-title-responsive-2" v-if="movie?.portuguese_url_trailer || movie?.english_url_trailer">Trailers</div>
+          <q-video
+            class="col-md col-xs-12"
+            :src="getUrl(movie.portuguese_url_trailer)"
+            style="height: 300px"
+            v-if="movie?.portuguese_url_trailer"
+          />
+          <q-video
+            class="col-md col-xs-12"
+            :src="getUrl(movie.english_url_trailer)"
+            style="height: 300px"
+            v-if="movie?.english_url_trailer"
+          />
         </div>
 
         <div class="col-12 row q-col-gutter-md">
+          <div class="col-auto" v-if="movieId">
+            <BtnDialogCast :movie-id="movieId" />
+          </div>
           <div class="col row justify-end" v-if="movieId">
             <MovieWatchProviders class="col-auto" :tmdb-id="movieId" />
           </div>
@@ -149,7 +168,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
 import Movie from 'src/domain/movie/movie';
@@ -159,18 +178,17 @@ import MovieService from 'src/services/MovieService';
 
 import InputText from '../inputText/InputText.vue';
 import MovieWatchProviders from './movieWatchProviders/MovieWatchProviders.vue';
+import BtnDialogCast from '../dialogCast/BtnDialogCast.vue';
 
 import StringUtils from 'src/utils/StringUtils';
 
 const $q = useQuasar();
+const isMobile = $q.platform.is.mobile;
+const screenHeight = $q.screen.height;
+
 const movie = ref(new Movie());
 
-const screenHeight = computed(() => {
-  return $q.screen.height;
-});
-
 const props = defineProps<{ movieId: number }>();
-
 const emit = defineEmits<{
   (e: 'error', value: void): void;
 }>();

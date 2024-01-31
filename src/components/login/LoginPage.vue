@@ -1,5 +1,5 @@
 <template>
-  <div class="row items-center justify-center full-height">
+  <div class="row items-center justify-center full-height bg-login-animated">
     <div class="col-md-6 col-xs-12">
       <div class="row justify-center">
         <h1 class="text-white desktop-only text-h2">Bem-vindo ao Cineminha!</h1>
@@ -135,6 +135,38 @@ function getImageUrl(path?: string, size = 'w342') {
   @media (min-width: 2560px) {
     flex: 0 0 41.66667%;
     max-width: 41.66667%;
+  }
+}
+
+.bg-login-animated {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: 300% 300%;
+  background-image: linear-gradient(-45deg, var(--grey-dark) 0%, var(--grey-dark) 25%, var(--grey-dark) 51%, var(--dark-alt) 100%);
+  -webkit-animation: AnimateBG 20s ease infinite;
+  animation: AnimateBG 20s ease infinite;
+}
+
+@-webkit-keyframes AnimateBG {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes AnimateBG {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
   }
 }
 </style>

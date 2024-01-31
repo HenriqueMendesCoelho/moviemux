@@ -1,24 +1,29 @@
 <template>
-  <div class="row justify-center scroll form-movie q-mx-md">
-    <q-img
-      style="border-radius: 20px"
-      class="col-3 q-mx-xl q-py-xs"
-      :src="getImageAndAlt()[0]"
-      :alt="getImageAndAlt()[1]"
-      :draggable="false"
-      :height="'100%'"
-      v-if="moviePage.selectedMovie?.url_image"
-    >
-      <TooltipMovieInfo />
-    </q-img>
-    <q-skeleton class="col-3" v-else width="600px" height="750px" animation="fade" dark bordered />
-    <div class="col q-ml-xl">
+  <div class="row justify-center overflow-hidden-x form-movie" :class="!isMobile && 'q-mx-md'">
+    <div class="col-md-3 col-xs-12 q-px-lg text-center justify-center row">
+      <q-img
+        class="col-12"
+        style="border-radius: 20px"
+        :src="getImageAndAlt()[0]"
+        :alt="getImageAndAlt()[1]"
+        :draggable="false"
+        :width="isMobile ? '200px' : '600px'"
+        :height="isMobile ? '350px' : '750px'"
+        v-if="moviePage.selectedMovie?.url_image"
+      >
+        <ContextMenuFormMovieImage />
+        <TooltipMovieInfo />
+      </q-img>
+      <q-skeleton v-else :width="isMobile ? '200px' : '600px'" :height="isMobile ? '350px' : '750px'" animation="fade" dark bordered />
+    </div>
+
+    <div class="col-md-9 col-xs-12">
       <div class="row" :class="screenHeight > 1080 ? 'q-col-gutter-y-lg' : 'q-col-gutter-y-md'">
-        <div class="col-12" :class="screenHeight > 1080 ? 'text-h3' : 'text-h4'">Informações</div>
+        <div class="col-12 text-title-responsive-2">Informações</div>
         <div class="col-12 row q-col-gutter-sm">
           <InputText
             ref="inputTextPortugueseTitleRef"
-            class="col"
+            class="col-md col-xs-12"
             :label="'Título PT-BR'"
             v-model="moviePage.selectedMovie.portuguese_title"
             :readonly="!isRegisterOrEditing"
@@ -28,7 +33,7 @@
           <InputText
             v-if="showEnglishTitle()"
             ref="inputTextEnglishTitleRef"
-            class="col"
+            class="col-md col-xs-12"
             :label="'Título Inglês'"
             v-model="moviePage.selectedMovie.english_title"
             :readonly="!isRegisterOrEditing"
@@ -37,7 +42,7 @@
           />
           <InputText
             ref="inputTextOriginalTitleRef"
-            class="col"
+            class="col-md col-xs-12"
             :label="'Título Original'"
             v-model="moviePage.selectedMovie.original_title"
             :readonly="!isRegisterOrEditing"
@@ -47,7 +52,7 @@
         <div class="col-12 row q-col-gutter-sm">
           <InputText
             ref="inputTextDirectorRef"
-            class="col-8"
+            class="col-md-8 col-xs-12"
             :label="'Diretor'"
             v-model="moviePage.selectedMovie.director"
             :readonly="!isRegisterOrEditing"
@@ -57,7 +62,7 @@
           <InputText
             v-if="isRegisterOrEditing"
             ref="inputTextRuntimeRef"
-            class="col-2"
+            class="col-md-2 col-xs-6"
             :label="'Tempo de duração em minutos'"
             :modelValue="moviePage.selectedMovie.runtime?.toString()"
             @change="moviePage.selectedMovie.runtime = Number($event)"
@@ -67,7 +72,7 @@
           />
           <InputText
             v-else
-            class="col-2"
+            class="col-md-2 col-xs-6"
             :label="'Tempo de duração'"
             :modelValue="runtimeToText()"
             :readonly="true"
@@ -75,9 +80,9 @@
           />
           <InputText
             ref="inputTextReleaseDateRef"
-            class="col-2"
+            class="col-md-2 col-xs-6"
             :label="'Ano de lançamento'"
-            :modelValue="moviePage.selectedMovie.release_date ? DateUtils.toLocaleDateString(moviePage.selectedMovie.release_date) : ''"
+            :modelValue="DateUtils.toLocaleDateString(moviePage.selectedMovie.release_date)"
             @change="changeReleaseDate"
             :readonly="!isRegisterOrEditing"
             :mask="'##/##/####'"
@@ -85,10 +90,10 @@
             :dense="screenHeight <= 1080"
           />
         </div>
-        <div class="col-12 row q-col-gutter-sm">
+        <div class="col-12 row q-col-gutter-x-sm">
           <q-input
             ref="qInputDescriptionRef"
-            class="col-7"
+            class="col-md-7 col-xs-12"
             standout="text-info"
             color="info"
             outlined
@@ -104,7 +109,7 @@
             :lazy-rules="true"
             :dense="screenHeight <= 1080"
           />
-          <div class="col-5 row">
+          <div class="col-md-5 col-xs-12 row" :class="isMobile && 'q-col-gutter-y-sm'">
             <q-select
               ref="qSelectGenresRef"
               class="col-12"
@@ -168,7 +173,7 @@
         </div>
 
         <div class="col-12 row q-col-gutter-sm">
-          <div class="col-12 text-h5">Urls</div>
+          <div class="col-12 text-title-responsive-2">Urls</div>
           <InputText
             ref="inputTextUrlImageRef"
             class="col-5"
@@ -212,7 +217,10 @@
         <div class="col-12 row q-col-gutter-md">
           <div class="col-auto" v-if="moviePage.selectedMovie.notes?.length && moviePage.selectedMovie.show_notes">
             <div class="text-h6">Nota</div>
-            <ChipNote size="xl" :movie="moviePage.selectedMovie" :dense="screenHeight <= 1080" />
+            <ChipNote :size="isMobile ? 'lg' : 'xl'" :movie="moviePage.selectedMovie" :dense="screenHeight <= 1080" />
+          </div>
+          <div class="col-auto">
+            <BtnDialogCast :movie-id="moviePage.selectedMovie.tmdb_id" />
           </div>
           <div class="col offset-1 row justify-end" v-if="moviePage.selectedMovie.tmdb_id">
             <MovieWatchProviders class="col-auto" :tmdb-id="moviePage.selectedMovie.tmdb_id" />
@@ -235,6 +243,8 @@ import InputText from 'src/components/shared/inputText/InputText.vue';
 import ChipNote from 'src/components/shared/chipNote/ChipNote.vue';
 import TooltipMovieInfo from './tooltipMovieInfo/TooltipMovieInfo.vue';
 import MovieWatchProviders from 'src/components/shared/formMovieSummary/movieWatchProviders/MovieWatchProviders.vue';
+import BtnDialogCast from 'src/components/shared/dialogCast/BtnDialogCast.vue';
+import ContextMenuFormMovieImage from './contextMenuFormMovieImage/ContextMenuFormMovieImage.vue';
 
 import StringUtils from 'src/utils/StringUtils';
 import DateUtils from 'src/utils/DateUtils';
@@ -246,6 +256,8 @@ interface Props {
 const props = defineProps<Props>();
 
 const $q = useQuasar();
+const isMobile = $q.platform.is.mobile;
+
 const inputTextPortugueseTitleRef = ref<InstanceType<typeof InputText>>();
 const inputTextEnglishTitleRef = ref<InstanceType<typeof InputText>>();
 const inputTextOriginalTitleRef = ref<InstanceType<typeof InputText>>();

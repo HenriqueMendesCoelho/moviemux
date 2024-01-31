@@ -1,8 +1,18 @@
 <template>
+  <q-btn
+    class="mobile-only btn-open-sidebar"
+    style="color: white"
+    icon="keyboard_double_arrow_right"
+    size="md"
+    color="grey-mid"
+    rounded
+    @click="ToggleMenu"
+    v-if="false"
+  />
   <aside :class="`${layoutSettings.isSideBarExpanded && 'is-expanded'}`" class="overflow-hidden-y">
     <div class="row logo">
       <router-link to="/home">
-        <img src="../../../assets/logo-kronus.png" alt="logo" draggable="false" style="z-index: 99" />
+        <img src="../../../assets/logo-kronus.png" alt="logo" draggable="false" style="z-index: 11" />
       </router-link>
     </div>
     <div class="menu-toggle-wrap">
@@ -18,7 +28,7 @@
         <span class="text" v-if="showTextsSideBar">Home</span>
         <CustomTooltip anchor="top right" :offset="[35, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">HOME</CustomTooltip>
       </router-link>
-      <router-link :to="{ name: 'adm' }" class="button" v-if="isAdmin">
+      <router-link :to="{ name: 'adm' }" class="button" v-if="userStore.isAdmin">
         <span class="material-icons">admin_panel_settings</span>
         <span class="text" v-if="showTextsSideBar">Painel ADM</span>
         <CustomTooltip anchor="top right" :offset="[50, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">PAINEL ADM</CustomTooltip>
@@ -35,8 +45,7 @@
           >ADICIONAR FILME</CustomTooltip
         >
       </router-link>
-      <router-link :to="{ name: 'charts' }" class="button relative-position">
-        <q-badge class="q-mr-sm" label="novo" color="kb-primary" rounded floating />
+      <router-link :to="{ name: 'charts' }" class="button">
         <span class="material-icons">dashboard</span>
         <span class="text" v-if="showTextsSideBar" id="textAddMovie">Dashboard</span>
         <CustomTooltip anchor="top right" :offset="[65, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">DASHBOARD</CustomTooltip>
@@ -89,7 +98,6 @@ const showTextsSideBar = ref(false);
 
 const layoutSettings = computed(() => styleStore.layoutSettings);
 const user = computed(() => userStore.user);
-const isAdmin = computed(() => user.value.roles.includes('ADM'));
 
 onMounted(() => {
   showTextsSideBar.value = layoutSettings.value.isSideBarExpanded;
@@ -119,6 +127,13 @@ function logout() {
 </script>
 
 <style lang="scss" scoped>
+.btn-open-sidebar {
+  position: fixed;
+  z-index: 10;
+  top: 30px;
+  left: 20px;
+}
+
 aside {
   display: flex;
   flex-direction: column;
@@ -134,6 +149,15 @@ aside {
   color: var(--light-grey2);
 
   transition: 0.2s ease-out;
+
+  @media only screen and (max-width: $breakpoint-md-min) {
+    &:not(.is-expanded) {
+      visibility: hidden;
+      transform: translateX(-80px);
+      transition: 0.2s ease-out;
+    }
+  }
+
   .logo {
     margin-bottom: 1rem;
     width: 3rem;
@@ -163,13 +187,10 @@ aside {
     transition: 0.2s ease-out;
 
     .menu-toggle {
-      transition: 0.2s ease-out;
-
       .material-icons {
+        transition: 0.2s ease-out;
         font-size: 2rem;
         color: var(--light-grey2);
-
-        transition: 0.2s ease-out;
       }
 
       &:hover {
@@ -200,6 +221,11 @@ aside {
 
   .menu {
     margin: auto -1rem;
+    transition: 0.2s ease-out;
+
+    @media only screen and (max-width: $breakpoint-md-min) {
+      transition: none;
+    }
 
     button {
       width: 100%;
@@ -209,23 +235,16 @@ aside {
       display: flex;
       align-items: center;
       text-decoration: none;
-
       padding: 0.5rem 1rem;
-      transition: 0.2s ease-out;
-
       cursor: pointer;
 
       .material-icons {
         font-size: 2rem;
         color: var(--light-grey2);
-
-        transition: 0.2s ease-out;
       }
 
       .text {
         color: var(--light-grey2);
-
-        transition: 0.2 ease out;
       }
 
       &:hover,
@@ -274,11 +293,6 @@ aside {
         margin-right: 1rem;
       }
     }
-  }
-
-  @media (max-width: 768px) {
-    position: fixed;
-    z-index: 99;
   }
 }
 </style>

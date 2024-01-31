@@ -4,10 +4,10 @@
       <div class="row col-10 justify-center">
         <PageTitle title="Meu Perfil" icon="person" />
       </div>
-      <div class="panel-profile q-mt-xl" :class="isMobile ? 'col-12' : 'col-10'">
+      <div class="panel-profile col-xs-12 col-md-10 q-mt-xl">
         <q-tabs v-model="tab" class="tabs-selector" active-color="kb-primary" indicator-color="kb-primary" align="justify" dense>
-          <q-tab :class="isMobile ? '' : 'tab-style-right'" name="myData" label="Meus Dados" icon="badge" />
-          <q-tab :class="isMobile ? '' : 'tab-style-right'" name="security" label="Segurança" icon="lock" />
+          <q-tab class="tab-style-right" name="myData" label="Meus Dados" icon="badge" />
+          <q-tab class="tab-style-right" name="security" label="Segurança" icon="lock" />
         </q-tabs>
         <q-tab-panels v-model="tab" animated class="tabs q-pt-md" style="min-height: 500px">
           <q-tab-panel name="myData">
@@ -30,8 +30,7 @@ export default defineComponent({
 </script>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
-import { useQuasar } from 'quasar';
+import { ref } from 'vue';
 
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import PanelSecurityProfile from './panelSecurityProfile/PanelSecurityProfile.vue';
@@ -39,9 +38,6 @@ import PanelProfile from './panelProfile/PanelProfile.vue';
 import PageTitle from '../shared/pageTitle/PageTitle.vue';
 
 const tab = ref('myData');
-const $q = useQuasar();
-
-const isMobile = computed(() => $q.platform.is.mobile);
 </script>
 
 <style lang="scss" scoped>
@@ -59,6 +55,10 @@ const isMobile = computed(() => $q.platform.is.mobile);
 
   .tab-style-right {
     border-right: 3px solid var(--grey-mid);
+
+    @media only screen and (max-width: $breakpoint-md-min) {
+      border-right: none;
+    }
   }
 }
 

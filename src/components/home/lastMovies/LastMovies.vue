@@ -9,13 +9,13 @@
         flat
         @click="isVisibleLastFilms = !isVisibleLastFilms"
       />
-      <h4>Últimos Filmes</h4>
+      <div class="text-title-responsive-2">Últimos Filmes</div>
       <div style="flex: 1 1 0"></div>
       <q-btn icon="refresh" color="white" round flat @click="loadLastMovies()" :loading="loading" />
     </div>
     <div class="row justify-center q-mt-md">
       <q-slide-transition>
-        <div class="col-auto row no-wrap scroll q-col-gutter-lg justify-center-md" v-show="isVisibleLastFilms">
+        <div class="col-auto row no-wrap scroll q-col-gutter-lg justify-center-md q-px-xs" v-show="isVisibleLastFilms">
           <div v-for="movie of movies" :key="movie.id">
             <CardImageMovie class="col-auto" :id="movie.id" :title="movie.portuguese_title" :url="movie.url_image" :footer="true" />
           </div>
@@ -36,6 +36,7 @@ import { socketAllMovies, stateSocketAllMovies } from 'src/boot/socket';
 import CardImageMovie from './cardImageLastMovies/CardImageLastMovies.vue';
 
 const $q = useQuasar();
+const isDesktop = $q.platform.is.desktop;
 
 const isVisibleLastFilms = ref(true);
 const movies = ref<Movie[]>([]);
@@ -80,7 +81,7 @@ async function loadLastMovies() {
   } finally {
     loading.value = false;
   }
-  const res = await MovieService.listMoviesPageable({ page: 1, size: 10, sort: 'createdAt,desc' });
+  const res = await MovieService.listMoviesPageable({ page: 1, size: isDesktop ? 10 : 3, sort: 'createdAt,desc' });
   console.log(res);
   movies.value = res.content;
 }
@@ -92,7 +93,6 @@ async function loadLastMoviesOnSocketEvent() {
 
 <style lang="scss" scoped>
 .div-lastfilms {
-  //overflow: auto;
   transition: 0.2s ease-out;
 
   max-height: 480px;
@@ -101,10 +101,6 @@ async function loadLastMoviesOnSocketEvent() {
   border-radius: 10px;
   background-color: var(--grey-mid);
   box-shadow: 0 5px 30px var(--shadow);
-
-  @media (max-width: 768px) {
-    display: none;
-  }
 
   .last-films-toggle {
     transform: rotate(-180deg);

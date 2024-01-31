@@ -22,10 +22,11 @@
 
   transition: 0.2s ease-out;
 
-  overflow: none;
+  overflow: hidden;
 
-  @media (max-width: 768px) {
-    margin-left: calc(4rem + 32px);
+  @media only screen and (max-width: $breakpoint-md-min) {
+    padding: 0.5rem;
+    margin-left: auto;
   }
 }
 </style>

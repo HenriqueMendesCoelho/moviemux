@@ -121,3 +121,25 @@ type Provider = {
   provider_name: string;
   display_priority: number;
 };
+
+export type CastMember = {
+  known_for_department: string;
+  name: string;
+  original_name: string;
+  profile_path?: string;
+  character: string;
+};
+
+export type CrewMember = {
+  known_for_department: string;
+  name: string;
+  original_name: string;
+  profile_path?: string;
+  department: string;
+  job: string;
+};
+
+export type Credits = {
+  cast: CastMember[];
+  crew: CrewMember[];
+};

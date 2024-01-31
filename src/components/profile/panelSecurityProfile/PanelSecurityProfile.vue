@@ -2,15 +2,15 @@
   <div class="row q-pt-md justify-center">
     <h5>Alteração de senha</h5>
     <SeparatorDivLineSolid />
-    <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-6'">
+    <div class="q-mt-md col-xs-12 col-md-6">
       <InputText ref="inputTextCurrentPassRef" :label="'Senha atual'" v-model="currentPass" :type="'password'" :required="true" />
     </div>
     <div class="col-12" />
-    <div class="q-mt-md" :class="isMobile ? 'col-12' : 'col-6'">
+    <div class="q-mt-md col-xs-12 col-md-6">
       <InputText ref="inputTextNewPassRef" :label="'Nova Senha'" v-model="newPass" :type="'password'" :required="true" />
     </div>
     <div class="col-12" />
-    <div class="q-mt-md q-mb-xl" :class="isMobile ? 'col-12' : 'col-6'">
+    <div class="q-mt-md q-mb-xl col-xs-12 col-md-6">
       <InputText
         ref="inputTextConfirmNewPassRef"
         :label="'Confirme Nova Senha'"
@@ -20,17 +20,17 @@
       />
     </div>
     <div class="col-12" />
-    <div :class="isMobile ? 'col-4' : 'col-2'">
-      <q-btn style="width: 100%" color="positive" text-color="white" label="Salvar" @click="updatePassword" />
+    <div class="col-xs-4 col-md-2">
+      <q-btn class="full-width" color="positive" text-color="white" label="Salvar" @click="updatePassword" />
     </div>
-    <div :class="isMobile ? 'col-4 q-ml-md' : 'col-2 q-ml-md q-mb-sm'">
-      <q-btn style="width: 100%" color="red" text-color="white" label="Cancelar" @click="clearInputs" />
+    <div class="col-xs-4 col-md-2 q-ml-md">
+      <q-btn class="full-width" color="red" text-color="white" label="Cancelar" @click="clearInputs" />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { useQuasar } from 'quasar';
 
 import { InputTextRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
@@ -48,8 +48,6 @@ const inputTextConfirmNewPassRef = ref<InputTextRefType>();
 const currentPass = ref('');
 const newPass = ref('');
 const confirmNewPass = ref('');
-
-const isMobile = computed(() => $q.platform.is.mobile);
 
 function showLoading() {
   $q.loading.show({

@@ -1,9 +1,10 @@
 import { route } from 'quasar/wrappers';
-import { Cookies, useMeta } from 'quasar';
+import { Cookies, useMeta, useQuasar } from 'quasar';
 import { RouteLocationNormalized, createMemoryHistory, createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
 
 import routes from './routes';
 import { useUserStore } from 'src/stores/UserStore';
+import { useStyleStore } from 'src/stores/StyleStore';
 
 /*
  * If not building with SSR mode, you can
@@ -74,6 +75,13 @@ export default route(function (/* { store, ssrContext } */ { ssrContext }) {
 
   Router.afterEach((to) => {
     setMetaTags(to);
+
+    const $q = useQuasar();
+    const isMobile = $q.platform.is.mobile;
+    if (isMobile) {
+      const styleStore = useStyleStore();
+      styleStore.layoutSettings.isSideBarExpanded = false;
+    }
   });
 
   return Router;

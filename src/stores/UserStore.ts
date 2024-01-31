@@ -32,6 +32,9 @@ export const useUserStore = defineStore('UserStore', {
 
       return result;
     },
+    isAdmin(): boolean {
+      return Boolean(this.user.roles?.includes('ADM'));
+    },
   },
   actions: {
     async login(payload: { email: string; password: string }): Promise<void> {

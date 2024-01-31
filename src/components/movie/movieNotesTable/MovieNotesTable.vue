@@ -2,7 +2,7 @@
   <SeparatorDivSolidLine v-if="!isRegisterOrEditing" />
   <div class="row justify-center q-mt-md" v-if="!isRegisterOrEditing">
     <q-table
-      class="col-8"
+      class="col-md-8 col-xs-12"
       title="Notas"
       :rows="moviePage.selectedMovie.notes"
       dense
@@ -138,7 +138,7 @@ const columns = ref<QTableProps['columns']>([
   },
   {
     name: 'updatedAt',
-    label: 'Atualizado em',
+    label: 'Última atualização',
     field: 'updated_at',
     align: 'center',
     format: (val) => DateUtils.toLocaleString(val),
@@ -252,7 +252,12 @@ function showToggleVisibility() {
   return (user.value.roles.includes('ADM') || user.value.id === moviePage.value.selectedMovie.user_id) && timeSinceCreation < 1800;
 }
 function showConfirmDialogDelete() {
-  confirmDialogRef.value?.dialog('Quer mesmo excluir sua nota?', 'cancel', 'Confirme a exclusão', 'Deletar');
+  confirmDialogRef.value?.show({
+    message: 'Quer mesmo excluir sua nota?',
+    focus: 'cancel',
+    title: 'Confirme a exclusão',
+    cancel: 'Deletar',
+  });
 }
 function showConfirmPromptDelete() {
   confirmDialogPromptRef.value?.dialog();

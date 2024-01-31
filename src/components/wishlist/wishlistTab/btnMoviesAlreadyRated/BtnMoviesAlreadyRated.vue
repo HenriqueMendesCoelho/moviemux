@@ -100,7 +100,7 @@ async function showNotifyMovie(showNotify = true) {
   }
   $q.notify({
     type: 'warning',
-    message: 'Existem filmes nessa lista que já estão cadastrados no ranking do cineminha! Deseja removê-los?',
+    message: 'Existem filmes nessa lista que já estão cadastrados no ranking do cineminha. Deseja removê-los?',
     multiLine: false,
     position: 'top',
     timeout: 15000,
@@ -121,14 +121,14 @@ async function showNotifyMovie(showNotify = true) {
 }
 function showDialogConfirm() {
   const names = getMoviesNames();
-  confirmDialogRef.value?.dialog(
-    `Tem certeza que deseja remover ${names?.length > 1 ? 'os filmes' : 'o filme'} '${names.join(
+  confirmDialogRef.value?.show({
+    message: `Tem certeza que deseja remover ${names?.length > 1 ? 'os filmes' : 'o filme'} '${names.join(
       ', '
     )}' dessa lista? Caso remova não há como desfazer a ação.`,
-    'cancel',
-    'Quer mesmo remover?',
-    'Sim'
-  );
+    focus: 'cancel',
+    title: 'Quer mesmo remover?',
+    ok: 'Sim',
+  });
 }
 function getMoviesNames() {
   if (!props.wishlist?.movies_wishlists?.length) {
@@ -157,6 +157,7 @@ async function deteleMoviesFromWishlist() {
   if (!res) {
     return;
   }
+  await searchMoviesRated();
   showSuccess('Filmes removidos da lista');
   emit('update:wishlist', res);
 }
