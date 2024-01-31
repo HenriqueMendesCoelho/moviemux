@@ -262,7 +262,7 @@ async function searchActionToolbar(title?: string): Promise<void> {
 async function loadGenres(): Promise<void> {
   try {
     loadingGenres.value = true;
-    genresOptions.value = await MovieService.getMoviesGenres();
+    genresOptions.value = await MovieService.getMoviesGenresWithMovies();
   } catch {
     showError('Erro ao carregar gêneros');
   } finally {
