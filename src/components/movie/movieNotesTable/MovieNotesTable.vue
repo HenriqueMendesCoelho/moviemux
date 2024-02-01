@@ -8,12 +8,13 @@
       dense
       dark
       card-class="text-white bg-grey-mid2"
-      row-key="index"
+      row-key="name"
       virtual-scroll
       no-data-label="Ainda não há notas para esse filme :("
       :rows-per-page-options="[5, 10]"
       :columns="columns"
       :loading="loading"
+      :visible-columns="visibleColumns"
     >
       <template v-slot:top-right>
         <div v-if="showToggleVisibility()">
@@ -68,8 +69,13 @@
             </q-popup-edit>
             <CustomTooltip :delay="200" v-if="showEdit(props.row)">Clique para editar</CustomTooltip>
           </q-td>
-          <q-td key="createdAt" :props="props">{{ props.cols[3].value }}</q-td>
-          <q-td key="updatedAt" :props="props">{{ props.cols[4].value }}</q-td>
+          <template v-if="isDesktop">
+            <q-td key="createdAt" :props="props">{{ props.cols[3].value }}</q-td>
+            <q-td key="updatedAt" :props="props">{{ props.cols[4].value }}</q-td>
+          </template>
+          <template v-else>
+            <q-td key="updatedAt" :props="props">{{ props.cols[3].value }}</q-td>
+          </template>
           <q-td key="actions" :props="props"
             ><q-btn dense round flat color="white" icon="delete" v-if="showEdit(props.row)" @click="showConfirmDialogDelete">
               <CustomTooltip anchor="bottom right" :delay="500" :hide-delay="300">Deletar</CustomTooltip>
@@ -108,6 +114,9 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const $q = useQuasar();
+const isDesktop = $q.platform.is.desktop;
+const isMobile = $q.platform.is.mobile;
 
 const columns = ref<QTableProps['columns']>([
   {
@@ -150,8 +159,15 @@ const columns = ref<QTableProps['columns']>([
     align: 'center',
   },
 ]);
+const visibleColumns = columns.value?.map((column) => {
+  const columnName = column.name;
 
-const $q = useQuasar();
+  if (isMobile && columnName === 'createdAt') {
+    return;
+  }
+  return columnName;
+});
+
 const inputNoteRef = ref<InputTextRefType>();
 const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
 const confirmDialogPromptRef = ref<InstanceType<typeof ConfirmDialogPrompt>>();
