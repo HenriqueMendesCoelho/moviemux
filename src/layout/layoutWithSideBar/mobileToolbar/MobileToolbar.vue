@@ -1,6 +1,6 @@
 <template>
   <q-toolbar class="bg-grey-mid text-white row toolbar text-white relative-position" v-show="isSideBarNotExpanded">
-    <q-btn @click="showSidebar" icon="menu" size="md" flat />
+    <q-btn @click="showSidebar" icon="menu" size="md" round flat />
     <q-separator class="q-mx-md" dark vertical inset />
     <div class="absolute-center">
       <router-link to="/home">
@@ -13,7 +13,7 @@
     </div>
     <div class="flex" />
     <router-link :to="{ name: 'login' }">
-      <q-btn @click="logout" icon="logout" size="md" round />
+      <q-btn @click="logout" icon="logout" size="md" round flat />
     </router-link>
   </q-toolbar>
 </template>
