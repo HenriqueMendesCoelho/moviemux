@@ -75,7 +75,7 @@
         </div>
       </div>
     </q-infinite-scroll>
-    <div class="row justify-center q-my-md" v-if="loading">
+    <div class="col-12 row justify-center q-my-md" v-if="true">
       <q-spinner color="kb-primary" size="50px" />
     </div>
     <FloatingActionButton />
