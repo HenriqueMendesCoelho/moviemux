@@ -75,7 +75,7 @@
         </div>
       </div>
     </q-infinite-scroll>
-    <div class="col-12 row justify-center q-my-md" v-if="true">
+    <div class="col-12 row justify-center q-my-md" v-if="loading">
       <q-spinner color="kb-primary" size="50px" />
     </div>
     <FloatingActionButton />
@@ -200,15 +200,22 @@ async function refreshSearch(): Promise<void> {
   return Promise.resolve();
 }
 async function onLoad(index: number, done: (stop?: boolean) => void): Promise<void> {
-  if (page.value > pagesFouded.value) {
-    done(true);
+  if (loading.value) {
     return;
   }
+  if (page.value > pagesFouded.value) {
+    done(true);
+    loading.value = false;
+    return;
+  }
+
+  loading.value = true;
   const result = await searchMoviePageable();
-  movies.value?.push(...result);
+  if (result?.length) {
+    movies.value?.push(...result);
+  }
   done();
   loading.value = false;
-  return Promise.resolve();
 }
 async function searchMoviePageable(): Promise<Movie[]> {
   try {
@@ -221,9 +228,6 @@ async function searchMoviePageable(): Promise<Movie[]> {
     pagesFouded.value = res?.total_pages;
     page.value++;
     totalNumberOfMovies.value = res.total_elements;
-    if (page.value >= pagesFouded.value) {
-      loading.value = true;
-    }
     return res.content;
   } catch (error) {
     showError();
