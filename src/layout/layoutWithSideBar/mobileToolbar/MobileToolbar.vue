@@ -1,7 +1,6 @@
 <template>
   <q-toolbar class="bg-grey-mid text-white row toolbar text-white relative-position" v-show="isSideBarNotExpanded">
     <q-btn @click="showSidebar" icon="menu" size="md" round flat />
-    <q-separator class="q-mx-md" dark vertical inset />
     <div class="absolute-center">
       <router-link to="/home">
         <q-btn round>
