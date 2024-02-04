@@ -78,7 +78,7 @@
         <div class="col-12 row justify-center q-my-md" v-if="loading">
           <q-spinner color="kb-primary" size="50px" />
         </div>
-        <FloatingActionBtnTop />
+        <FloatingActionBtnTop class="mobile-hide" />
       </div>
       <DialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" position="standard" @hide="onHideDialog()">
         <template #prepend:bar>
