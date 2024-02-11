@@ -73,9 +73,9 @@ export default route(function (/* { store, ssrContext } */ { ssrContext }) {
     }
   });
 
-  Router.afterEach((to) => {
+  Router.afterEach((to, from) => {
     setMetaTags(to);
-
+    scrollTopOnRouteChange(to, from);
     const $q = useQuasar();
     const isMobile = $q.platform.is.mobile;
     if (isMobile) {
@@ -114,4 +114,18 @@ function setMetaTags(route: RouteLocationNormalized) {
     meta.meta['twitterImage'] = { property: 'twitter:image', content: defaultImage };
   }
   useMeta(meta);
+}
+
+function scrollTopOnRouteChange(to: RouteLocationNormalized, from: RouteLocationNormalized) {
+  const toName = to.name?.toString() || '';
+  const fromName = from.name?.toString() || '';
+  if (!toName || !fromName) {
+    return;
+  }
+  if (toName === fromName) {
+    return;
+  }
+
+  const styleStore = useStyleStore();
+  styleStore.scrollToContainer(0, 0, 'auto');
 }
