@@ -4,21 +4,17 @@
     <slot name="prepend"></slot>
     <q-separator class="q-mx-md" dark vertical inset />
     <q-input
+      ref="inputSearchRef"
       class="col q-mr-sm"
       label="Digite"
       v-model="searchText"
       dark
       color="kb-primary"
       maxlength="150"
-      @keyup.enter="
-        () => {
-          emit('search');
-          emit('inputSearchFocus', false);
-        }
-      "
+      @keyup.enter="onSearchAndRemoveFocus"
       @update:model-value="emit('inputSearchFocus', true)"
       @blur="emit('inputSearchFocus', false)"
-      @clear="emit('refresh')"
+      @clear="onSearchAndRemoveFocus"
       clearable
       borderless
     >
@@ -50,7 +46,8 @@
   </q-toolbar>
 </template>
 <script setup lang="ts">
-import { onMounted, ref, useSlots, watch } from 'vue';
+import { onMounted, ref, useSlots, watch, nextTick } from 'vue';
+import { QInput } from 'quasar';
 
 interface Props {
   orderOptions?: Array<string | object>;
@@ -75,16 +72,17 @@ const emit = defineEmits<{
 
 const slots = useSlots();
 
+const inputSearchRef = ref<InstanceType<typeof QInput>>();
 const searchText = ref('');
 const orderOption = ref<string | undefined | { label: string; value: string }>('');
 
 onMounted(() => {
   orderOption.value = props.selectOrder;
-}),
-  watch(searchText, (val: string) => {
-    emit('update:inputSearch', val);
-  });
+});
 
+watch(searchText, (val: string) => {
+  emit('update:inputSearch', val);
+});
 watch(
   () => props.inputSearch,
   (val: string) => {
@@ -92,11 +90,13 @@ watch(
   }
 );
 
-watch(orderOption, (val: string | undefined | { label: string; value: string }) => {
-  emit('update:selectOrder', val);
-  emit('search');
-});
-
+watch(
+  () => orderOption.value,
+  (val: string | undefined | { label: string; value: string }) => {
+    emit('update:selectOrder', val);
+    emit('search');
+  }
+);
 watch(
   () => props.selectOrder,
   (val: string | undefined | { label: string; value: string }) => {
@@ -109,6 +109,11 @@ function isSlotPrependEmpty() {
 }
 function isSlotAppendEmpty() {
   return !slots.append || slots.append().length === 0;
+}
+async function onSearchAndRemoveFocus() {
+  await nextTick();
+  emit('search');
+  inputSearchRef.value?.blur();
 }
 </script>
 
