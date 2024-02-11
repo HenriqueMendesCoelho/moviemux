@@ -83,7 +83,7 @@
 </template>
 <script lang="ts" setup>
 import { computed, onMounted, ref, watch } from 'vue';
-import { useQuasar } from 'quasar';
+import { QInfiniteScroll, useQuasar } from 'quasar';
 
 import { MoviePageableType } from 'src/types/movie/MovieType';
 
@@ -95,9 +95,7 @@ import FloatingActionButton from './floatingActionButton/FloatingActionButton.vu
 import SearchToolbar from 'src/components/shared/searchToolbar/SearchToolbar.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
-const infinitScrollRef = ref<{
-  resume: () => void;
-}>();
+const infinitScrollRef = ref<InstanceType<typeof QInfiniteScroll>>();
 
 const $q = useQuasar();
 const isDesktop = $q.platform.is.desktop;
@@ -177,12 +175,10 @@ function showError(msg = 'Erro ao executar ação, tente novamente mais tarde') 
 }
 
 async function btnSearchAction(): Promise<void> {
-  if (!searchText.value && !orderOption.value) {
+  if (!searchText.value && !orderOption.value && !genresSelected.value) {
     await refreshSearch();
-    return Promise.resolve();
   }
   await search();
-  return Promise.resolve();
 }
 async function search(pageParam = 1): Promise<void> {
   pagesFouded.value = 2;
@@ -197,7 +193,6 @@ async function refreshSearch(): Promise<void> {
   genresSelected.value = [];
   await search();
   infinitScrollRef.value?.resume();
-  return Promise.resolve();
 }
 async function onLoad(index: number, done: (stop?: boolean) => void): Promise<void> {
   if (loading.value) {
@@ -219,9 +214,19 @@ async function onLoad(index: number, done: (stop?: boolean) => void): Promise<vo
 }
 async function searchMoviePageable(): Promise<Movie[]> {
   try {
+    const sortParam = () => {
+      if (!orderOption.value) {
+        return undefined;
+      }
+      if (typeof orderOption.value === 'object') {
+        return orderOption.value?.value;
+      }
+
+      return orderOption.value;
+    };
     const res = await searchMovies({
       title: searchText.value,
-      sort: typeof orderOption.value === 'object' ? orderOption.value.value || undefined : orderOption.value || undefined,
+      sort: sortParam(),
       page: page.value,
       withGenres: genresSelected.value?.join(','),
     });
