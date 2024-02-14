@@ -27,6 +27,14 @@
             />
             <CustomTooltip :delay="500">{{ shareable ? 'Lista Pública' : 'Lista Privada' }}</CustomTooltip>
           </div>
+          <div v-if="!allowDrag">
+            <q-btn @click="allowDrag = true" icon="reorder" flat round />
+            <CustomTooltip :delay="500">Ordernar Lista</CustomTooltip>
+          </div>
+          <div v-else>
+            <q-btn @click="reorderWishlistAndUpdate" icon="done" flat round />
+            <CustomTooltip :delay="500">Salvar Ordem</CustomTooltip>
+          </div>
         </template>
         <template #input-search>
           <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
@@ -44,7 +52,16 @@
     </div>
     <div class="row justify-center q-mt-lg relative-position">
       <div class="row justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'" v-if="moviesFiltered?.length">
-        <div class="col-auto" v-for="movie in moviesFiltered" :key="movie.tmdb_id">
+        <div
+          class="col-auto"
+          v-for="(movie, index) in moviesFiltered"
+          :key="movie.tmdb_id"
+          :draggable="allowDrag"
+          @dragstart="dragStart(index)"
+          @dragover.prevent
+          @drop="drop(index)"
+          :style="{ opacity: draggedItemIndex === index ? '0.5' : '1' }"
+        >
           <WishlistCardImage
             :movie="movie"
             :wishlists="otherWishlists"
@@ -120,6 +137,9 @@ const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
 const showMenu = computed<boolean>(() => {
   return !!searchText.value && menuIsFocused.value && !!moviesWhenTyping.value?.length;
 });
+
+const allowDrag = ref(false);
+const draggedItemIndex = ref<number | null>(null);
 
 onMounted(async () => {
   if (props?.idParam) {
@@ -287,5 +307,31 @@ function copyMovieUrl(id: number) {
 
   copyToClipboard(`${window.location.origin}/movie/discover?movie=${id}`);
   showSuccess('URL copiada');
+}
+function dragStart(index: number) {
+  draggedItemIndex.value = index;
+}
+function drop(index: number) {
+  if (!moviesFiltered.value || !draggedItemIndex.value) {
+    return;
+  }
+
+  const draggedItem = moviesFiltered.value[draggedItemIndex.value];
+  moviesFiltered.value?.splice(draggedItemIndex.value, 1);
+  moviesFiltered.value?.splice(index, 0, draggedItem);
+  draggedItemIndex.value = null;
+}
+async function reorderWishlistAndUpdate() {
+  allowDrag.value = false;
+  if (!_wishlist.value) {
+    return;
+  }
+  const res = await updateWishlist(_wishlist.value);
+  if (!res) {
+    return;
+  }
+  _wishlist.value = res;
+  moviesFiltered.value = res.movies_wishlists;
+  showSuccess('Lista reordenada');
 }
 </script>
