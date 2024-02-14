@@ -27,13 +27,15 @@
             />
             <CustomTooltip :delay="500">{{ shareable ? 'Lista Pública' : 'Lista Privada' }}</CustomTooltip>
           </div>
-          <div v-if="!allowDrag">
-            <q-btn @click="allowDrag = true" icon="reorder" flat round />
-            <CustomTooltip :delay="500">Ordernar Lista</CustomTooltip>
-          </div>
-          <div v-else>
-            <q-btn @click="reorderWishlistAndUpdate" icon="done" flat round />
-            <CustomTooltip :delay="500">Salvar Ordem</CustomTooltip>
+          <div class="mobile-hide">
+            <div v-if="!allowDrag">
+              <q-btn @click="allowDrag = true" icon="reorder" flat round />
+              <CustomTooltip :delay="500">Ordernar Lista</CustomTooltip>
+            </div>
+            <div v-else>
+              <q-btn @click="reorderWishlistAndUpdate" icon="done" flat round />
+              <CustomTooltip :delay="500">Salvar Ordem</CustomTooltip>
+            </div>
           </div>
         </template>
         <template #input-search>
