@@ -30,11 +30,11 @@
           <div class="mobile-hide">
             <div v-if="!allowDrag">
               <q-btn @click="allowDrag = true" icon="reorder" flat round />
-              <CustomTooltip :delay="500">Ordernar Lista</CustomTooltip>
+              <CustomTooltip :delay="500">Reordernar lista</CustomTooltip>
             </div>
             <div v-else>
               <q-btn @click="reorderWishlistAndUpdate" icon="done" flat round />
-              <CustomTooltip :delay="500">Salvar Ordem</CustomTooltip>
+              <CustomTooltip :delay="500">Salvar ordenação</CustomTooltip>
             </div>
           </div>
         </template>
@@ -156,7 +156,6 @@ watch(
     moviesWhenTyping.value = filterMovies();
   }
 );
-
 watch(
   () => props.wishlist,
   () => {
@@ -169,13 +168,35 @@ watch(
     shareable.value = props?.wishlist?.shareable || false;
   }
 );
-
 watch(
   () => _wishlist.value,
   (val) => {
     emit('update:wishlist', val);
   },
   { deep: true }
+);
+watch(
+  () => allowDrag.value,
+  (val) => {
+    if (!val) {
+      return;
+    }
+
+    $q.notify({
+      icon: 'announcement',
+      color: 'grey-mid',
+      message: 'Reordene sua lista! Arraste e solte as imagens para organizá-las como desejar',
+      position: 'top',
+      progress: true,
+      timeout: 3000,
+      actions: [
+        {
+          icon: 'close',
+          color: 'white',
+        },
+      ],
+    });
+  }
 );
 
 function showLoading() {
