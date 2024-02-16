@@ -156,7 +156,7 @@ function mergeResult(wishlistId: string, newWishlist: WishlistType) {
   _wishlists.value[index] = newWishlist;
 }
 function isInAnyWishlist() {
-  return _wishlists.value.some((w) => w.movies_wishlists.some((m) => m.tmdb_id === props.movie.tmdb_id));
+  return _wishlists.value?.some((w) => w.movies_wishlists?.some((m) => m.tmdb_id === props.movie.tmdb_id));
 }
 function setWishlists() {
   if (props.wishlists?.length) {

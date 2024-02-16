@@ -79,7 +79,7 @@
         <div class="text-h3 text-white">Ainda não há filmes nessa lista...</div>
       </div>
     </div>
-    <ConfirmDialog ref="confirmDialogRef" @ok="deteleMovieFromWishlist()" />
+    <ConfirmDialog ref="confirmDialogRef" @ok="deleteMovieFromWishlist()" />
     <DialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" />
   </div>
 </template>
@@ -292,7 +292,7 @@ function openConfirmDialogRemoveMovie(movie: ArrayElement<WishlistType['movies_w
     ok: 'Sim',
   });
 }
-async function deteleMovieFromWishlist() {
+async function deleteMovieFromWishlist() {
   if (!_wishlist.value) {
     return;
   }

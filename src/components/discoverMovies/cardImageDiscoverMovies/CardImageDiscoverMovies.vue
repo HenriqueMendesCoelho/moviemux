@@ -170,7 +170,7 @@ function mergeResult(wishlistId: string, newWishlist: WishlistType) {
   wishlists.value[index] = newWishlist;
 }
 function isInAnyWishlist() {
-  return wishlists.value.some((w) => w.movies_wishlists.some((m) => m.tmdb_id === props.movie.id));
+  return wishlists.value?.some((w) => w.movies_wishlists?.some((m) => m.tmdb_id === props.movie.id));
 }
 function clickOnCard() {
   if (loading.value) {
