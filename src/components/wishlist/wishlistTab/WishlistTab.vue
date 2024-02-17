@@ -28,13 +28,9 @@
             <CustomTooltip :delay="500">{{ shareable ? 'Lista Pública' : 'Lista Privada' }}</CustomTooltip>
           </div>
           <div class="mobile-hide">
-            <div v-if="!allowDrag">
-              <q-btn @click="allowDrag = true" icon="reorder" flat round />
-              <CustomTooltip :delay="500">Reordernar lista</CustomTooltip>
-            </div>
-            <div v-else>
-              <q-btn @click="reorderWishlistAndUpdate" icon="done" flat round />
-              <CustomTooltip :delay="500">Salvar ordenação</CustomTooltip>
+            <div>
+              <q-btn @click="allowDrag = true" icon="reorder" :disable="allowDrag" flat round />
+              <CustomTooltip v-if="!allowDrag" :delay="500">Reordernar lista</CustomTooltip>
             </div>
           </div>
         </template>
@@ -118,6 +114,7 @@ const props = defineProps<Props>();
 const emit = defineEmits<{
   (e: 'back', value: void): void;
   (e: 'update:wishlist', value: WishlistType | undefined): void;
+  (e: 'search-wishlist', value: void): void;
 }>();
 
 const userStore = useUserStore();
@@ -193,6 +190,31 @@ watch(
         {
           icon: 'close',
           color: 'white',
+        },
+      ],
+    });
+
+    $q.notify({
+      color: 'grey-mid',
+      message: 'Deseja salvar a ordenação?',
+      position: 'bottom',
+      timeout: 0,
+      multiLine: false,
+      actions: [
+        {
+          icon: 'done',
+          color: 'white',
+          handler() {
+            reorderWishlistAndUpdate();
+          },
+        },
+        {
+          icon: 'close',
+          color: 'white',
+          handler() {
+            allowDrag.value = false;
+            searchWishlistById();
+          },
         },
       ],
     });
