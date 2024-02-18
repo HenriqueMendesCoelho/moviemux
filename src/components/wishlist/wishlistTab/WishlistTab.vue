@@ -48,6 +48,7 @@
           <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
             <q-list dense dark>
               <q-item
+                ref="itensMenuRef"
                 active-class="text-kb-primary bg-grey-mid2"
                 v-for="(movie, index) in moviesWhenTyping"
                 :key="movie.tmdb_id"
@@ -99,7 +100,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
-import { useQuasar } from 'quasar';
+import { QItem, useQuasar } from 'quasar';
 import { copyToClipboard } from 'quasar';
 import { useRouter } from 'vue-router';
 
@@ -152,6 +153,7 @@ const showMenu = computed<boolean>(() => {
 const allowDrag = ref(false);
 const draggedItemIndex = ref<number | null>(null);
 const selectedIndexMenu = ref<number | undefined>(undefined);
+const itensMenuRef = ref<InstanceType<typeof QItem>[]>();
 
 onMounted(async () => {
   if (props?.idParam) {
@@ -397,6 +399,9 @@ function moveSelection(step: number) {
   const lenght = moviesWhenTyping.value?.length || 0;
   if (newIndex >= 0 && newIndex < lenght) {
     selectedIndexMenu.value = newIndex;
+  }
+  if (itensMenuRef.value?.length && selectedIndexMenu.value) {
+    itensMenuRef.value[selectedIndexMenu.value]?.$el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 }
 function searchFromIndexMenu() {
