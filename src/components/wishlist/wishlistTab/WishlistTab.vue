@@ -5,8 +5,18 @@
         v-model:input-search="searchText"
         @search="firstSearch()"
         @refresh="resetSearch()"
-        @input-search-focus="menuIsFocused = $event"
+        @input-search-focus="
+          ($event) => {
+            if (!$event) selectedIndexMenu = undefined;
+            menuIsFocused = $event;
+          }
+        "
+        @keydown-enter:input-search="searchFromIndexMenu"
+        @keydown-up:input-search="moveSelection(-1)"
+        @keydown-down:input-search="moveSelection(1)"
+        @keydown-esc:input-search="selectedIndexMenu = undefined"
         :show-select="false"
+        :separeted-input-event="true"
       >
         <template #prepend>
           <div>
@@ -37,7 +47,14 @@
         <template #input-search>
           <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
             <q-list dense dark>
-              <q-item v-for="movie in moviesWhenTyping" :key="movie.tmdb_id" bordered clickable>
+              <q-item
+                active-class="text-kb-primary bg-grey-mid2"
+                v-for="(movie, index) in moviesWhenTyping"
+                :key="movie.tmdb_id"
+                :active="selectedIndexMenu === index"
+                bordered
+                clickable
+              >
                 <q-item-section @click="searchFromMenu(movie.title)" v-close-popup class="q-pl-sm">{{
                   movie.title || movie.title_english || 'Erro ao carregar título'
                 }}</q-item-section>
@@ -48,7 +65,7 @@
         </template>
       </SearchToolbar>
     </div>
-    <div class="row justify-center q-mt-lg relative-position">
+    <div class="row justify-center q-mt-lg">
       <div class="row justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'" v-if="moviesFiltered?.length">
         <div
           class="col-auto"
@@ -104,12 +121,11 @@ const isDesktop = $q.platform.is.desktop;
 const router = useRouter();
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
-interface Props {
+const props = defineProps<{
   wishlist?: WishlistType;
   wishlists: WishlistType[];
   idParam?: string;
-}
-const props = defineProps<Props>();
+}>();
 
 const emit = defineEmits<{
   (e: 'back', value: void): void;
@@ -119,7 +135,6 @@ const emit = defineEmits<{
 
 const userStore = useUserStore();
 const userId = userStore.user.id;
-
 const searchText = ref('');
 const menuIsFocused = ref(false);
 const _wishlist = ref<WishlistType>();
@@ -130,15 +145,13 @@ const showDialogMovieSummary = ref(false);
 const movieIdDialog = ref<number>();
 const movieIdToDelete = ref<number>();
 const otherWishlists = ref<WishlistType[]>([]);
-
 const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
-
 const showMenu = computed<boolean>(() => {
   return !!searchText.value && menuIsFocused.value && !!moviesWhenTyping.value?.length;
 });
-
 const allowDrag = ref(false);
 const draggedItemIndex = ref<number | null>(null);
+const selectedIndexMenu = ref<number | undefined>(undefined);
 
 onMounted(async () => {
   if (props?.idParam) {
@@ -378,5 +391,19 @@ async function reorderWishlistAndUpdate() {
   _wishlist.value = res;
   moviesFiltered.value = res.movies_wishlists;
   showSuccess('Lista reordenada');
+}
+function moveSelection(step: number) {
+  const newIndex = (selectedIndexMenu.value ?? -1) + step;
+  const lenght = moviesWhenTyping.value?.length || 0;
+  if (newIndex >= 0 && newIndex < lenght) {
+    selectedIndexMenu.value = newIndex;
+  }
+}
+function searchFromIndexMenu() {
+  if (selectedIndexMenu.value === undefined || !moviesWhenTyping.value?.length) {
+    firstSearch();
+    return;
+  }
+  searchFromMenu(moviesWhenTyping.value[selectedIndexMenu.value].title);
 }
 </script>

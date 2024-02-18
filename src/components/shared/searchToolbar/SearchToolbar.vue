@@ -11,7 +11,10 @@
       dark
       color="kb-primary"
       maxlength="150"
-      @keyup.enter="onSearchAndRemoveFocus"
+      @keydown.enter="onSearchAndRemoveFocus"
+      @keydown.up.prevent="emit('keydown-up:inputSearch')"
+      @keydown.down.prevent="emit('keydown-down:inputSearch')"
+      @keydown.esc.prevent="emit('keydown-esc:inputSearch')"
       @update:model-value="emit('inputSearchFocus', true)"
       @blur="emit('inputSearchFocus', false)"
       @clear="onSearchAndRemoveFocus"
@@ -55,11 +58,13 @@ interface Props {
   selectOrder?: string | undefined | { label: string; value: string };
   selectOrderLabel?: string;
   showSelect?: boolean;
+  separetedInputEvent?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   selectOrderLabel: 'Ordenar',
   showSelect: true,
+  separetedInputEvent: false,
 });
 
 const emit = defineEmits<{
@@ -68,8 +73,11 @@ const emit = defineEmits<{
   (e: 'update:selectOrder', value: string | undefined | { label: string; value: string }): void;
   (e: 'search', value: void): void;
   (e: 'refresh', value: void): void;
+  (e: 'keydown-enter:inputSearch', value: void): void;
+  (e: 'keydown-up:inputSearch', value: void): void;
+  (e: 'keydown-down:inputSearch', value: void): void;
+  (e: 'keydown-esc:inputSearch', value: void): void;
 }>();
-
 const slots = useSlots();
 
 const inputSearchRef = ref<InstanceType<typeof QInput>>();
@@ -112,7 +120,11 @@ function isSlotAppendEmpty() {
 }
 async function onSearchAndRemoveFocus() {
   await nextTick();
-  emit('search');
+  if (props.separetedInputEvent) {
+    emit('keydown-enter:inputSearch');
+  } else {
+    emit('search');
+  }
   inputSearchRef.value?.blur();
 }
 </script>

@@ -7,7 +7,17 @@
         v-model:select-order="orderOption"
         @refresh="refreshSearch()"
         @search="btnSearchAction()"
-        @input-search-focus="menuIsFocused = $event"
+        @input-search-focus="
+          ($event) => {
+            if (!$event) selectedIndexMenu = undefined;
+            menuIsFocused = $event;
+          }
+        "
+        @keydown-enter:input-search="searchFromIndexMenu"
+        @keydown-up:input-search="moveSelection(-1)"
+        @keydown-down:input-search="moveSelection(1)"
+        @keydown-esc:input-search="selectedIndexMenu = undefined"
+        :separeted-input-event="true"
       >
         <template #prepend>
           <div>
@@ -20,12 +30,19 @@
         <template #input-search>
           <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
             <q-list dense dark>
-              <q-item v-for="movie in moviesSearchToolbar" :key="movie.id" bordered clickable>
+              <q-item
+                active-class="text-kb-primary bg-grey-mid2"
+                v-for="(movie, index) in moviesWhenTyping"
+                :key="movie.id"
+                :active="selectedIndexMenu === index"
+                bordered
+                clickable
+              >
                 <q-item-section @click="searchActionToolbar(movie.portuguese_title)" v-close-popup class="q-pl-sm">{{
                   movie.portuguese_title
                 }}</q-item-section>
               </q-item>
-              <q-separator dark v-if="moviesSearchToolbar?.length > 1" />
+              <q-separator dark v-if="moviesWhenTyping?.length > 1" />
             </q-list>
           </q-menu>
         </template>
@@ -101,7 +118,7 @@ const $q = useQuasar();
 const isDesktop = $q.platform.is.desktop;
 
 const movies = ref<Movie[]>([]);
-const moviesSearchToolbar = ref<Movie[]>([]);
+const moviesWhenTyping = ref<Movie[]>([]);
 const totalNumberOfMovies = ref(0);
 const loading = ref(false);
 const pagesFouded = ref(2);
@@ -135,12 +152,11 @@ const orderOptions = [
   { label: 'Duração (Mais Longo)', value: 'runtime,desc' },
   { label: 'Duração (Mais Curto)', value: 'runtime,asc' },
 ];
-
 const menuIsFocused = ref(false);
-
 const showMenu = computed<boolean>(() => {
-  return !!searchText.value && menuIsFocused.value && !!moviesSearchToolbar.value?.length;
+  return !!searchText.value && menuIsFocused.value && !!moviesWhenTyping.value?.length;
 });
+const selectedIndexMenu = ref<number | undefined>(undefined);
 
 onMounted(() => {
   loading.value = false;
@@ -154,7 +170,7 @@ watch(
   async (val: string) => {
     pagesFouded.value = 2;
     page.value = 1;
-    moviesSearchToolbar.value = (await searchMovies({ title: val })).content;
+    moviesWhenTyping.value = (await searchMovies({ title: val })).content;
   }
 );
 
@@ -275,5 +291,19 @@ async function loadGenres(): Promise<void> {
   } finally {
     loadingGenres.value = false;
   }
+}
+function moveSelection(step: number) {
+  const newIndex = (selectedIndexMenu.value ?? -1) + step;
+  const lenght = moviesWhenTyping.value?.length || 0;
+  if (newIndex >= 0 && newIndex < lenght) {
+    selectedIndexMenu.value = newIndex;
+  }
+}
+function searchFromIndexMenu() {
+  if (selectedIndexMenu.value === undefined || !moviesWhenTyping.value?.length) {
+    btnSearchAction();
+    return;
+  }
+  searchActionToolbar(moviesWhenTyping.value[selectedIndexMenu.value].portuguese_title);
 }
 </script>
