@@ -82,7 +82,6 @@ async function loadLastMovies() {
     loading.value = false;
   }
   const res = await MovieService.listMoviesPageable({ page: 1, size: isDesktop ? 10 : 3, sort: 'createdAt,desc' });
-  console.log(res);
   movies.value = res.content;
 }
 async function loadLastMoviesOnSocketEvent() {
