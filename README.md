@@ -60,7 +60,7 @@ Wishlist Page
   <img src="https://cdn.discordapp.com/attachments/1106797324329562164/1165794768249442397/www.cine.kronusboss.com_listaDeFilmes.png?ex=65ee42fc&is=65dbcdfc&hm=60b13a3a9d669f2bab8f27989639ca8386f506799a181799f57f5f61c9cc8eb7&" style="width: 500px;" />
 </p>
 <p align="center">
-  <img src="https://cdn.discordapp.com/attachments/1106797324329562164/1211803264530522157/Wishlist02.png?ex=65ef86bc&is=65dd11bc&hm=85c2c5f1974f267a05e1f1556055834326e856990d270b4ed65ee7e523770328&" style="width: 500px;" />
+  <img src="https://cdn.discordapp.com/attachments/1106797324329562164/1211805535700262963/Wishlist02.png?ex=65ef88d9&is=65dd13d9&hm=fa2a29ad07d24034b4ea1c1c6071d75296e7f8cf1a3bb18d5a70a2762403075a&" style="width: 500px;" />
 </p>
 
 
