@@ -5,8 +5,18 @@
         v-model:input-search="searchText"
         @search="firstSearch()"
         @refresh="resetSearch()"
-        @input-search-focus="menuIsFocused = $event"
+        @input-search-focus="
+          ($event) => {
+            if (!$event) selectedIndexMenu = undefined;
+            menuIsFocused = $event;
+          }
+        "
+        @keydown-enter:input-search="searchFromIndexMenu"
+        @keydown-up:input-search="moveSelection(-1)"
+        @keydown-down:input-search="moveSelection(1)"
+        @keydown-esc:input-search="selectedIndexMenu = undefined"
         :show-select="false"
+        :separeted-input-event="true"
       >
         <template #prepend>
           <div>
@@ -27,11 +37,25 @@
             />
             <CustomTooltip :delay="500">{{ shareable ? 'Lista Pública' : 'Lista Privada' }}</CustomTooltip>
           </div>
+          <div class="mobile-hide">
+            <div>
+              <q-btn @click="allowDrag = true" icon="reorder" :disable="allowDrag" flat round />
+              <CustomTooltip v-if="!allowDrag" :delay="500">Reordernar lista</CustomTooltip>
+            </div>
+          </div>
         </template>
         <template #input-search>
           <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
             <q-list dense dark>
-              <q-item v-for="movie in moviesWhenTyping" :key="movie.tmdb_id" bordered clickable>
+              <q-item
+                ref="itensMenuRef"
+                active-class="text-kb-primary bg-grey-mid2"
+                v-for="(movie, index) in moviesWhenTyping"
+                :key="movie.tmdb_id"
+                :active="selectedIndexMenu === index"
+                bordered
+                clickable
+              >
                 <q-item-section @click="searchFromMenu(movie.title)" v-close-popup class="q-pl-sm">{{
                   movie.title || movie.title_english || 'Erro ao carregar título'
                 }}</q-item-section>
@@ -42,9 +66,18 @@
         </template>
       </SearchToolbar>
     </div>
-    <div class="row justify-center q-mt-lg relative-position">
+    <div class="row justify-center q-mt-lg">
       <div class="row justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'" v-if="moviesFiltered?.length">
-        <div class="col-auto" v-for="movie in moviesFiltered" :key="movie.tmdb_id">
+        <div
+          class="col-auto"
+          v-for="(movie, index) in moviesFiltered"
+          :key="movie.tmdb_id"
+          :draggable="allowDrag"
+          @dragstart="dragStart(index)"
+          @dragover.prevent
+          @drop="drop(index)"
+          :style="{ opacity: draggedItemIndex === index ? '0.5' : '1' }"
+        >
           <WishlistCardImage
             :movie="movie"
             :wishlists="otherWishlists"
@@ -60,14 +93,14 @@
         <div class="text-h3 text-white">Ainda não há filmes nessa lista...</div>
       </div>
     </div>
-    <ConfirmDialog ref="confirmDialogRef" @ok="deteleMovieFromWishlist()" />
+    <ConfirmDialog ref="confirmDialogRef" @ok="deleteMovieFromWishlist()" />
     <DialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
-import { useQuasar } from 'quasar';
+import { QItem, useQuasar } from 'quasar';
 import { copyToClipboard } from 'quasar';
 import { useRouter } from 'vue-router';
 
@@ -89,21 +122,20 @@ const isDesktop = $q.platform.is.desktop;
 const router = useRouter();
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
-interface Props {
+const props = defineProps<{
   wishlist?: WishlistType;
   wishlists: WishlistType[];
   idParam?: string;
-}
-const props = defineProps<Props>();
+}>();
 
 const emit = defineEmits<{
   (e: 'back', value: void): void;
   (e: 'update:wishlist', value: WishlistType | undefined): void;
+  (e: 'search-wishlist', value: void): void;
 }>();
 
 const userStore = useUserStore();
 const userId = userStore.user.id;
-
 const searchText = ref('');
 const menuIsFocused = ref(false);
 const _wishlist = ref<WishlistType>();
@@ -114,12 +146,14 @@ const showDialogMovieSummary = ref(false);
 const movieIdDialog = ref<number>();
 const movieIdToDelete = ref<number>();
 const otherWishlists = ref<WishlistType[]>([]);
-
 const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
-
 const showMenu = computed<boolean>(() => {
   return !!searchText.value && menuIsFocused.value && !!moviesWhenTyping.value?.length;
 });
+const allowDrag = ref(false);
+const draggedItemIndex = ref<number | null>(null);
+const selectedIndexMenu = ref<number | undefined>(undefined);
+const itensMenuRef = ref<InstanceType<typeof QItem>[]>();
 
 onMounted(async () => {
   if (props?.idParam) {
@@ -134,7 +168,6 @@ watch(
     moviesWhenTyping.value = filterMovies();
   }
 );
-
 watch(
   () => props.wishlist,
   () => {
@@ -147,13 +180,60 @@ watch(
     shareable.value = props?.wishlist?.shareable || false;
   }
 );
-
 watch(
   () => _wishlist.value,
   (val) => {
     emit('update:wishlist', val);
   },
   { deep: true }
+);
+watch(
+  () => allowDrag.value,
+  (val) => {
+    if (!val) {
+      return;
+    }
+
+    $q.notify({
+      icon: 'announcement',
+      color: 'grey-mid',
+      message: 'Reordene sua lista! Arraste e solte as imagens para organizá-las como desejar',
+      position: 'top',
+      progress: true,
+      timeout: 3000,
+      actions: [
+        {
+          icon: 'close',
+          color: 'white',
+        },
+      ],
+    });
+
+    $q.notify({
+      color: 'grey-mid',
+      message: 'Deseja salvar a ordenação?',
+      position: 'bottom',
+      timeout: 0,
+      multiLine: false,
+      actions: [
+        {
+          icon: 'done',
+          color: 'white',
+          handler() {
+            reorderWishlistAndUpdate();
+          },
+        },
+        {
+          icon: 'close',
+          color: 'white',
+          handler() {
+            allowDrag.value = false;
+            searchWishlistById();
+          },
+        },
+      ],
+    });
+  }
 );
 
 function showLoading() {
@@ -249,7 +329,7 @@ function openConfirmDialogRemoveMovie(movie: ArrayElement<WishlistType['movies_w
     ok: 'Sim',
   });
 }
-async function deteleMovieFromWishlist() {
+async function deleteMovieFromWishlist() {
   if (!_wishlist.value) {
     return;
   }
@@ -287,5 +367,48 @@ function copyMovieUrl(id: number) {
 
   copyToClipboard(`${window.location.origin}/movie/discover?movie=${id}`);
   showSuccess('URL copiada');
+}
+function dragStart(index: number) {
+  draggedItemIndex.value = index;
+}
+function drop(index: number) {
+  if (!moviesFiltered.value || !draggedItemIndex.value) {
+    return;
+  }
+
+  const draggedItem = moviesFiltered.value[draggedItemIndex.value];
+  moviesFiltered.value?.splice(draggedItemIndex.value, 1);
+  moviesFiltered.value?.splice(index, 0, draggedItem);
+  draggedItemIndex.value = null;
+}
+async function reorderWishlistAndUpdate() {
+  allowDrag.value = false;
+  if (!_wishlist.value) {
+    return;
+  }
+  const res = await updateWishlist(_wishlist.value);
+  if (!res) {
+    return;
+  }
+  _wishlist.value = res;
+  moviesFiltered.value = res.movies_wishlists;
+  showSuccess('Lista reordenada');
+}
+function moveSelection(step: number) {
+  const newIndex = (selectedIndexMenu.value ?? -1) + step;
+  const lenght = moviesWhenTyping.value?.length || 0;
+  if (newIndex >= 0 && newIndex < lenght) {
+    selectedIndexMenu.value = newIndex;
+  }
+  if (itensMenuRef.value?.length && selectedIndexMenu.value) {
+    itensMenuRef.value[selectedIndexMenu.value]?.$el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+function searchFromIndexMenu() {
+  if (selectedIndexMenu.value === undefined || !moviesWhenTyping.value?.length) {
+    firstSearch();
+    return;
+  }
+  searchFromMenu(moviesWhenTyping.value[selectedIndexMenu.value].title);
 }
 </script>

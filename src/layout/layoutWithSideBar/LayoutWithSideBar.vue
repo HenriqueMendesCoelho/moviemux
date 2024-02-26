@@ -1,6 +1,7 @@
 <template>
+  <MobileToolbar class="mobile-only" />
   <SideBar />
-  <div v-touch-swipe.mouse.right="showSideBar" ref="containerLayoutRef" :class="getClass()" class="scroll" style="height: 100vh">
+  <div ref="containerLayoutRef" :class="getClass()" class="scroll" style="height: 100vh">
     <router-view v-slot="{ Component }">
       <KeepAlive :include="['HomePage', 'DiscoverMoviesPage']">
         <component :is="Component" />
@@ -19,6 +20,7 @@ import { useStyleStore } from 'src/stores/StyleStore';
 
 import SideBar from './sidebar/SideBar.vue';
 import DialogLogin from 'src/components/login/DialogLogin.vue';
+import MobileToolbar from './mobileToolbar/MobileToolbar.vue';
 
 const $q = useQuasar();
 const isMobile = $q.platform.is.mobile;
@@ -51,9 +53,6 @@ function getClass() {
   }
 
   return isSideBarExpanded.value ? 'expanded-sidebar' : 'not-expanded-sidebar';
-}
-function showSideBar() {
-  styleStore.layoutSettings.isSideBarExpanded = true;
 }
 </script>
 

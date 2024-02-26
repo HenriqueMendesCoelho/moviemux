@@ -5,18 +5,36 @@
       <SeparatorDivLineSolid class="q-mb-xl" />
       <div class="scroll col-12">
         <SearchToolbar
-          :order-options="filterOptions"
           v-model:input-search="searchText"
           v-model:select-order="selectOrder"
+          :order-options="filterOptions"
           select-order-label="filtrar"
           @search="firstSearch()"
           @refresh="resetSearch()"
-          @input-search-focus="menuIsFocused = $event"
+          @input-search-focus="
+            ($event) => {
+              if (!$event) selectedIndexMenu = undefined;
+              menuIsFocused = $event;
+            }
+          "
+          @keydown-enter:input-search="searchFromIndexMenu"
+          @keydown-up:input-search="moveSelection(-1)"
+          @keydown-down:input-search="moveSelection(1)"
+          @keydown-esc:input-search="selectedIndexMenu = undefined"
+          :separeted-input-event="true"
         >
           <template #input-search>
             <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
               <q-list dense dark>
-                <q-item v-for="movie in moviesWhenTyping" :key="movie.id" bordered clickable>
+                <q-item
+                  ref="itensMenuRef"
+                  active-class="text-kb-primary bg-grey-mid2"
+                  v-for="(movie, index) in moviesWhenTyping"
+                  :key="movie.id"
+                  :active="selectedIndexMenu === index"
+                  bordered
+                  clickable
+                >
                   <q-item-section @click="searchFromMenu(movie.title)" v-close-popup class="q-pl-sm">{{ movie.title }}</q-item-section>
                 </q-item>
                 <q-separator dark v-if="!!moviesWhenTyping ? moviesWhenTyping?.length > 1 : false" />
@@ -78,7 +96,7 @@
         <div class="col-12 row justify-center q-my-md" v-if="loading">
           <q-spinner color="kb-primary" size="50px" />
         </div>
-        <FloatingActionBtnTop />
+        <FloatingActionBtnTop class="mobile-hide" />
       </div>
       <DialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" position="standard" @hide="onHideDialog()">
         <template #prepend:bar>
@@ -100,7 +118,7 @@
 
 <script lang="ts" setup>
 import { computed, onActivated, onMounted, onUpdated, ref, watch, nextTick } from 'vue';
-import { useQuasar } from 'quasar';
+import { QItem, useQuasar } from 'quasar';
 import { useRoute } from 'vue-router';
 import { useRouter } from 'vue-router';
 
@@ -157,6 +175,8 @@ const showMenu = computed<boolean>(() => {
 });
 const styleStore = useStyleStore();
 const scrollToTop = () => styleStore.scrollToContainer(0, 0, 'smooth');
+const selectedIndexMenu = ref<number | undefined>(undefined);
+const itensMenuRef = ref<InstanceType<typeof QItem>[]>();
 
 onMounted(async () => {
   await firstSearch();
@@ -430,5 +450,22 @@ async function loadGenres(): Promise<void> {
   } finally {
     loadingGenres.value = false;
   }
+}
+function moveSelection(step: number) {
+  const newIndex = (selectedIndexMenu.value ?? -1) + step;
+  const lenght = moviesWhenTyping.value?.length || 0;
+  if (newIndex >= 0 && newIndex < lenght) {
+    selectedIndexMenu.value = newIndex;
+  }
+  if (itensMenuRef.value?.length && selectedIndexMenu.value) {
+    itensMenuRef.value[selectedIndexMenu.value]?.$el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+function searchFromIndexMenu() {
+  if (selectedIndexMenu.value === undefined || !moviesWhenTyping.value?.length) {
+    firstSearch();
+    return;
+  }
+  searchFromMenu(moviesWhenTyping.value[selectedIndexMenu.value].title);
 }
 </script>

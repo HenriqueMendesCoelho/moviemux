@@ -2,7 +2,7 @@
   <div class="card-discover" :class="`${!selected && !loading && 'animate'}`">
     <router-link :to="`/movie/discover?movie=${movie.id}`">
       <CardImage :class="`${selected && 'img-movie-selected'}`" :src="getUrl()" @click="clickOnCard" :animate="false">
-        <div class="absolute-bottom hover-show-img text-center" v-if="!selected && !loading">
+        <div class="absolute-bottom hover-show-img text-center mobile-hide" v-if="!selected && !loading">
           {{ props.movie?.title }}<br />
           {{ DateUtils.toLocaleDateStringLong(props.movie.release_date) }}
         </div>
@@ -170,7 +170,7 @@ function mergeResult(wishlistId: string, newWishlist: WishlistType) {
   wishlists.value[index] = newWishlist;
 }
 function isInAnyWishlist() {
-  return wishlists.value.some((w) => w.movies_wishlists.some((m) => m.tmdb_id === props.movie.id));
+  return wishlists.value?.some((w) => w.movies_wishlists?.some((m) => m.tmdb_id === props.movie.id));
 }
 function clickOnCard() {
   if (loading.value) {

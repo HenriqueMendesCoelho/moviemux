@@ -1,5 +1,5 @@
 import { route } from 'quasar/wrappers';
-import { Cookies, useMeta, useQuasar } from 'quasar';
+import { Cookies, useMeta, Platform } from 'quasar';
 import { RouteLocationNormalized, createMemoryHistory, createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
 
 import routes from './routes';
@@ -73,12 +73,10 @@ export default route(function (/* { store, ssrContext } */ { ssrContext }) {
     }
   });
 
-  Router.afterEach((to) => {
+  Router.afterEach((to, from) => {
     setMetaTags(to);
-
-    const $q = useQuasar();
-    const isMobile = $q.platform.is.mobile;
-    if (isMobile) {
+    scrollTopOnRouteChange(to, from);
+    if (Platform.is.mobile) {
       const styleStore = useStyleStore();
       styleStore.layoutSettings.isSideBarExpanded = false;
     }
@@ -114,4 +112,18 @@ function setMetaTags(route: RouteLocationNormalized) {
     meta.meta['twitterImage'] = { property: 'twitter:image', content: defaultImage };
   }
   useMeta(meta);
+}
+
+function scrollTopOnRouteChange(to: RouteLocationNormalized, from: RouteLocationNormalized) {
+  const toName = to.name?.toString() || '';
+  const fromName = from.name?.toString() || '';
+  if (!toName || !fromName) {
+    return;
+  }
+  if (toName === fromName) {
+    return;
+  }
+
+  const styleStore = useStyleStore();
+  styleStore.scrollToContainer(0, 0, 'auto');
 }

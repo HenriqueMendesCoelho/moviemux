@@ -27,6 +27,8 @@
   @media only screen and (max-width: $breakpoint-md-min) {
     padding: 0.5rem;
     margin-left: auto;
+    margin-top: 4rem;
+    min-height: calc(100svh - 4rem);
   }
 }
 </style>

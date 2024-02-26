@@ -17,21 +17,26 @@ export default defineComponent({
     ...mapState(useStyleStore, ['layoutSettings']),
   },
   mounted() {
-    if (Cookies.get('theme') === 'dark') {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      return;
-    } else if (Cookies.get('theme') === 'light') {
-      document.documentElement.setAttribute('data-theme', 'light');
-      return;
-    }
+    const cookieTheme = Cookies.get('theme') as 'dark' | 'light';
+    this.setCookieTheme(cookieTheme);
+  },
+  methods: {
+    setCookieTheme(cookieTheme: 'dark' | 'light') {
+      if (cookieTheme) {
+        this.setCookie(cookieTheme);
+        return;
+      }
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        this.setCookie('dark');
+        return;
+      }
 
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      Cookies.set('theme', 'dark');
-      document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
-      Cookies.set('theme', 'light');
-      document.documentElement.setAttribute('data-theme', 'light');
-    }
+      this.setCookie('light');
+    },
+    setCookie(theme: 'dark' | 'light') {
+      Cookies.set('theme', theme, { expires: 30 });
+      document.documentElement.setAttribute('data-theme', theme);
+    },
   },
 });
 </script>
@@ -112,6 +117,7 @@ button {
 
 @media only screen and (max-width: $breakpoint-md-min) {
   ::-webkit-scrollbar {
+    width: 0rem;
     height: 0.25rem;
   }
 }

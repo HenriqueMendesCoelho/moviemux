@@ -48,7 +48,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { useQuasar, useMeta } from 'quasar';
+import { useQuasar } from 'quasar';
 import { onMounted, ref } from 'vue';
 
 import { InputValidateRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
@@ -56,16 +56,6 @@ import { useUserStore } from 'src/stores/UserStore';
 import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 import InputPassword from 'src/components/shared/inputPassword/InputPassword.vue';
 import { useRoute, useRouter } from 'vue-router';
-
-useMeta({
-  script: {
-    googleScript: {
-      src: 'https://apis.google.com/js/platform.js',
-      async: void 0,
-      defer: true,
-    },
-  },
-});
 
 type btnFocusRefType = {
   $el: {
