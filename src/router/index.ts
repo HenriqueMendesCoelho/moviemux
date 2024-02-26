@@ -1,5 +1,5 @@
 import { route } from 'quasar/wrappers';
-import { Cookies, useMeta, useQuasar } from 'quasar';
+import { Cookies, useMeta, Platform } from 'quasar';
 import { RouteLocationNormalized, createMemoryHistory, createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
 
 import routes from './routes';
@@ -76,9 +76,7 @@ export default route(function (/* { store, ssrContext } */ { ssrContext }) {
   Router.afterEach((to, from) => {
     setMetaTags(to);
     scrollTopOnRouteChange(to, from);
-    const $q = useQuasar();
-    const isMobile = $q.platform.is.mobile;
-    if (isMobile) {
+    if (Platform.is.mobile) {
       const styleStore = useStyleStore();
       styleStore.layoutSettings.isSideBarExpanded = false;
     }
