@@ -30,24 +30,27 @@ Vue.js, Java 20, Spring Boot, Hibernate, Apache Maven, PostgreSQL, Discord API, 
 Home Page
 </p>
 <p align="center">
-  <img src="[https://cdn.discordapp.com/attachments/1106797324329562164/1125492288039170228/image.png](https://cdn.discordapp.com/attachments/1106797324329562164/1125492288039170228/image.png?ex=65e611e0&is=65d39ce0&hm=614585f8d85de1ffaa89febfdc3defabaef5b43ed94d4c28ba689483d8d84dc4&)" style="width: 500px;" />
+  <img src="https://cdn.discordapp.com/attachments/1106797324329562164/1125492288039170228/image.png?ex=65e611e0&is=65d39ce0&hm=614585f8d85de1ffaa89febfdc3defabaef5b43ed94d4c28ba689483d8d84dc4&" style="width: 500px;" />
 </p>
 <p align="center">
-  <img src="[https://media.discordapp.net/attachments/1106797324329562164/1125492713815556217/image.png?width=1793&height=90](https://cdn.discordapp.com/attachments/1106797324329562164/1125492713815556217/image.png?ex=65e61245&is=65d39d45&hm=6404dad5fd7fd2c0b83491be7963d3e9726844ec9ed87e9807d22c593e270ce9&)5" style="width: 500px;" />
+  <img src="https://cdn.discordapp.com/attachments/1106797324329562164/1125492713815556217/image.png?ex=65e61245&is=65d39d45&hm=6404dad5fd7fd2c0b83491be7963d3e9726844ec9ed87e9807d22c593e270ce9&" style="width: 500px;" />
 </p>
 
 <p align="center">
 Movie Page
 </p>
 <p align="center">
-  <img src="[https://cdn.discordapp.com/attachments/1106797324329562164/1125493073787486288/image.png](https://cdn.discordapp.com/attachments/1106797324329562164/1125493073787486288/image.png?ex=65e6129b&is=65d39d9b&hm=9871a8755abc846c2d2ca4debbf5c2a1ab79cf9eb982aa139f686b715d1841a3&)" style="width: 500px;" />
+  <img src="https://cdn.discordapp.com/attachments/1106797324329562164/1165794687009955953/www.cine.kronusboss.com_filme.png?ex=65ee42e8&is=65dbcde8&hm=35c62d37a3bfa029e4bae57d48f39559e97852f98d9b899f571f23be058f53d4&" style="width: 500px;" />
 </p>
 
 <p align="center">
 Discover Page
 </p>
 <p align="center">
-  <img src="[https://media.discordapp.net/attachments/1106797324329562164/1125492578062708868/image.png?width=1793&height=905](https://cdn.discordapp.com/attachments/1106797324329562164/1125492578062708868/image.png?ex=65e61225&is=65d39d25&hm=2646e2ea60da899d3e7ee072e0ed651f7a1034a853ed865377c6d44b212bfe35&)" style="width: 500px;" />
+  <img src="https://cdn.discordapp.com/attachments/1106797324329562164/1165794640054714419/www.cine.kronusboss.com_descobrir.png?ex=65ee42dd&is=65dbcddd&hm=ab6886067efe63a006781c7491732194a41c608cd68590c29db493d36813848d&" style="width: 500px;" />
+</p>
+<p align="center">
+  <img src="https://cdn.discordapp.com/attachments/1106797324329562164/1165794661596659722/www.cine.kronusboss.com_descobrir2.png?ex=65ee42e2&is=65dbcde2&hm=a314f4c4899c1dfcd7982917742d9aeb714d646ade2eebb7cf9c0fbd3f64522e&" style="width: 500px;" />
 </p>
 
 <p align="center">
