@@ -82,6 +82,7 @@
             :movie="movie"
             :wishlists="otherWishlists"
             :show-remove-item="wishlist?.user.id === userId"
+            :animate="!allowDrag"
             @click-on-image="openDialogSummary(movie.tmdb_id)"
             @remove-movie="openConfirmDialogRemoveMovie(movie)"
             @copy-url="copyMovieUrl(movie.tmdb_id)"
