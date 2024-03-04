@@ -1,5 +1,10 @@
 <template>
-  <CardImage :class="`${selected && 'img-movie-selected'}`" :src="getUrl()" @click="emit('clickOnImage')" :animate="!selected">
+  <CardImage
+    :class="`${selected && 'img-movie-selected'}`"
+    :src="getUrl()"
+    @click="emit('clickOnImage')"
+    :animate="!selected && props.animate"
+  >
     <div class="absolute-bottom hover-show-img text-center desktop-only" v-if="!selected">
       {{ props.movie?.title }}<br />
       {{ DateUtils.toLocaleDateStringLong(props.movie.release_date) }}
@@ -80,12 +85,12 @@ import DateUtils from 'src/utils/DateUtils';
 import WishlistService from 'src/services/WishlistService';
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
-interface Props {
+const props = defineProps<{
   movie: ArrayElement<WishlistType['movies_wishlists']>;
   wishlists: WishlistType[];
   showRemoveItem: boolean;
-}
-const props = defineProps<Props>();
+  animate: boolean;
+}>();
 
 interface Emits {
   (e: 'clickOnImage', value: void): void;
