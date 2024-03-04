@@ -86,6 +86,7 @@
             @click-on-image="openDialogSummary(movie.tmdb_id)"
             @remove-movie="openConfirmDialogRemoveMovie(movie)"
             @copy-url="copyMovieUrl(movie.tmdb_id)"
+            :style="allowDrag && 'cursor: all-scroll'"
           />
         </div>
         <FloatingActionBtnTop class="desktop-only" />
