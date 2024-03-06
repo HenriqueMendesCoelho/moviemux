@@ -367,8 +367,9 @@ function copyMovieUrl(id: number) {
     return;
   }
 
-  copyToClipboard(`${window.location.origin}/movie/discover?movie=${id}`);
-  showSuccess('URL copiada');
+  copyToClipboard(`${window.location.origin}/movie/discover?movie=${id}`)
+    .then(() => showSuccess('URL copiada'))
+    .catch(() => showError('Erro ao copiar URL'));
 }
 function dragStart(index: number) {
   draggedItemIndex.value = index;
