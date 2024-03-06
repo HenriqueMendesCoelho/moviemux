@@ -1,4 +1,4 @@
-FROM node:20.5.1-slim as build-stage
+FROM node:20.11.1-slim as build-stage
 WORKDIR /usr/src/app
 COPY . .
 RUN corepack enable
