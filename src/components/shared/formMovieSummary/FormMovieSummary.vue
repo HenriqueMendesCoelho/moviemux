@@ -1,20 +1,20 @@
 <template>
   <div class="row justify-center text-white" :class="!isMobile && 'q-mx-md'">
-    <div class="col-md-3 col-xs-12 q-px-lg text-center justify-center row">
+    <div class="col-md-4 col-xs-12 q-px-lg text-center justify-center row">
       <q-img
         class="col-12"
         style="border-radius: 20px; max-height: 100% !important"
         :src="movie.url_image"
         :draggable="false"
-        :width="isMobile ? '200px' : '600px'"
-        :height="isMobile ? '350px' : '750px'"
+        :width="getImgWidth()"
+        :height="getImgHeight()"
         v-if="movie?.url_image"
       />
       <q-skeleton v-else width="600px" height="750px" animation="fade" dark bordered />
     </div>
 
-    <div class="col-md-9 col-xs-12">
-      <div class="row" :class="screenHeight > 1080 ? 'q-col-gutter-y-lg' : 'q-col-gutter-y-md'">
+    <div class="col-md-8 col-xs-12">
+      <div class="row" :class="!isScreenLtLg ? 'q-col-gutter-y-lg' : 'q-col-gutter-y-md'">
         <div class="col-12 text-title-responsive-2">Informações</div>
         <div class="col-12 row q-col-gutter-sm">
           <InputText
@@ -168,7 +168,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
 import Movie from 'src/domain/movie/movie';
@@ -185,6 +185,7 @@ import StringUtils from 'src/utils/StringUtils';
 const $q = useQuasar();
 const isMobile = $q.platform.is.mobile;
 const screenHeight = $q.screen.height;
+const isScreenLtLg = computed(() => $q.screen.lt.lg);
 
 const movie = ref(new Movie());
 
@@ -288,6 +289,27 @@ function getImageUrl(path?: string, size = 'w342') {
 }
 function getUrl(key: string) {
   return key ? `https://www.youtube.com/embed/${key}` : '';
+}
+function getImgWidth() {
+  if (isMobile) {
+    return '200px';
+  }
+  if (screenHeight <= 1050) {
+    return '350px';
+  }
+
+  return '600px';
+}
+function getImgHeight() {
+  if (isMobile) {
+    return '350px';
+  }
+
+  if (screenHeight <= 1050) {
+    return '450px';
+  }
+
+  return '750px';
 }
 </script>
 src/utils/StringUtils

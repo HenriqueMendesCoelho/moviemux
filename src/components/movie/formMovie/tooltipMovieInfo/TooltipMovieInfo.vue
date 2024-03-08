@@ -1,6 +1,6 @@
 <template>
   <CustomTooltip class="q-pa-none q-ma-none" :delay="1200" :hide-delay="300" style="border-radius: 15px">
-    <q-list bordered dark style="border-radius: 15px; min-width: 15vw">
+    <q-list bordered dark style="border-radius: 15px; min-width: 15vw" :dense="dense()">
       <q-item>
         <q-item-section avatar>
           <q-icon color="white" name="fa-solid fa-crown" />
@@ -28,15 +28,16 @@
   </CustomTooltip>
 </template>
 <script lang="ts" setup>
-import { useMovieStore } from 'src/stores/MovieStore';
 import { computed } from 'vue';
+import { useQuasar } from 'quasar';
 
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
+import { useMovieStore } from 'src/stores/MovieStore';
 import DateUtils from 'src/utils/DateUtils';
 
+const $q = useQuasar();
 const movieStore = useMovieStore();
-
 const movie = computed(() => movieStore.moviePage.selectedMovie);
 
 function getCreatedAt() {
@@ -46,12 +47,14 @@ function getCreatedAt() {
 
   return DateUtils.toLocaleString(movie.value.created_at);
 }
-
 function getUpdatedAt() {
   if (!movie.value.updated_at) {
     return 'Erro ao carregar';
   }
 
   return DateUtils.toLocaleString(movie.value.updated_at);
+}
+function dense() {
+  return $q.screen.height <= 1050;
 }
 </script>
