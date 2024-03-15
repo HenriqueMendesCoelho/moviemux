@@ -118,6 +118,8 @@ import BtnMoviesAlreadyRated from './btnMoviesAlreadyRated/BtnMoviesAlreadyRated
 
 import { useUserStore } from 'src/stores/UserStore';
 import WishlistService from 'src/services/WishlistService';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
+import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
 
 const $q = useQuasar();
 const isDesktop = $q.platform.is.desktop;
@@ -237,29 +239,6 @@ watch(
     });
   }
 );
-
-function showLoading() {
-  $q.loading.show({
-    spinnerColor: 'kb-primary',
-  });
-}
-function hideLoading() {
-  $q.loading.hide();
-}
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 function firstSearch() {
   searchMoviesAction();

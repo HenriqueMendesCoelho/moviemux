@@ -39,12 +39,12 @@
 </template>
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { useQuasar } from 'quasar';
 
 import { InputValidateRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
 import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 
 import UserService from 'src/services/UserService';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
 
 interface Props {
   createAccount: boolean;
@@ -59,25 +59,9 @@ const emit = defineEmits<{
   (e: 'loading', value: boolean): void;
 }>();
 
-const $q = useQuasar();
 const inputEmailRef = ref<InputValidateRefType>();
 const email = ref('');
 const regexEmail = ref(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
-
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 function changeTab(tab: string) {
   emit('changeTab', tab);

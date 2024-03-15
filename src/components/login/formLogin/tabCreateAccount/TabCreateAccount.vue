@@ -75,12 +75,14 @@ import { ref } from 'vue';
 import { useQuasar } from 'quasar';
 import axios, { AxiosError } from 'axios';
 
-import { InputValidateRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
-import UserService from 'src/services/UserService';
+import type { InputValidateRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
 
 import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 import TooltipPassowordInfo from './tooltipPasswordInfo/TooltipPassowordInfo.vue';
 import InputPassword from 'src/components/shared/inputPassword/InputPassword.vue';
+
+import UserService from 'src/services/UserService';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
 
 const emit = defineEmits<{
   (e: 'changeTab', value: string): void;
@@ -109,21 +111,6 @@ const nickname = ref('');
 const regexEmail = ref<RegExp>(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
 const tooltipPassword = ref(false);
 
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-    timeout: 10000,
-  });
-}
 function showErrorPassword() {
   $q.notify({
     type: 'warning',

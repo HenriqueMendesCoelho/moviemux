@@ -30,10 +30,13 @@ import { onActivated, onMounted, ref, watch } from 'vue';
 import { useQuasar, Cookies } from 'quasar';
 
 import Movie from 'src/domain/movie/movie';
+
+import CardImageMovie from './cardImageLastMovies/CardImageLastMovies.vue';
+
 import MovieService from 'src/services/MovieService';
 import { socketAllMovies, stateSocketAllMovies } from 'src/boot/socket';
 
-import CardImageMovie from './cardImageLastMovies/CardImageLastMovies.vue';
+import { showError } from 'src/utils/NotificationUtils';
 
 const $q = useQuasar();
 const isDesktop = $q.platform.is.desktop;
@@ -64,14 +67,6 @@ watch(
   },
   { deep: true }
 );
-
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 async function loadLastMovies() {
   try {

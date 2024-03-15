@@ -81,8 +81,8 @@ import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue
 import ContextMenuWishlistImage from './contextMenuWishlistImage/ContextMenuWishlistImage.vue';
 
 import DateUtils from 'src/utils/DateUtils';
-
 import WishlistService from 'src/services/WishlistService';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 const props = defineProps<{
@@ -116,21 +116,6 @@ watch(
     setWishlists();
   }
 );
-
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 function getUrl() {
   return `https://image.tmdb.org/t/p/w500${props.movie?.url_image}`;

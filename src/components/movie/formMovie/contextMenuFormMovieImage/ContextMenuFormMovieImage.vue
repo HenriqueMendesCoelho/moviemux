@@ -16,7 +16,6 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { useQuasar } from 'quasar';
 
 import { useMovieStore } from 'src/stores/MovieStore';
 import { useUserStore } from 'src/stores/UserStore';
@@ -25,29 +24,14 @@ import ContextMenu from 'src/components/shared/contextMenu/ContextMenu.vue';
 import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
 
 import DiscordService from 'src/services/DiscordService';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
 
-const $q = useQuasar();
 const movieStore = useMovieStore();
 const movie = computed(() => movieStore.moviePage.selectedMovie);
 
 const userStore = useUserStore();
 
 const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
-
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 function showConfirmDialog(action: string) {
   const actionTextMessage = action === 'send' ? 'enviar' : 'atualizar';

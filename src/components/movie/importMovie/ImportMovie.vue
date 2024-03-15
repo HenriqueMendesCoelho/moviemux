@@ -60,13 +60,15 @@ import { useMovieStore } from 'src/stores/MovieStore';
 
 import type { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
 
-import KitService from 'src/services/KitService';
-
 import InputText from 'src/components/shared/inputText/InputText.vue';
 import SeparatorDivSolidLine from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 import Movie from 'src/domain/movie/movie';
 import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
 import CardImage from 'src/components/shared/cardImage/CardImage.vue';
+
+import KitService from 'src/services/KitService';
+import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
 
 type divScrollTopRef = {
   $el: {
@@ -90,29 +92,6 @@ const text = ref('');
 const movieId = ref(0);
 
 const moviePage = computed(() => movieStore.moviePage);
-
-function showLoading() {
-  $q.loading.show({
-    spinnerColor: 'kb-primary',
-  });
-}
-function hideLoading() {
-  $q.loading.hide();
-}
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 watch(
   () => moviePage.value.showImportMovieDialog,

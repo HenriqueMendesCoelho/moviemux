@@ -106,6 +106,8 @@ import type { Credits, CastMember, CrewMember } from 'src/types/movie/MovieType'
 import SeparatorDivLineSolid from '../separator/SeparatorDivLineSolid.vue';
 
 import KitService from 'src/services/KitService';
+import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
+import { showError } from 'src/utils/NotificationUtils';
 
 const props = defineProps<{ modelValue: boolean; movieId: number }>();
 const emit = defineEmits<{
@@ -132,22 +134,6 @@ watch(
     emit('update:modelValue', val);
   }
 );
-
-function showLoading() {
-  $q.loading.show({
-    spinnerColor: 'kb-primary',
-  });
-}
-function hideLoading() {
-  $q.loading.hide();
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 async function getCredits() {
   try {

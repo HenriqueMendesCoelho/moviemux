@@ -27,12 +27,12 @@
 </template>
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { useQuasar } from 'quasar';
 
 import FormMovieSummary from '../FormMovieSummary.vue';
 import CustomTooltip from '../../customTooltip/CustomTooltip.vue';
 
-const $q = useQuasar();
+import { showSuccess } from 'src/utils/NotificationUtils';
+
 const props = defineProps<{ modelValue: boolean; movieId?: number }>();
 
 const visible = ref(false);
@@ -56,14 +56,6 @@ watch(
     emit('update:modelValue', val);
   }
 );
-
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
 
 async function loadMovie() {
   await formMovieSummaryRef.value?.getMovie();

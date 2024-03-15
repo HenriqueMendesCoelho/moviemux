@@ -12,13 +12,16 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 
+import { useUserStore } from 'src/stores/UserStore';
+
 import type { WishlistType } from 'src/types/wishlist/WishlistType';
 
 import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
-import { useUserStore } from 'src/stores/UserStore';
 import WishlistService from 'src/services/WishlistService';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
+import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
 
 interface Props {
   wishlist?: WishlistType;
@@ -51,29 +54,6 @@ watch(
     }
   }
 );
-
-function showLoading() {
-  $q.loading.show({
-    spinnerColor: 'kb-primary',
-  });
-}
-function hideLoading() {
-  $q.loading.hide();
-}
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 async function searchMoviesRated() {
   if (!props.wishlist?.id) {

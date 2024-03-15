@@ -173,14 +173,15 @@ import { useQuasar } from 'quasar';
 
 import Movie from 'src/domain/movie/movie';
 
-import KitService from 'src/services/KitService';
-import MovieService from 'src/services/MovieService';
-
 import InputText from '../inputText/InputText.vue';
 import MovieWatchProviders from './movieWatchProviders/MovieWatchProviders.vue';
 import BtnDialogCast from '../dialogCast/BtnDialogCast.vue';
 
+import KitService from 'src/services/KitService';
+import MovieService from 'src/services/MovieService';
 import StringUtils from 'src/utils/StringUtils';
+import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
+import { showError } from 'src/utils/NotificationUtils';
 
 const $q = useQuasar();
 const isMobile = $q.platform.is.mobile;
@@ -199,24 +200,6 @@ onMounted(async () => {
     await getMovie();
   }
 });
-
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
-
-function showLoading() {
-  $q.loading.show({
-    spinnerColor: 'kb-primary',
-  });
-}
-
-function hideLoading() {
-  $q.loading.hide();
-}
 
 function runtimeToText() {
   return StringUtils.runtimeToText(movie.value.runtime);

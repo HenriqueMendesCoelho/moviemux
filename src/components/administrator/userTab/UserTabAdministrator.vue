@@ -52,17 +52,17 @@
 
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
-import { useQuasar } from 'quasar';
 
 import User from 'src/domain/user/User';
-import UserService from 'src/services/UserService';
-import { useUserStore } from 'src/stores/UserStore';
 
 import PanelUserInfo from 'src/components/shared/panelUserInfo/PanelUserInfo.vue';
 import InputText from 'src/components/shared/inputText/InputText.vue';
 import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 
-const $q = useQuasar();
+import UserService from 'src/services/UserService';
+import { useUserStore } from 'src/stores/UserStore';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
+import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
 
 const storeUser = useUserStore();
 
@@ -70,29 +70,6 @@ const email = ref('');
 const user = ref(new User());
 
 const userStore = computed(() => storeUser.user);
-
-function showLoading() {
-  $q.loading.show({
-    spinnerColor: 'kb-primary',
-  });
-}
-function hideLoading() {
-  $q.loading.hide();
-}
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 async function searchUser(showSuccessMessage = true) {
   if (!email.value) {

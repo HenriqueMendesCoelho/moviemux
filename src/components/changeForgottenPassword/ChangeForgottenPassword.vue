@@ -69,15 +69,15 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useQuasar } from 'quasar';
 
 import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue';
 import PageTitle from '../shared/pageTitle/PageTitle.vue';
 import InputPassword from '../shared/inputPassword/InputPassword.vue';
 
 import UserService from 'src/services/UserService';
+import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
+import { showError } from 'src/utils/NotificationUtils';
 
-const $q = useQuasar();
 const route = useRoute();
 const router = useRouter();
 
@@ -100,22 +100,6 @@ onMounted(() => {
     router.push('/login');
   }
 });
-
-function showLoading() {
-  $q.loading.show({
-    spinnerColor: 'kb-primary',
-  });
-}
-function hideLoading() {
-  $q.loading.hide();
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 async function redefinePassword() {
   if (hasErrors()) {

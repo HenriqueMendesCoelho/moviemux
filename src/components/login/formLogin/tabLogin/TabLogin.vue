@@ -48,14 +48,16 @@
   </div>
 </template>
 <script setup lang="ts">
-import { useQuasar } from 'quasar';
 import { onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
-import { InputValidateRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
 import { useUserStore } from 'src/stores/UserStore';
+
+import type { InputValidateRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
+
 import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 import InputPassword from 'src/components/shared/inputPassword/InputPassword.vue';
-import { useRoute, useRouter } from 'vue-router';
+import { showError } from 'src/utils/NotificationUtils';
 
 type btnFocusRefType = {
   $el: {
@@ -79,7 +81,6 @@ const emit = defineEmits<{
 const route = useRoute();
 const router = useRouter();
 
-const $q = useQuasar();
 const inputEmailRef = ref<InputValidateRefType>();
 const inputPasswordRef = ref<InputValidateRefType>();
 const btnLoginRef = ref<btnFocusRefType>();
@@ -92,14 +93,6 @@ const password = ref('');
 onMounted(() => {
   btnLoginRef.value?.$el.focus();
 });
-
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 function changeTab(tab: string) {
   emit('changeTab', tab);

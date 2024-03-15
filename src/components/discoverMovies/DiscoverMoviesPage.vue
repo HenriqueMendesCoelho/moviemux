@@ -81,7 +81,7 @@
         </SearchToolbar>
       </div>
       <div class="row justify-center q-mt-lg">
-        <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="1500">
+        <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="10">
           <div class="row justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'">
             <div class="col-auto" v-for="(movie, index) in movies" :key="index">
               <CardImageDiscoverMovies
@@ -124,8 +124,8 @@ import { useRouter } from 'vue-router';
 
 import { useStyleStore } from 'src/stores/StyleStore';
 
-import { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
-import { WishlistType } from 'src/types/wishlist/WishlistType';
+import type { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
+import type { WishlistType } from 'src/types/wishlist/WishlistType';
 
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import SearchToolbar from '../shared/searchToolbar/SearchToolbar.vue';
@@ -140,6 +140,8 @@ import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue
 import WishlistService from 'src/services/WishlistService';
 import KitService from 'src/services/KitService';
 import MovieService from 'src/services/MovieService';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
+import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
 
 const $q = useQuasar();
 const isDesktop = $q.platform.is.desktop;
@@ -210,29 +212,6 @@ watch(
   },
   { deep: true }
 );
-
-function showLoading() {
-  $q.loading.show({
-    spinnerColor: 'kb-primary',
-  });
-}
-function hideLoading() {
-  $q.loading.hide();
-}
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 function onHideDialog() {
   router.push('/movie/discover');
