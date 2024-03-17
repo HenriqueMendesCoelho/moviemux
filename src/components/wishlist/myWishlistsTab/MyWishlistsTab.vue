@@ -26,7 +26,6 @@
 </template>
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useQuasar } from 'quasar';
 
 import type { WishlistType } from 'src/types/wishlist/WishlistType';
 
@@ -35,8 +34,8 @@ import BtnCreateWishlist from './btnCreateWishlist/BtnCreateWishlist.vue';
 import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
 
 import WishlistService from 'src/services/WishlistService';
-
-const $q = useQuasar();
+import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
 
 const wishlists = ref<WishlistType[]>([]);
 const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
@@ -51,28 +50,6 @@ onMounted(async () => {
   await listWishlist();
 });
 
-function showLoading() {
-  $q.loading.show({
-    spinnerColor: 'kb-primary',
-  });
-}
-function hideLoading() {
-  $q.loading.hide();
-}
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 async function listWishlist() {
   try {
     showLoading();

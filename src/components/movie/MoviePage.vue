@@ -8,12 +8,12 @@
       <FormMovie ref="formMovieRef" :isRegisterOrEditing="isRegisterOrEditing()" />
       <MovieNotesTable :isRegisterOrEditing="isRegisterOrEditing()" :movie-id="routeIDPath" />
       <VideoEmbedded :width="isMobile ? '100%' : '560px'" />
-      <div class="row justify-center" v-if="isRegisterOrEditing()">
+      <div class="row justify-center q-col-gutter-md" v-if="isRegisterOrEditing()">
         <SeparatorDivSolidLine />
-        <div class="col-md-4 col-xs-2">
+        <div class="col-md-1 col-xs-3">
           <q-btn style="width: 100%" color="positive" text-color="white" label="Salvar" :disable="false" @click="save()" />
         </div>
-        <div class="col-md-4 col-xs-2 q-ml-md">
+        <div class="col-md-1 col-xs-3">
           <q-btn
             style="width: 100%"
             color="red"
@@ -38,8 +38,6 @@ import { useQuasar, useMeta } from 'quasar';
 import { useMovieStore } from 'src/stores/MovieStore';
 import { useStyleStore } from 'src/stores/StyleStore';
 
-import MovieService from 'src/services/MovieService';
-
 import FormMovie from './formMovie/FormMovie.vue';
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';
 import SeparatorDivSolidLine from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
@@ -49,6 +47,10 @@ import MovieNotesTable from './movieNotesTable/MovieNotesTable.vue';
 import ImportMovie from './importMovie/ImportMovie.vue';
 import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
 import Movie from 'src/domain/movie/movie';
+
+import MovieService from 'src/services/MovieService';
+import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
 
 const $q = useQuasar();
 const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
@@ -98,29 +100,6 @@ onBeforeUpdate(async () => {
   await loadMovie();
   return;
 });
-
-function showLoading() {
-  $q.loading.show({
-    spinnerColor: 'kb-primary',
-  });
-}
-function hideLoading() {
-  $q.loading.hide();
-}
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 async function save(): Promise<void> {
   if (formMovieRef.value?.hasErrors()) {

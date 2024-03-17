@@ -103,7 +103,7 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { QInfiniteScroll, QItem, useQuasar } from 'quasar';
 
-import { MoviePageableType } from 'src/types/movie/MovieType';
+import type { MoviePageableType } from 'src/types/movie/MovieType';
 
 import Movie from 'src/domain/movie/movie';
 
@@ -112,6 +112,8 @@ import MovieService from 'src/services/MovieService';
 import FloatingActionButton from './floatingActionButton/FloatingActionButton.vue';
 import SearchToolbar from 'src/components/shared/searchToolbar/SearchToolbar.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+
+import { showError } from 'src/utils/NotificationUtils';
 
 const infinitScrollRef = ref<InstanceType<typeof QInfiniteScroll>>();
 
@@ -184,14 +186,6 @@ watch(
   { deep: true }
 );
 
-function showError(msg = 'Erro ao executar ação, tente novamente mais tarde') {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
-
 async function btnSearchAction(): Promise<void> {
   if (!searchText.value && !orderOption.value && !genresSelected.value) {
     await refreshSearch();
@@ -253,7 +247,7 @@ async function searchMoviePageable(): Promise<Movie[]> {
     totalNumberOfMovies.value = res.total_elements;
     return res.content;
   } catch (error) {
-    showError();
+    showError('Falha ao realizar a busca dos filmes. Tente novamente mais tarde.');
     return [] as Movie[];
   }
 }

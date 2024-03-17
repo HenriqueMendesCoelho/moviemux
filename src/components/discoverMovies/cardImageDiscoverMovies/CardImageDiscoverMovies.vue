@@ -62,7 +62,9 @@
 import { onActivated, onMounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 
-import { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
+import type { WishlistType } from 'src/types/wishlist/WishlistType';
+import type { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
+
 import CardImage from 'src/components/shared/cardImage/CardImage.vue';
 import ContextMenuDiscover from './contextMenuDiscover/ContextMenuDiscover.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
@@ -71,7 +73,7 @@ import MenuAddMovieWishlist from './menuAddMovieWishlist/MenuAddMovieWishlist.vu
 import DateUtils from 'src/utils/DateUtils';
 
 import WishlistService from 'src/services/WishlistService';
-import { WishlistType } from 'src/types/wishlist/WishlistType';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 interface Props {
@@ -116,21 +118,6 @@ watch(
   },
   { deep: true }
 );
-
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 function getUrl() {
   return `https://image.tmdb.org/t/p/w342${props.movie?.poster_path}`;

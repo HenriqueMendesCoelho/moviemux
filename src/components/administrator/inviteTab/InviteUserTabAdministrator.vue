@@ -28,17 +28,16 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { useQuasar } from 'quasar';
 
 import type { QTableProps } from 'quasar';
-
-import UserService from 'src/services/UserService';
 
 import InputText from 'src/components/shared/inputText/InputText.vue';
 import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 import TableCopyDelete from 'src/components/shared/tableCopyDelete/TableCopyDelete.vue';
 
-const $q = useQuasar();
+import UserService from 'src/services/UserService';
+import { showSuccess, showError } from 'src/utils/NotificationUtils';
+
 const columns: QTableProps['columns'] = [
   {
     name: 'invite',
@@ -56,21 +55,6 @@ const columns: QTableProps['columns'] = [
 const invite = ref('');
 const invites = ref<{ code: string }[]>([]);
 const loading = ref(false);
-
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 onMounted(async () => {
   await loadInvites();

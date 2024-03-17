@@ -39,6 +39,7 @@ import { useUserStore } from 'src/stores/UserStore';
 import { stateSocketMovie } from 'src/boot/socket';
 
 import MovieService from 'src/services/MovieService';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
 
 const $q = useQuasar();
 const isDesktop = $q.platform.is.desktop;
@@ -64,21 +65,6 @@ watch(
   },
   { deep: true }
 );
-
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 function showBtnImport() {
   if (routeName.value === 'add') {

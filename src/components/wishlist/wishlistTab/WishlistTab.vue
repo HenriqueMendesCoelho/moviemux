@@ -82,9 +82,11 @@
             :movie="movie"
             :wishlists="otherWishlists"
             :show-remove-item="wishlist?.user.id === userId"
+            :animate="!allowDrag"
             @click-on-image="openDialogSummary(movie.tmdb_id)"
             @remove-movie="openConfirmDialogRemoveMovie(movie)"
             @copy-url="copyMovieUrl(movie.tmdb_id)"
+            :style="allowDrag && 'cursor: all-scroll'"
           />
         </div>
         <FloatingActionBtnTop class="desktop-only" />
@@ -116,6 +118,8 @@ import BtnMoviesAlreadyRated from './btnMoviesAlreadyRated/BtnMoviesAlreadyRated
 
 import { useUserStore } from 'src/stores/UserStore';
 import WishlistService from 'src/services/WishlistService';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
+import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
 
 const $q = useQuasar();
 const isDesktop = $q.platform.is.desktop;
@@ -236,29 +240,6 @@ watch(
   }
 );
 
-function showLoading() {
-  $q.loading.show({
-    spinnerColor: 'kb-primary',
-  });
-}
-function hideLoading() {
-  $q.loading.hide();
-}
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
-
 function firstSearch() {
   searchMoviesAction();
 }
@@ -365,8 +346,9 @@ function copyMovieUrl(id: number) {
     return;
   }
 
-  copyToClipboard(`${window.location.origin}/movie/discover?movie=${id}`);
-  showSuccess('URL copiada');
+  copyToClipboard(`${window.location.origin}/movie/discover?movie=${id}`)
+    .then(() => showSuccess('URL copiada'))
+    .catch(() => showError('Erro ao copiar URL'));
 }
 function dragStart(index: number) {
   draggedItemIndex.value = index;

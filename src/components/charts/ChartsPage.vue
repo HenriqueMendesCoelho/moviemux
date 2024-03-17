@@ -50,7 +50,6 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useQuasar } from 'quasar';
 
 import type { MovieStatistics } from 'src/types/statistics/Statistics';
 
@@ -62,8 +61,8 @@ import MovieByGenderChart from './movieByGenderChart/MovieByGenderChart.vue';
 
 import StatisticService from 'src/services/StatisticService';
 import StringUtils from 'src/utils/StringUtils';
-
-const $q = useQuasar();
+import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
+import { showError } from 'src/utils/NotificationUtils';
 
 const chartsData = ref<MovieStatistics>();
 const knobAvgNote = ref<number>(0);
@@ -71,22 +70,6 @@ const knobAvgNote = ref<number>(0);
 onMounted(() => {
   getChartsData();
 });
-
-function showLoading() {
-  $q.loading.show({
-    spinnerColor: 'kb-primary',
-  });
-}
-function hideLoading() {
-  $q.loading.hide();
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 async function getChartsData() {
   try {

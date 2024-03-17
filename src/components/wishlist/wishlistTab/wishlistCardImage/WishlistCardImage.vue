@@ -1,5 +1,10 @@
 <template>
-  <CardImage :class="`${selected && 'img-movie-selected'}`" :src="getUrl()" @click="emit('clickOnImage')" :animate="!selected">
+  <CardImage
+    :class="`${selected && 'img-movie-selected'}`"
+    :src="getUrl()"
+    @click="emit('clickOnImage')"
+    :animate="!selected && props.animate"
+  >
     <div class="absolute-bottom hover-show-img text-center desktop-only" v-if="!selected">
       {{ props.movie?.title }}<br />
       {{ DateUtils.toLocaleDateStringLong(props.movie.release_date) }}
@@ -76,16 +81,16 @@ import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue
 import ContextMenuWishlistImage from './contextMenuWishlistImage/ContextMenuWishlistImage.vue';
 
 import DateUtils from 'src/utils/DateUtils';
-
 import WishlistService from 'src/services/WishlistService';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
-interface Props {
+const props = defineProps<{
   movie: ArrayElement<WishlistType['movies_wishlists']>;
   wishlists: WishlistType[];
   showRemoveItem: boolean;
-}
-const props = defineProps<Props>();
+  animate: boolean;
+}>();
 
 interface Emits {
   (e: 'clickOnImage', value: void): void;
@@ -111,21 +116,6 @@ watch(
     setWishlists();
   }
 );
-
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 function getUrl() {
   return `https://image.tmdb.org/t/p/w500${props.movie?.url_image}`;

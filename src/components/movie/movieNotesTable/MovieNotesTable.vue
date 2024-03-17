@@ -99,14 +99,15 @@ import { InputTextRefType } from 'src/components/shared/inputText/types/InputVal
 import { useUserStore } from 'src/stores/UserStore';
 import { useMovieStore } from 'src/stores/MovieStore';
 
-import MovieService from 'src/services/MovieService';
-import DateUtils from 'src/utils/DateUtils';
-import { socketMovie, stateSocketMovie } from 'src/boot/socket';
-
 import SeparatorDivSolidLine from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
 import ConfirmDialogPrompt from './confirmDialogPrompt/ConfirmDialogPrompt.vue';
+
+import MovieService from 'src/services/MovieService';
+import DateUtils from 'src/utils/DateUtils';
+import { socketMovie, stateSocketMovie } from 'src/boot/socket';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
 
 interface Props {
   isRegisterOrEditing: boolean;
@@ -241,21 +242,6 @@ watch(
   },
   { deep: true }
 );
-
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 function showEdit(row: MovieNoteType): boolean {
   return row.user.id === user.value.id;

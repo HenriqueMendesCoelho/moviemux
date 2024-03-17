@@ -18,16 +18,16 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { useQuasar } from 'quasar';
+
 import type { QTableProps } from 'quasar';
 
 import User from 'src/domain/user/User';
-import UserService from 'src/services/UserService';
 
 import TableCopyDelete from 'src/components/shared/tableCopyDelete/TableCopyDelete.vue';
 import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
+import UserService from 'src/services/UserService';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
 
-const $q = useQuasar();
 const columns: QTableProps['columns'] = [
   {
     name: 'nome',
@@ -71,22 +71,6 @@ const columns: QTableProps['columns'] = [
 ];
 const users = ref<User[]>([]);
 const loading = ref(false);
-
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 onMounted(async () => {
   try {

@@ -31,7 +31,6 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { useQuasar } from 'quasar';
 
 import { InputTextRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
 import UserService from 'src/services/UserService';
@@ -39,8 +38,9 @@ import UserService from 'src/services/UserService';
 import InputText from 'src/components/shared/inputText/InputText.vue';
 import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 import axios, { AxiosError } from 'axios';
+import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
 
-const $q = useQuasar();
 const inputTextCurrentPassRef = ref<InputTextRefType>();
 const inputTextNewPassRef = ref<InputTextRefType>();
 const inputTextConfirmNewPassRef = ref<InputTextRefType>();
@@ -48,29 +48,6 @@ const inputTextConfirmNewPassRef = ref<InputTextRefType>();
 const currentPass = ref('');
 const newPass = ref('');
 const confirmNewPass = ref('');
-
-function showLoading() {
-  $q.loading.show({
-    spinnerColor: 'kb-primary',
-  });
-}
-function hideLoading() {
-  $q.loading.hide();
-}
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 async function updatePassword() {
   if (await hasErrors()) {

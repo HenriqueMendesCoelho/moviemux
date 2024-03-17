@@ -21,38 +21,17 @@ import { useQuasar } from 'quasar';
 
 import User from 'src/domain/user/User';
 
-import UserService from 'src/services/UserService';
-
 import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 import PanelUserInfo from 'src/components/shared/panelUserInfo/PanelUserInfo.vue';
+
+import UserService from 'src/services/UserService';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
+import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
 
 const $q = useQuasar();
 const user = ref(new User());
 
 const isMobile = $q.platform.is.mobile;
-
-function showLoading() {
-  $q.loading.show({
-    spinnerColor: 'kb-primary',
-  });
-}
-function hideLoading() {
-  $q.loading.hide();
-}
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 onMounted(async () => {
   await loadUser();

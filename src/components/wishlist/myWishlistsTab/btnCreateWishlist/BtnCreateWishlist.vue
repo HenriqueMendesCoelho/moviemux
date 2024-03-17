@@ -12,35 +12,14 @@ import axios from 'axios';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
 import WishlistService from 'src/services/WishlistService';
+import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
+import { showError, showSuccess } from 'src/utils/NotificationUtils';
 
 const $q = useQuasar();
 
 const emit = defineEmits<{
   (e: 'ok', value: void): void;
 }>();
-
-function showLoading() {
-  $q.loading.show({
-    spinnerColor: 'kb-primary',
-  });
-}
-function hideLoading() {
-  $q.loading.hide();
-}
-function showSuccess(msg: string) {
-  $q.notify({
-    type: 'positive',
-    message: msg,
-    position: 'top',
-  });
-}
-function showError(msg: string) {
-  $q.notify({
-    type: 'negative',
-    message: msg,
-    position: 'top',
-  });
-}
 
 function dialog() {
   $q.dialog({

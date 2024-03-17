@@ -1,14 +1,14 @@
 <template>
-  <div class="row justify-center overflow-hidden-x form-movie" :class="!isMobile && 'q-mx-md'">
-    <div class="col-md-3 col-xs-12 q-px-lg text-center justify-center row">
+  <div class="row justify-center scroll overflow-hidden-x form-movie" :class="!isMobile && 'q-mx-md'">
+    <div class="col-md-4 col-xs-12 q-px-lg text-center justify-center row">
       <q-img
         class="col-12"
         style="border-radius: 20px"
         :src="getImageAndAlt()[0]"
         :alt="getImageAndAlt()[1]"
         :draggable="false"
-        :width="isMobile ? '200px' : '600px'"
-        :height="isMobile ? '350px' : '750px'"
+        :width="getImgWidth()"
+        :height="getImgHeight()"
         v-if="moviePage.selectedMovie?.url_image"
       >
         <ContextMenuFormMovieImage />
@@ -16,9 +16,8 @@
       </q-img>
       <q-skeleton v-else :width="isMobile ? '200px' : '600px'" :height="isMobile ? '350px' : '750px'" animation="fade" dark bordered />
     </div>
-
-    <div class="col-md-9 col-xs-12">
-      <div class="row" :class="screenHeight > 1080 ? 'q-col-gutter-y-lg' : 'q-col-gutter-y-md'">
+    <div class="col-md-8 col-xs-12">
+      <div class="row" :class="screenHeight > 1080 ? 'q-col-gutter-y-lg' : 'q-col-gutter-y-sm'">
         <div class="col-12 text-title-responsive-2">Informações</div>
         <div class="col-12 row q-col-gutter-sm">
           <InputText
@@ -109,7 +108,7 @@
             :lazy-rules="true"
             :dense="screenHeight <= 1080"
           />
-          <div class="col-md-5 col-xs-12 row" :class="isMobile && 'q-col-gutter-y-sm'">
+          <div class="col-md-5 col-xs-12 row" :class="isMobile && 'q-col-gutter-x-sm'">
             <q-select
               ref="qSelectGenresRef"
               class="col-12"
@@ -172,7 +171,7 @@
           </div>
         </div>
 
-        <div class="col-12 row q-col-gutter-sm">
+        <div class="col-12 row q-col-gutter-x-sm">
           <div class="col-12 text-title-responsive-2">Urls</div>
           <InputText
             ref="inputTextUrlImageRef"
@@ -410,6 +409,27 @@ function runtimeToText() {
 }
 function showEnglishTitle() {
   return moviePage.value.selectedMovie.original_title !== moviePage.value.selectedMovie.english_title;
+}
+function getImgWidth() {
+  if (isMobile) {
+    return '200px';
+  }
+  if (screenHeight.value <= 1050) {
+    return '350px';
+  }
+
+  return '600px';
+}
+function getImgHeight() {
+  if (isMobile) {
+    return '350px';
+  }
+
+  if (screenHeight.value <= 1050) {
+    return '450px';
+  }
+
+  return '750px';
 }
 </script>
 
