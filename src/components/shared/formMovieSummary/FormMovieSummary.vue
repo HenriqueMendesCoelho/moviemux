@@ -10,7 +10,7 @@
         :height="getImgHeight()"
         v-if="movie?.url_image"
       />
-      <q-skeleton v-else width="600px" height="750px" animation="fade" dark bordered />
+      <q-skeleton v-else :width="getImgWidth()" :height="getImgHeight()" animation="fade" dark bordered />
     </div>
 
     <div class="col-md-8 col-xs-12">

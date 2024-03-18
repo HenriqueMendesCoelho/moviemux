@@ -14,7 +14,7 @@
         <ContextMenuFormMovieImage />
         <TooltipMovieInfo />
       </q-img>
-      <q-skeleton v-else :width="isMobile ? '200px' : '600px'" :height="isMobile ? '350px' : '750px'" animation="fade" dark bordered />
+      <q-skeleton v-else :width="getImgWidth()" :height="getImgHeight()" animation="fade" dark bordered />
     </div>
     <div class="col-md-8 col-xs-12">
       <div class="row" :class="screenHeight > 1080 ? 'q-col-gutter-y-lg' : 'q-col-gutter-y-sm'">
