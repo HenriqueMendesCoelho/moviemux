@@ -418,7 +418,7 @@ function getImgWidth() {
     return '350px';
   }
 
-  return '600px';
+  return '500px';
 }
 function getImgHeight() {
   if (isMobile) {
