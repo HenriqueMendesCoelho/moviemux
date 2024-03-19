@@ -10,7 +10,7 @@
         <div class="col-auto text-h4 text-white">Elenco</div>
       </div>
 
-      <div class="justify-center align-center">
+      <div class="justify-center align-center overflow-wrap-break-word">
         <div class="row col-auto justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-sm'" v-if="credits?.cast.length">
           <div class="col-auto" v-for="(castMember, index) in credits.cast" :key="index">
             <q-img
@@ -22,18 +22,22 @@
               :width="getWidth()"
               :height="getHeight()"
             >
-              <div class="absolute-bottom text-caption text-center hover-show-img">{{ castText(castMember) }}</div>
+              <div class="absolute-bottom text-caption-custom text-center hover-show-img">
+                {{ castMember.name }}<br />
+                <i> {{ castMember.character }}</i>
+              </div>
               <template v-slot:loading>
                 <q-skeleton width="160px" height="230px" animation="fade" dark />
               </template>
               <template v-slot:error>
                 <div class="absolute-full flex flex-center bg-grey-mid text-white text-center">
                   <div class="row justify-center">
-                    <q-icon class="col-12 q-mb-md" name="error" size="lg" />
-                    <p class="text-caption">Erro ao carregar imagem</p>
+                    <q-icon class="col-12 q-mb-xs" name="error" :size="isDesktop ? 'lg' : 'xs'" />
+                    <p class="text-caption-custom" v-if="!isMobile">Erro ao carregar imagem</p>
                   </div>
-                  <div class="text-caption hover-show-img">
-                    {{ castText(castMember) }}
+                  <div class="text-caption-custom">
+                    {{ castMember.name }}<br />
+                    <i> {{ castMember.character }}</i>
                   </div>
                 </div>
               </template>
@@ -71,8 +75,9 @@
                 :width="getWidth()"
                 :height="getHeight()"
               >
-                <div class="absolute-bottom text-caption text-center hover-show-img">
-                  {{ crewText(crewMember) }}
+                <div class="absolute-bottom text-caption-custom text-center hover-show-img">
+                  {{ crewMember.name }}<br />
+                  <i> {{ crewMember.department }} - {{ crewMember.job }}</i>
                 </div>
                 <template v-slot:loading>
                   <q-skeleton width="160px" height="230px" animation="fade" dark />
@@ -80,11 +85,12 @@
                 <template v-slot:error>
                   <div class="absolute-full flex flex-center bg-grey-mid text-white text-center">
                     <div class="row justify-center">
-                      <q-icon class="col-12 q-mb-md" name="error" size="lg" />
-                      <p class="text-caption">Erro ao carregar imagem</p>
+                      <q-icon class="col-12 q-mb-md" name="error" :size="isDesktop ? 'lg' : 'xs'" />
+                      <p class="text-caption-custom" v-if="!isMobile">Erro ao carregar imagem</p>
                     </div>
-                    <div class="text-caption hover-show-img">
-                      {{ crewText(crewMember) }}
+                    <div class="text-caption-custom">
+                      {{ crewMember.name }}<br />
+                      <i> {{ crewMember.department }} - {{ crewMember.job }}</i>
                     </div>
                   </div>
                 </template>
@@ -101,7 +107,7 @@
 import { ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 
-import type { Credits, CastMember, CrewMember } from 'src/types/movie/MovieType';
+import type { Credits } from 'src/types/movie/MovieType';
 
 import SeparatorDivLineSolid from '../separator/SeparatorDivLineSolid.vue';
 
@@ -151,38 +157,6 @@ async function getCredits() {
 }
 function getImageUrl(path?: string, width: 'w45' | 'w185' | 'h632' | 'original' = 'w185') {
   return `https://image.tmdb.org/t/p/${width}${path}`;
-}
-function castText(castMember: CastMember) {
-  let result: string = '';
-  if (castMember.name) {
-    result += castMember.name + ' ';
-  }
-  if (castMember.name && castMember.character) {
-    result += '- ';
-  }
-  if (castMember.character) {
-    result += castMember.character;
-  }
-  return result;
-}
-function crewText(crewMember: CrewMember) {
-  let result: string = '';
-  if (crewMember.name) {
-    result += crewMember.name + ' ';
-  }
-  if (crewMember.name && crewMember.department) {
-    result += '- ';
-  }
-  if (crewMember.department) {
-    result += crewMember.department + ' ';
-  }
-  if (crewMember.department && crewMember.job) {
-    result += '- ';
-  }
-  if (crewMember.job) {
-    result += crewMember.job;
-  }
-  return result;
 }
 function getHeight() {
   if (isMobile) {
@@ -237,6 +211,18 @@ function getWidth() {
 
   &:hover {
     transform: scale(1.02);
+  }
+}
+
+.overflow-wrap-break-word {
+  overflow-wrap: break-word;
+}
+
+.text-caption-custom {
+  font-size: 0.8rem;
+
+  @media only screen and (max-width: $breakpoint-md-min) {
+    font-size: 0.5rem;
   }
 }
 </style>
