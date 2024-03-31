@@ -155,7 +155,8 @@
               :readonly="true"
               :dense="screenHeight <= 1080"
               :icon="!isRegisterOrEditing ? 'open_in_new' : ''"
-              :iconTooltip="'Abrir tmdb'"
+              :icon-tooltip="'Abrir TMDB'"
+              icon-cursor="pointer"
               @iconClick="openTmdbInNewTab"
             />
             <InputText
@@ -165,7 +166,8 @@
               :readonly="!isRegisterOrEditing"
               :dense="screenHeight <= 1080"
               :icon="!isRegisterOrEditing ? 'open_in_new' : ''"
-              :iconTooltip="'Abrir imdb'"
+              icon-tooltip="Abrir IMDB"
+              icon-cursor="pointer"
               @iconClick="openImdbInNewTab"
             />
           </div>

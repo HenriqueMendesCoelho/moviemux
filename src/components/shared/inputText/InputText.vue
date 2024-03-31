@@ -13,7 +13,7 @@
     clearable
     :lazy-rules="true"
     ><template v-slot:append v-if="icon">
-      <q-icon :name="icon" @click="emit('iconClick')"
+      <q-icon :name="icon" @click="emit('iconClick')" :style="`cursor: ${iconCursor ? iconCursor : 'auto'}`"
         ><CustomTooltip v-if="iconTooltip" :delay="300" :hide-delay="300">{{ iconTooltip }}</CustomTooltip></q-icon
       >
     </template></q-input
@@ -37,6 +37,8 @@ interface Props {
   icon?: string;
   iconTooltip?: string;
   required?: boolean;
+  cursorTooltip?: string;
+  iconCursor?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
