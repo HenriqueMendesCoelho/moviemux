@@ -82,9 +82,9 @@ export default {
       return Promise.reject(error);
     }
   },
-  async listUsers(): Promise<User[]> {
+  async listUsersAdm(): Promise<User[]> {
     try {
-      const res = await axios.get(`${API_USER}/list`);
+      const res = await axios.get(`${API_USER}/adm/list`);
       return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
