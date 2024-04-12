@@ -50,12 +50,24 @@
         </div>
         <div class="col-md col-xs-12">
           <q-input
-            :model-value="new Date(user.created_at).toLocaleString()"
+            :model-value="DateUtils.toLocaleString(user.created_at)"
             square
             filled
             standout="text-info"
             color="info"
             label="Data criação da conta"
+            dark
+            :readonly="true"
+          />
+        </div>
+        <div class="col-md col-xs-12" v-if="showAdmInfo">
+          <q-input
+            :model-value="DateUtils.toLocaleString(user.statistics.last_login_at)"
+            square
+            filled
+            standout="text-info"
+            color="info"
+            label="Data Último Login"
             dark
             :readonly="true"
           />
@@ -126,6 +138,7 @@ import InputText from 'src/components/shared/inputText/InputText.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
 import StringUtils from 'src/utils/StringUtils';
+import DateUtils from 'src/utils/DateUtils';
 
 interface Props {
   modelValue: User;

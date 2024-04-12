@@ -10,7 +10,7 @@
         :height="getImgHeight()"
         v-if="movie?.url_image"
       />
-      <q-skeleton v-else width="600px" height="750px" animation="fade" dark bordered />
+      <q-skeleton v-else :width="getImgWidth()" :height="getImgHeight()" animation="fade" dark bordered />
     </div>
 
     <div class="col-md-8 col-xs-12">
@@ -122,7 +122,8 @@
               readonly
               :dense="screenHeight <= 1080"
               :icon="'open_in_new'"
-              :iconTooltip="'Abrir tmdb'"
+              iconTooltip="Abrir TMDB"
+              icon-cursor="pointer"
               @iconClick="openTmdbInNewTab"
             />
             <InputText
@@ -132,7 +133,8 @@
               readonly
               :dense="screenHeight <= 1080"
               :icon="'open_in_new'"
-              :iconTooltip="'Abrir imdb'"
+              iconTooltip="Abrir IMDB"
+              icon-cursor="pointer"
               @iconClick="openImdbInNewTab"
             />
           </div>
@@ -281,7 +283,7 @@ function getImgWidth() {
     return '350px';
   }
 
-  return '600px';
+  return '500px';
 }
 function getImgHeight() {
   if (isMobile) {

@@ -1,12 +1,12 @@
 <template>
-  <div v-for="route in routes" :key="route.text">
+  <div v-for="(route, index) in routes" :key="route.text" :class="`${index === 0 && 'q-mt-sm'}`">
     <router-link
       v-if="(userStore.isAdmin && route.isAdm) || !route.isAdm"
       :to="route.to"
       class="button"
       :class="`${route.badge && 'relative-position'}`"
     >
-      <q-badge v-if="route.badge" class="q-mr-sm" :label="route.badge" color="kb-primary" rounded floating />
+      <q-badge v-if="route.badge" class="q-mr-sm" :label="route.badge" :color="route.badgeColor || 'kb-primary'" rounded floating />
       <span class="material-icons">{{ route.icon }}</span>
       <span class="text" v-if="props.showTextsSideBar">{{ route.text }}</span>
       <CustomTooltip class="text-uppercase" anchor="top right" :offset="[35, 0]" v-if="!isSideBarExpanded" :delay="500">{{
@@ -31,6 +31,7 @@ type RouteType = {
   text: string;
   isAdm: boolean;
   badge?: string;
+  badgeColor?: string;
 }[];
 
 const props = defineProps<{

@@ -8,8 +8,8 @@
         :columns="columns"
         :edit="false"
         :rows="users"
-        @copy="actionCopy"
-        @delete="actionDelete"
+        @copy="actionCopy($event as User)"
+        @delete="actionDelete($event as User)"
         :loading="loading"
       />
     </div>
@@ -27,6 +27,7 @@ import TableCopyDelete from 'src/components/shared/tableCopyDelete/TableCopyDele
 import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 import UserService from 'src/services/UserService';
 import { showError, showSuccess } from 'src/utils/NotificationUtils';
+import DateUtils from 'src/utils/DateUtils';
 
 const columns: QTableProps['columns'] = [
   {
@@ -53,14 +54,21 @@ const columns: QTableProps['columns'] = [
     label: 'Data de criação',
     field: 'created_at',
     align: 'center',
-    format: (val) => new Date(val).toLocaleString(),
+    format: (val) => DateUtils.toLocaleString(val),
   },
   {
     name: 'dtUpdated',
     label: 'Data da ultima modificação',
     field: 'updated_at',
     align: 'center',
-    format: (val) => new Date(val).toLocaleString(),
+    format: (val) => DateUtils.toLocaleString(val),
+  },
+  {
+    name: 'lastLoginAt',
+    label: 'Último acesso',
+    field: (row) => row.statistics.last_login_at,
+    align: 'center',
+    format: (val) => (val ? DateUtils.toLocaleString(val) : 'Não Registrado'),
   },
   {
     name: 'actions',
@@ -74,7 +82,7 @@ const loading = ref(false);
 
 onMounted(async () => {
   try {
-    const res = await UserService.listUsers();
+    const res = await UserService.listUsersAdm();
     users.value = res;
   } catch {
     showError('Erro ao buscar usuarios');

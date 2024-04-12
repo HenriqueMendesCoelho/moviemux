@@ -14,7 +14,7 @@
         <ContextMenuFormMovieImage />
         <TooltipMovieInfo />
       </q-img>
-      <q-skeleton v-else :width="isMobile ? '200px' : '600px'" :height="isMobile ? '350px' : '750px'" animation="fade" dark bordered />
+      <q-skeleton v-else :width="getImgWidth()" :height="getImgHeight()" animation="fade" dark bordered />
     </div>
     <div class="col-md-8 col-xs-12">
       <div class="row" :class="screenHeight > 1080 ? 'q-col-gutter-y-lg' : 'q-col-gutter-y-sm'">
@@ -155,7 +155,8 @@
               :readonly="true"
               :dense="screenHeight <= 1080"
               :icon="!isRegisterOrEditing ? 'open_in_new' : ''"
-              :iconTooltip="'Abrir tmdb'"
+              :icon-tooltip="'Abrir TMDB'"
+              icon-cursor="pointer"
               @iconClick="openTmdbInNewTab"
             />
             <InputText
@@ -165,7 +166,8 @@
               :readonly="!isRegisterOrEditing"
               :dense="screenHeight <= 1080"
               :icon="!isRegisterOrEditing ? 'open_in_new' : ''"
-              :iconTooltip="'Abrir imdb'"
+              icon-tooltip="Abrir IMDB"
+              icon-cursor="pointer"
               @iconClick="openImdbInNewTab"
             />
           </div>
@@ -418,7 +420,7 @@ function getImgWidth() {
     return '350px';
   }
 
-  return '600px';
+  return '500px';
 }
 function getImgHeight() {
   if (isMobile) {

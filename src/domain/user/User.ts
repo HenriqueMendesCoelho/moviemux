@@ -15,6 +15,7 @@ export default class User {
       display_time: 0,
       average_rating_movies: 0,
       consecutive_failed_login_attempts: 0,
+      last_login_at: new Date(),
     }
   ) {}
 }
