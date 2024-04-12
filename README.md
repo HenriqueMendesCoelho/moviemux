@@ -37,32 +37,27 @@ Home Page
 Movie Page
 </p>
 <p align="center">
-  <img src="https://img.cine.kronusboss.com/1y6MzMz_PytrzGR_0T90MgBr7vMTE2WGdLTp0B9o/cine/filme1.png
-  " style="width: 500px;" />
+  <img src="https://img.cine.kronusboss.com/1y6MzMz_PytrzGR_0T90MgBr7vMTE2WGdLTp0B9o/cine/filme1.png" style="width: 500px;" />
 </p>
 
 <p align="center">
 Discover Page
 </p>
 <p align="center">
-  <img src="https://img.cine.kronusboss.com/wmPxCs1OdG0euV61iHB--JVa3Mg3kWUd43xrod9S/cine/descobrir1.png
-  " style="width: 500px;" />
+  <img src="https://img.cine.kronusboss.com/wmPxCs1OdG0euV61iHB--JVa3Mg3kWUd43xrod9S/cine/descobrir1.png" style="width: 500px;" />
 </p>
 <p align="center">
-  <img src="https://img.cine.kronusboss.com/yz3JwY0qd98oVnL2YlPxFCtrB8rwnHjgGwqGZU9K/cine/descobrir2.png
-  " style="width: 500px;" />
+  <img src="https://img.cine.kronusboss.com/yz3JwY0qd98oVnL2YlPxFCtrB8rwnHjgGwqGZU9K/cine/descobrir2.png" style="width: 500px;" />
 </p>
 
 <p align="center">
 Wishlist Page
 </p>
 <p align="center">
-  <img src="https://img.cine.kronusboss.com/gaAbeSVgVNMZrv3OMXzB2wWdLzDtWqOqV19NVXeS/cine/lista1.png
-  " style="width: 500px;" />
+  <img src="https://img.cine.kronusboss.com/gaAbeSVgVNMZrv3OMXzB2wWdLzDtWqOqV19NVXeS/cine/lista1.png" style="width: 500px;" />
 </p>
 <p align="center">
-  <img src="https://img.cine.kronusboss.com/mlOwW3QVJ8AMPqxpEYSsYFumtl8eVamfetJ7gYvz/cine/lista2.png
-  " style="width: 500px;" />
+  <img src="https://img.cine.kronusboss.com/mlOwW3QVJ8AMPqxpEYSsYFumtl8eVamfetJ7gYvz/cine/lista2.png" style="width: 500px;" />
 </p>
 
 <p align="center">
