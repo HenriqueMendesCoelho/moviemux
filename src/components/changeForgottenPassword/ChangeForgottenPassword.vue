@@ -70,8 +70,7 @@
   </div>
 </template>
 <script setup lang="ts">
-//import { computed, onMounted, ref } from 'vue';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 
@@ -102,13 +101,13 @@ const inputConfirmPasswordRef = ref<{
 }>();
 
 const keyPathParam = computed(() => route.params?.key?.toString());
-/*
+
 onMounted(() => {
   if (!keyPathParam.value || keyPathParam.value?.length !== 200) {
     router.push('/login');
   }
 });
-*/
+
 async function redefinePassword() {
   if (hasErrors()) {
     return;
