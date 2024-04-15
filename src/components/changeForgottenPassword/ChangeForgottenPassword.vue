@@ -129,6 +129,7 @@ async function redefinePassword() {
   return;
 }
 function cancel() {
+  email.value = '';
   newPassword.value = '';
   confirmNewPassword.value = '';
 }
