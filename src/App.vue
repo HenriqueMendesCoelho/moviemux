@@ -118,7 +118,7 @@ button {
 @media only screen and (max-width: $breakpoint-md-min) {
   ::-webkit-scrollbar {
     width: 0rem;
-    height: 0.25rem;
+    height: 0.15rem;
   }
 }
 
