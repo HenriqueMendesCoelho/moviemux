@@ -15,7 +15,10 @@
       </div>
     </div>
     <div class="row justify-center" style="margin-top: 10rem">
-      <div class="col-5 row justify-center q-pa-xl q-col-gutter-lg container text-white">
+      <div
+        class="col-md-5 col-xs-12 row justify-center q-pa-xl background-container text-white"
+        :class="isMobile ? 'q-col-gutter-xs' : 'q-col-gutter-lg'"
+      >
         <PageTitle class="col-auto" icon="password" title="Trocar Senha" />
         <div class="col-12">
           <SeparatorDivLineSolid />
@@ -67,8 +70,10 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+//import { computed, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useQuasar } from 'quasar';
 
 import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue';
 import PageTitle from '../shared/pageTitle/PageTitle.vue';
@@ -77,6 +82,9 @@ import InputPassword from '../shared/inputPassword/InputPassword.vue';
 import UserService from 'src/services/UserService';
 import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
 import { showError } from 'src/utils/NotificationUtils';
+
+const $q = useQuasar();
+const isMobile = $q.platform.is.mobile;
 
 const route = useRoute();
 const router = useRouter();
@@ -94,13 +102,13 @@ const inputConfirmPasswordRef = ref<{
 }>();
 
 const keyPathParam = computed(() => route.params?.key?.toString());
-
+/*
 onMounted(() => {
   if (!keyPathParam.value || keyPathParam.value?.length !== 200) {
     router.push('/login');
   }
 });
-
+*/
 async function redefinePassword() {
   if (hasErrors()) {
     return;
@@ -136,7 +144,7 @@ function hasErrors() {
 }
 </script>
 <style lang="scss">
-.container {
+.background-container {
   border-radius: 15px;
   background-color: var(--grey-dark2);
   color: white;
