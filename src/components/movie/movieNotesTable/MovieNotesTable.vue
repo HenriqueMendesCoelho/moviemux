@@ -4,7 +4,7 @@
     <q-table
       class="col-md-8 col-xs-12"
       title="Notas"
-      :rows="moviePage.selectedMovie.notes"
+      :rows="moviePage.selectedMovie.notes || []"
       dense
       dark
       card-class="text-white bg-grey-mid2"
