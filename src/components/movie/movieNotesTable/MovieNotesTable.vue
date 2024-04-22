@@ -1,6 +1,6 @@
 <template>
-  <SeparatorDivSolidLine v-if="!isRegisterOrEditing" />
-  <div class="row justify-center q-mt-md" v-if="!isRegisterOrEditing">
+  <SeparatorDivSolidLine />
+  <div class="row justify-center q-mt-md">
     <q-table
       class="col-md-8 col-xs-12"
       title="Notas"
@@ -109,12 +109,9 @@ import DateUtils from 'src/utils/DateUtils';
 import { socketMovie, stateSocketMovie } from 'src/boot/socket';
 import { showError, showSuccess } from 'src/utils/NotificationUtils';
 
-interface Props {
-  isRegisterOrEditing: boolean;
+const props = defineProps<{
   movieId: string | string[];
-}
-
-const props = defineProps<Props>();
+}>();
 const $q = useQuasar();
 const isDesktop = $q.platform.is.desktop;
 const isMobile = $q.platform.is.mobile;
@@ -183,10 +180,19 @@ const isUserAlreadyVoted = computed(() => movieStore.isUserAlreadyVoted);
 const user = computed(() => userStore.user);
 
 onMounted(() => {
-  if (!stateSocketMovie.connected) {
-    stateSocketMovie.token = Cookies.get('auth-kb');
-    socketMovie.connect();
+  if (stateSocketMovie.connected) {
+    return;
   }
+  stateSocketMovie.token = Cookies.get('auth-kb');
+  socketMovie.connect();
+
+  if (!props.movieId?.toString()) {
+    return;
+  }
+
+  socketMovie.emit('join-room', {
+    room: props.movieId.toString(),
+  });
 });
 
 onBeforeUnmount(() => {

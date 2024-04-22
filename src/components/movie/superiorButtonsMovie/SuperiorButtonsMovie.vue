@@ -39,7 +39,7 @@ import { useUserStore } from 'src/stores/UserStore';
 import { stateSocketMovie } from 'src/boot/socket';
 
 import MovieService from 'src/services/MovieService';
-import { showError, showSuccess } from 'src/utils/NotificationUtils';
+import { showError, showSuccess, showWarning } from 'src/utils/NotificationUtils';
 
 const $q = useQuasar();
 const isDesktop = $q.platform.is.desktop;
@@ -62,6 +62,20 @@ watch(
       return;
     }
     await loadMovie(false);
+  },
+  { deep: true }
+);
+
+watch(
+  () => stateSocketMovie.deletedMovie,
+  (val) => {
+    const lastEvent = toRaw(val)[val.length - 1];
+    if (user.value.id === lastEvent.emmitedByUserId) {
+      return;
+    }
+
+    router.push('/home');
+    showWarning('Oops! Parece que o filme que você estava vendo foi deletado.', 10000);
   },
   { deep: true }
 );

@@ -6,7 +6,7 @@
     </div>
     <div class="container-main">
       <FormMovie ref="formMovieRef" :isRegisterOrEditing="isRegisterOrEditing()" />
-      <MovieNotesTable :isRegisterOrEditing="isRegisterOrEditing()" :movie-id="routeIDPath" />
+      <MovieNotesTable v-if="!isRegisterOrEditing()" :isRegisterOrEditing="isRegisterOrEditing()" :movie-id="routeIDPath" />
       <VideoEmbedded :width="isMobile ? '100%' : '560px'" />
       <div class="row justify-center q-col-gutter-md" v-if="isRegisterOrEditing()">
         <SeparatorDivSolidLine />
