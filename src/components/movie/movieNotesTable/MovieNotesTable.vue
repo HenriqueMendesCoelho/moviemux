@@ -264,7 +264,7 @@ function showConfirmDialogDelete() {
     message: 'Quer mesmo excluir sua nota?',
     focus: 'cancel',
     title: 'Confirme a exclusão',
-    cancel: 'Deletar',
+    ok: 'Deletar',
   });
 }
 function showConfirmPromptDelete() {
