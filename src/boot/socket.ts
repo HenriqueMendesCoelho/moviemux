@@ -2,9 +2,9 @@ import { reactive } from 'vue';
 import { io } from 'socket.io-client';
 import { MovieNoteType } from 'src/types/movie/MovieType';
 
-const BASE_URL = process.env.VUE_APP_KB_CINE_API;
+const BASE_URL = process.env.VUE_APP_KB_CINE_SOCKET;
 
-type eventMovieNote = { event: string; movie: string; content: MovieNoteType };
+type eventMovieNote = { event: string; movie: string; content: MovieNoteType; emmitedByUserId?: string };
 
 export const stateSocketAllMovies = reactive({
   connected: false,
@@ -42,6 +42,7 @@ export const stateSocketMovie = reactive({
   createNote: [] as eventMovieNote[],
   updateNote: [] as eventMovieNote[],
   deleteNote: [] as eventMovieNote[],
+  deletedMovie: [] as eventMovieNote[],
   token: '',
 });
 
@@ -77,4 +78,8 @@ socketMovie.on('update-note', (args: eventMovieNote) => {
 
 socketMovie.on('delete-note', (args: eventMovieNote) => {
   stateSocketMovie.deleteNote.push(args);
+});
+
+socketMovie.on('deleted-movie', (args: eventMovieNote) => {
+  stateSocketMovie.deletedMovie.push(args);
 });

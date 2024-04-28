@@ -69,7 +69,11 @@ module.exports = configure(function (/* ctx */) {
 
       // publicPath: '/',
       // analyze: true,
-      env: require('dotenv').config().parsed,
+      env: {
+        VUE_APP_KB_CINE_API: process.env.CINE_BACKEND_URL,
+        VUE_APP_KB_CINE_SOCKET: process.env.CINE_BACKEND_SOCKET_URL,
+        ...require('dotenv').config().parsed,
+      },
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
