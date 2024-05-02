@@ -154,6 +154,7 @@ const filterOptions = ref([
   { label: 'Agora nos cinemas', value: 'playingNow' },
   { label: 'Avaliação (Maior)', value: 'topRated' },
   { label: 'Avaliação (Menor)', value: 'voteAverageAsc' },
+  { label: 'Em breve nos cinemas', value: 'upcoming', badgeLabel: 'novo' },
 ]);
 const infinitScrollRef = ref<{
   resume: () => void;
@@ -301,6 +302,8 @@ async function callTmdb() {
       return await getMoviesTopRated();
     case 'voteAverageAsc':
       return await getMoviesDiscover({ sort: 'vote_average.asc' });
+    case 'upcoming':
+      return await getMoviesUpcoming();
     default:
       return await getMoviesPopular();
   }
@@ -318,6 +321,16 @@ async function getMoviesPopular() {
 async function getMoviesNowPlaying() {
   try {
     const res = await KitService.getMoviesNowPlaying(page.value);
+    lastPage.value = res.total_pages;
+    page.value += 1;
+    return res.results;
+  } catch {
+    showError('Não foi possível realizar a consulta');
+  }
+}
+async function getMoviesUpcoming() {
+  try {
+    const res = await KitService.getMoviesUpcoming(page.value);
     lastPage.value = res.total_pages;
     page.value += 1;
     return res.results;

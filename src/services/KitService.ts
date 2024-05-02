@@ -48,6 +48,14 @@ export default {
       return Promise.reject(error);
     }
   },
+  async getMoviesUpcoming(page = 1): Promise<MovieResultResponseTmdb> {
+    try {
+      const res = await axios.get(`${API_KIT}/upcoming?page=${page}`);
+      return Promise.resolve(res.data);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
   async getMoviesTopRated(page = 1): Promise<MovieResultResponseTmdb> {
     try {
       const res = await axios.get(`${API_KIT}/top-rated?page=${page}`);
