@@ -2,7 +2,7 @@ import axios from 'axios';
 import { MovieStatistics } from 'src/types/statistics/Statistics';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;
-const API_STATISTICS = `${BASE_URL}/api/statistic`;
+const API_STATISTICS = `${BASE_URL}/statistic`;
 
 export default {
   async movies(): Promise<MovieStatistics> {
