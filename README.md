@@ -85,14 +85,14 @@ Dashboard
   <img src="https://img.cine.kronusboss.com/Z_HvkMeDzapvoPWV67cIBPQs2cBT_3DmIN7L8r5u/cine/dashboard.png" style="width: 500px;" />
 </p>
 
-### Website:
+### Website (Access by invitation only):
 
 [Cine KronusBoss](https://www.cine.kronusboss.com)
 
 ### Project Ecosystem:
 
 [Cine KronusBoss Back-End](https://github.com/HenriqueMendesCoelho/cine-kronusBoss-api) - A corresponding backend project complements the frontend, ensuring the cohesive operation of the movie rating portal.<br>
-[Cine KronusBoss Socket.io Back-End](https://github.com/HenriqueMendesCoelho/cine-kronusboss-websocket) - Designed and implemented a real-time update system using Socket.io
+[Cine KronusBoss Socket.io Back-End](https://github.com/HenriqueMendesCoelho/cine-kronusboss-websocket) - Designed and implemented a real-time update system using Socket.io<br>
 [Cine KronusBoss Gateway](https://github.com/HenriqueMendesCoelho/cine-gateway) - The gateway serves as a single entry point for all client requests, routing them to the appropriate backend services.
 
 External integration aggregator projects<br>
