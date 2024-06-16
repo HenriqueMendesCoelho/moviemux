@@ -5,12 +5,15 @@ import User from 'src/domain/user/User';
 import StringUtils from 'src/utils/StringUtils';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;
-const API_USER = `${BASE_URL}/api/user`;
+const API_USER = `${BASE_URL}/user`;
+const API_USER_PUBLIC = `${BASE_URL}/public/user`;
+const API_USER_RESTRICTED = `${BASE_URL}/restricted/user`;
+const API_USER_INVITE_RESTRICTED = `${BASE_URL}/restricted/user/invite`;
 
 export default {
   async create(payload: { name: string; email: string; password: string; invite_code: string }) {
     try {
-      const res = await axios.post(`${API_USER}`, payload);
+      const res = await axios.post(`${API_USER_PUBLIC}`, payload);
       return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
@@ -18,7 +21,7 @@ export default {
   },
   async getUserAdm(email: string): Promise<User> {
     try {
-      const res = await axios.get(`${API_USER}/adm?email=${email}`);
+      const res = await axios.get(`${API_USER_RESTRICTED}?email=${email}`);
       return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
@@ -52,7 +55,7 @@ export default {
   },
   async promoteUser(userId: string): Promise<User> {
     try {
-      const res = await axios.patch(`${API_USER}/${userId}/promote`);
+      const res = await axios.patch(`${API_USER_RESTRICTED}/${userId}/promote`);
       return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
@@ -60,7 +63,7 @@ export default {
   },
   async demoteUser(userId: string): Promise<User> {
     try {
-      const res = await axios.patch(`${API_USER}/${userId}/demote`);
+      const res = await axios.patch(`${API_USER_RESTRICTED}/${userId}/demote`);
       return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
@@ -68,7 +71,7 @@ export default {
   },
   async blockUser(userId: string): Promise<User> {
     try {
-      const res = await axios.patch(`${API_USER}/${userId}/block`);
+      const res = await axios.patch(`${API_USER_RESTRICTED}/${userId}/block`);
       return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
@@ -76,7 +79,7 @@ export default {
   },
   async deleteUser(userId: string): Promise<User> {
     try {
-      const res = await axios.delete(`${API_USER}/${userId}`);
+      const res = await axios.delete(`${API_USER_RESTRICTED}/${userId}`);
       return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
@@ -84,7 +87,7 @@ export default {
   },
   async listUsersAdm(): Promise<User[]> {
     try {
-      const res = await axios.get(`${API_USER}/adm/list`);
+      const res = await axios.get(`${API_USER_RESTRICTED}`);
       return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
@@ -93,7 +96,7 @@ export default {
   //User PasswordRedefineKey
   async createRedefinePassowordKey(email: string): Promise<void> {
     try {
-      await axios.post(`${API_USER}/password/reset`, { email: email });
+      await axios.post(`${API_USER_PUBLIC}/password/reset`, { email: email });
       return Promise.resolve();
     } catch (error) {
       return Promise.reject(error);
@@ -101,7 +104,7 @@ export default {
   },
   async redefinePasswordByKey(key: string, request: { email: string; password: string }): Promise<void> {
     try {
-      await axios.post(`${API_USER}/password/${key}/reset`, request);
+      await axios.post(`${API_USER_PUBLIC}/password/${key}/reset`, request);
       return Promise.resolve();
     } catch (error) {
       return Promise.reject(error);
@@ -110,7 +113,7 @@ export default {
   //User Invites
   async listUserInvites(): Promise<{ code: string }[]> {
     try {
-      const res = await axios.get(`${API_USER}/invite`);
+      const res = await axios.get(`${API_USER_INVITE_RESTRICTED}`);
       return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
@@ -118,7 +121,7 @@ export default {
   },
   async createUserInvite(): Promise<{ code: string }> {
     try {
-      const res = await axios.post(`${API_USER}/invite`);
+      const res = await axios.post(`${API_USER_INVITE_RESTRICTED}`);
       return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
@@ -126,7 +129,7 @@ export default {
   },
   async deleteUserInvite(code: string): Promise<void> {
     try {
-      const res = await axios.delete(`${API_USER}/invite/${code}/delete`);
+      const res = await axios.delete(`${API_USER_INVITE_RESTRICTED}/${code}/delete`);
       return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);

@@ -3,7 +3,7 @@ import { WishlistType } from 'src/types/wishlist/WishlistType';
 import StringUtils from 'src/utils/StringUtils';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;
-const API_WISHLIST = `${BASE_URL}/api/user/wishlist`;
+const API_WISHLIST = `${BASE_URL}/user/wishlist`;
 
 export default {
   async listWishlists(): Promise<WishlistType[]> {

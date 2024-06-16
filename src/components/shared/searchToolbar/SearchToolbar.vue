@@ -42,7 +42,18 @@
       options-dense
       emit-value
       map-options
-    />
+    >
+      <template v-slot:option="{ itemProps, opt }">
+        <q-item v-bind="itemProps">
+          <q-item-section>
+            <q-item-label>{{ opt.label }}</q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-badge v-if="opt?.badgeLabel" :label="opt?.badgeLabel" :color="opt?.badgeColor || 'kb-primary'" rounded />
+          </q-item-section>
+        </q-item>
+      </template>
+    </q-select>
     <slot name="append"></slot>
     <q-separator class="q-mx-md" dark vertical inset />
     <q-btn @click="emit('refresh')" icon="refresh" flat round />

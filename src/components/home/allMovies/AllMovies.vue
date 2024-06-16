@@ -124,6 +124,7 @@ const movies = ref<Movie[]>([]);
 const moviesWhenTyping = ref<Movie[]>([]);
 const totalNumberOfMovies = ref(0);
 const loading = ref(false);
+const errorRequest = ref(false);
 const pagesFouded = ref(2);
 const page = ref(1);
 const searchText = ref('');
@@ -207,6 +208,9 @@ async function refreshSearch(): Promise<void> {
   infinitScrollRef.value?.resume();
 }
 async function onLoad(index: number, done: (stop?: boolean) => void): Promise<void> {
+  if (errorRequest.value) {
+    done(true);
+  }
   if (loading.value) {
     return;
   }
@@ -268,6 +272,7 @@ async function searchMovies({
     const res = await MovieService.listMoviesPageable({ title, page, size, sort, withGenres });
     return res;
   } catch (error) {
+    errorRequest.value = true;
     return Promise.reject(error);
   }
 }

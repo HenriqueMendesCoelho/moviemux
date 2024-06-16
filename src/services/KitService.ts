@@ -3,7 +3,8 @@ import axios from 'axios';
 import StringUtils from 'src/utils/StringUtils';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;
-const API_KIT = `${BASE_URL}/api/movie/tmdb`;
+const API_KIT = `${BASE_URL}/movie/tmdb`;
+const API_KIT_PUBLIC = `${BASE_URL}/public/movie/tmdb`;
 
 export default {
   async summary(payload: { tmdb_id: number }): Promise<MovieSummaryTypeKit> {
@@ -16,7 +17,7 @@ export default {
   },
   async info(payload: { tmdb_id: number }): Promise<MovieInfoTypeKit> {
     try {
-      const res = await axios.get(`${API_KIT}/${payload.tmdb_id}/info`);
+      const res = await axios.get(`${API_KIT_PUBLIC}/${payload.tmdb_id}/info`);
       return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);
@@ -43,6 +44,14 @@ export default {
   async getMoviesNowPlaying(page = 1): Promise<MovieResultResponseTmdb> {
     try {
       const res = await axios.get(`${API_KIT}/now-playing?page=${page}`);
+      return Promise.resolve(res.data);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  },
+  async getMoviesUpcoming(page = 1): Promise<MovieResultResponseTmdb> {
+    try {
+      const res = await axios.get(`${API_KIT}/upcoming?page=${page}`);
       return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);

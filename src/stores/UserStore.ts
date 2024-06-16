@@ -39,7 +39,7 @@ export const useUserStore = defineStore('UserStore', {
   actions: {
     async login(payload: { email: string; password: string }): Promise<void> {
       try {
-        const url = `${BASE_URL}/api/login`;
+        const url = `${BASE_URL}/login`;
         const res = await axios.post(url, payload);
         const responsePayload = res.data;
         const token = responsePayload.access_token;

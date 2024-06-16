@@ -10,7 +10,7 @@ import {
 import Movie from 'src/domain/movie/movie';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;
-const API_MOVIE = `${BASE_URL}/api/movie`;
+const API_MOVIE = `${BASE_URL}/movie`;
 
 export default {
   //Movie TMDB
