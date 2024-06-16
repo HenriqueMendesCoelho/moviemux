@@ -165,6 +165,7 @@ const moviesWhenTyping = ref<MovieResultResponseTmdb['results']>();
 const page = ref(1);
 const lastPage = ref(2);
 const loading = ref(false);
+const errorRequest = ref(false);
 const movieIdSelected = ref(0);
 const movieIdDialog = ref(0);
 const showDialogMovieSummary = ref(false);
@@ -235,24 +236,38 @@ async function cardCallTmdb(typeSearch: { label: string; value: string }, movieI
 }
 
 async function firstSearch() {
-  page.value = 1;
-  const result = await callTmdb();
-  movies.value = result;
-  nextTick(() => {
-    infinitScrollRef.value?.resume();
-  });
+  try {
+    page.value = 1;
+    const result = await callTmdb();
+    movies.value = result;
+    nextTick(() => {
+      infinitScrollRef.value?.resume();
+    });
+  } catch {
+    showError('Não foi possível realizar a consulta');
+    errorRequest.value = true;
+  }
 }
 async function resetSearch() {
-  searchText.value = '';
-  selectOrder.value = '';
-  genresSelected.value = [];
-  page.value = 1;
-  lastPage.value = 2;
-  infinitScrollRef.value?.resume();
-  const result = await callTmdb();
-  movies.value = result;
+  try {
+    searchText.value = '';
+    selectOrder.value = '';
+    genresSelected.value = [];
+    page.value = 1;
+    lastPage.value = 2;
+    infinitScrollRef.value?.resume();
+    errorRequest.value = false;
+    const result = await callTmdb();
+    movies.value = result;
+  } catch {
+    showError('Não foi possível realizar a consulta');
+    errorRequest.value = true;
+  }
 }
 async function onLoad(index: number, done: (stop?: boolean) => void) {
+  if (errorRequest.value) {
+    done(true);
+  }
   if (loading.value) {
     return;
   }
@@ -263,13 +278,18 @@ async function onLoad(index: number, done: (stop?: boolean) => void) {
   }
 
   loading.value = true;
-  const result = await callTmdb();
-  if (result?.length) {
-    movies.value?.push(...result);
+  try {
+    const result = await callTmdb();
+    if (result?.length) {
+      movies.value?.push(...result);
+    }
+    done();
+  } catch {
+    showError('Não foi possível realizar a consulta');
+    errorRequest.value = true;
+  } finally {
+    loading.value = false;
   }
-
-  done();
-  loading.value = false;
 }
 async function callTmdb() {
   if (page.value === 1) {
@@ -309,84 +329,52 @@ async function callTmdb() {
   }
 }
 async function getMoviesPopular() {
-  try {
-    const res = await KitService.getMoviesPopular(page.value);
-    lastPage.value = res.total_pages;
-    page.value += 1;
-    return res.results;
-  } catch {
-    showError('Não foi possível realizar a consulta');
-  }
+  const res = await KitService.getMoviesPopular(page.value);
+  lastPage.value = res.total_pages;
+  page.value += 1;
+  return res.results;
 }
 async function getMoviesNowPlaying() {
-  try {
-    const res = await KitService.getMoviesNowPlaying(page.value);
-    lastPage.value = res.total_pages;
-    page.value += 1;
-    return res.results;
-  } catch {
-    showError('Não foi possível realizar a consulta');
-  }
+  const res = await KitService.getMoviesNowPlaying(page.value);
+  lastPage.value = res.total_pages;
+  page.value += 1;
+  return res.results;
 }
 async function getMoviesUpcoming() {
-  try {
-    const res = await KitService.getMoviesUpcoming(page.value);
-    lastPage.value = res.total_pages;
-    page.value += 1;
-    return res.results;
-  } catch {
-    showError('Não foi possível realizar a consulta');
-  }
+  const res = await KitService.getMoviesUpcoming(page.value);
+  lastPage.value = res.total_pages;
+  page.value += 1;
+  return res.results;
 }
 async function getMoviesTopRated() {
-  try {
-    const res = await KitService.getMoviesTopRated(page.value);
-    lastPage.value = res.total_pages;
-    page.value += 1;
-    return res.results;
-  } catch {
-    showError('Não foi possível realizar a consulta');
-  }
+  const res = await KitService.getMoviesTopRated(page.value);
+  lastPage.value = res.total_pages;
+  page.value += 1;
+  return res.results;
 }
 async function getMoviesDiscover({ sort, year, with_genres }: { sort?: string; year?: number; with_genres?: string }) {
-  try {
-    const res = await KitService.getMoviesDiscover(sort, page.value, year, with_genres);
-    lastPage.value = res.total_pages;
-    page.value += 1;
-    return res.results;
-  } catch {
-    showError('Não foi possível realizar a consulta');
-  }
+  const res = await KitService.getMoviesDiscover(sort, page.value, year, with_genres);
+  lastPage.value = res.total_pages;
+  page.value += 1;
+  return res.results;
 }
 async function getMoviesByName(payload: { query: string; page?: 1 | number; language?: 'pt-Br' }) {
-  try {
-    const res = await KitService.searchByName(payload);
-    lastPage.value = res.total_pages;
-    page.value += 1;
-    return res.results;
-  } catch {
-    showError('Não foi possível realizar a consulta');
-  }
+  const res = await KitService.searchByName(payload);
+  lastPage.value = res.total_pages;
+  page.value += 1;
+  return res.results;
 }
 async function getMoviesSimilar() {
-  try {
-    const res = await KitService.getMoviesSimilar(movieIdSelected.value, page.value);
-    lastPage.value = res.total_pages;
-    page.value += 1;
-    return res.results;
-  } catch {
-    showError('Não foi possível realizar a consulta');
-  }
+  const res = await KitService.getMoviesSimilar(movieIdSelected.value, page.value);
+  lastPage.value = res.total_pages;
+  page.value += 1;
+  return res.results;
 }
 async function getMoviesRecommendations() {
-  try {
-    const res = await KitService.getMoviesRecommendations(movieIdSelected.value, page.value);
-    lastPage.value = res.total_pages;
-    page.value += 1;
-    return res.results;
-  } catch {
-    showError('Não foi possível realizar a consulta');
-  }
+  const res = await KitService.getMoviesRecommendations(movieIdSelected.value, page.value);
+  lastPage.value = res.total_pages;
+  page.value += 1;
+  return res.results;
 }
 function showDialog(movieId: number) {
   showDialogMovieSummary.value = true;
