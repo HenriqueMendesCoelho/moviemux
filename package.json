@@ -15,18 +15,18 @@
   "dependencies": {
     "@quasar/extras": "^1.16.9",
     "apexcharts": "^3.47.0",
-    "axios": "^1.6.8",
+    "axios": "^1.7.2",
     "dotenv": "^16.4.5",
     "jwt-decode": "^4.0.0",
     "pinia": "^2.1.7",
-    "quasar": "^2.15.1",
+    "quasar": "^2.16.4",
     "socket.io-client": "^4.7.5",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0",
     "vue3-apexcharts": "^1.5.2"
   },
   "devDependencies": {
-    "@quasar/app-vite": "^1.8.0",
+    "@quasar/app-vite": "^1.9.3",
     "@types/node": "^20.11.28",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
