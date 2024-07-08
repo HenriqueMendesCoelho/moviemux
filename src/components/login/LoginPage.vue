@@ -141,7 +141,7 @@ function getImageUrl(path?: string, size = 'w342') {
 .bg-login-animated {
   width: 100%;
   height: 100vh;
-  height: 100svh;
+  height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
