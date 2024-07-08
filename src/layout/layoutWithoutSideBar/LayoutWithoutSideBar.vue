@@ -14,5 +14,6 @@
 <style lang="scss" scoped>
 main {
   height: 100vh;
+  height: 100svh;
 }
 </style>
