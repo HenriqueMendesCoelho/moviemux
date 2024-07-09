@@ -33,8 +33,8 @@ import { computed, toRaw, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 
-import { useMovieStore } from 'src/stores/MovieStore';
-import { useUserStore } from 'src/stores/UserStore';
+import { useMovieStore } from 'src/core/stores/MovieStore';
+import { useUserStore } from 'src/core/stores/UserStore';
 
 import { stateSocketMovie } from 'src/boot/socket';
 

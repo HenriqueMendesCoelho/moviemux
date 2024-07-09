@@ -60,7 +60,7 @@ import InputText from 'src/components/shared/inputText/InputText.vue';
 import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 
 import UserService from 'src/services/UserService';
-import { useUserStore } from 'src/stores/UserStore';
+import { useUserStore } from 'src/core/stores/UserStore';
 import { showError, showSuccess } from 'src/utils/NotificationUtils';
 import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
 

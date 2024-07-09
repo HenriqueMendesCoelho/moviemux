@@ -3,8 +3,8 @@ import { Cookies, useMeta, Platform } from 'quasar';
 import { RouteLocationNormalized, createMemoryHistory, createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
 
 import routes from './routes';
-import { useUserStore } from 'src/stores/UserStore';
-import { useStyleStore } from 'src/stores/StyleStore';
+import { useUserStore } from 'src/core/stores/UserStore';
+import { useStyleStore } from 'src/core/stores/StyleStore';
 
 /*
  * If not building with SSR mode, you can
@@ -19,8 +19,8 @@ export default route(function (/* { store, ssrContext } */ { ssrContext }) {
   const createHistory = process.env.SERVER
     ? createMemoryHistory
     : process.env.VUE_ROUTER_MODE === 'history'
-    ? createWebHistory
-    : createWebHashHistory;
+      ? createWebHistory
+      : createWebHashHistory;
 
   const Router = createRouter({
     scrollBehavior: () => ({ left: 0, top: 0 }),

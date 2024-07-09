@@ -39,8 +39,8 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { Cookies, useQuasar } from 'quasar';
 
-import { useUserStore } from 'src/stores/UserStore';
-import { useStyleStore } from 'src/stores/StyleStore';
+import { useUserStore } from 'src/core/stores/UserStore';
+import { useStyleStore } from 'src/core/stores/StyleStore';
 
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 import SidebarRouteButtons from './sidebarRouteButtons/SidebarRouteButtons.vue';

@@ -33,7 +33,7 @@ import CustomTooltip from '../customTooltip/CustomTooltip.vue';
 interface Props {
   title: string;
   columns: QTableProps['columns'];
-  rows?: object[];
+  rows: QTableProps['rows'];
 }
 
 const props = defineProps<Props>();

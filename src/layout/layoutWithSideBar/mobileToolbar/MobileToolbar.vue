@@ -21,8 +21,8 @@
 import { computed } from 'vue';
 import { Cookies } from 'quasar';
 
-import { useStyleStore } from 'src/stores/StyleStore';
-import { useUserStore } from 'src/stores/UserStore';
+import { useStyleStore } from 'src/core/stores/StyleStore';
+import { useUserStore } from 'src/core/stores/UserStore';
 
 const userStore = useUserStore();
 const styleStore = useStyleStore();

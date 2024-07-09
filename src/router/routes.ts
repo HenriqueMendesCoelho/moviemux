@@ -1,5 +1,4 @@
 import { RouteRecordRaw } from 'vue-router';
-import LoginPage from 'src/components/login/LoginPage.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -8,7 +7,7 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         path: '',
-        component: LoginPage,
+        component: () => import('src/modules/login/views/LoginView.vue'),
         name: 'login',
         meta: {
           roles: ['UNSECURE'],

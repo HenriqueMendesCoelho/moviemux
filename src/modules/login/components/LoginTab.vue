@@ -51,7 +51,7 @@
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { useUserStore } from 'src/stores/UserStore';
+import { useUserStore } from 'src/core/stores/UserStore';
 
 import type { InputValidateRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
 

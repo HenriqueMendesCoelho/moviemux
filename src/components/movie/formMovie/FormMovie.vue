@@ -236,7 +236,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useQuasar, QInput, QSelect } from 'quasar';
 
-import { useMovieStore } from 'src/stores/MovieStore';
+import { useMovieStore } from 'src/core/stores/MovieStore';
 
 import MovieService from 'src/services/MovieService';
 

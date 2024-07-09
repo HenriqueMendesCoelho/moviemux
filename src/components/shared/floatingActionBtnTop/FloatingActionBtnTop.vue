@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useStyleStore } from 'src/stores/StyleStore';
+import { useStyleStore } from 'src/core/stores/StyleStore';
 
 const styleStore = useStyleStore();
 const scrollToTop = () => styleStore.scrollToContainer(0, 0, 'smooth');

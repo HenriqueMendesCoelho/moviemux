@@ -1,13 +1,13 @@
 <template>
   <q-dialog v-model="visible" persistent>
-    <FormLogin :createAccount="false" />
+    <LoginForm :createAccount="false" />
   </q-dialog>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
-import FormLogin from './formLogin/FormLogin.vue';
+import LoginForm from './LoginForm.vue';
 
 interface Props {
   modelValue?: boolean;

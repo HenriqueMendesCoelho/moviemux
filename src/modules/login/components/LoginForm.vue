@@ -4,13 +4,13 @@
       <q-card-section class="row justify-center">
         <q-tab-panels v-model="tab" class="tabs" animated>
           <q-tab-panel name="login">
-            <TabLogin @change-tab="tab = $event" @loading="loading = $event" :createAccount="createAccount" />
+            <LoginTab @change-tab="tab = $event" @loading="loading = $event" :createAccount="createAccount" />
           </q-tab-panel>
 
-          <q-tab-panel name="create"><TabCreateAccount @change-tab="tab = $event" @loading="loading = $event" /></q-tab-panel>
+          <q-tab-panel name="create"><LoginCreateAccountTab @change-tab="tab = $event" @loading="loading = $event" /></q-tab-panel>
 
           <q-tab-panel name="forgot"
-            ><TabForgotPassword @change-tab="tab = $event" @loading="loading = $event" :createAccount="createAccount" />
+            ><LoginForgotPasswordTab @change-tab="tab = $event" @loading="loading = $event" :createAccount="createAccount" />
           </q-tab-panel>
         </q-tab-panels>
       </q-card-section>
@@ -22,9 +22,9 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
-import TabLogin from './tabLogin/TabLogin.vue';
-import TabCreateAccount from './tabCreateAccount/TabCreateAccount.vue';
-import TabForgotPassword from './tabForgotPassword/TabForgotPassword.vue';
+import LoginTab from './LoginTab.vue';
+import LoginForgotPasswordTab from './LoginForgotPasswordTab.vue';
+import LoginCreateAccountTab from './LoginCreateAccountTab.vue';
 
 interface Props {
   modelValue: string;

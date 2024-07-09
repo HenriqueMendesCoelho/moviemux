@@ -24,7 +24,7 @@
       :error-text-valid-passord="false"
       @focus="tooltipPassword = true"
       @blur="tooltipPassword = false"
-      ><TooltipPassowordInfo v-model="tooltipPassword"
+      ><LoginPassowordInfoTooltip v-model="tooltipPassword"
     /></InputPassword>
     <InputPassword
       ref="inputRepeatPasswordRef"
@@ -78,7 +78,7 @@ import axios, { AxiosError } from 'axios';
 import type { InputValidateRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
 
 import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
-import TooltipPassowordInfo from './tooltipPasswordInfo/TooltipPassowordInfo.vue';
+import LoginPassowordInfoTooltip from './LoginPassowordInfoTooltip.vue';
 import InputPassword from 'src/components/shared/inputPassword/InputPassword.vue';
 
 import UserService from 'src/services/UserService';

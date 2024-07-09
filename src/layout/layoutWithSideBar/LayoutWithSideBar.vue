@@ -8,18 +8,18 @@
       </KeepAlive>
     </router-view>
   </div>
-  <DialogLogin v-model="showDialogLogin" :actionLogin="login" />
+  <LoginDialog v-model="showDialogLogin" :actionLogin="login" />
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
-import { useUserStore } from 'src/stores/UserStore';
-import { useStyleStore } from 'src/stores/StyleStore';
+import { useUserStore } from 'src/core/stores/UserStore';
+import { useStyleStore } from 'src/core/stores/StyleStore';
 
 import SideBar from './sidebar/SideBar.vue';
-import DialogLogin from 'src/components/login/DialogLogin.vue';
+import LoginDialog from 'src/modules/login/components/LoginDialog.vue';
 import MobileToolbar from './mobileToolbar/MobileToolbar.vue';
 
 const $q = useQuasar();

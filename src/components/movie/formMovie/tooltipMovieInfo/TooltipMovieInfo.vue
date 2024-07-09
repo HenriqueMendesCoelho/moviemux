@@ -33,7 +33,7 @@ import { useQuasar } from 'quasar';
 
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 
-import { useMovieStore } from 'src/stores/MovieStore';
+import { useMovieStore } from 'src/core/stores/MovieStore';
 import DateUtils from 'src/utils/DateUtils';
 
 const $q = useQuasar();

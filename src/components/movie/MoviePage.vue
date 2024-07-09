@@ -35,8 +35,8 @@ import { ref, computed, onMounted, onBeforeUpdate } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar, useMeta } from 'quasar';
 
-import { useMovieStore } from 'src/stores/MovieStore';
-import { useStyleStore } from 'src/stores/StyleStore';
+import { useMovieStore } from 'src/core/stores/MovieStore';
+import { useStyleStore } from 'src/core/stores/StyleStore';
 
 import FormMovie from './formMovie/FormMovie.vue';
 import ContainerMain from '../shared/containerMain/ContainerMain.vue';

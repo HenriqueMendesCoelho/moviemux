@@ -32,7 +32,7 @@ import PageTitle from 'src/components/shared/pageTitle/PageTitle.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 import TooltipWishlistInfo from './tooltipWishlistInfo/TooltipWishlistInfo.vue';
 
-import { useUserStore } from 'src/stores/UserStore';
+import { useUserStore } from 'src/core/stores/UserStore';
 import WishlistService from 'src/services/WishlistService';
 
 interface Props {

@@ -6,7 +6,7 @@
         <SeparatorDivLineSolid class="q-my-md desktop-only" style="opacity: 60%" />
         <img
           class="left-img-login col-md-auto col-xs-6"
-          src="../../assets/logo-kronus.png"
+          src="../../../assets/logo-kronus.png"
           alt="logo"
           draggable="false"
           @click="tab = 'login'"
@@ -16,12 +16,12 @@
       </div>
     </div>
     <div class="col-md-6 col-xs-12 row justify-center">
-      <FormLogin class="col-xs-12 col-md-8 col-xl-7 col-xxl-5 q-pa-xs" v-model="tab" />
+      <LoginForm class="col-xs-12 col-md-8 col-xl-7 col-xxl-5 q-pa-xs" v-model="tab" />
     </div>
     <div class="absolute-bottom cursor-pointer desktop-only" @click="openURL('https://www.themoviedb.org/?language=pt-BR')">
       <div class="row justify-center">
         <div class="col-auto">
-          <img class="" src="../../assets/tmdb-logo-long.svg" style="height: 20px" />
+          <img src="../../../assets/tmdb-logo-long.svg" style="height: 20px" />
         </div>
         <div class="col-12"></div>
         <div class="col-auto">
@@ -39,11 +39,11 @@ import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { openURL, useMeta } from 'quasar';
 
-import { useUserStore } from 'src/stores/UserStore';
-import { useMetaTagsStore } from 'src/stores/MetaTagsStore';
+import { useUserStore } from 'src/core/stores/UserStore';
+import { useMetaTagsStore } from 'src/core/stores/MetaTagsStore';
 
-import FormLogin from './formLogin/FormLogin.vue';
-import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue';
+import LoginForm from '../components/LoginForm.vue';
+import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 
 const userStore = useUserStore();
 const router = useRouter();

@@ -18,8 +18,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useStyleStore } from 'src/stores/StyleStore';
-import { useUserStore } from 'src/stores/UserStore';
+import { useStyleStore } from 'src/core/stores/StyleStore';
+import { useUserStore } from 'src/core/stores/UserStore';
 
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
 

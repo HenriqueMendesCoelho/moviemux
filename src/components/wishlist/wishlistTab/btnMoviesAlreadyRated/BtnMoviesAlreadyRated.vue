@@ -12,7 +12,7 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 
-import { useUserStore } from 'src/stores/UserStore';
+import { useUserStore } from 'src/core/stores/UserStore';
 
 import type { WishlistType } from 'src/types/wishlist/WishlistType';
 

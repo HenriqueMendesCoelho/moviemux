@@ -56,7 +56,7 @@
 import { ref, computed, watch } from 'vue';
 import { useQuasar, openURL } from 'quasar';
 
-import { useMovieStore } from 'src/stores/MovieStore';
+import { useMovieStore } from 'src/core/stores/MovieStore';
 
 import type { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
 

@@ -22,7 +22,7 @@
 import { computed } from 'vue';
 import { useQuasar } from 'quasar';
 
-import { useMovieStore } from 'src/stores/MovieStore';
+import { useMovieStore } from 'src/core/stores/MovieStore';
 
 import IframeVideo from './iframeVideo/IframeVideo.vue';
 import SeparatorDivSolidLine from 'src/components/shared/separator/SeparatorDivLineSolid.vue';

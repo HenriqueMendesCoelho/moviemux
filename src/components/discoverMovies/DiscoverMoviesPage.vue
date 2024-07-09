@@ -12,7 +12,7 @@
           @search="firstSearch()"
           @refresh="resetSearch()"
           @input-search-focus="
-            ($event) => {
+            ($event: boolean) => {
               if (!$event) selectedIndexMenu = undefined;
               menuIsFocused = $event;
             }
@@ -122,7 +122,7 @@ import { QItem, useQuasar } from 'quasar';
 import { useRoute } from 'vue-router';
 import { useRouter } from 'vue-router';
 
-import { useStyleStore } from 'src/stores/StyleStore';
+import { useStyleStore } from 'src/core/stores/StyleStore';
 
 import type { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
 import type { WishlistType } from 'src/types/wishlist/WishlistType';

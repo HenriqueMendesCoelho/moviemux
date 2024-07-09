@@ -17,8 +17,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 
-import { useMovieStore } from 'src/stores/MovieStore';
-import { useUserStore } from 'src/stores/UserStore';
+import { useMovieStore } from 'src/core/stores/MovieStore';
+import { useUserStore } from 'src/core/stores/UserStore';
 
 import ContextMenu from 'src/components/shared/contextMenu/ContextMenu.vue';
 import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';

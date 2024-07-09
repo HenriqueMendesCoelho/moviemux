@@ -9,7 +9,7 @@ import { mapState } from 'pinia';
 import { defineComponent } from 'vue';
 import { Cookies } from 'quasar';
 
-import { useStyleStore } from './stores/StyleStore';
+import { useStyleStore } from 'src/core/stores/StyleStore';
 
 export default defineComponent({
   name: 'App',

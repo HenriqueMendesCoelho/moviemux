@@ -96,8 +96,8 @@ import type { QTableProps } from 'quasar';
 import { MovieNoteType } from 'src/types/movie/MovieType';
 import { InputTextRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
 
-import { useUserStore } from 'src/stores/UserStore';
-import { useMovieStore } from 'src/stores/MovieStore';
+import { useUserStore } from 'src/core/stores/UserStore';
+import { useMovieStore } from 'src/core/stores/MovieStore';
 
 import SeparatorDivSolidLine from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
 import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';

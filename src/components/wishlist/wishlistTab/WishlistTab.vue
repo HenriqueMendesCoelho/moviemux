@@ -6,7 +6,7 @@
         @search="firstSearch()"
         @refresh="resetSearch()"
         @input-search-focus="
-          ($event) => {
+          ($event: boolean) => {
             if (!$event) selectedIndexMenu = undefined;
             menuIsFocused = $event;
           }
@@ -68,27 +68,29 @@
     </div>
     <div class="row justify-center q-mt-lg">
       <div class="row justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'" v-if="moviesFiltered?.length">
-        <div
-          class="col-auto"
-          v-for="(movie, index) in moviesFiltered"
-          :key="movie.tmdb_id"
-          :draggable="allowDrag"
-          @dragstart="dragStart(index)"
-          @dragover.prevent
-          @drop="drop(index)"
-          :style="{ opacity: draggedItemIndex === index ? '0.5' : '1' }"
-        >
-          <WishlistCardImage
-            :movie="movie"
-            :wishlists="otherWishlists"
-            :show-remove-item="wishlist?.user.id === userId"
-            :animate="!allowDrag"
-            @click-on-image="openDialogSummary(movie.tmdb_id)"
-            @remove-movie="openConfirmDialogRemoveMovie(movie)"
-            @copy-url="copyMovieUrl(movie.tmdb_id)"
-            :style="allowDrag && 'cursor: all-scroll'"
-          />
-        </div>
+        <transition-group type="transition" name="flip-list">
+          <div
+            class="col-auto"
+            v-for="(movie, index) in moviesFiltered"
+            :key="movie.tmdb_id"
+            :draggable="allowDrag"
+            @dragstart="dragStart(index)"
+            @dragover.prevent
+            @drop="drop(index)"
+            :style="{ opacity: draggedItemIndex === index ? '0.5' : '1' }"
+          >
+            <WishlistCardImage
+              :movie="movie"
+              :wishlists="otherWishlists"
+              :show-remove-item="wishlist?.user.id === userId"
+              :animate="!allowDrag"
+              @click-on-image="openDialogSummary(movie.tmdb_id)"
+              @remove-movie="openConfirmDialogRemoveMovie(movie)"
+              @copy-url="copyMovieUrl(movie.tmdb_id)"
+              :style="allowDrag && 'cursor: all-scroll'"
+            />
+          </div>
+        </transition-group>
         <FloatingActionBtnTop class="desktop-only" />
       </div>
       <div class="row justify-center" v-else>
@@ -116,7 +118,7 @@ import FloatingActionBtnTop from 'src/components/shared/floatingActionBtnTop/Flo
 import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
 import BtnMoviesAlreadyRated from './btnMoviesAlreadyRated/BtnMoviesAlreadyRated.vue';
 
-import { useUserStore } from 'src/stores/UserStore';
+import { useUserStore } from 'src/core/stores/UserStore';
 import WishlistService from 'src/services/WishlistService';
 import { showError, showSuccess } from 'src/utils/NotificationUtils';
 import { hideLoading, showLoading } from 'src/utils/LoadingUtils';

@@ -1,6 +1,6 @@
 import { boot } from 'quasar/wrappers';
 import axios, { AxiosInstance } from 'axios';
-import { useUserStore } from 'src/stores/UserStore';
+import { useUserStore } from 'src/core/stores/UserStore';
 import { Cookies } from 'quasar';
 
 declare module '@vue/runtime-core' {
