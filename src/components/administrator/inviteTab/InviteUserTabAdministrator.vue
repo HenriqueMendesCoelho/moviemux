@@ -1,17 +1,17 @@
 <template>
   <div class="row justify-center">
     <h5>Gerenciamento de convites</h5>
-    <SeparatorDivLineSolid />
+    <BaseHorizontalSeparator />
     <div class="col-md-10 q-mt-md">
       <div class="row">
         <div class="col-md-2 col-xs-6">
           <q-btn style="width: 100%; height: 100%" color="info" text-color="white" label="Gerar convite" @click="createInvite" />
         </div>
         <div class="q-pl-md col-md-5 col-xs-6">
-          <InputText :label="'Convite gerado'" v-model="invite" :required="false" :readonly="true" :dense="true" />
+          <BaseTextInput :label="'Convite gerado'" v-model="invite" :required="false" :readonly="true" :dense="true" />
         </div>
         <div class="col-12 q-mt-md">
-          <TableCopyDelete
+          <BaseTableCopyDelete
             :title="'Lista de convites'"
             :columns="columns"
             :edit="false"
@@ -31,9 +31,9 @@ import { onMounted, ref } from 'vue';
 
 import type { QTableProps } from 'quasar';
 
-import InputText from 'src/components/shared/inputText/InputText.vue';
-import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
-import TableCopyDelete from 'src/components/shared/tableCopyDelete/TableCopyDelete.vue';
+import BaseTextInput from 'src/core/components/BaseTextInput.vue';
+import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
+import BaseTableCopyDelete from 'src/core/components/BaseTableCopyDelete.vue';
 
 import UserService from 'src/services/UserService';
 import { showSuccess, showError } from 'src/utils/NotificationUtils';

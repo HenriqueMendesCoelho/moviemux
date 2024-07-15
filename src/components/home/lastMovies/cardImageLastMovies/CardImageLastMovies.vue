@@ -1,7 +1,7 @@
 <template>
   <div class="row justify-center items-center">
     <router-link :to="{ name: 'movie', params: { id: id } }" class="container-img" style="border-radius: 50px">
-      <CardImage class="card" :src="url" height="90%" :width="getWidth()" :animate="false"> </CardImage>
+      <BaseCardImage class="card" :src="url" height="90%" :width="getWidth()" :animate="false"></BaseCardImage>
       <figcaption>{{ getTitle() }}</figcaption>
       <ContextMenuHome :movie-id="id || ''" />
     </router-link>
@@ -12,7 +12,7 @@
 import { useQuasar } from 'quasar';
 
 import ContextMenuHome from '../../contextMenuHome/ContextMenuHome.vue';
-import CardImage from 'src/components/shared/cardImage/CardImage.vue';
+import BaseCardImage from 'src/core/components/BaseCardImage.vue';
 
 interface Props {
   id: string | undefined;

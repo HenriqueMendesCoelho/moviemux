@@ -1,16 +1,16 @@
 <template>
-  <ContextMenu>
+  <BaseContextMenu>
     <q-list style="min-width: 100px">
       <q-item clickable @click="emit('copy-url', props.movieId)" v-close-popup>
         <span class="material-icons" style="font-size: 25pt"> link </span>
         <q-item-section class="q-pl-sm">Copiar URL</q-item-section>
       </q-item>
     </q-list>
-  </ContextMenu>
+  </BaseContextMenu>
 </template>
 
 <script lang="ts" setup>
-import ContextMenu from 'src/components/shared/contextMenu/ContextMenu.vue';
+import BaseContextMenu from 'src/core/components/BaseContextMenu.vue';
 
 interface Props {
   movieId: number;

@@ -10,9 +10,11 @@
         <div class="col row justify-end">
           <q-btn color="white" icon="close" size="md" @click="moviePage.showImportMovieDialog = false" flat round />
         </div>
-        <SeparatorDivSolidLine />
+        <BaseHorizontalSeparator />
         <div class="col-12 row q-col-gutter-sm">
-          <div class="col-md-4 col-xs-6"><InputText @keyup.enter="firstSearch()" v-model="text" :label="'Título Do Filme'" dense /></div>
+          <div class="col-md-4 col-xs-6">
+            <BaseTextInput @keyup.enter="firstSearch()" v-model="text" :label="'Título Do Filme'" dense />
+          </div>
           <div class="col-auto">
             <q-btn color="kb-primary" text-color="black" :label="isDesktop ? 'Pesquisar' : ''" icon="search" @click="firstSearch()" />
           </div>
@@ -20,14 +22,14 @@
             <q-btn color="white" icon="refresh" @click="refreshSearch()" flat round />
           </div>
         </div>
-        <SeparatorDivSolidLine />
+        <BaseHorizontalSeparator />
       </q-card-section>
       <q-separator />
       <q-card-section ref="cardScrollRef" class="scroll" style="max-height: 60vh" v-if="movies?.length">
         <q-infinite-scroll class="q-mt-md" @load="onLoad" :offset="50">
           <div class="row justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'">
             <div class="col-auto" v-for="movie in movies" :key="movie.id">
-              <CardImage
+              <BaseCardImage
                 :height="getHeight()"
                 :width="getWidth()"
                 :src="getImageUrl(movie.poster_path)"
@@ -35,7 +37,7 @@
                 :animate="false"
               >
                 <div class="absolute-bottom text-title-responsive-3">{{ movie.title }}</div>
-              </CardImage>
+              </BaseCardImage>
             </div>
           </div>
         </q-infinite-scroll>
@@ -49,7 +51,7 @@
         </div>
       </q-card-section>
     </q-card>
-    <ConfirmDialog ref="confirmDialogRef" @ok="importMovie" />
+    <BaseConfirmDialog ref="confirmDialogRef" @ok="importMovie" />
   </q-dialog>
 </template>
 <script setup lang="ts">
@@ -60,11 +62,11 @@ import { useMovieStore } from 'src/core/stores/MovieStore';
 
 import type { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
 
-import InputText from 'src/components/shared/inputText/InputText.vue';
-import SeparatorDivSolidLine from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
+import BaseTextInput from 'src/core/components/BaseTextInput.vue';
+import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 import Movie from 'src/domain/movie/movie';
-import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
-import CardImage from 'src/components/shared/cardImage/CardImage.vue';
+import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
+import BaseCardImage from 'src/core/components/BaseCardImage.vue';
 
 import KitService from 'src/services/KitService';
 import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
@@ -80,7 +82,7 @@ const $q = useQuasar();
 const isDesktop = $q.platform.is.desktop;
 const isMobile = $q.platform.is.mobile;
 
-const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
+const confirmDialogRef = ref<InstanceType<typeof BaseConfirmDialog>>();
 const cardScrollRef = ref<divScrollTopRef>();
 const movieStore = useMovieStore();
 

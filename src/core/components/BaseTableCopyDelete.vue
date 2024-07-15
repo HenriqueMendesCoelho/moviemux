@@ -15,10 +15,10 @@
     <template v-slot:body-cell-actions="props">
       <q-td :props="props">
         <q-btn dense round flat color="white" icon="content_copy" @click="emit('copy', props.row)">
-          <CustomTooltip :delay="300" :hide-delay="300">Copiar</CustomTooltip>
+          <BaseTooltip :delay="300" :hide-delay="300">Copiar</BaseTooltip>
         </q-btn>
         <q-btn dense round flat color="white" icon="delete" @click="emit('delete', props.row)">
-          <CustomTooltip :delay="300" :hide-delay="300">Deletar</CustomTooltip>
+          <BaseTooltip :delay="300" :hide-delay="300">Deletar</BaseTooltip>
         </q-btn>
       </q-td>
     </template>
@@ -28,7 +28,7 @@
 <script setup lang="ts">
 import type { QTableProps } from 'quasar';
 
-import CustomTooltip from '../customTooltip/CustomTooltip.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
 interface Props {
   title: string;

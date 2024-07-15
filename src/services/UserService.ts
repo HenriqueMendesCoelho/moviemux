@@ -21,7 +21,7 @@ export default {
   },
   async getUserAdm(email: string): Promise<User> {
     try {
-      const res = await axios.get(`${API_USER_RESTRICTED}?email=${email}`);
+      const res = await axios.get(`${API_USER_RESTRICTED}/${email}`);
       return Promise.resolve(res.data);
     } catch (error) {
       return Promise.reject(error);

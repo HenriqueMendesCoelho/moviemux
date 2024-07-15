@@ -20,7 +20,7 @@
       <div class="row" :class="screenHeight > 1080 ? 'q-col-gutter-y-lg' : 'q-col-gutter-y-sm'">
         <div class="col-12 text-title-responsive-2">Informações</div>
         <div class="col-12 row q-col-gutter-sm">
-          <InputText
+          <BaseTextInput
             ref="inputTextPortugueseTitleRef"
             class="col-md col-xs-12"
             :label="'Título PT-BR'"
@@ -29,7 +29,7 @@
             required
             :dense="screenHeight <= 1080"
           />
-          <InputText
+          <BaseTextInput
             v-if="showEnglishTitle()"
             ref="inputTextEnglishTitleRef"
             class="col-md col-xs-12"
@@ -39,7 +39,7 @@
             required
             :dense="screenHeight <= 1080"
           />
-          <InputText
+          <BaseTextInput
             ref="inputTextOriginalTitleRef"
             class="col-md col-xs-12"
             :label="'Título Original'"
@@ -49,7 +49,7 @@
           />
         </div>
         <div class="col-12 row q-col-gutter-sm">
-          <InputText
+          <BaseTextInput
             ref="inputTextDirectorRef"
             class="col-md-8 col-xs-12"
             :label="'Diretor'"
@@ -58,7 +58,7 @@
             required
             :dense="screenHeight <= 1080"
           />
-          <InputText
+          <BaseTextInput
             v-if="isRegisterOrEditing"
             ref="inputTextRuntimeRef"
             class="col-md-2 col-xs-6"
@@ -69,7 +69,7 @@
             required
             :dense="screenHeight <= 1080"
           />
-          <InputText
+          <BaseTextInput
             v-else
             class="col-md-2 col-xs-6"
             :label="'Tempo de duração'"
@@ -77,7 +77,7 @@
             :readonly="true"
             :dense="screenHeight <= 1080"
           />
-          <InputText
+          <BaseTextInput
             ref="inputTextReleaseDateRef"
             class="col-md-2 col-xs-6"
             :label="'Ano de lançamento'"
@@ -145,7 +145,7 @@
                 </q-chip>
               </template>
             </q-select>
-            <InputText
+            <BaseTextInput
               ref="inputTextTmdbIdRef"
               class="col-12"
               :label="'Tmdb ID'"
@@ -159,7 +159,7 @@
               icon-cursor="pointer"
               @iconClick="openTmdbInNewTab"
             />
-            <InputText
+            <BaseTextInput
               class="col-12"
               :label="'Imdb ID'"
               v-model="moviePage.selectedMovie.imdb_id"
@@ -175,7 +175,7 @@
 
         <div class="col-12 row q-col-gutter-x-sm">
           <div class="col-12 text-title-responsive-2">Urls</div>
-          <InputText
+          <BaseTextInput
             ref="inputTextUrlImageRef"
             class="col-5"
             :label="'URL da Imagem'"
@@ -184,7 +184,7 @@
             required
             :dense="screenHeight <= 1080"
           />
-          <InputText
+          <BaseTextInput
             ref="inputTextUrlTrailerBrRef"
             class="col"
             :label="'URL do trailer dublado'"
@@ -199,7 +199,7 @@
             :hint="isRegisterOrEditing ? 'Insira a url do youtube ou key do video' : ''"
             :dense="screenHeight <= 1080"
           />
-          <InputText
+          <BaseTextInput
             ref="inputTextUrlTrailerEnRef"
             class="col"
             :label="'URL do trailer legendado'"
@@ -218,13 +218,13 @@
         <div class="col-12 row q-col-gutter-md">
           <div class="col-auto" v-if="moviePage.selectedMovie.notes?.length && moviePage.selectedMovie.show_notes">
             <div class="text-h6">Nota</div>
-            <ChipNote :size="isMobile ? 'lg' : 'xl'" :movie="moviePage.selectedMovie" :dense="screenHeight <= 1080" />
+            <BaseChipNote :size="isMobile ? 'lg' : 'xl'" :movie="moviePage.selectedMovie" :dense="screenHeight <= 1080" />
           </div>
           <div class="col-auto">
-            <BtnDialogCast :movie-id="moviePage.selectedMovie.tmdb_id" />
+            <BaseDialogCast :movie-id="moviePage.selectedMovie.tmdb_id" />
           </div>
           <div class="col offset-1 row justify-end" v-if="moviePage.selectedMovie.tmdb_id">
-            <MovieWatchProviders class="col-auto" :tmdb-id="moviePage.selectedMovie.tmdb_id" />
+            <BaseMovieWatchProviders class="col-auto" :tmdb-id="moviePage.selectedMovie.tmdb_id" />
           </div>
         </div>
       </div>
@@ -240,11 +240,11 @@ import { useMovieStore } from 'src/core/stores/MovieStore';
 
 import MovieService from 'src/services/MovieService';
 
-import InputText from 'src/components/shared/inputText/InputText.vue';
-import ChipNote from 'src/components/shared/chipNote/ChipNote.vue';
+import BaseTextInput from 'src/core/components/BaseTextInput.vue';
+import BaseChipNote from 'src/core/components/BaseChipNote.vue';
 import TooltipMovieInfo from './tooltipMovieInfo/TooltipMovieInfo.vue';
-import MovieWatchProviders from 'src/components/shared/formMovieSummary/movieWatchProviders/MovieWatchProviders.vue';
-import BtnDialogCast from 'src/components/shared/dialogCast/BtnDialogCast.vue';
+import BaseMovieWatchProviders from 'src/core/components/BaseMovieWatchProviders.vue';
+import BaseDialogCast from 'src/core/components/BaseBtnDialogCast.vue';
 import ContextMenuFormMovieImage from './contextMenuFormMovieImage/ContextMenuFormMovieImage.vue';
 
 import StringUtils from 'src/utils/StringUtils';
@@ -259,18 +259,18 @@ const props = defineProps<Props>();
 const $q = useQuasar();
 const isMobile = $q.platform.is.mobile;
 
-const inputTextPortugueseTitleRef = ref<InstanceType<typeof InputText>>();
-const inputTextEnglishTitleRef = ref<InstanceType<typeof InputText>>();
-const inputTextOriginalTitleRef = ref<InstanceType<typeof InputText>>();
-const inputTextDirectorRef = ref<InstanceType<typeof InputText>>();
-const inputTextReleaseDateRef = ref<InstanceType<typeof InputText>>();
+const inputTextPortugueseTitleRef = ref<InstanceType<typeof BaseTextInput>>();
+const inputTextEnglishTitleRef = ref<InstanceType<typeof BaseTextInput>>();
+const inputTextOriginalTitleRef = ref<InstanceType<typeof BaseTextInput>>();
+const inputTextDirectorRef = ref<InstanceType<typeof BaseTextInput>>();
+const inputTextReleaseDateRef = ref<InstanceType<typeof BaseTextInput>>();
 const qInputDescriptionRef = ref<InstanceType<typeof QInput>>();
 const qSelectGenresRef = ref<InstanceType<typeof QSelect>>();
-const InputTextTmdbIdRef = ref<InstanceType<typeof InputText>>();
-const inputTextUrlImageRef = ref<InstanceType<typeof InputText>>();
-const inputTextUrlTrailerBrRef = ref<InstanceType<typeof InputText>>();
-const inputTextUrlTrailerEnRef = ref<InstanceType<typeof InputText>>();
-const inputTextRuntimeRef = ref<InstanceType<typeof InputText>>();
+const InputTextTmdbIdRef = ref<InstanceType<typeof BaseTextInput>>();
+const inputTextUrlImageRef = ref<InstanceType<typeof BaseTextInput>>();
+const inputTextUrlTrailerBrRef = ref<InstanceType<typeof BaseTextInput>>();
+const inputTextUrlTrailerEnRef = ref<InstanceType<typeof BaseTextInput>>();
+const inputTextRuntimeRef = ref<InstanceType<typeof BaseTextInput>>();
 
 const loadingGenres = ref(false);
 

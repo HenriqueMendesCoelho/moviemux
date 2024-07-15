@@ -3,7 +3,7 @@
     <div class="col-md-6 col-xs-12">
       <div class="row justify-center">
         <h1 class="text-white desktop-only text-h2">Bem-vindo ao Cineminha!</h1>
-        <SeparatorDivLineSolid class="q-my-md desktop-only" style="opacity: 60%" />
+        <BaseHorizontalSeparator class="q-my-md desktop-only" style="opacity: 60%" />
         <img
           class="left-img-login col-md-auto col-xs-6"
           src="../../../assets/logo-kronus.png"
@@ -43,7 +43,7 @@ import { useUserStore } from 'src/core/stores/UserStore';
 import { useMetaTagsStore } from 'src/core/stores/MetaTagsStore';
 
 import LoginForm from '../components/LoginForm.vue';
-import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
+import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 
 const userStore = useUserStore();
 const router = useRouter();

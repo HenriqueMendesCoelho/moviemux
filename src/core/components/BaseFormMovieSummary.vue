@@ -17,7 +17,7 @@
       <div class="row" :class="!isScreenLtLg ? 'q-col-gutter-y-lg' : 'q-col-gutter-y-md'">
         <div class="col-12 text-title-responsive-2">Informações</div>
         <div class="col-12 row q-col-gutter-sm">
-          <InputText
+          <BaseTextInput
             ref="inputTextPortugueseTitleRef"
             class="col-md col-xs-12"
             :label="'Título PT-BR'"
@@ -26,7 +26,7 @@
             required
             :dense="screenHeight <= 1080"
           />
-          <InputText
+          <BaseTextInput
             v-if="showEnglishTitle()"
             ref="inputTextEnglishTitleRef"
             class="col-md col-xs-12"
@@ -35,7 +35,7 @@
             readonly
             :dense="screenHeight <= 1080"
           />
-          <InputText
+          <BaseTextInput
             ref="inputTextOriginalTitleRef"
             class="col-md col-xs-12"
             :label="'Título Original'"
@@ -45,7 +45,7 @@
           />
         </div>
         <div class="col-12 row q-col-gutter-sm">
-          <InputText
+          <BaseTextInput
             ref="inputTextDirectorRef"
             class="col-md-8 col-xs-12"
             :label="'Diretor'"
@@ -54,14 +54,14 @@
             required
             :dense="screenHeight <= 1080"
           />
-          <InputText
+          <BaseTextInput
             class="col-md-2 col-xs-6"
             :label="'Tempo de duração'"
             :modelValue="runtimeToText()"
             readonly
             :dense="screenHeight <= 1080"
           />
-          <InputText
+          <BaseTextInput
             ref="inputTextReleaseDateRef"
             class="col-md-2 col-xs-6"
             :label="'Ano de lançamento'"
@@ -112,7 +112,7 @@
                 </q-chip>
               </template>
             </q-select>
-            <InputText
+            <BaseTextInput
               ref="inputTextTmdbIdRef"
               class="col-12"
               :label="'Tmdb ID'"
@@ -126,7 +126,7 @@
               icon-cursor="pointer"
               @iconClick="openTmdbInNewTab"
             />
-            <InputText
+            <BaseTextInput
               class="col-12"
               :label="'Imdb ID'"
               v-model="movie.imdb_id"
@@ -158,10 +158,10 @@
 
         <div class="col-12 row q-col-gutter-md">
           <div class="col-auto" v-if="movieId">
-            <BtnDialogCast :movie-id="movieId" />
+            <BaseDialogCast :movie-id="movieId" />
           </div>
           <div class="col row justify-end" v-if="movieId">
-            <MovieWatchProviders class="col-auto" :tmdb-id="movieId" />
+            <BaseMovieWatchProviders class="col-auto" :tmdb-id="movieId" />
           </div>
         </div>
       </div>
@@ -175,9 +175,9 @@ import { useQuasar } from 'quasar';
 
 import Movie from 'src/domain/movie/movie';
 
-import InputText from '../inputText/InputText.vue';
-import MovieWatchProviders from './movieWatchProviders/MovieWatchProviders.vue';
-import BtnDialogCast from '../dialogCast/BtnDialogCast.vue';
+import BaseTextInput from 'src/core/components/BaseTextInput.vue';
+import BaseMovieWatchProviders from 'src/core/components/BaseMovieWatchProviders.vue';
+import BaseDialogCast from 'src/core/components/BaseBtnDialogCast.vue';
 
 import KitService from 'src/services/KitService';
 import MovieService from 'src/services/MovieService';

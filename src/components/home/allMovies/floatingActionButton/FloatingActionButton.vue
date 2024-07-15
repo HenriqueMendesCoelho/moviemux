@@ -1,5 +1,5 @@
 <template>
-  <FloatingActionBtnTop class="desktop-only">
+  <BaseFloatingActionBtn class="desktop-only">
     <template v-slot:after-top>
       <q-fab-action
         color="grey-mid2"
@@ -10,9 +10,9 @@
         label-class="bg-grey-mid2"
         label-position="left"
     /></template>
-  </FloatingActionBtnTop>
+  </BaseFloatingActionBtn>
 </template>
 
 <script lang="ts" setup>
-import FloatingActionBtnTop from 'src/components/shared/floatingActionBtnTop/FloatingActionBtnTop.vue';
+import BaseFloatingActionBtn from 'src/core/components/BaseFloatingActionBtn.vue';
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <SeparatorDivSolidLine />
+  <BaseHorizontalSeparator />
   <div class="row justify-center q-mt-md">
     <q-table
       class="col-md-8 col-xs-12"
@@ -26,12 +26,12 @@
             checked-icon="visibility"
             unchecked-icon="visibility_off"
           />
-          <CustomTooltip anchor="bottom right" :delay="500" :hide-delay="300">Alternar visibilidade das notas</CustomTooltip>
+          <BaseTooltip anchor="bottom right" :delay="500" :hide-delay="300">Alternar visibilidade das notas</BaseTooltip>
         </div>
         <div>
           <q-btn class="q-mr-sm" flat round icon="add" @click="showConfirmPromptDelete" :disable="isUserAlreadyVoted" />
-          <CustomTooltip anchor="bottom right" :delay="500" :hide-delay="300" v-if="isUserAlreadyVoted"
-            >Você já votou nesse filme!</CustomTooltip
+          <BaseTooltip anchor="bottom right" :delay="500" :hide-delay="300" v-if="isUserAlreadyVoted"
+            >Você já votou nesse filme!</BaseTooltip
           >
         </div>
         <q-btn flat round icon="refresh" @click="getMovieNotes" />
@@ -67,7 +67,7 @@
                 :rules="[(val) => ruleInputNote(val)]"
               />
             </q-popup-edit>
-            <CustomTooltip :delay="200" v-if="showEdit(props.row)">Clique para editar</CustomTooltip>
+            <BaseTooltip :delay="200" v-if="showEdit(props.row)">Clique para editar</BaseTooltip>
           </q-td>
           <template v-if="isDesktop">
             <q-td key="createdAt" :props="props">{{ props.cols[3].value }}</q-td>
@@ -78,13 +78,13 @@
           </template>
           <q-td key="actions" :props="props"
             ><q-btn dense round flat color="white" icon="delete" v-if="showEdit(props.row)" @click="showConfirmDialogDelete">
-              <CustomTooltip anchor="bottom right" :delay="500" :hide-delay="300">Deletar</CustomTooltip>
+              <BaseTooltip anchor="bottom right" :delay="500" :hide-delay="300">Deletar</BaseTooltip>
             </q-btn></q-td
           >
         </q-tr>
       </template>
     </q-table>
-    <ConfirmDialog ref="confirmDialogRef" @ok="deleteNote()" />
+    <BaseConfirmDialog ref="confirmDialogRef" @ok="deleteNote()" />
     <ConfirmDialogPrompt ref="confirmDialogPromptRef" @ok="createNote($event)" />
   </div>
 </template>
@@ -92,16 +92,15 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch, toRaw } from 'vue';
 import { useQuasar, Cookies } from 'quasar';
 
-import type { QTableProps } from 'quasar';
+import type { QInput, QTableProps } from 'quasar';
 import { MovieNoteType } from 'src/types/movie/MovieType';
-import { InputTextRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
 
 import { useUserStore } from 'src/core/stores/UserStore';
 import { useMovieStore } from 'src/core/stores/MovieStore';
 
-import SeparatorDivSolidLine from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
-import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
-import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
+import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
+import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import ConfirmDialogPrompt from './confirmDialogPrompt/ConfirmDialogPrompt.vue';
 
 import MovieService from 'src/services/MovieService';
@@ -166,8 +165,8 @@ const visibleColumns = columns.value?.map((column) => {
   return columnName;
 });
 
-const inputNoteRef = ref<InputTextRefType>();
-const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
+const inputNoteRef = ref<InstanceType<typeof QInput>>();
+const confirmDialogRef = ref<InstanceType<typeof BaseConfirmDialog>>();
 const confirmDialogPromptRef = ref<InstanceType<typeof ConfirmDialogPrompt>>();
 
 const movieStore = useMovieStore();

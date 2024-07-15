@@ -1,5 +1,5 @@
 <template>
-  <CustomTooltip class="q-pa-none q-ma-none" :delay="1200" :hide-delay="300" style="border-radius: 15px">
+  <BaseTooltip class="q-pa-none q-ma-none" :delay="1200" :hide-delay="300" style="border-radius: 15px">
     <q-list bordered dark style="border-radius: 15px">
       <q-item>
         <q-item-section side>
@@ -33,12 +33,12 @@
         <q-item-section side class="text-white">{{ DateUtils.toLocaleString(wishlist?.updated_at) }}</q-item-section>
       </q-item>
     </q-list>
-  </CustomTooltip>
+  </BaseTooltip>
 </template>
 <script setup lang="ts">
 import { WishlistType } from 'src/types/wishlist/WishlistType';
 
-import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
 import DateUtils from 'src/utils/DateUtils';
 

@@ -1,8 +1,8 @@
 <template>
-  <ContainerMain>
+  <BaseContainerMain>
     <div class="row q-mt-xl justify-center">
       <div class="row col-10 justify-center">
-        <PageTitle title="Meu Perfil" icon="person" />
+        <BasePageTitle title="Meu Perfil" icon="person" />
       </div>
       <div class="panel-profile col-xs-12 col-md-10 q-mt-xl">
         <q-tabs v-model="tab" class="tabs-selector" active-color="kb-primary" indicator-color="kb-primary" align="justify" dense>
@@ -19,7 +19,7 @@
         </q-tab-panels>
       </div>
     </div>
-  </ContainerMain>
+  </BaseContainerMain>
 </template>
 
 <script lang="ts">
@@ -32,10 +32,10 @@ export default defineComponent({
 <script lang="ts" setup>
 import { ref } from 'vue';
 
-import ContainerMain from '../shared/containerMain/ContainerMain.vue';
+import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import PanelSecurityProfile from './panelSecurityProfile/PanelSecurityProfile.vue';
 import PanelProfile from './panelProfile/PanelProfile.vue';
-import PageTitle from '../shared/pageTitle/PageTitle.vue';
+import BasePageTitle from 'src/core/components/BasePageTitle.vue';
 
 const tab = ref('myData');
 </script>

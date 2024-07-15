@@ -23,12 +23,12 @@
           <span class="material-icons" draggable="false" v-if="layoutSettings.darkMode"> light_mode </span>
           <span class="material-icons" draggable="false" v-else> dark_mode </span>
           <span class="text" draggable="false" v-if="showTextsSideBar">Tema</span>
-          <CustomTooltip anchor="top right" :offset="[30, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">Tema</CustomTooltip>
+          <BaseTooltip anchor="top right" :offset="[30, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">Tema</BaseTooltip>
         </button>
         <router-link @click="logout" to="/" class="button">
           <span class="material-icons">logout</span>
           <span class="text" v-if="showTextsSideBar">Sair</span>
-          <CustomTooltip anchor="top right" :offset="[30, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">Sair</CustomTooltip>
+          <BaseTooltip anchor="top right" :offset="[30, 0]" v-if="!layoutSettings.isSideBarExpanded" :delay="500">Sair</BaseTooltip>
         </router-link>
       </div>
     </aside>
@@ -42,7 +42,7 @@ import { Cookies, useQuasar } from 'quasar';
 import { useUserStore } from 'src/core/stores/UserStore';
 import { useStyleStore } from 'src/core/stores/StyleStore';
 
-import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 import SidebarRouteButtons from './sidebarRouteButtons/SidebarRouteButtons.vue';
 
 const userStore = useUserStore();

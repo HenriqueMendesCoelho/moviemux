@@ -1,8 +1,8 @@
 <template>
-  <ContainerMain>
+  <BaseContainerMain>
     <div class="row full-width justify-center">
-      <PageTitle title="Dashboard" icon="dashboard" />
-      <SeparatorDivLineSolidVue />
+      <BasePageTitle title="Dashboard" icon="dashboard" />
+      <BaseHorizontalSeparator />
       <div class="col-12 row justify-center q-mt-lg q-gutter-x-lg">
         <div class="card-bordered justify-center text-center text-white q-pa-md">
           <div class="text-title-responsive-2">Total de filmes</div>
@@ -45,7 +45,7 @@
         </div>
       </div>
     </div>
-  </ContainerMain>
+  </BaseContainerMain>
 </template>
 
 <script setup lang="ts">
@@ -53,9 +53,9 @@ import { onMounted, ref } from 'vue';
 
 import type { MovieStatistics } from 'src/types/statistics/Statistics';
 
-import ContainerMain from '../shared/containerMain/ContainerMain.vue';
-import PageTitle from '../shared/pageTitle/PageTitle.vue';
-import SeparatorDivLineSolidVue from '../shared/separator/SeparatorDivLineSolid.vue';
+import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
+import BasePageTitle from 'src/core/components/BasePageTitle.vue';
+import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 import MovieSixMonthsAgoChart from './movieSixMonthsAgoChart/MovieSixMonthsAgoChart.vue';
 import MovieByGenderChart from './movieByGenderChart/MovieByGenderChart.vue';
 

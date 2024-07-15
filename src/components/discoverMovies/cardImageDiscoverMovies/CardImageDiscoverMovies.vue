@@ -1,7 +1,7 @@
 <template>
   <div class="card-discover" :class="`${!selected && !loading && 'animate'}`">
     <router-link :to="`/movie/discover?movie=${movie.id}`">
-      <CardImage :class="`${selected && 'img-movie-selected'}`" :src="getUrl()" @click="clickOnCard" :animate="false">
+      <BaseCardImage :class="`${selected && 'img-movie-selected'}`" :src="getUrl()" @click="clickOnCard" :animate="false">
         <div class="absolute-bottom hover-show-img text-center mobile-hide" v-if="!selected && !loading">
           {{ props.movie?.title }}<br />
           {{ DateUtils.toLocaleDateStringLong(props.movie.release_date) }}
@@ -9,12 +9,12 @@
         <div class="absolute-top-left" style="background: none" v-if="isInAnyWishlist()">
           <div>
             <q-icon name="playlist_add_check" color="white" :size="$q.platform.is.desktop ? 'md' : 'sm'" />
-            <CustomTooltip :delay="1000">Já está em uma lista</CustomTooltip>
+            <BaseTooltip :delay="1000">Já está em uma lista</BaseTooltip>
           </div>
         </div>
         <ContextMenuDiscover :movie-id="props.movie.id" @copy-url="emit('copy-url', $event)" />
         <q-inner-loading :showing="loading" label="Aguarde..." color="kb-primary" label-class="text-white" dark />
-      </CardImage>
+      </BaseCardImage>
     </router-link>
     <q-btn
       class="absolute-top-right all-pointer-events cursor-pointer btn-ham animate"
@@ -65,9 +65,9 @@ import { useQuasar } from 'quasar';
 import type { WishlistType } from 'src/types/wishlist/WishlistType';
 import type { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
 
-import CardImage from 'src/components/shared/cardImage/CardImage.vue';
+import BaseCardImage from 'src/core/components/BaseCardImage.vue';
 import ContextMenuDiscover from './contextMenuDiscover/ContextMenuDiscover.vue';
-import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 import MenuAddMovieWishlist from './menuAddMovieWishlist/MenuAddMovieWishlist.vue';
 
 import DateUtils from 'src/utils/DateUtils';

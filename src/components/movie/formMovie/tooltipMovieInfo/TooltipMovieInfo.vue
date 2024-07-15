@@ -1,5 +1,5 @@
 <template>
-  <CustomTooltip class="q-pa-none q-ma-none" :delay="1200" :hide-delay="300" style="border-radius: 15px">
+  <BaseTooltip class="q-pa-none q-ma-none" :delay="1200" :hide-delay="300" style="border-radius: 15px">
     <q-list bordered dark style="border-radius: 15px; min-width: 15vw" :dense="dense()">
       <q-item>
         <q-item-section avatar>
@@ -25,13 +25,13 @@
         <q-item-section>{{ getUpdatedAt() }}</q-item-section>
       </q-item>
     </q-list>
-  </CustomTooltip>
+  </BaseTooltip>
 </template>
 <script lang="ts" setup>
 import { computed } from 'vue';
 import { useQuasar } from 'quasar';
 
-import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
 import { useMovieStore } from 'src/core/stores/MovieStore';
 import DateUtils from 'src/utils/DateUtils';

@@ -21,7 +21,7 @@
     <div class="col-12 row justify-center" v-else>
       <div class="text-h4 text-white q-mt-md">Você ainda não tem nenhuma lista criada...</div>
     </div>
-    <ConfirmDialog ref="confirmDialogRef" @ok="deleteWishlist()" @cancel="wishlistToDelete = ''" />
+    <BaseConfirmDialog ref="confirmDialogRef" @ok="deleteWishlist()" @cancel="wishlistToDelete = ''" />
   </div>
 </template>
 <script setup lang="ts">
@@ -31,14 +31,14 @@ import type { WishlistType } from 'src/types/wishlist/WishlistType';
 
 import WishlistCard from './wishlistCard/WishlistCard.vue';
 import BtnCreateWishlist from './btnCreateWishlist/BtnCreateWishlist.vue';
-import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
+import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 
 import WishlistService from 'src/services/WishlistService';
 import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
 import { showError, showSuccess } from 'src/utils/NotificationUtils';
 
 const wishlists = ref<WishlistType[]>([]);
-const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
+const confirmDialogRef = ref<InstanceType<typeof BaseConfirmDialog>>();
 const wishlistToDelete = ref<string>('');
 
 const emit = defineEmits<{

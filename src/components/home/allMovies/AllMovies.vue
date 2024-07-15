@@ -1,14 +1,14 @@
 <template>
   <div class="row relative-position">
     <div class="row full-width q-my-md scroll">
-      <SearchToolbar
+      <BaseSearchToolbar
         :order-options="orderOptions"
         v-model:input-search="searchText"
         v-model:select-order="orderOption"
         @refresh="refreshSearch()"
         @search="btnSearchAction()"
         @input-search-focus="
-          ($event) => {
+          ($event: boolean) => {
             if (!$event) selectedIndexMenu = undefined;
             menuIsFocused = $event;
           }
@@ -22,8 +22,8 @@
         <template #prepend>
           <div>
             <q-icon name="menu" size="sm" />
-            <CustomTooltip :delay="1200"
-              >Total de filmes cadastrados: <strong>{{ totalNumberOfMovies }}</strong></CustomTooltip
+            <BaseTooltip :delay="1200"
+              >Total de filmes cadastrados: <strong>{{ totalNumberOfMovies }}</strong></BaseTooltip
             >
           </div>
         </template>
@@ -84,7 +84,7 @@
             </template>
           </q-select>
         </template>
-      </SearchToolbar>
+      </BaseSearchToolbar>
     </div>
     <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="10">
       <div class="row justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'">
@@ -110,8 +110,8 @@ import Movie from 'src/domain/movie/movie';
 import CardImageAllMovies from './cardImageAllMovies/CardImageAllMovies.vue';
 import MovieService from 'src/services/MovieService';
 import FloatingActionButton from './floatingActionButton/FloatingActionButton.vue';
-import SearchToolbar from 'src/components/shared/searchToolbar/SearchToolbar.vue';
-import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import BaseSearchToolbar from 'src/core/components/BaseSearchToolbar.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
 import { showError } from 'src/utils/NotificationUtils';
 

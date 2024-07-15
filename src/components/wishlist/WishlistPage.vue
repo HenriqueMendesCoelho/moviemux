@@ -1,8 +1,8 @@
 <template>
-  <ContainerMain>
+  <BaseContainerMain>
     <div class="row full-width justify-center">
       <WishlistPageTitle :wishlist="wishlist" />
-      <SeparatorDivLineSolid class="q-mb-xl" />
+      <BaseHorizontalSeparator class="q-mb-xl" />
       <MyWishlists v-if="tab === 'myWishlistsTab'" @click-on-card="changeTabToWishlist($event)" @wishlists="wishlists = $event" />
       <WishlistTab
         v-else-if="tab === 'wishlistTab'"
@@ -12,7 +12,7 @@
         :wishlists="wishlists"
       />
     </div>
-  </ContainerMain>
+  </BaseContainerMain>
 </template>
 
 <script lang="ts" setup>
@@ -21,8 +21,8 @@ import { useRoute, useRouter } from 'vue-router';
 
 import { WishlistType } from 'src/types/wishlist/WishlistType';
 
-import ContainerMain from '../shared/containerMain/ContainerMain.vue';
-import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue';
+import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
+import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 import MyWishlists from './myWishlistsTab/MyWishlistsTab.vue';
 import WishlistTab from './wishlistTab/WishlistTab.vue';
 import WishlistPageTitle from './wishlistPageTitle/WishlistPageTitle.vue';

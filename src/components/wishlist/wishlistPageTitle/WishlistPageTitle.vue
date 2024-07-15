@@ -1,5 +1,5 @@
 <template>
-  <PageTitle :title="wishlist ? wishlist.name : 'Lista de Filmes'" icon="list">
+  <BasePageTitle :title="wishlist ? wishlist.name : 'Lista de Filmes'" icon="list">
     <template #title>
       <q-popup-edit
         v-if="_wishlist?.user.id === userId"
@@ -16,20 +16,20 @@
       >
         <q-input ref="inputNoteRef" color="kb-primary" dark v-model="scope.value" dense autofocus :rules="[(val) => ruleInput(val)]" />
       </q-popup-edit>
-      <CustomTooltip :delay="200" v-if="_wishlist?.user.id === userId">Clique para editar</CustomTooltip>
+      <BaseTooltip :delay="200" v-if="_wishlist?.user.id === userId">Clique para editar</BaseTooltip>
     </template>
     <template #after-icon v-if="wishlist">
       <TooltipWishlistInfo :wishlist="wishlist" />
     </template>
-  </PageTitle>
+  </BasePageTitle>
 </template>
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 
 import { WishlistType } from 'src/types/wishlist/WishlistType';
 
-import PageTitle from 'src/components/shared/pageTitle/PageTitle.vue';
-import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import BasePageTitle from 'src/core/components/BasePageTitle.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 import TooltipWishlistInfo from './tooltipWishlistInfo/TooltipWishlistInfo.vue';
 
 import { useUserStore } from 'src/core/stores/UserStore';

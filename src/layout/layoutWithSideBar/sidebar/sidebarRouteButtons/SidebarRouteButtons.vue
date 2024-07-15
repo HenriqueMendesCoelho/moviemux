@@ -9,9 +9,9 @@
       <q-badge v-if="route.badge" class="q-mr-sm" :label="route.badge" :color="route.badgeColor || 'kb-primary'" rounded floating />
       <span class="material-icons">{{ route.icon }}</span>
       <span class="text" v-if="props.showTextsSideBar">{{ route.text }}</span>
-      <CustomTooltip class="text-uppercase" anchor="top right" :offset="[35, 0]" v-if="!isSideBarExpanded" :delay="500">{{
+      <BaseTooltip class="text-uppercase" anchor="top right" :offset="[35, 0]" v-if="!isSideBarExpanded" :delay="500">{{
         route.text
-      }}</CustomTooltip>
+      }}</BaseTooltip>
     </router-link>
   </div>
 </template>
@@ -21,7 +21,7 @@ import { computed } from 'vue';
 import { useStyleStore } from 'src/core/stores/StyleStore';
 import { useUserStore } from 'src/core/stores/UserStore';
 
-import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
 type RouteType = {
   to: {

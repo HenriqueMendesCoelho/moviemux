@@ -1,8 +1,8 @@
 <template>
   <div class="row justify-center" :class="isMobile ? 'q-pt-xs' : 'q-pt-md'">
     <div class="text-responsive-2">Dados pessoais</div>
-    <SeparatorDivLineSolid />
-    <PanelUserInfo class="col-12 q-mt-md" v-model="user" />
+    <BaseHorizontalSeparator />
+    <BaseUserInfoPanel class="col-12 q-mt-md" v-model="user" />
     <div class="row justify-center full-width q-col-gutter-md">
       <div class="col-12" />
       <div class="col-md-2 col-sm-4">
@@ -21,8 +21,8 @@ import { useQuasar } from 'quasar';
 
 import User from 'src/domain/user/User';
 
-import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
-import PanelUserInfo from 'src/components/shared/panelUserInfo/PanelUserInfo.vue';
+import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
+import BaseUserInfoPanel from 'src/core/components/BaseUserInfoPanel.vue';
 
 import UserService from 'src/services/UserService';
 import { showError, showSuccess } from 'src/utils/NotificationUtils';

@@ -1,10 +1,10 @@
 <template>
-  <ContainerMain>
+  <BaseContainerMain>
     <div class="row full-width justify-center">
-      <PageTitle title="Descobrir Filmes" icon="fa-solid fa-film" />
-      <SeparatorDivLineSolid class="q-mb-xl" />
+      <BasePageTitle title="Descobrir Filmes" icon="fa-solid fa-film" />
+      <BaseHorizontalSeparator class="q-mb-xl" />
       <div class="scroll col-12">
-        <SearchToolbar
+        <BaseSearchToolbar
           v-model:input-search="searchText"
           v-model:select-order="selectOrder"
           :order-options="filterOptions"
@@ -78,7 +78,7 @@
               </template>
             </q-select>
           </template>
-        </SearchToolbar>
+        </BaseSearchToolbar>
       </div>
       <div class="row justify-center q-mt-lg">
         <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="10">
@@ -96,9 +96,9 @@
         <div class="col-12 row justify-center q-my-md" v-if="loading">
           <q-spinner color="kb-primary" size="50px" />
         </div>
-        <FloatingActionBtnTop class="mobile-hide" />
+        <BaseFloatingActionBtn class="mobile-hide" />
       </div>
-      <DialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" position="standard" @hide="onHideDialog()">
+      <BaseDialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" position="standard" @hide="onHideDialog()">
         <template #prepend:bar>
           <q-btn round dense flat icon="playlist_add" color="white" size="md">
             <MenuAddMovieWishlist
@@ -108,12 +108,12 @@
               anchor="bottom middle"
               self="top middle"
             />
-            <CustomTooltip anchor="center left" self="center end" :delay="400">Adicionar a uma lista</CustomTooltip>
+            <BaseTooltip anchor="center left" self="center end" :delay="400">Adicionar a uma lista</BaseTooltip>
           </q-btn>
         </template>
-      </DialogFormMovieSummary>
+      </BaseDialogFormMovieSummary>
     </div>
-  </ContainerMain>
+  </BaseContainerMain>
 </template>
 
 <script lang="ts" setup>
@@ -127,15 +127,15 @@ import { useStyleStore } from 'src/core/stores/StyleStore';
 import type { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
 import type { WishlistType } from 'src/types/wishlist/WishlistType';
 
-import ContainerMain from '../shared/containerMain/ContainerMain.vue';
-import SearchToolbar from '../shared/searchToolbar/SearchToolbar.vue';
-import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue';
+import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
+import BaseSearchToolbar from 'src/core/components/BaseSearchToolbar.vue';
+import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 import CardImageDiscoverMovies from './cardImageDiscoverMovies/CardImageDiscoverMovies.vue';
-import PageTitle from '../shared/pageTitle/PageTitle.vue';
-import DialogFormMovieSummary from '../shared/formMovieSummary/dialogFormMovieSummary/DialogFormMovieSummary.vue';
-import FloatingActionBtnTop from 'src/components/shared/floatingActionBtnTop/FloatingActionBtnTop.vue';
+import BasePageTitle from 'src/core/components/BasePageTitle.vue';
+import BaseDialogFormMovieSummary from 'src/core/components/BaseDialogFormMovieSummary.vue';
+import BaseFloatingActionBtn from 'src/core/components/BaseFloatingActionBtn.vue';
 import MenuAddMovieWishlist from './cardImageDiscoverMovies/menuAddMovieWishlist/MenuAddMovieWishlist.vue';
-import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
 import WishlistService from 'src/services/WishlistService';
 import KitService from 'src/services/KitService';

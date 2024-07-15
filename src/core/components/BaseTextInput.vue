@@ -14,7 +14,7 @@
     :lazy-rules="true"
     ><template v-slot:append v-if="icon">
       <q-icon :name="icon" @click="emit('iconClick')" :style="`cursor: ${iconCursor ? iconCursor : 'auto'}`"
-        ><CustomTooltip v-if="iconTooltip" :delay="300" :hide-delay="300">{{ iconTooltip }}</CustomTooltip></q-icon
+        ><BaseTooltip v-if="iconTooltip" :delay="300" :hide-delay="300">{{ iconTooltip }}</BaseTooltip></q-icon
       >
     </template></q-input
   >
@@ -22,11 +22,9 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted, nextTick } from 'vue';
-import type { ValidationRule } from 'quasar';
+import type { QInput, ValidationRule } from 'quasar';
 
-import { InputValidateRefType } from './types/InputValidateRefType';
-
-import CustomTooltip from '../customTooltip/CustomTooltip.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
 defineExpose({ hasErrors, resetValidation });
 
@@ -51,7 +49,7 @@ const emit = defineEmits<{
   (e: 'iconClick', value: void): void;
 }>();
 
-const inputTextRef = ref<InputValidateRefType>();
+const inputTextRef = ref<InstanceType<typeof QInput>>();
 const text = ref('');
 
 onMounted(() => {

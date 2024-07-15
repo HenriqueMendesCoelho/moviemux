@@ -1,9 +1,9 @@
 <template>
   <div class="row justify-center">
     <div class="text-responsive-2">Lista de usuários</div>
-    <SeparatorDivLineSolid />
+    <BaseHorizontalSeparator />
     <div class="col-md-10 col-xs-12 q-my-md">
-      <TableCopyDelete
+      <BaseTableCopyDelete
         :title="'Lista de usuários'"
         :columns="columns"
         :edit="false"
@@ -23,8 +23,8 @@ import type { QTableProps } from 'quasar';
 
 import User from 'src/domain/user/User';
 
-import TableCopyDelete from 'src/components/shared/tableCopyDelete/TableCopyDelete.vue';
-import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
+import BaseTableCopyDelete from 'src/core/components/BaseTableCopyDelete.vue';
+import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 import UserService from 'src/services/UserService';
 import { showError, showSuccess } from 'src/utils/NotificationUtils';
 import DateUtils from 'src/utils/DateUtils';

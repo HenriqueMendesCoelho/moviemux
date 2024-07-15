@@ -1,7 +1,7 @@
 <template>
   <div class="row justify-center full-height" style="overflow-y: hidden">
     <h2 class="text-h3 title">Login</h2>
-    <SeparatorDivLineSolid />
+    <BaseHorizontalSeparator />
     <div class="col-10 justify-center">
       <q-input
         ref="inputEmailRef"
@@ -20,7 +20,7 @@
       </q-input>
     </div>
     <div class="col-10 justify-center q-mt-md">
-      <InputPassword @keyup.enter="login()" v-model="password" required :error-text-required="false" />
+      <BasePasswordInput ref="inputPasswordRef" @keyup.enter="login()" v-model="password" required :error-text-required="false" />
       <button class="btn-underline q-mt-md" @click="changeTab('forgot')">Esqueceu sua senha ?</button>
     </div>
     <div class="col-10 q-mt-xl">
@@ -51,12 +51,12 @@
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+import type { QInput } from 'quasar';
+
 import { useUserStore } from 'src/core/stores/UserStore';
 
-import type { InputValidateRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
-
-import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
-import InputPassword from 'src/components/shared/inputPassword/InputPassword.vue';
+import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
+import BasePasswordInput from 'src/core/components/BasePasswordInput.vue';
 import { showError } from 'src/utils/NotificationUtils';
 
 type btnFocusRefType = {
@@ -81,8 +81,8 @@ const emit = defineEmits<{
 const route = useRoute();
 const router = useRouter();
 
-const inputEmailRef = ref<InputValidateRefType>();
-const inputPasswordRef = ref<InputValidateRefType>();
+const inputEmailRef = ref<InstanceType<typeof QInput>>();
+const inputPasswordRef = ref<InstanceType<typeof BasePasswordInput>>();
 const btnLoginRef = ref<btnFocusRefType>();
 
 const userStore = useUserStore();
@@ -128,8 +128,7 @@ function hasErrors() {
     hasErrors = inputEmailRef.value.hasError;
   }
   if (inputPasswordRef.value) {
-    inputPasswordRef.value.validate();
-    hasErrors = inputPasswordRef.value.hasError;
+    hasErrors = inputPasswordRef.value.hasErrors();
   }
   return hasErrors;
 }

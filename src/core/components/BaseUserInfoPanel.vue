@@ -2,7 +2,7 @@
   <div class="row justify-center">
     <div class="row col-md-8 col-xs-12">
       <div class="col-md-11 col-xs-9">
-        <InputText :label="'Nome'" v-model="user.name" :readonly="allReadOnly" />
+        <BaseTextInput :label="'Nome'" v-model="user.name" :readonly="allReadOnly" />
       </div>
       <div class="col">
         <q-toggle
@@ -13,12 +13,12 @@
           unchecked-icon="notifications_off"
           :disable="allReadOnly"
         />
-        <CustomTooltip anchor="bottom middle" :delay="500" style="font-size: 10pt">Notificações por e-mail</CustomTooltip>
+        <BaseTooltip anchor="bottom middle" :delay="500" style="font-size: 10pt">Notificações por e-mail</BaseTooltip>
       </div>
     </div>
     <div class="col-md-8 col-xs-12 q-mt-md">
       <div class="row q-col-gutter-md">
-        <InputText class="col" :label="'Email'" v-model="user.email" :readonly="allReadOnly" />
+        <BaseTextInput class="col" :label="'Email'" v-model="user.email" :readonly="allReadOnly" />
         <q-input
           :model-value="user.statistics?.consecutive_failed_login_attempts"
           v-if="showAdmInfo"
@@ -134,8 +134,8 @@ import { onMounted, ref, watch } from 'vue';
 
 import User from 'src/domain/user/User';
 
-import InputText from 'src/components/shared/inputText/InputText.vue';
-import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import BaseTextInput from 'src/core/components/BaseTextInput.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
 import StringUtils from 'src/utils/StringUtils';
 import DateUtils from 'src/utils/DateUtils';

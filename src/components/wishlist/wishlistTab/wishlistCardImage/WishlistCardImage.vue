@@ -1,5 +1,5 @@
 <template>
-  <CardImage
+  <BaseCardImage
     :class="`${selected && 'img-movie-selected'}`"
     :src="getUrl()"
     @click="emit('clickOnImage')"
@@ -12,11 +12,11 @@
     <div class="absolute-top-left" style="background: none" v-if="isInAnyWishlist()">
       <div v-if="showRemoveItem">
         <q-icon name="sym_o_data_alert" color="white" size="md" />
-        <CustomTooltip :delay="1000">Filme presente em múltiplas listas</CustomTooltip>
+        <BaseTooltip :delay="1000">Filme presente em múltiplas listas</BaseTooltip>
       </div>
       <div v-else>
         <q-icon name="playlist_add_check" color="white" size="md" />
-        <CustomTooltip :delay="1000">Já está em uma lista</CustomTooltip>
+        <BaseTooltip :delay="1000">Já está em uma lista</BaseTooltip>
       </div>
     </div>
     <q-btn
@@ -58,7 +58,7 @@
                   @click="addMovieToWishlist(list.id, props.movie?.tmdb_id)"
                 >
                   <q-item-section v-close-popup class="q-pl-sm">{{ list.name }}</q-item-section>
-                  <CustomTooltip v-if="disableList(list)" :delay="500">Filme já adicionado nessa lista</CustomTooltip>
+                  <BaseTooltip v-if="disableList(list)" :delay="500">Filme já adicionado nessa lista</BaseTooltip>
                 </q-item>
               </q-list>
             </q-menu>
@@ -68,7 +68,7 @@
     </q-btn>
     <ContextMenuWishlistImage @copy-url="emit('copy-url')" />
     <q-inner-loading :showing="loading" label="Aguarde..." color="kb-primary" label-class="text-white" dark />
-  </CardImage>
+  </BaseCardImage>
 </template>
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
@@ -76,8 +76,8 @@ import { useQuasar } from 'quasar';
 
 import type { WishlistType } from 'src/types/wishlist/WishlistType';
 
-import CardImage from 'src/components/shared/cardImage/CardImage.vue';
-import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import BaseCardImage from 'src/core/components/BaseCardImage.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 import ContextMenuWishlistImage from './contextMenuWishlistImage/ContextMenuWishlistImage.vue';
 
 import DateUtils from 'src/utils/DateUtils';

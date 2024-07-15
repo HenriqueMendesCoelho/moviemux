@@ -5,21 +5,21 @@
         <q-space />
         <slot name="prepend:bar" />
         <q-btn round dense flat icon="link" color="white" size="md" @click="copyMovie()">
-          <CustomTooltip :delay="400">Copiar URL</CustomTooltip>
+          <BaseTooltip :delay="400">Copiar URL</BaseTooltip>
         </q-btn>
         <q-btn round dense flat icon="minimize" color="white" size="md" @click="maximizedToggle = false" :disable="!maximizedToggle">
-          <CustomTooltip :delay="400" v-if="maximizedToggle">Minimizar</CustomTooltip>
+          <BaseTooltip :delay="400" v-if="maximizedToggle">Minimizar</BaseTooltip>
         </q-btn>
         <q-btn round dense flat icon="crop_square" color="white" size="md" @click="maximizedToggle = true" :disable="maximizedToggle">
-          <CustomTooltip :delay="400" v-if="!maximizedToggle">Maximizar</CustomTooltip>
+          <BaseTooltip :delay="400" v-if="!maximizedToggle">Maximizar</BaseTooltip>
         </q-btn>
         <q-btn round dense flat icon="close" color="white" size="md" v-close-popup>
-          <CustomTooltip :delay="400">Fechar</CustomTooltip>
+          <BaseTooltip :delay="400">Fechar</BaseTooltip>
         </q-btn>
       </q-bar>
 
       <q-card-section>
-        <FormMovieSummary @error="visible = false" ref="formMovieSummaryRef" :movieId="movieId || 0" />
+        <BaseFormMovieSummary @error="visible = false" ref="formMovieSummaryRef" :movieId="movieId || 0" />
       </q-card-section>
       <q-card-section class="row"></q-card-section>
     </q-card>
@@ -28,8 +28,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
-import FormMovieSummary from '../FormMovieSummary.vue';
-import CustomTooltip from '../../customTooltip/CustomTooltip.vue';
+import BaseFormMovieSummary from 'src/core/components/BaseFormMovieSummary.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
 import { showSuccess } from 'src/utils/NotificationUtils';
 

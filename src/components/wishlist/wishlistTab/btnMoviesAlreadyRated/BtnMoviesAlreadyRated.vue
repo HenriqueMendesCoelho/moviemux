@@ -2,9 +2,9 @@
   <div>
     <div v-if="tmdbIds?.length">
       <q-btn @click="showNotifyMovie(false)" icon="playlist_remove" size="md" round />
-      <CustomTooltip>Remover filmes já estão cadastrados no ranking do cineminha</CustomTooltip>
+      <BaseTooltip>Remover filmes já estão cadastrados no ranking do cineminha</BaseTooltip>
     </div>
-    <ConfirmDialog ref="confirmDialogRef" @ok="deteleMoviesFromWishlist" />
+    <BaseConfirmDialog ref="confirmDialogRef" @ok="deteleMoviesFromWishlist" />
   </div>
 </template>
 
@@ -16,8 +16,8 @@ import { useUserStore } from 'src/core/stores/UserStore';
 
 import type { WishlistType } from 'src/types/wishlist/WishlistType';
 
-import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
-import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
 import WishlistService from 'src/services/WishlistService';
 import { showError, showSuccess } from 'src/utils/NotificationUtils';
@@ -38,7 +38,7 @@ const user = userStore.user;
 const isOwner = computed(() => user.id === props.wishlist?.user.id);
 const tmdbIds = ref<number[]>([]);
 
-const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
+const confirmDialogRef = ref<InstanceType<typeof BaseConfirmDialog>>();
 
 onMounted(() => {
   if (props.wishlist?.id) {

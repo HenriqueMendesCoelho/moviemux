@@ -1,9 +1,9 @@
 <template>
   <div class="row justify-center q-gutter-y-md">
     <h5>Gerenciamento do usuário</h5>
-    <SeparatorDivLineSolid />
+    <BaseHorizontalSeparator />
     <div class="col-md-10 col-xs-12 row q-mt-md">
-      <InputText class="col-md-10 col-xs-6 q-pr-sm" :label="'E-mail usuário alvo'" v-model="email" :required="false" :dense="true" />
+      <BaseTextInput class="col-md-10 col-xs-6 q-pr-sm" :label="'E-mail usuário alvo'" v-model="email" :required="false" :dense="true" />
       <q-btn-dropdown
         icon="settings"
         class="col-md-2 col-xs-6 q-pl-sm"
@@ -45,7 +45,7 @@
       </q-btn-dropdown>
     </div>
     <div class="col-md-10 col-xs-12 q-pt-xl">
-      <PanelUserInfo v-model="user" :allReadOnly="true" :showAdmInfo="true" />
+      <BaseUserInfoPanel v-model="user" :allReadOnly="true" :showAdmInfo="true" />
     </div>
   </div>
 </template>
@@ -55,9 +55,9 @@ import { computed, ref } from 'vue';
 
 import User from 'src/domain/user/User';
 
-import PanelUserInfo from 'src/components/shared/panelUserInfo/PanelUserInfo.vue';
-import InputText from 'src/components/shared/inputText/InputText.vue';
-import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
+import BaseUserInfoPanel from 'src/core/components/BaseUserInfoPanel.vue';
+import BaseTextInput from 'src/core/components/BaseTextInput.vue';
+import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 
 import UserService from 'src/services/UserService';
 import { useUserStore } from 'src/core/stores/UserStore';

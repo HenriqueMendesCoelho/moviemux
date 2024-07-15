@@ -1,5 +1,5 @@
 <template>
-  <CustomTooltip class="bg-grey-mid2" v-model="show" style="border-radius: 15px" no-parent-event>
+  <BaseTooltip class="bg-grey-mid2" v-model="show" style="border-radius: 15px" no-parent-event>
     <q-list dark style="border-radius: 15px">
       <q-item>
         <q-item-section
@@ -23,13 +23,13 @@
         </q-item-section>
       </q-item>
     </q-list>
-  </CustomTooltip>
+  </BaseTooltip>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
-import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
 const show = ref<boolean>(false);
 

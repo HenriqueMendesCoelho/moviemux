@@ -1,7 +1,7 @@
 <template>
   <div class="col-auto">
     <q-btn icon="add" color="white" size="md" flat round @click="dialog()" />
-    <CustomTooltip :delay="500">Criar lista</CustomTooltip>
+    <BaseTooltip :delay="500">Criar lista</BaseTooltip>
   </div>
 </template>
 
@@ -9,7 +9,7 @@
 import { useQuasar } from 'quasar';
 import axios from 'axios';
 
-import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
 import WishlistService from 'src/services/WishlistService';
 import { hideLoading, showLoading } from 'src/utils/LoadingUtils';

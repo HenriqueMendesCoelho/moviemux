@@ -3,7 +3,7 @@
     <q-list>
       <q-item v-for="list in wishlists" :key="list.name" clickable :disable="disableList(list)" @click="emit('addMovie', list.id)">
         <q-item-section v-close-popup class="q-pl-sm">{{ list.name }}</q-item-section>
-        <CustomTooltip v-if="disableList(list)" :delay="500">Filme já adicionado nessa lista</CustomTooltip>
+        <BaseTooltip v-if="disableList(list)" :delay="500">Filme já adicionado nessa lista</BaseTooltip>
       </q-item>
     </q-list>
   </q-menu>
@@ -13,7 +13,7 @@
 import type { WishlistType } from 'src/types/wishlist/WishlistType';
 import type { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
 
-import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 const props = defineProps<{

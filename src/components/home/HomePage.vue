@@ -1,12 +1,12 @@
 <template>
-  <ContainerMain>
+  <BaseContainerMain>
     <LastMovies />
     <AllMovies />
-  </ContainerMain>
+  </BaseContainerMain>
 </template>
 
 <script lang="ts" setup>
-import ContainerMain from '../shared/containerMain/ContainerMain.vue';
+import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import LastMovies from './lastMovies/LastMovies.vue';
 import AllMovies from './allMovies/AllMovies.vue';
 </script>

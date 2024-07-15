@@ -1,7 +1,7 @@
 <template>
   <div class="row justify-center full-height" style="overflow-y: hidden">
     <div class="text-h3 title">Criar nova conta</div>
-    <SeparatorDivLineSolid />
+    <BaseHorizontalSeparator />
     <q-input
       ref="inputEmailRef"
       class="col-10 justify-center"
@@ -14,7 +14,7 @@
       :rules="[(val) => !!val, (val) => regexEmail.test(val) || 'E-mail inválido']"
       ><template v-slot:append> <q-icon name="mail" /> </template
     ></q-input>
-    <InputPassword
+    <BasePasswordInput
       ref="inputPasswordRef"
       class="col-10 justify-center"
       v-model="password"
@@ -25,8 +25,8 @@
       @focus="tooltipPassword = true"
       @blur="tooltipPassword = false"
       ><LoginPassowordInfoTooltip v-model="tooltipPassword"
-    /></InputPassword>
-    <InputPassword
+    /></BasePasswordInput>
+    <BasePasswordInput
       ref="inputRepeatPasswordRef"
       class="col-10 justify-center"
       v-model="repeatePassword"
@@ -72,14 +72,12 @@
 </template>
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useQuasar } from 'quasar';
+import { QInput, useQuasar } from 'quasar';
 import axios, { AxiosError } from 'axios';
 
-import type { InputValidateRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
-
-import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
+import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 import LoginPassowordInfoTooltip from './LoginPassowordInfoTooltip.vue';
-import InputPassword from 'src/components/shared/inputPassword/InputPassword.vue';
+import BasePasswordInput from 'src/core/components/BasePasswordInput.vue';
 
 import UserService from 'src/services/UserService';
 import { showError, showSuccess } from 'src/utils/NotificationUtils';
@@ -91,7 +89,7 @@ const emit = defineEmits<{
 
 const $q = useQuasar();
 
-const inputEmailRef = ref<InputValidateRefType>();
+const inputEmailRef = ref<InstanceType<typeof QInput>>();
 const inputPasswordRef = ref<{
   hasErrors: () => boolean;
   resetValidation: () => void;
@@ -100,8 +98,8 @@ const inputRepeatPasswordRef = ref<{
   hasErrors: () => boolean;
   resetValidation: () => void;
 }>();
-const inputNicknameRef = ref<InputValidateRefType>();
-const inputInviteRef = ref<InputValidateRefType>();
+const inputNicknameRef = ref<InstanceType<typeof QInput>>();
+const inputInviteRef = ref<InstanceType<typeof QInput>>();
 
 const email = ref('');
 const password = ref('');

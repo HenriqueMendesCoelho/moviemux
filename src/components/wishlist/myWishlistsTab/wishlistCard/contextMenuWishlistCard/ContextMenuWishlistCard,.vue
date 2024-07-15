@@ -1,5 +1,5 @@
 <template>
-  <ContextMenu>
+  <BaseContextMenu>
     <q-list style="min-width: 100px">
       <q-item clickable @click="emit('copy-url')" v-close-popup>
         <q-item-section side>
@@ -14,10 +14,10 @@
         <q-item-section class="q-pl-sm">Deletar Lista</q-item-section>
       </q-item>
     </q-list>
-  </ContextMenu>
+  </BaseContextMenu>
 </template>
 <script setup lang="ts">
-import ContextMenu from 'src/components/shared/contextMenu/ContextMenu.vue';
+import BaseContextMenu from 'src/core/components/BaseContextMenu.vue';
 
 const emit = defineEmits<{
   (e: 'delete', value: void): void;

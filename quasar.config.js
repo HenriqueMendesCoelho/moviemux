@@ -29,7 +29,6 @@ module.exports = configure(function (/* ctx */) {
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
     boot: [
       'axios',
-      'main',
       {
         server: false,
         path: 'apexcharts',
@@ -127,6 +126,9 @@ module.exports = configure(function (/* ctx */) {
     //   electronMain: 'src-electron/electron-main',
     //   electronPreload: 'src-electron/electron-preload'
     // },
+    sourceFiles: {
+      store: 'src/core/stores/index',
+    },
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-ssr/configuring-ssr
     ssr: {

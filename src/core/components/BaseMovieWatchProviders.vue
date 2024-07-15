@@ -7,7 +7,7 @@
         <div class="row no-wrap q-py-xs q-gutter-sm">
           <div v-for="provider in watchProviders?.results['BR']?.flatrate" :key="provider.provider_id">
             <q-avatar><img :src="getURL(provider.logo_path)" /></q-avatar>
-            <CustomTooltip delay="400">{{ provider.provider_name }}</CustomTooltip>
+            <BaseTooltip delay="400">{{ provider.provider_name }}</BaseTooltip>
           </div>
         </div>
       </div>
@@ -25,7 +25,7 @@
         <div class="row no-wrap q-py-xs q-gutter-sm">
           <div v-for="provider in watchProviders?.results['BR']?.rent" :key="provider.provider_id">
             <q-avatar><img :src="getURL(provider.logo_path)" /></q-avatar>
-            <CustomTooltip delay="400">{{ provider.provider_name }}</CustomTooltip>
+            <BaseTooltip delay="400">{{ provider.provider_name }}</BaseTooltip>
           </div>
         </div>
       </div>
@@ -35,7 +35,7 @@
         <div class="row no-wrap q-py-xs q-gutter-sm">
           <div v-for="provider in watchProviders?.results['BR'].buy" :key="provider.provider_id">
             <q-avatar><img :src="getURL(provider.logo_path)" /></q-avatar>
-            <CustomTooltip delay="400">{{ provider.provider_name }}</CustomTooltip>
+            <BaseTooltip delay="400">{{ provider.provider_name }}</BaseTooltip>
           </div>
         </div>
       </div>
@@ -48,7 +48,7 @@
         "
       >
         <q-icon name="cloud_off" size="md" color="white" />
-        <CustomTooltip delay="400">Sem informações das plataformas dísponiveis no Brasil</CustomTooltip>
+        <BaseTooltip delay="400">Sem informações das plataformas dísponiveis no Brasil</BaseTooltip>
       </div>
     </div>
   </div>
@@ -61,7 +61,7 @@ import { MovieWatchProvider } from 'src/types/movie/MovieType';
 
 import KitService from 'src/services/KitService';
 
-import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
 interface Props {
   tmdbId?: number;

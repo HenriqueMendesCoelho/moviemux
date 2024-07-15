@@ -1,7 +1,7 @@
 <template>
   <div class="row full-width justify-center">
     <div class="col-12 scroll">
-      <SearchToolbar
+      <BaseSearchToolbar
         v-model:input-search="searchText"
         @search="firstSearch()"
         @refresh="resetSearch()"
@@ -21,7 +21,7 @@
         <template #prepend>
           <div>
             <q-btn icon="arrow_back_ios" flat round @click="emit('back')" />
-            <CustomTooltip :delay="500">Voltar para minhas listas</CustomTooltip>
+            <BaseTooltip :delay="500">Voltar para minhas listas</BaseTooltip>
           </div>
         </template>
         <template #append v-if="_wishlist?.user.id === userId">
@@ -35,12 +35,12 @@
               checked-icon="public"
               unchecked-icon="public_off"
             />
-            <CustomTooltip :delay="500">{{ shareable ? 'Lista Pública' : 'Lista Privada' }}</CustomTooltip>
+            <BaseTooltip :delay="500">{{ shareable ? 'Lista Pública' : 'Lista Privada' }}</BaseTooltip>
           </div>
           <div class="mobile-hide">
             <div>
               <q-btn @click="allowDrag = true" icon="reorder" :disable="allowDrag" flat round />
-              <CustomTooltip v-if="!allowDrag" :delay="500">Reordernar lista</CustomTooltip>
+              <BaseTooltip v-if="!allowDrag" :delay="500">Reordernar lista</BaseTooltip>
             </div>
           </div>
         </template>
@@ -64,7 +64,7 @@
             </q-list>
           </q-menu>
         </template>
-      </SearchToolbar>
+      </BaseSearchToolbar>
     </div>
     <div class="row justify-center q-mt-lg">
       <div class="row justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'" v-if="moviesFiltered?.length">
@@ -91,14 +91,14 @@
             />
           </div>
         </transition-group>
-        <FloatingActionBtnTop class="desktop-only" />
+        <BaseFloatingActionBtn class="desktop-only" />
       </div>
       <div class="row justify-center" v-else>
         <div class="text-h3 text-white">Ainda não há filmes nessa lista...</div>
       </div>
     </div>
-    <ConfirmDialog ref="confirmDialogRef" @ok="deleteMovieFromWishlist()" />
-    <DialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" />
+    <BaseConfirmDialog ref="confirmDialogRef" @ok="deleteMovieFromWishlist()" />
+    <BaseDialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" />
   </div>
 </template>
 
@@ -110,12 +110,12 @@ import { useRouter } from 'vue-router';
 
 import type { WishlistType } from 'src/types/wishlist/WishlistType';
 
-import SearchToolbar from 'src/components/shared/searchToolbar/SearchToolbar.vue';
+import BaseSearchToolbar from 'src/core/components/BaseSearchToolbar.vue';
 import WishlistCardImage from './wishlistCardImage/WishlistCardImage.vue';
-import CustomTooltip from 'src/components/shared/customTooltip/CustomTooltip.vue';
-import DialogFormMovieSummary from 'src/components/shared/formMovieSummary/dialogFormMovieSummary/DialogFormMovieSummary.vue';
-import FloatingActionBtnTop from 'src/components/shared/floatingActionBtnTop/FloatingActionBtnTop.vue';
-import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
+import BaseTooltip from 'src/core/components/BaseTooltip.vue';
+import BaseDialogFormMovieSummary from 'src/core/components/BaseDialogFormMovieSummary.vue';
+import BaseFloatingActionBtn from 'src/core/components/BaseFloatingActionBtn.vue';
+import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import BtnMoviesAlreadyRated from './btnMoviesAlreadyRated/BtnMoviesAlreadyRated.vue';
 
 import { useUserStore } from 'src/core/stores/UserStore';
@@ -152,7 +152,7 @@ const showDialogMovieSummary = ref(false);
 const movieIdDialog = ref<number>();
 const movieIdToDelete = ref<number>();
 const otherWishlists = ref<WishlistType[]>([]);
-const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
+const confirmDialogRef = ref<InstanceType<typeof BaseConfirmDialog>>();
 const showMenu = computed<boolean>(() => {
   return !!searchText.value && menuIsFocused.value && !!moviesWhenTyping.value?.length;
 });

@@ -1,7 +1,7 @@
 <template>
   <div class="row justify-center full-height">
     <div class="text-h3 title">Recuperar conta</div>
-    <SeparatorDivLineSolid />
+    <BaseHorizontalSeparator />
     <div class="col-10">
       <q-input
         ref="inputEmailRef"
@@ -40,8 +40,9 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 
-import { InputValidateRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
-import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
+import type { QInput } from 'quasar';
+
+import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 
 import UserService from 'src/services/UserService';
 import { showError, showSuccess } from 'src/utils/NotificationUtils';
@@ -59,7 +60,7 @@ const emit = defineEmits<{
   (e: 'loading', value: boolean): void;
 }>();
 
-const inputEmailRef = ref<InputValidateRefType>();
+const inputEmailRef = ref<InstanceType<typeof QInput>>();
 const email = ref('');
 const regexEmail = ref(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
 

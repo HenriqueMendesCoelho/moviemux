@@ -42,8 +42,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@import 'src/components/shared/scss/style.scss';
-
 :root {
   --primary: #00f6ff;
   --grey-dark: #0b0e14;

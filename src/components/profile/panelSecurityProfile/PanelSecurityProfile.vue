@@ -1,17 +1,17 @@
 <template>
   <div class="row q-pt-md justify-center">
     <h5>Alteração de senha</h5>
-    <SeparatorDivLineSolid />
+    <BaseHorizontalSeparator />
     <div class="q-mt-md col-xs-12 col-md-6">
-      <InputText ref="inputTextCurrentPassRef" :label="'Senha atual'" v-model="currentPass" :type="'password'" :required="true" />
+      <BaseTextInput ref="inputTextCurrentPassRef" :label="'Senha atual'" v-model="currentPass" :type="'password'" :required="true" />
     </div>
     <div class="col-12" />
     <div class="q-mt-md col-xs-12 col-md-6">
-      <InputText ref="inputTextNewPassRef" :label="'Nova Senha'" v-model="newPass" :type="'password'" :required="true" />
+      <BaseTextInput ref="inputTextNewPassRef" :label="'Nova Senha'" v-model="newPass" :type="'password'" :required="true" />
     </div>
     <div class="col-12" />
     <div class="q-mt-md q-mb-xl col-xs-12 col-md-6">
-      <InputText
+      <BaseTextInput
         ref="inputTextConfirmNewPassRef"
         :label="'Confirme Nova Senha'"
         v-model="confirmNewPass"
@@ -32,18 +32,17 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 
-import { InputTextRefType } from 'src/components/shared/inputText/types/InputValidateRefType';
 import UserService from 'src/services/UserService';
 
-import InputText from 'src/components/shared/inputText/InputText.vue';
-import SeparatorDivLineSolid from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
+import BaseTextInput from 'src/core/components/BaseTextInput.vue';
+import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 import axios, { AxiosError } from 'axios';
 import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
 import { showError, showSuccess } from 'src/utils/NotificationUtils';
 
-const inputTextCurrentPassRef = ref<InputTextRefType>();
-const inputTextNewPassRef = ref<InputTextRefType>();
-const inputTextConfirmNewPassRef = ref<InputTextRefType>();
+const inputTextCurrentPassRef = ref<InstanceType<typeof BaseTextInput>>();
+const inputTextNewPassRef = ref<InstanceType<typeof BaseTextInput>>();
+const inputTextConfirmNewPassRef = ref<InstanceType<typeof BaseTextInput>>();
 
 const currentPass = ref('');
 const newPass = ref('');

@@ -1,5 +1,5 @@
 <template>
-  <ContextMenu v-if="userStore.isAdmin">
+  <BaseContextMenu v-if="userStore.isAdmin">
     <q-list style="min-width: 100px">
       <q-item clickable @click="showConfirmDialog('send')" v-close-popup>
         <span class="material-icons" style="font-size: 25pt"> send </span>
@@ -10,8 +10,8 @@
         <q-item-section class="q-pl-sm">Atualizar mensagem do Discord</q-item-section>
       </q-item>
     </q-list>
-  </ContextMenu>
-  <ConfirmDialog ref="confirmDialogRef" @ok="sendOrUpdateDiscordMessage($event)" />
+  </BaseContextMenu>
+  <BaseConfirmDialog ref="confirmDialogRef" @ok="sendOrUpdateDiscordMessage($event)" />
 </template>
 
 <script setup lang="ts">
@@ -20,8 +20,8 @@ import { computed, ref } from 'vue';
 import { useMovieStore } from 'src/core/stores/MovieStore';
 import { useUserStore } from 'src/core/stores/UserStore';
 
-import ContextMenu from 'src/components/shared/contextMenu/ContextMenu.vue';
-import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
+import BaseContextMenu from 'src/core/components/BaseContextMenu.vue';
+import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 
 import DiscordService from 'src/services/DiscordService';
 import { showError, showSuccess } from 'src/utils/NotificationUtils';
@@ -31,7 +31,7 @@ const movie = computed(() => movieStore.moviePage.selectedMovie);
 
 const userStore = useUserStore();
 
-const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
+const confirmDialogRef = ref<InstanceType<typeof BaseConfirmDialog>>();
 
 function showConfirmDialog(action: string) {
   const actionTextMessage = action === 'send' ? 'enviar' : 'atualizar';

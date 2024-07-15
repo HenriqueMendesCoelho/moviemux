@@ -44,7 +44,7 @@
             </q-img>
           </div>
         </div>
-        <SeparatorDivLineSolid class="q-my-lg" />
+        <BaseHorizontalSeparator class="q-my-lg" />
 
         <div class="row q-ml-md q-mb-md">
           <q-icon class="q-mr-md" color="white" name="groups" size="lg" />
@@ -109,7 +109,7 @@ import { useQuasar } from 'quasar';
 
 import type { Credits } from 'src/types/movie/MovieType';
 
-import SeparatorDivLineSolid from '../separator/SeparatorDivLineSolid.vue';
+import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 
 import KitService from 'src/services/KitService';
 import { hideLoading, showLoading } from 'src/utils/LoadingUtils';

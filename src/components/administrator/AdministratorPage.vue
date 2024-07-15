@@ -1,8 +1,8 @@
 <template>
-  <ContainerMain>
+  <BaseContainerMain>
     <div class="row q-mt-xl justify-center">
       <div class="row col-10 justify-center">
-        <PageTitle title="Menu Administrativo" icon="admin_panel_settings" />
+        <BasePageTitle title="Menu Administrativo" icon="admin_panel_settings" />
       </div>
       <div class="col-md-10 col-xs-12 q-my-xl">
         <q-tabs v-model="tab" class="tabs-selector" active-color="kb-primary" indicator-color="kb-primary" align="justify">
@@ -24,17 +24,17 @@
         </q-tab-panels>
       </div>
     </div>
-  </ContainerMain>
+  </BaseContainerMain>
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue';
 
-import ContainerMain from '../shared/containerMain/ContainerMain.vue';
+import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import UserTabAdministrator from './userTab/UserTabAdministrator.vue';
 import ListUserTabAdministrator from './listUserTab/ListUserTabAdministrator.vue';
 import InviteUserTabAdmiminstrator from './inviteTab/InviteUserTabAdministrator.vue';
-import PageTitle from '../shared/pageTitle/PageTitle.vue';
+import BasePageTitle from 'src/core/components/BasePageTitle.vue';
 
 const tab = ref('users');
 </script>

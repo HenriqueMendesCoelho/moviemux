@@ -1,15 +1,15 @@
 <template>
-  <ContainerMain>
+  <BaseContainerMain>
     <div>
       <SuperiorButtonsMovie />
-      <SeparatorDivSolidLine />
+      <BaseHorizontalSeparator />
     </div>
     <div class="container-main">
       <FormMovie ref="formMovieRef" :isRegisterOrEditing="isRegisterOrEditing()" />
       <MovieNotesTable v-if="!isRegisterOrEditing()" :isRegisterOrEditing="isRegisterOrEditing()" :movie-id="routeIDPath" />
       <VideoEmbedded :width="isMobile ? '100%' : '560px'" />
       <div class="row justify-center q-col-gutter-md" v-if="isRegisterOrEditing()">
-        <SeparatorDivSolidLine />
+        <BaseHorizontalSeparator />
         <div class="col-md-1 col-xs-3">
           <q-btn style="width: 100%" color="positive" text-color="white" label="Salvar" :disable="false" @click="save()" />
         </div>
@@ -26,8 +26,8 @@
       </div>
     </div>
     <ImportMovie :visible="moviePage.showImportMovieDialog" />
-    <ConfirmDialog ref="confirmDialogRef" @ok="cancel()" />
-  </ContainerMain>
+    <BaseConfirmDialog ref="confirmDialogRef" @ok="cancel()" />
+  </BaseContainerMain>
 </template>
 
 <script setup lang="ts">
@@ -39,13 +39,13 @@ import { useMovieStore } from 'src/core/stores/MovieStore';
 import { useStyleStore } from 'src/core/stores/StyleStore';
 
 import FormMovie from './formMovie/FormMovie.vue';
-import ContainerMain from '../shared/containerMain/ContainerMain.vue';
-import SeparatorDivSolidLine from 'src/components/shared/separator/SeparatorDivLineSolid.vue';
+import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
+import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 import VideoEmbedded from './videoEmbedded/VideoEmbedded.vue';
 import SuperiorButtonsMovie from './superiorButtonsMovie/SuperiorButtonsMovie.vue';
 import MovieNotesTable from './movieNotesTable/MovieNotesTable.vue';
 import ImportMovie from './importMovie/ImportMovie.vue';
-import ConfirmDialog from 'src/components/shared/confirmDialog/ConfirmDialog.vue';
+import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import Movie from 'src/domain/movie/movie';
 
 import MovieService from 'src/services/MovieService';
@@ -53,7 +53,7 @@ import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
 import { showError, showSuccess } from 'src/utils/NotificationUtils';
 
 const $q = useQuasar();
-const confirmDialogRef = ref<InstanceType<typeof ConfirmDialog>>();
+const confirmDialogRef = ref<InstanceType<typeof BaseConfirmDialog>>();
 const formMovieRef = ref<{
   hasErrors: () => boolean;
   resetValidation: () => void;

@@ -19,9 +19,9 @@
         class="col-md-5 col-xs-12 row justify-center q-pa-xl background-container text-white"
         :class="isMobile ? 'q-col-gutter-xs' : 'q-col-gutter-lg'"
       >
-        <PageTitle class="col-auto" icon="password" title="Trocar Senha" />
+        <BasePageTitle class="col-auto" icon="password" title="Trocar Senha" />
         <div class="col-12">
-          <SeparatorDivLineSolid />
+          <BaseHorizontalSeparator />
         </div>
         <div class="col-12">
           <q-input
@@ -41,7 +41,7 @@
           </q-input>
         </div>
         <div class="col-12">
-          <InputPassword
+          <BasePasswordInput
             ref="inputPasswordRef"
             label="Nova Senha"
             v-model="newPassword"
@@ -51,7 +51,7 @@
           />
         </div>
         <div class="col-12">
-          <InputPassword
+          <BasePasswordInput
             ref="inputConfirmPasswordRef"
             label="Confirme a Nova Senha"
             v-model="confirmNewPassword"
@@ -74,9 +74,9 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 
-import SeparatorDivLineSolid from '../shared/separator/SeparatorDivLineSolid.vue';
-import PageTitle from '../shared/pageTitle/PageTitle.vue';
-import InputPassword from '../shared/inputPassword/InputPassword.vue';
+import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
+import BasePageTitle from 'src/core/components/BasePageTitle.vue';
+import BasePasswordInput from 'src/core/components/BasePasswordInput.vue';
 
 import UserService from 'src/services/UserService';
 import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
