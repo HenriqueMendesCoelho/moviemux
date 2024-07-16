@@ -2,7 +2,7 @@
   <div class="row justify-center items-center">
     <router-link :to="{ name: 'movie', params: { id: id } }" class="container-img" style="border-radius: 50px">
       <BaseCardImage class="card" :src="url" height="90%" :width="getWidth()" :animate="false"></BaseCardImage>
-      <figcaption>{{ getTitle() }}</figcaption>
+      <figcaption class="ellipsis" :style="`max-width: ${getWidth()};`">{{ props.title }}</figcaption>
       <ContextMenuHome :movie-id="id || ''" />
     </router-link>
   </div>
@@ -22,21 +22,8 @@ interface Props {
 
 const props = defineProps<Props>();
 const $q = useQuasar();
-
 const isMobile = $q.platform.is.mobile;
 
-function getTitle(): string | void {
-  if (!props.title) {
-    return;
-  }
-  const size = isMobile ? 12 : 20;
-
-  if (props.title.length > size) {
-    return `${props.title.slice(0, size - 3)}...`;
-  }
-
-  return props.title;
-}
 function getWidth() {
   if (isMobile) {
     return '75px';
