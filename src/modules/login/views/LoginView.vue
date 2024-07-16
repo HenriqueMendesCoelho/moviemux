@@ -55,6 +55,7 @@ const metaTagsStore = useMetaTagsStore();
 const movieInfo = metaTagsStore.info;
 if (Object.keys(movieInfo)?.length) {
   const title = `Cineminha - Descobrir - ${metaTagsStore.info.title}`;
+  const imgUrl = getImageUrl(metaTagsStore.info.url_image);
 
   useMeta({
     title: title,
@@ -64,11 +65,11 @@ if (Object.keys(movieInfo)?.length) {
 
       ogTitle: { property: 'og:title', content: title },
       ogDescription: { property: 'og:description', content: metaTagsStore.info.description },
-      ogImage: { property: 'og:image', content: getImageUrl(metaTagsStore.info.url_image) },
+      ogImage: { property: 'og:image', content: imgUrl },
 
       twitterTitle: { property: 'twitter:title', content: title },
       twitterDescription: { property: 'twitter:description', content: metaTagsStore.info.description },
-      twitterImage: { property: 'twitter:image', content: getImageUrl(metaTagsStore.info.url_image) },
+      twitterImage: { property: 'twitter:image', content: imgUrl },
     },
   });
 } else {
@@ -99,10 +100,11 @@ defineOptions({
     userStore.$reset();
     const metaStore = useMetaTagsStore(store);
     const movieId = Number(currentRoute.query.from?.toString().split('discover?movie=')[1]);
-    if (movieId) {
-      return await metaStore.getMovieInfo(movieId);
+    if (!movieId) {
+      return;
     }
-    return;
+
+    return await metaStore.getMovieInfo(movieId);
   },
 });
 
