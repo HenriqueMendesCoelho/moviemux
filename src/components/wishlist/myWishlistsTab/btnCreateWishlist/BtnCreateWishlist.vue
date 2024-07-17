@@ -11,7 +11,7 @@ import axios from 'axios';
 
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
-import WishlistService from 'src/services/WishlistService';
+import WishlistService from 'src/core/services/WishlistService';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 

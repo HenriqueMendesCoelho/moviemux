@@ -81,7 +81,7 @@ import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 import ContextMenuWishlistImage from './contextMenuWishlistImage/ContextMenuWishlistImage.vue';
 
 import DateUtils from 'src/core/utils/DateUtils';
-import WishlistService from 'src/services/WishlistService';
+import WishlistService from 'src/core/services/WishlistService';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;

@@ -119,7 +119,7 @@ import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import BtnMoviesAlreadyRated from './btnMoviesAlreadyRated/BtnMoviesAlreadyRated.vue';
 
 import { useUserStore } from 'src/core/stores/UserStore';
-import WishlistService from 'src/services/WishlistService';
+import WishlistService from 'src/core/services/WishlistService';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 

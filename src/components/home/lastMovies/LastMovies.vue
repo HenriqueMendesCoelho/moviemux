@@ -33,7 +33,7 @@ import Movie from 'src/domain/movie/movie';
 
 import CardImageMovie from './cardImageLastMovies/CardImageLastMovies.vue';
 
-import MovieService from 'src/services/MovieService';
+import MovieService from 'src/core/services/MovieService';
 import { socketAllMovies, stateSocketAllMovies } from 'src/boot/socket';
 
 import { showError } from 'src/core/utils/NotificationUtils';

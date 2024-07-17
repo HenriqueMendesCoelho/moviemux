@@ -111,7 +111,7 @@ import type { Credits } from 'src/core/types/movie/MovieType';
 
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 
-import KitService from 'src/services/KitService';
+import KitService from 'src/core/services/KitService';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 import { showError } from 'src/core/utils/NotificationUtils';
 

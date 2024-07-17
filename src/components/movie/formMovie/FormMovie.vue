@@ -238,7 +238,7 @@ import { useQuasar, QInput, QSelect } from 'quasar';
 
 import { useMovieStore } from 'src/core/stores/MovieStore';
 
-import MovieService from 'src/services/MovieService';
+import MovieService from 'src/core/services/MovieService';
 
 import BaseTextInput from 'src/core/components/BaseTextInput.vue';
 import BaseChipNote from 'src/core/components/BaseChipNote.vue';

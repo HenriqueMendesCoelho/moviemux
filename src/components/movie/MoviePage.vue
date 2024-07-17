@@ -48,7 +48,7 @@ import ImportMovie from './importMovie/ImportMovie.vue';
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import Movie from 'src/domain/movie/movie';
 
-import MovieService from 'src/services/MovieService';
+import MovieService from 'src/core/services/MovieService';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 

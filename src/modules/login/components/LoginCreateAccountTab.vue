@@ -79,7 +79,7 @@ import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator
 import LoginPassowordInfoTooltip from './LoginPassowordInfoTooltip.vue';
 import BasePasswordInput from 'src/core/components/BasePasswordInput.vue';
 
-import UserService from 'src/services/UserService';
+import UserService from 'src/core/services/UserService';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
 const emit = defineEmits<{

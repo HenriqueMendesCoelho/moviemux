@@ -26,7 +26,7 @@ import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator
 import MyWishlists from './myWishlistsTab/MyWishlistsTab.vue';
 import WishlistTab from './wishlistTab/WishlistTab.vue';
 import WishlistPageTitle from './wishlistPageTitle/WishlistPageTitle.vue';
-import WishlistService from 'src/services/WishlistService';
+import WishlistService from 'src/core/services/WishlistService';
 
 const route = useRoute();
 const router = useRouter();

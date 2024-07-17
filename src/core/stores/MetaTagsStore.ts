@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import KitService from 'src/services/KitService';
+import KitService from 'src/core/services/KitService';
 
 import type { MovieInfoTypeKit } from 'src/core/types/movie/MovieType';
 

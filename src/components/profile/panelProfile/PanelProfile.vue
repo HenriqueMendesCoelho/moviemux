@@ -24,7 +24,7 @@ import User from 'src/domain/user/User';
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 import BaseUserInfoPanel from 'src/core/components/BaseUserInfoPanel.vue';
 
-import UserService from 'src/services/UserService';
+import UserService from 'src/core/services/UserService';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 

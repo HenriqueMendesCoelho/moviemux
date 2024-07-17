@@ -33,7 +33,7 @@ import WishlistCard from './wishlistCard/WishlistCard.vue';
 import BtnCreateWishlist from './btnCreateWishlist/BtnCreateWishlist.vue';
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 
-import WishlistService from 'src/services/WishlistService';
+import WishlistService from 'src/core/services/WishlistService';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 

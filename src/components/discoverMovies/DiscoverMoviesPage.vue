@@ -137,9 +137,9 @@ import BaseFloatingActionBtn from 'src/core/components/BaseFloatingActionBtn.vue
 import MenuAddMovieWishlist from './cardImageDiscoverMovies/menuAddMovieWishlist/MenuAddMovieWishlist.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
-import WishlistService from 'src/services/WishlistService';
-import KitService from 'src/services/KitService';
-import MovieService from 'src/services/MovieService';
+import WishlistService from 'src/core/services/WishlistService';
+import KitService from 'src/core/services/KitService';
+import MovieService from 'src/core/services/MovieService';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 

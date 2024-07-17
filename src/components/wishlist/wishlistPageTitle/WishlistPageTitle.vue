@@ -33,7 +33,7 @@ import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 import TooltipWishlistInfo from './tooltipWishlistInfo/TooltipWishlistInfo.vue';
 
 import { useUserStore } from 'src/core/stores/UserStore';
-import WishlistService from 'src/services/WishlistService';
+import WishlistService from 'src/core/services/WishlistService';
 
 interface Props {
   wishlist?: WishlistType;

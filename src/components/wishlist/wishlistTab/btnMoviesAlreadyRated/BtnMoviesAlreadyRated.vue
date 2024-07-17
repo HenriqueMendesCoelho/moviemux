@@ -19,7 +19,7 @@ import type { WishlistType } from 'src/core/types/wishlist/WishlistType';
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
-import WishlistService from 'src/services/WishlistService';
+import WishlistService from 'src/core/services/WishlistService';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 

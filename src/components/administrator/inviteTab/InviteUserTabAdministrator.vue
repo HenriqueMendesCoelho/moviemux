@@ -35,7 +35,7 @@ import BaseTextInput from 'src/core/components/BaseTextInput.vue';
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 import BaseTableCopyDelete from 'src/core/components/BaseTableCopyDelete.vue';
 
-import UserService from 'src/services/UserService';
+import UserService from 'src/core/services/UserService';
 import { showSuccess, showError } from 'src/core/utils/NotificationUtils';
 
 const columns: QTableProps['columns'] = [

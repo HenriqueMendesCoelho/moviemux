@@ -108,7 +108,7 @@ import type { MoviePageableType } from 'src/core/types/movie/MovieType';
 import Movie from 'src/domain/movie/movie';
 
 import CardImageAllMovies from './cardImageAllMovies/CardImageAllMovies.vue';
-import MovieService from 'src/services/MovieService';
+import MovieService from 'src/core/services/MovieService';
 import FloatingActionButton from './floatingActionButton/FloatingActionButton.vue';
 import BaseSearchToolbar from 'src/core/components/BaseSearchToolbar.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';

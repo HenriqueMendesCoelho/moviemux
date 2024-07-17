@@ -32,7 +32,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 
-import UserService from 'src/services/UserService';
+import UserService from 'src/core/services/UserService';
 
 import BaseTextInput from 'src/core/components/BaseTextInput.vue';
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';

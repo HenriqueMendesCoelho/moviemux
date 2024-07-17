@@ -179,8 +179,8 @@ import BaseTextInput from 'src/core/components/BaseTextInput.vue';
 import BaseMovieWatchProviders from 'src/core/components/BaseMovieWatchProviders.vue';
 import BaseDialogCast from 'src/core/components/BaseBtnDialogCast.vue';
 
-import KitService from 'src/services/KitService';
-import MovieService from 'src/services/MovieService';
+import KitService from 'src/core/services/KitService';
+import MovieService from 'src/core/services/MovieService';
 import StringUtils from 'src/core/utils/StringUtils';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 import { showError } from 'src/core/utils/NotificationUtils';
