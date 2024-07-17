@@ -31,7 +31,7 @@ import { ref, watch } from 'vue';
 import BaseFormMovieSummary from 'src/core/components/BaseFormMovieSummary.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
-import { showSuccess } from 'src/utils/NotificationUtils';
+import { showSuccess } from 'src/core/utils/NotificationUtils';
 
 const props = defineProps<{ modelValue: boolean; movieId?: number }>();
 

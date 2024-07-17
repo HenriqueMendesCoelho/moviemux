@@ -36,7 +36,7 @@ import CardImageMovie from './cardImageLastMovies/CardImageLastMovies.vue';
 import MovieService from 'src/services/MovieService';
 import { socketAllMovies, stateSocketAllMovies } from 'src/boot/socket';
 
-import { showError } from 'src/utils/NotificationUtils';
+import { showError } from 'src/core/utils/NotificationUtils';
 
 const $q = useQuasar();
 const isDesktop = $q.platform.is.desktop;

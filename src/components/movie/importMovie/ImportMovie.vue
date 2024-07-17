@@ -69,8 +69,8 @@ import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import BaseCardImage from 'src/core/components/BaseCardImage.vue';
 
 import KitService from 'src/services/KitService';
-import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
-import { showError, showSuccess } from 'src/utils/NotificationUtils';
+import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
+import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
 type divScrollTopRef = {
   $el: {

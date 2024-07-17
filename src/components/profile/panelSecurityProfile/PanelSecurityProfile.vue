@@ -37,8 +37,8 @@ import UserService from 'src/services/UserService';
 import BaseTextInput from 'src/core/components/BaseTextInput.vue';
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 import axios, { AxiosError } from 'axios';
-import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
-import { showError, showSuccess } from 'src/utils/NotificationUtils';
+import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
+import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
 const inputTextCurrentPassRef = ref<InstanceType<typeof BaseTextInput>>();
 const inputTextNewPassRef = ref<InstanceType<typeof BaseTextInput>>();

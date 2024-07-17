@@ -25,8 +25,8 @@ import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator
 import BaseUserInfoPanel from 'src/core/components/BaseUserInfoPanel.vue';
 
 import UserService from 'src/services/UserService';
-import { showError, showSuccess } from 'src/utils/NotificationUtils';
-import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
+import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
+import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 
 const $q = useQuasar();
 const user = ref(new User());

@@ -60,9 +60,9 @@ import MovieSixMonthsAgoChart from './movieSixMonthsAgoChart/MovieSixMonthsAgoCh
 import MovieByGenderChart from './movieByGenderChart/MovieByGenderChart.vue';
 
 import StatisticService from 'src/services/StatisticService';
-import StringUtils from 'src/utils/StringUtils';
-import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
-import { showError } from 'src/utils/NotificationUtils';
+import StringUtils from 'src/core/utils/StringUtils';
+import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
+import { showError } from 'src/core/utils/NotificationUtils';
 
 const chartsData = ref<MovieStatistics>();
 const knobAvgNote = ref<number>(0);

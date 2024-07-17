@@ -26,8 +26,8 @@ import User from 'src/domain/user/User';
 import BaseTableCopyDelete from 'src/core/components/BaseTableCopyDelete.vue';
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 import UserService from 'src/services/UserService';
-import { showError, showSuccess } from 'src/utils/NotificationUtils';
-import DateUtils from 'src/utils/DateUtils';
+import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
+import DateUtils from 'src/core/utils/DateUtils';
 
 const columns: QTableProps['columns'] = [
   {

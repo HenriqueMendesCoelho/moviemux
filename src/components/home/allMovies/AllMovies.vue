@@ -113,7 +113,7 @@ import FloatingActionButton from './floatingActionButton/FloatingActionButton.vu
 import BaseSearchToolbar from 'src/core/components/BaseSearchToolbar.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
-import { showError } from 'src/utils/NotificationUtils';
+import { showError } from 'src/core/utils/NotificationUtils';
 
 const infinitScrollRef = ref<InstanceType<typeof QInfiniteScroll>>();
 

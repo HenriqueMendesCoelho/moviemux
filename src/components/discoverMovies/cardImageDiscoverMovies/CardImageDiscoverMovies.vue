@@ -70,10 +70,10 @@ import ContextMenuDiscover from './contextMenuDiscover/ContextMenuDiscover.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 import MenuAddMovieWishlist from './menuAddMovieWishlist/MenuAddMovieWishlist.vue';
 
-import DateUtils from 'src/utils/DateUtils';
+import DateUtils from 'src/core/utils/DateUtils';
 
 import WishlistService from 'src/services/WishlistService';
-import { showError, showSuccess } from 'src/utils/NotificationUtils';
+import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 interface Props {

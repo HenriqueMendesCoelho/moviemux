@@ -30,7 +30,7 @@ import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 import BaseChipNote from 'src/core/components/BaseChipNote.vue';
 import BaseCardImage from 'src/core/components/BaseCardImage.vue';
 
-import DateUtils from 'src/utils/DateUtils';
+import DateUtils from 'src/core/utils/DateUtils';
 
 interface Props {
   movie: Movie;

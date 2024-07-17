@@ -112,8 +112,8 @@ import type { Credits } from 'src/core/types/movie/MovieType';
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 
 import KitService from 'src/services/KitService';
-import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
-import { showError } from 'src/utils/NotificationUtils';
+import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
+import { showError } from 'src/core/utils/NotificationUtils';
 
 const props = defineProps<{ modelValue: boolean; movieId: number }>();
 const emit = defineEmits<{

@@ -57,7 +57,7 @@ import { useUserStore } from 'src/core/stores/UserStore';
 
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 import BasePasswordInput from 'src/core/components/BasePasswordInput.vue';
-import { showError } from 'src/utils/NotificationUtils';
+import { showError } from 'src/core/utils/NotificationUtils';
 
 type btnFocusRefType = {
   $el: {

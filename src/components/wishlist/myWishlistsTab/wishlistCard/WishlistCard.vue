@@ -67,7 +67,7 @@
 <script setup lang="ts">
 import type { WishlistType } from 'src/core/types/wishlist/WishlistType';
 
-import DateUtils from 'src/utils/DateUtils';
+import DateUtils from 'src/core/utils/DateUtils';
 
 import ContextMenuWishlistCard from './contextMenuWishlistCard/ContextMenuWishlistCard,.vue';
 

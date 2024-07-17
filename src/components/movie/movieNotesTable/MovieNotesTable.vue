@@ -104,9 +104,9 @@ import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import ConfirmDialogPrompt from './confirmDialogPrompt/ConfirmDialogPrompt.vue';
 
 import MovieService from 'src/services/MovieService';
-import DateUtils from 'src/utils/DateUtils';
+import DateUtils from 'src/core/utils/DateUtils';
 import { socketMovie, stateSocketMovie } from 'src/boot/socket';
-import { showError, showSuccess } from 'src/utils/NotificationUtils';
+import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
 const props = defineProps<{
   movieId: string | string[];

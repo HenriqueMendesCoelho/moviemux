@@ -34,7 +34,7 @@ import { useQuasar } from 'quasar';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
 import { useMovieStore } from 'src/core/stores/MovieStore';
-import DateUtils from 'src/utils/DateUtils';
+import DateUtils from 'src/core/utils/DateUtils';
 
 const $q = useQuasar();
 const movieStore = useMovieStore();

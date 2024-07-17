@@ -80,7 +80,7 @@ import LoginPassowordInfoTooltip from './LoginPassowordInfoTooltip.vue';
 import BasePasswordInput from 'src/core/components/BasePasswordInput.vue';
 
 import UserService from 'src/services/UserService';
-import { showError, showSuccess } from 'src/utils/NotificationUtils';
+import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
 const emit = defineEmits<{
   (e: 'changeTab', value: string): void;

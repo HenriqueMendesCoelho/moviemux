@@ -24,7 +24,7 @@ import BaseContextMenu from 'src/core/components/BaseContextMenu.vue';
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 
 import DiscordService from 'src/services/DiscordService';
-import { showError, showSuccess } from 'src/utils/NotificationUtils';
+import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
 const movieStore = useMovieStore();
 const movie = computed(() => movieStore.moviePage.selectedMovie);

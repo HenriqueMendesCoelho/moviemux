@@ -79,8 +79,8 @@ import BasePageTitle from 'src/core/components/BasePageTitle.vue';
 import BasePasswordInput from 'src/core/components/BasePasswordInput.vue';
 
 import UserService from 'src/services/UserService';
-import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
-import { showError } from 'src/utils/NotificationUtils';
+import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
+import { showError } from 'src/core/utils/NotificationUtils';
 
 const $q = useQuasar();
 const isMobile = $q.platform.is.mobile;

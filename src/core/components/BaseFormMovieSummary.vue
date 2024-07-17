@@ -181,9 +181,9 @@ import BaseDialogCast from 'src/core/components/BaseBtnDialogCast.vue';
 
 import KitService from 'src/services/KitService';
 import MovieService from 'src/services/MovieService';
-import StringUtils from 'src/utils/StringUtils';
-import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
-import { showError } from 'src/utils/NotificationUtils';
+import StringUtils from 'src/core/utils/StringUtils';
+import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
+import { showError } from 'src/core/utils/NotificationUtils';
 
 const $q = useQuasar();
 const isMobile = $q.platform.is.mobile;
@@ -297,4 +297,4 @@ function getImgHeight() {
   return '750px';
 }
 </script>
-src/utils/StringUtils
+src/core/utils/StringUtils

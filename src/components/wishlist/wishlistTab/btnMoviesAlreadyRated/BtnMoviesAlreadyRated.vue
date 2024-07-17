@@ -20,8 +20,8 @@ import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
 import WishlistService from 'src/services/WishlistService';
-import { showError, showSuccess } from 'src/utils/NotificationUtils';
-import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
+import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
+import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 
 interface Props {
   wishlist?: WishlistType;

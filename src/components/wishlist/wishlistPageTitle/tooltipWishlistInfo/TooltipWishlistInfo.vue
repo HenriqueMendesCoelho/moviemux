@@ -40,7 +40,7 @@ import { WishlistType } from 'src/core/types/wishlist/WishlistType';
 
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
-import DateUtils from 'src/utils/DateUtils';
+import DateUtils from 'src/core/utils/DateUtils';
 
 interface Props {
   wishlist: WishlistType;

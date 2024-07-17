@@ -247,8 +247,8 @@ import BaseMovieWatchProviders from 'src/core/components/BaseMovieWatchProviders
 import BaseDialogCast from 'src/core/components/BaseBtnDialogCast.vue';
 import ContextMenuFormMovieImage from './contextMenuFormMovieImage/ContextMenuFormMovieImage.vue';
 
-import StringUtils from 'src/utils/StringUtils';
-import DateUtils from 'src/utils/DateUtils';
+import StringUtils from 'src/core/utils/StringUtils';
+import DateUtils from 'src/core/utils/DateUtils';
 
 interface Props {
   isRegisterOrEditing: boolean;

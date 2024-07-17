@@ -34,8 +34,8 @@ import BtnCreateWishlist from './btnCreateWishlist/BtnCreateWishlist.vue';
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 
 import WishlistService from 'src/services/WishlistService';
-import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
-import { showError, showSuccess } from 'src/utils/NotificationUtils';
+import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
+import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
 const wishlists = ref<WishlistType[]>([]);
 const confirmDialogRef = ref<InstanceType<typeof BaseConfirmDialog>>();

@@ -61,8 +61,8 @@ import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator
 
 import UserService from 'src/services/UserService';
 import { useUserStore } from 'src/core/stores/UserStore';
-import { showError, showSuccess } from 'src/utils/NotificationUtils';
-import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
+import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
+import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 
 const storeUser = useUserStore();
 

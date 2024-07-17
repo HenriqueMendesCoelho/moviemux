@@ -49,8 +49,8 @@ import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import Movie from 'src/domain/movie/movie';
 
 import MovieService from 'src/services/MovieService';
-import { hideLoading, showLoading } from 'src/utils/LoadingUtils';
-import { showError, showSuccess } from 'src/utils/NotificationUtils';
+import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
+import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
 const $q = useQuasar();
 const confirmDialogRef = ref<InstanceType<typeof BaseConfirmDialog>>();

@@ -39,7 +39,7 @@ import { useUserStore } from 'src/core/stores/UserStore';
 import { stateSocketMovie } from 'src/boot/socket';
 
 import MovieService from 'src/services/MovieService';
-import { showError, showSuccess, showWarning } from 'src/utils/NotificationUtils';
+import { showError, showSuccess, showWarning } from 'src/core/utils/NotificationUtils';
 
 const $q = useQuasar();
 const isDesktop = $q.platform.is.desktop;

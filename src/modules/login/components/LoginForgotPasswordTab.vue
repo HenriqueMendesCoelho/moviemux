@@ -45,7 +45,7 @@ import type { QInput } from 'quasar';
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 
 import UserService from 'src/services/UserService';
-import { showError, showSuccess } from 'src/utils/NotificationUtils';
+import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
 interface Props {
   createAccount: boolean;

@@ -137,8 +137,8 @@ import User from 'src/domain/user/User';
 import BaseTextInput from 'src/core/components/BaseTextInput.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
-import StringUtils from 'src/utils/StringUtils';
-import DateUtils from 'src/utils/DateUtils';
+import StringUtils from 'src/core/utils/StringUtils';
+import DateUtils from 'src/core/utils/DateUtils';
 
 interface Props {
   modelValue: User;
@@ -181,4 +181,4 @@ function displayTimeToText() {
   return StringUtils.runtimeToText(user.value?.statistics?.display_time);
 }
 </script>
-src/utils/StringUtils
+src/core/utils/StringUtils
