@@ -128,6 +128,7 @@ module.exports = configure(function (/* ctx */) {
     // },
     sourceFiles: {
       store: 'src/core/stores/index',
+      router: 'src/core/router/index',
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-ssr/configuring-ssr

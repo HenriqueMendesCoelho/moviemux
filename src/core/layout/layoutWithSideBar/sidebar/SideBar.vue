@@ -4,7 +4,7 @@
     <aside :class="`${layoutSettings.isSideBarExpanded && 'is-expanded'}`" class="overflow-hidden-y">
       <div class="row logo">
         <router-link to="/home">
-          <img src="../../../assets/logo-kronus.png" alt="logo" draggable="false" style="z-index: 11" />
+          <img src="../../../../assets/logo-kronus.png" alt="logo" draggable="false" style="z-index: 11" />
         </router-link>
       </div>
       <div class="menu-toggle-wrap">

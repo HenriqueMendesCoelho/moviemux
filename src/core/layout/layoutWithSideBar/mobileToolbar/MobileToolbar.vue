@@ -5,7 +5,7 @@
       <router-link to="/home">
         <q-btn round>
           <q-avatar>
-            <img src="../../../assets/logo-kronus.png" draggable="false" />
+            <img src="../../../../assets/logo-kronus.png" draggable="false" />
           </q-avatar>
         </q-btn>
       </router-link>

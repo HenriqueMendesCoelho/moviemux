@@ -3,7 +3,7 @@ import { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '',
-    component: () => import('src/layout/layoutWithoutSideBar/LayoutWithoutSideBar.vue'),
+    component: () => import('src/core/layout/layoutWithoutSideBar/LayoutWithoutSideBar.vue'),
     children: [
       {
         path: '',
@@ -54,7 +54,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '',
-    component: () => import('src/layout/layoutWithSideBar/LayoutWithSideBar.vue'),
+    component: () => import('src/core/layout/layoutWithSideBar/LayoutWithSideBar.vue'),
     children: [
       {
         path: '/home',
