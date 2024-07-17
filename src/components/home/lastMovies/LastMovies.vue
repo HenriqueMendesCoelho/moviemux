@@ -29,7 +29,7 @@
 import { onActivated, onMounted, ref, watch } from 'vue';
 import { useQuasar, Cookies } from 'quasar';
 
-import Movie from 'src/domain/movie/movie';
+import Movie from 'src/core/domain/movie/movie';
 
 import CardImageMovie from './cardImageLastMovies/CardImageLastMovies.vue';
 

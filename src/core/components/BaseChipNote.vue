@@ -4,7 +4,7 @@
   </q-chip>
 </template>
 <script setup lang="ts">
-import Movie from 'src/domain/movie/movie';
+import Movie from 'src/core/domain/movie/movie';
 
 const props = defineProps<{
   movie: Movie;

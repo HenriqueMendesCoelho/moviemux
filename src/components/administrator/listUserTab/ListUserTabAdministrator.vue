@@ -21,7 +21,7 @@ import { onMounted, ref } from 'vue';
 
 import type { QTableProps } from 'quasar';
 
-import User from 'src/domain/user/User';
+import User from 'src/core/domain/user/User';
 
 import BaseTableCopyDelete from 'src/core/components/BaseTableCopyDelete.vue';
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';

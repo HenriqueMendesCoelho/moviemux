@@ -132,7 +132,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 
-import User from 'src/domain/user/User';
+import User from 'src/core/domain/user/User';
 
 import BaseTextInput from 'src/core/components/BaseTextInput.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';

@@ -23,7 +23,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 
-import Movie from 'src/domain/movie/movie';
+import Movie from 'src/core/domain/movie/movie';
 
 import ContextMenuHome from '../../contextMenuHome/ContextMenuHome.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';

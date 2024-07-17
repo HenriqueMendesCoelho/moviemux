@@ -64,7 +64,7 @@ import type { MovieResultResponseTmdb } from 'src/core/types/movie/MovieType';
 
 import BaseTextInput from 'src/core/components/BaseTextInput.vue';
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
-import Movie from 'src/domain/movie/movie';
+import Movie from 'src/core/domain/movie/movie';
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import BaseCardImage from 'src/core/components/BaseCardImage.vue';
 

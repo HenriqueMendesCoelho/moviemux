@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import User from 'src/domain/user/User';
+import User from 'src/core/domain/user/User';
 
 import StringUtils from 'src/core/utils/StringUtils';
 

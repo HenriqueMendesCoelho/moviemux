@@ -173,7 +173,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
-import Movie from 'src/domain/movie/movie';
+import Movie from 'src/core/domain/movie/movie';
 
 import BaseTextInput from 'src/core/components/BaseTextInput.vue';
 import BaseMovieWatchProviders from 'src/core/components/BaseMovieWatchProviders.vue';

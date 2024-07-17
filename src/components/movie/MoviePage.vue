@@ -46,7 +46,7 @@ import SuperiorButtonsMovie from './superiorButtonsMovie/SuperiorButtonsMovie.vu
 import MovieNotesTable from './movieNotesTable/MovieNotesTable.vue';
 import ImportMovie from './importMovie/ImportMovie.vue';
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
-import Movie from 'src/domain/movie/movie';
+import Movie from 'src/core/domain/movie/movie';
 
 import MovieService from 'src/core/services/MovieService';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';

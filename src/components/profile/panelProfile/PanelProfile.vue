@@ -19,7 +19,7 @@
 import { onMounted, ref } from 'vue';
 import { useQuasar } from 'quasar';
 
-import User from 'src/domain/user/User';
+import User from 'src/core/domain/user/User';
 
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 import BaseUserInfoPanel from 'src/core/components/BaseUserInfoPanel.vue';

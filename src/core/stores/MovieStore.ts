@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 
-import Movie from 'src/domain/movie/movie';
+import Movie from 'src/core/domain/movie/movie';
 import { useUserStore } from './UserStore';
 import { MovieNoteType } from 'src/core/types/movie/MovieType';
 

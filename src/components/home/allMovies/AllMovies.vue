@@ -105,7 +105,7 @@ import { QInfiniteScroll, QItem, useQuasar } from 'quasar';
 
 import type { MoviePageableType } from 'src/core/types/movie/MovieType';
 
-import Movie from 'src/domain/movie/movie';
+import Movie from 'src/core/domain/movie/movie';
 
 import CardImageAllMovies from './cardImageAllMovies/CardImageAllMovies.vue';
 import MovieService from 'src/core/services/MovieService';

@@ -53,7 +53,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 
-import User from 'src/domain/user/User';
+import User from 'src/core/domain/user/User';
 
 import BaseUserInfoPanel from 'src/core/components/BaseUserInfoPanel.vue';
 import BaseTextInput from 'src/core/components/BaseTextInput.vue';

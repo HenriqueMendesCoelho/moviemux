@@ -1,4 +1,4 @@
-import Movie from 'src/domain/movie/movie';
+import Movie from 'src/core/domain/movie/movie';
 
 export type MovieSummaryTypeKit = {
   tmdb_id?: number;
