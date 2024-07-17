@@ -19,8 +19,8 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: '/password/change/:key',
-        name: 'ChangePasswordForgotten',
-        component: () => import('src/components/changeForgottenPassword/ChangeForgottenPassword.vue'),
+        name: 'ChangePassword',
+        component: () => import('src/modules/change-password/views/ChangePasswordView.vue'),
         meta: {
           roles: ['UNSECURE'],
           tags: {
