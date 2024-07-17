@@ -18,9 +18,9 @@ import { useQuasar } from 'quasar';
 import { useUserStore } from 'src/core/stores/UserStore';
 import { useStyleStore } from 'src/core/stores/StyleStore';
 
-import SideBar from './sidebar/SideBar.vue';
+import SideBar from './SideBar.vue';
 import LoginDialog from 'src/modules/login/components/LoginDialog.vue';
-import MobileToolbar from './mobileToolbar/MobileToolbar.vue';
+import MobileToolbar from './MobileToolbar.vue';
 
 const $q = useQuasar();
 const isMobile = $q.platform.is.mobile;

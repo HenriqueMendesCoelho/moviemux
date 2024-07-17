@@ -4,7 +4,7 @@
     <aside :class="`${layoutSettings.isSideBarExpanded && 'is-expanded'}`" class="overflow-hidden-y">
       <div class="row logo">
         <router-link to="/home">
-          <img src="../../../../assets/logo-kronus.png" alt="logo" draggable="false" style="z-index: 11" />
+          <img src="../../../assets/logo-kronus.png" alt="logo" draggable="false" style="z-index: 11" />
         </router-link>
       </div>
       <div class="menu-toggle-wrap">
@@ -43,7 +43,7 @@ import { useUserStore } from 'src/core/stores/UserStore';
 import { useStyleStore } from 'src/core/stores/StyleStore';
 
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
-import SidebarRouteButtons from './sidebarRouteButtons/SidebarRouteButtons.vue';
+import SidebarRouteButtons from './SidebarRouteButtons.vue';
 
 const userStore = useUserStore();
 const styleStore = useStyleStore();
@@ -81,5 +81,5 @@ function logout() {
 </script>
 
 <style lang="scss" scoped>
-@import 'scss/sidebar.scss';
+@import './scss/sidebar.scss';
 </style>

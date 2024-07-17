@@ -88,5 +88,5 @@ const routes: RouteType = [
 </script>
 
 <style lang="scss" scoped>
-@import '../scss/sidebar.scss';
+@import './scss/sidebar.scss';
 </style>
