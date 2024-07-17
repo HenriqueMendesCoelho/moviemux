@@ -107,7 +107,7 @@
 import { ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 
-import type { Credits } from 'src/types/movie/MovieType';
+import type { Credits } from 'src/core/types/movie/MovieType';
 
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 

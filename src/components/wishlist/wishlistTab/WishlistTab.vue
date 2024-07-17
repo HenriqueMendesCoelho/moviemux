@@ -108,7 +108,7 @@ import { QItem, useQuasar } from 'quasar';
 import { copyToClipboard } from 'quasar';
 import { useRouter } from 'vue-router';
 
-import type { WishlistType } from 'src/types/wishlist/WishlistType';
+import type { WishlistType } from 'src/core/types/wishlist/WishlistType';
 
 import BaseSearchToolbar from 'src/core/components/BaseSearchToolbar.vue';
 import WishlistCardImage from './wishlistCardImage/WishlistCardImage.vue';

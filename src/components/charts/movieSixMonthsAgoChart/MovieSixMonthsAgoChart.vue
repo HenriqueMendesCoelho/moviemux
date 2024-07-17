@@ -6,7 +6,7 @@
 import { onMounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 
-import type { MovieStatistics } from 'src/types/statistics/Statistics';
+import type { MovieStatistics } from 'src/core/types/statistics/Statistics';
 
 const props = defineProps<{
   chartsData?: MovieStatistics;

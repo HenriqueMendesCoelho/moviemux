@@ -36,7 +36,7 @@
   </BaseTooltip>
 </template>
 <script setup lang="ts">
-import { WishlistType } from 'src/types/wishlist/WishlistType';
+import { WishlistType } from 'src/core/types/wishlist/WishlistType';
 
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 

@@ -14,7 +14,7 @@ import { useQuasar } from 'quasar';
 
 import { useUserStore } from 'src/core/stores/UserStore';
 
-import type { WishlistType } from 'src/types/wishlist/WishlistType';
+import type { WishlistType } from 'src/core/types/wishlist/WishlistType';
 
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';

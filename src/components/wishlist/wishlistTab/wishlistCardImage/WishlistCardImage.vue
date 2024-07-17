@@ -74,7 +74,7 @@
 import { onMounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 
-import type { WishlistType } from 'src/types/wishlist/WishlistType';
+import type { WishlistType } from 'src/core/types/wishlist/WishlistType';
 
 import BaseCardImage from 'src/core/components/BaseCardImage.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';

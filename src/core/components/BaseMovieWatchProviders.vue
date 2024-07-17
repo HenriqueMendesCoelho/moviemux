@@ -57,7 +57,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, onBeforeMount } from 'vue';
 
-import { MovieWatchProvider } from 'src/types/movie/MovieType';
+import { MovieWatchProvider } from 'src/core/types/movie/MovieType';
 
 import KitService from 'src/services/KitService';
 

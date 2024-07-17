@@ -60,7 +60,7 @@ import { useQuasar, openURL } from 'quasar';
 
 import { useMovieStore } from 'src/core/stores/MovieStore';
 
-import type { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
+import type { MovieResultResponseTmdb } from 'src/core/types/movie/MovieType';
 
 import BaseTextInput from 'src/core/components/BaseTextInput.vue';
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';

@@ -124,8 +124,8 @@ import { useRouter } from 'vue-router';
 
 import { useStyleStore } from 'src/core/stores/StyleStore';
 
-import type { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
-import type { WishlistType } from 'src/types/wishlist/WishlistType';
+import type { MovieResultResponseTmdb } from 'src/core/types/movie/MovieType';
+import type { WishlistType } from 'src/core/types/wishlist/WishlistType';
 
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import BaseSearchToolbar from 'src/core/components/BaseSearchToolbar.vue';

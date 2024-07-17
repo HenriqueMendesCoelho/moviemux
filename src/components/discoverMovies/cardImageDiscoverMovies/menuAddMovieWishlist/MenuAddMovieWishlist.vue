@@ -10,8 +10,8 @@
 </template>
 
 <script setup lang="ts">
-import type { WishlistType } from 'src/types/wishlist/WishlistType';
-import type { MovieResultResponseTmdb } from 'src/types/movie/MovieType';
+import type { WishlistType } from 'src/core/types/wishlist/WishlistType';
+import type { MovieResultResponseTmdb } from 'src/core/types/movie/MovieType';
 
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 

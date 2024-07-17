@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import KitService from 'src/services/KitService';
 
-import type { MovieInfoTypeKit } from 'src/types/movie/MovieType';
+import type { MovieInfoTypeKit } from 'src/core/types/movie/MovieType';
 
 export const useMetaTagsStore = defineStore('MetaTagsStore', {
   state: () => {

@@ -1,4 +1,10 @@
-import { Credits, MovieInfoTypeKit, MovieResultResponseTmdb, MovieSummaryTypeKit, MovieWatchProvider } from 'src/types/movie/MovieType';
+import {
+  Credits,
+  MovieInfoTypeKit,
+  MovieResultResponseTmdb,
+  MovieSummaryTypeKit,
+  MovieWatchProvider,
+} from 'src/core/types/movie/MovieType';
 import axios from 'axios';
 import StringUtils from 'src/utils/StringUtils';
 

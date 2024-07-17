@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { MovieStatistics } from 'src/types/statistics/Statistics';
+import { MovieStatistics } from 'src/core/types/statistics/Statistics';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;
 const API_STATISTICS = `${BASE_URL}/statistic`;

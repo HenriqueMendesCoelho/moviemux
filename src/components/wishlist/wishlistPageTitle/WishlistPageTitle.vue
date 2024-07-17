@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 
-import { WishlistType } from 'src/types/wishlist/WishlistType';
+import { WishlistType } from 'src/core/types/wishlist/WishlistType';
 
 import BasePageTitle from 'src/core/components/BasePageTitle.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';

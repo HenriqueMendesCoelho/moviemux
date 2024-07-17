@@ -65,7 +65,7 @@
   </q-card>
 </template>
 <script setup lang="ts">
-import type { WishlistType } from 'src/types/wishlist/WishlistType';
+import type { WishlistType } from 'src/core/types/wishlist/WishlistType';
 
 import DateUtils from 'src/utils/DateUtils';
 

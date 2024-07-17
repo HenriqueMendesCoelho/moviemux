@@ -103,7 +103,7 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { QInfiniteScroll, QItem, useQuasar } from 'quasar';
 
-import type { MoviePageableType } from 'src/types/movie/MovieType';
+import type { MoviePageableType } from 'src/core/types/movie/MovieType';
 
 import Movie from 'src/domain/movie/movie';
 

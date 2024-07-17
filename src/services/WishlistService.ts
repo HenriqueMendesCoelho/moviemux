@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { WishlistType } from 'src/types/wishlist/WishlistType';
+import { WishlistType } from 'src/core/types/wishlist/WishlistType';
 import StringUtils from 'src/utils/StringUtils';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;

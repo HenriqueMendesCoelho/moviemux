@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 
 import Movie from 'src/domain/movie/movie';
 import { useUserStore } from './UserStore';
-import { MovieNoteType } from 'src/types/movie/MovieType';
+import { MovieNoteType } from 'src/core/types/movie/MovieType';
 
 export const useMovieStore = defineStore('MovieStore', {
   state: () => {

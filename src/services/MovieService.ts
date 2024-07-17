@@ -6,7 +6,7 @@ import {
   MoviePageableType,
   MovieRequestType,
   MovieSummaryTypeKit,
-} from 'src/types/movie/MovieType';
+} from 'src/core/types/movie/MovieType';
 import Movie from 'src/domain/movie/movie';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;

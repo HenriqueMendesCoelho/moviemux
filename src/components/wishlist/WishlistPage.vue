@@ -19,7 +19,7 @@
 import { computed, onMounted, onUpdated, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { WishlistType } from 'src/types/wishlist/WishlistType';
+import { WishlistType } from 'src/core/types/wishlist/WishlistType';
 
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';

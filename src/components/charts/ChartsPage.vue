@@ -51,7 +51,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 
-import type { MovieStatistics } from 'src/types/statistics/Statistics';
+import type { MovieStatistics } from 'src/core/types/statistics/Statistics';
 
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import BasePageTitle from 'src/core/components/BasePageTitle.vue';

@@ -27,7 +27,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 
-import type { WishlistType } from 'src/types/wishlist/WishlistType';
+import type { WishlistType } from 'src/core/types/wishlist/WishlistType';
 
 import WishlistCard from './wishlistCard/WishlistCard.vue';
 import BtnCreateWishlist from './btnCreateWishlist/BtnCreateWishlist.vue';
