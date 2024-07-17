@@ -41,7 +41,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/:pathMatch(.*)*',
         name: 'notFound',
-        component: () => import('src/components/notFound/NotFound.vue'),
+        component: () => import('src/modules/not-found/views/NotFoundView.vue'),
         meta: {
           roles: ['UNSECURE'],
           tags: {
