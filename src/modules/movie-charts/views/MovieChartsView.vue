@@ -56,8 +56,8 @@ import type { MovieStatistics } from 'src/core/types/statistics/Statistics';
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import BasePageTitle from 'src/core/components/BasePageTitle.vue';
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
-import MovieSixMonthsAgoChart from './movieSixMonthsAgoChart/MovieSixMonthsAgoChart.vue';
-import MovieByGenderChart from './movieByGenderChart/MovieByGenderChart.vue';
+import MovieSixMonthsAgoChart from '../components/MovieSixMonthsAgoChart.vue';
+import MovieByGenderChart from '../components/MovieByGenderChart.vue';
 
 import StatisticService from 'src/core/services/StatisticService';
 import StringUtils from 'src/core/utils/StringUtils';

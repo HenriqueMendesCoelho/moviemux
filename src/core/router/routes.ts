@@ -141,8 +141,8 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: '/movie/dashboard',
-        component: () => import('src/components/charts/ChartsPage.vue'),
-        name: 'charts',
+        component: () => import('src/modules/movie-charts/views/MovieChartsView.vue'),
+        name: 'movieCharts',
         meta: {
           roles: ['ADM', 'USER'],
           tags: {

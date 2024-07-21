@@ -67,7 +67,7 @@ const routes: RouteType = [
     isAdm: false,
   },
   {
-    to: { name: 'charts' },
+    to: { name: 'movieCharts' },
     icon: 'dashboard',
     text: 'Dashboard',
     isAdm: false,
