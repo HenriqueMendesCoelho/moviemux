@@ -16,7 +16,7 @@
       </q-icon>
       <BaseChipNote class="hover-show-img desktop-only" size="lg" :movie="movie" style="top: 8px; left: 8px" v-if="showChipNote()" dense />
     </BaseCardImage>
-    <ContextMenuHome :movie-id="movie?.id || ''" />
+    <MovieHomeContextMenu :movie-id="movie?.id || ''" />
   </router-link>
 </template>
 
@@ -25,7 +25,7 @@ import { ref } from 'vue';
 
 import Movie from 'src/core/domain/movie/movie';
 
-import ContextMenuHome from '../../contextMenuHome/ContextMenuHome.vue';
+import MovieHomeContextMenu from './MovieHomeContextMenu.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 import BaseChipNote from 'src/core/components/BaseChipNote.vue';
 import BaseCardImage from 'src/core/components/BaseCardImage.vue';

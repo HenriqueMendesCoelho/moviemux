@@ -58,7 +58,7 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         path: '/home',
-        component: () => import('src/components/home/HomePage.vue'),
+        component: () => import('src/modules/movie-home/views/MovieHomeView.vue'),
         name: 'home',
         meta: {
           roles: ['ADM', 'USER'],

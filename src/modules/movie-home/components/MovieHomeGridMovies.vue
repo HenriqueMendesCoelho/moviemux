@@ -89,14 +89,14 @@
     <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="10">
       <div class="row justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'">
         <div class="col-auto" v-for="movie in movies" :key="movie.id">
-          <CardImageAllMovies :movie="movie" />
+          <MovieHomeCardImageGrid :movie="movie" />
         </div>
       </div>
     </q-infinite-scroll>
     <div class="col-12 row justify-center q-my-md" v-if="loading">
       <q-spinner color="kb-primary" size="50px" />
     </div>
-    <FloatingActionButton />
+    <MovieHomeFloatingActionButton />
   </div>
 </template>
 <script lang="ts" setup>
@@ -107,9 +107,9 @@ import type { MoviePageableType } from 'src/core/types/movie/MovieType';
 
 import Movie from 'src/core/domain/movie/movie';
 
-import CardImageAllMovies from './cardImageAllMovies/CardImageAllMovies.vue';
+import MovieHomeCardImageGrid from './MovieHomeCardImageGrid.vue';
 import MovieService from 'src/core/services/MovieService';
-import FloatingActionButton from './floatingActionButton/FloatingActionButton.vue';
+import MovieHomeFloatingActionButton from './MovieHomeFloatingActionButton.vue';
 import BaseSearchToolbar from 'src/core/components/BaseSearchToolbar.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
