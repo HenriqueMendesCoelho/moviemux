@@ -105,7 +105,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: '/profile',
-        component: () => import('src/components/profile/ProfilePage.vue'),
+        component: () => import('src/modules/profile/views/ProfileView.vue'),
         name: 'profile',
         meta: {
           roles: ['ADM', 'USER'],

@@ -33,8 +33,8 @@ export default defineComponent({
 import { ref } from 'vue';
 
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
-import PanelSecurityProfile from './panelSecurityProfile/PanelSecurityProfile.vue';
-import PanelProfile from './panelProfile/PanelProfile.vue';
+import PanelSecurityProfile from '../components/PanelSecurityProfile.vue';
+import PanelProfile from '../components/PanelProfile.vue';
 import BasePageTitle from 'src/core/components/BasePageTitle.vue';
 
 const tab = ref('myData');
