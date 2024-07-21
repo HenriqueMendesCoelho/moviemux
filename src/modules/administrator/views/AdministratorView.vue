@@ -31,9 +31,9 @@
 import { ref } from 'vue';
 
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
-import UserTabAdministrator from './userTab/UserTabAdministrator.vue';
-import ListUserTabAdministrator from './listUserTab/ListUserTabAdministrator.vue';
-import InviteUserTabAdmiminstrator from './inviteTab/InviteUserTabAdministrator.vue';
+import UserTabAdministrator from '../components/AdministratorUserTab.vue';
+import ListUserTabAdministrator from '../components/AdministratorListUserTab.vue';
+import InviteUserTabAdmiminstrator from '../components/AdministratorInviteUserTab.vue';
 import BasePageTitle from 'src/core/components/BasePageTitle.vue';
 
 const tab = ref('users');

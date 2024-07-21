@@ -70,7 +70,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: '/adm',
-        component: () => import('src/components/administrator/AdministratorPage.vue'),
+        component: () => import('src/modules/administrator/views/AdministratorView.vue'),
         name: 'adm',
         meta: {
           roles: ['ADM'],
