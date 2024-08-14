@@ -1,7 +1,7 @@
 <template>
   <MobileToolbar class="mobile-only" />
   <SideBar />
-  <div ref="containerLayoutRef" :class="getClass()" class="scroll" style="height: 100vh">
+  <div class="container-layout scroll" ref="containerLayoutRef" :class="getClass()">
     <router-view v-slot="{ Component }">
       <KeepAlive :include="['HomePage', 'DiscoverMoviesPage']">
         <component :is="Component" />
@@ -67,5 +67,9 @@ function getClass() {
   margin-left: 7rem;
   min-width: calc(100vw - 7rem);
   transition: 0.2s ease-out;
+}
+.container-layout {
+  height: 100vh;
+  height: 100dvh;
 }
 </style>

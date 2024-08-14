@@ -15,6 +15,7 @@
   max-width: 100%;
 
   min-height: calc(100vh - 2rem);
+  min-height: calc(100dvh - 2rem);
 
   border-top-left-radius: 10px;
   background: var(--grey-dark2);
@@ -28,7 +29,8 @@
     padding: 0.5rem;
     margin-left: auto;
     margin-top: 4rem;
-    min-height: calc(100svh - 4rem);
+    min-height: calc(100vh - 4rem);
+    min-height: calc(100dvh - 4rem);
   }
 }
 </style>

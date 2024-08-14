@@ -52,7 +52,7 @@ const routes: RouteType = [
     to: { name: 'adm' },
     icon: 'admin_panel_settings',
     text: 'Painel ADM',
-    isAdm: false,
+    isAdm: true,
   },
   {
     to: { name: 'profile' },

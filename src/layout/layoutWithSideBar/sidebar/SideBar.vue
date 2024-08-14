@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="outer-sidebar fullscreen" @click="ToggleMenu" v-if="layoutSettings.isSideBarExpanded && isMobile"></div>
+    <div class="outer-sidebar" @click="ToggleMenu" v-if="layoutSettings.isSideBarExpanded && isMobile"></div>
     <aside :class="`${layoutSettings.isSideBarExpanded && 'is-expanded'}`" class="overflow-hidden-y">
       <div class="row logo">
         <router-link to="/home">
