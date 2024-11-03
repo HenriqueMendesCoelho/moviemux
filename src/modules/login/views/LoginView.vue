@@ -6,7 +6,7 @@
         <BaseHorizontalSeparator class="q-my-md desktop-only" style="opacity: 60%" />
         <img
           class="left-img-login col-md-auto col-xs-6"
-          src="../../../assets/logo-kronus.png"
+          src="../../../assets/logo.webp"
           alt="logo"
           draggable="false"
           @click="tab = 'login'"
