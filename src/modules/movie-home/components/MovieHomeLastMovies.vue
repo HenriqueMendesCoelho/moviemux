@@ -77,7 +77,7 @@ watch(
 async function loadLastMovies() {
   try {
     loading.value = true;
-  } catch (error) {
+  } catch {
     showError('Erro ao executar, tente novamente mais tarde.');
   } finally {
     loading.value = false;

@@ -145,7 +145,7 @@ async function updateWishlist(wishlist: WishlistType) {
   try {
     showLoading();
     return await WishlistService.updateWishlist(wishlist);
-  } catch (error) {
+  } catch {
     showError('Erro ao salvar lista de filmes');
   } finally {
     hideLoading();

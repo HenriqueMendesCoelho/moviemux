@@ -250,7 +250,7 @@ async function searchMoviePageable(): Promise<Movie[]> {
     page.value++;
     totalNumberOfMovies.value = res.total_elements;
     return res.content;
-  } catch (error) {
+  } catch {
     showError('Falha ao realizar a busca dos filmes. Tente novamente mais tarde.');
     return [] as Movie[];
   }

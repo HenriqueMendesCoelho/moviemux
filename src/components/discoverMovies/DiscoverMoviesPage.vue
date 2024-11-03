@@ -405,7 +405,7 @@ async function addMovieToWishlist(wishlistId: string, tmdbId: number) {
     const res = await WishlistService.addMovieToWishlist(wishlistId, tmdbId);
     mergeResult(wishlistId, res);
     showSuccess('Filme adicionado a lista com sucesso');
-  } catch (error) {
+  } catch {
     showError('Erro ao adicionar filme na lista');
   } finally {
     hideLoading();

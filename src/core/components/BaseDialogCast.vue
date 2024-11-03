@@ -148,7 +148,7 @@ async function getCredits() {
     if (res) {
       credits.value = res;
     }
-  } catch (error) {
+  } catch {
     showError('Não foi possível encontrar o elenco do filme. Tente novamente mais tarde.');
     visible.value = false;
   } finally {

@@ -85,7 +85,7 @@ async function sendEmail() {
     await UserService.createRedefinePassowordKey(email.value);
     showSuccess('E-mail enviado.');
     emit('changeTab', 'login');
-  } catch (error) {
+  } catch {
     showError('Erro ao executar ação, tente novamente mais tarde.');
   } finally {
     emit('loading', false);
