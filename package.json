@@ -13,29 +13,30 @@
     "build": "quasar build -m ssr"
   },
   "dependencies": {
-    "@quasar/extras": "^1.16.9",
-    "apexcharts": "^3.47.0",
-    "axios": "^1.7.2",
+    "@quasar/extras": "^1.16.12",
+    "apexcharts": "^3.54.0",
+    "axios": "^1.7.7",
+    "cine-kronusboss": "file:.",
     "dotenv": "^16.4.5",
     "jwt-decode": "^4.0.0",
-    "pinia": "^2.1.7",
-    "quasar": "^2.16.4",
-    "socket.io-client": "^4.7.5",
-    "vue": "^3.4.21",
-    "vue-router": "^4.3.0",
-    "vue3-apexcharts": "^1.5.2"
+    "pinia": "^2.2.4",
+    "quasar": "^2.17.0",
+    "socket.io-client": "^4.8.0",
+    "vue": "^3.5.12",
+    "vue-router": "^4.4.5",
+    "vue3-apexcharts": "^1.7.0"
   },
   "devDependencies": {
-    "@quasar/app-vite": "^1.9.3",
-    "@types/node": "^20.11.28",
-    "@typescript-eslint/eslint-plugin": "^7.2.0",
-    "@typescript-eslint/parser": "^7.2.0",
-    "autoprefixer": "^10.4.18",
+    "@quasar/app-vite": "^1.10.0",
+    "@types/node": "^22.7.5",
+    "@typescript-eslint/eslint-plugin": "^8.8.1",
+    "@typescript-eslint/parser": "^8.8.1",
+    "autoprefixer": "^10.4.20",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-vue": "^9.23.0",
-    "prettier": "^3.2.5",
-    "typescript": "^5.2.2"
+    "eslint-plugin-vue": "^9.29.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.0"
   },
   "engines": {
     "node": "^20 || ^18 || ^16 || ^14.19",
