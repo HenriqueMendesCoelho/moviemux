@@ -1,3 +1,6 @@
+<template>
+  <div></div>
+</template>
 <script lang="ts" setup>
 import { useQuasar } from 'quasar';
 

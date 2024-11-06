@@ -79,7 +79,7 @@ const routes: RouteType = [
     isAdm: false,
   },
   {
-    to: { name: 'wishlist' },
+    to: { name: 'movie-watchlist-list' },
     icon: 'list',
     text: 'Lista de Filmes',
     isAdm: false,

@@ -61,7 +61,7 @@
         </q-item-section>
       </q-item>
     </q-list>
-    <ContextMenuWishlistCard @delete="emit('delete')" @copy-url="emit('copy-url')" />
+    <MovieWatchlistCardContextMenu @delete="emit('delete')" @copy-url="emit('copy-url')" />
   </q-card>
 </template>
 <script setup lang="ts">
@@ -69,7 +69,7 @@ import type { WishlistType } from 'src/core/types/wishlist/WishlistType';
 
 import DateUtils from 'src/core/utils/DateUtils';
 
-import ContextMenuWishlistCard from './contextMenuWishlistCard/ContextMenuWishlistCard,.vue';
+import MovieWatchlistCardContextMenu from './MovieWatchlistCardContextMenu.vue';
 
 interface Props {
   wishlist: WishlistType;

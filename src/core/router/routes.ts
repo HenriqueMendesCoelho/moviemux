@@ -128,14 +128,25 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
-        path: '/movie/wishlist/:id?',
-        component: () => import('src/components/wishlist/WishlistPage.vue'),
-        name: 'wishlist',
+        path: '/movie/watchlist',
+        component: () => import('src/modules/movie-watchlist/views/MovieWatchlistsListView.vue'),
+        name: 'movie-watchlist-list',
         meta: {
           roles: ['ADM', 'USER'],
           tags: {
             set: true,
             title: 'Cineminha - Lista de Filmes',
+          },
+        },
+      },
+      {
+        path: '/movie/watchlist/:id',
+        component: () => import('src/modules/movie-watchlist/views/MovieWatchlistView.vue'),
+        name: 'movie-watchlist-id',
+        meta: {
+          roles: ['ADM', 'USER'],
+          tags: {
+            set: false,
           },
         },
       },

@@ -1,11 +1,11 @@
 <template>
-  <BasePageTitle :title="wishlist ? wishlist.name : 'Lista de Filmes'" icon="list">
+  <BasePageTitle :title="watchlist ? watchlist.name : 'Lista de Filmes'" icon="list">
     <template #title>
       <q-popup-edit
         v-if="_wishlist?.user.id === userId"
         class="bg-grey-mid2"
         :model-value="_wishlist.name"
-        @save="updateNameWishlist($event)"
+        @save="updateNameWatchlist($event)"
         title="Atualizar Nome"
         buttons
         v-slot="scope"
@@ -18,48 +18,48 @@
       </q-popup-edit>
       <BaseTooltip :delay="200" v-if="_wishlist?.user.id === userId">Clique para editar</BaseTooltip>
     </template>
-    <template #after-icon v-if="wishlist">
-      <TooltipWishlistInfo :wishlist="wishlist" />
+    <template #after-icon v-if="watchlist">
+      <MovieWatchlistTooltipInfo :watchlist="watchlist" />
     </template>
   </BasePageTitle>
 </template>
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 
-import { WishlistType } from 'src/core/types/wishlist/WishlistType';
+import { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistTyoe';
 
 import BasePageTitle from 'src/core/components/BasePageTitle.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
-import TooltipWishlistInfo from './tooltipWishlistInfo/TooltipWishlistInfo.vue';
+import MovieWatchlistTooltipInfo from './MovieWatchlistTooltipInfo.vue';
 
 import { useUserStore } from 'src/core/stores/UserStore';
-import WishlistService from 'src/core/services/WishlistService';
+import MovieWatchlistService from '../services/MovieWatchlistService';
 
 interface Props {
-  wishlist?: WishlistType;
+  watchlist?: WatchlistType;
 }
 const props = defineProps<Props>();
 
 const userStore = useUserStore();
 const userId = userStore.user.id;
 
-const _wishlist = ref<WishlistType>();
+const _wishlist = ref<WatchlistType>();
 
 onMounted(() => {
-  if (!props?.wishlist) {
+  if (!props?.watchlist) {
     return;
   }
-  _wishlist.value = props.wishlist;
+  _wishlist.value = props.watchlist;
 });
 
 watch(
-  () => props.wishlist,
+  () => props.watchlist,
   () => {
-    _wishlist.value = props.wishlist;
+    _wishlist.value = props.watchlist;
   }
 );
 
-async function updateNameWishlist(wishlistName: string) {
+async function updateNameWatchlist(wishlistName: string) {
   if (!_wishlist.value) {
     return;
   }
@@ -67,7 +67,7 @@ async function updateNameWishlist(wishlistName: string) {
   _wishlist.value.name = wishlistName;
 
   try {
-    await WishlistService.updateWishlist(_wishlist.value);
+    await MovieWatchlistService.updateWatchlist(_wishlist.value);
   } catch {}
 }
 function ruleInput(val: string): boolean | string {

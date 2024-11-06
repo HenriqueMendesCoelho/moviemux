@@ -1,10 +1,5 @@
 <template>
-  <BaseCardImage
-    :class="`${selected && 'img-movie-selected'}`"
-    :src="getUrl()"
-    @click="emit('clickOnImage')"
-    :animate="!selected && props.animate"
-  >
+  <BaseCardImage :class="`${selected && 'img-movie-selected'}`" :src="getUrl()" @click="emit('open')" :animate="!selected && props.animate">
     <div class="absolute-bottom hover-show-img text-center desktop-only" v-if="!selected">
       {{ props.movie?.title }}<br />
       {{ DateUtils.toLocaleDateStringLong(props.movie.release_date) }}
@@ -66,7 +61,7 @@
         </q-list>
       </q-menu>
     </q-btn>
-    <ContextMenuWishlistImage @copy-url="emit('copy-url')" />
+    <MovieWatchlistImageContextMenu @copy-url="emit('copy-url')" />
     <q-inner-loading :showing="loading" label="Aguarde..." color="kb-primary" label-class="text-white" dark />
   </BaseCardImage>
 </template>
@@ -78,7 +73,7 @@ import type { WishlistType } from 'src/core/types/wishlist/WishlistType';
 
 import BaseCardImage from 'src/core/components/BaseCardImage.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
-import ContextMenuWishlistImage from './contextMenuWishlistImage/ContextMenuWishlistImage.vue';
+import MovieWatchlistImageContextMenu from './MovieWatchlistImageContextMenu.vue';
 
 import DateUtils from 'src/core/utils/DateUtils';
 import WishlistService from 'src/core/services/WishlistService';
@@ -93,7 +88,7 @@ const props = defineProps<{
 }>();
 
 interface Emits {
-  (e: 'clickOnImage', value: void): void;
+  (e: 'open', value: void): void;
   (e: 'removeMovie', value: void): void;
   (e: 'copy-url', value: void): void;
 }
