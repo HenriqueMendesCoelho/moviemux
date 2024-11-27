@@ -13,7 +13,7 @@ const routes: RouteRecordRaw[] = [
           roles: ['UNSECURE'],
           tags: {
             set: false,
-            title: 'Cineminha - KronusBoss',
+            title: 'Movie Mux',
           },
         },
       },
@@ -25,7 +25,7 @@ const routes: RouteRecordRaw[] = [
           roles: ['UNSECURE'],
           tags: {
             set: true,
-            title: 'Cineminha - Alterar Senha',
+            title: 'Movie Mux - Alterar Senha',
           },
         },
       },
@@ -46,7 +46,7 @@ const routes: RouteRecordRaw[] = [
           roles: ['UNSECURE'],
           tags: {
             set: true,
-            title: 'Cineminha - Página não encontrada',
+            title: 'Movie Mux - Página não encontrada',
           },
         },
       },
@@ -64,7 +64,7 @@ const routes: RouteRecordRaw[] = [
           roles: ['ADM', 'USER'],
           tags: {
             set: true,
-            title: 'Cineminha - Home',
+            title: 'Movie Mux - Home',
           },
         },
       },
@@ -76,13 +76,13 @@ const routes: RouteRecordRaw[] = [
           roles: ['ADM'],
           tags: {
             set: true,
-            title: 'Cineminha - ADM',
+            title: 'Movie Mux - ADM',
           },
         },
       },
       {
         path: '/movie/:id',
-        component: () => import('src/components/movie/MoviePage.vue'),
+        component: () => import('src/modules/movie/views/MovieView.vue'),
         name: 'movie',
         meta: {
           roles: ['ADM', 'USER'],
@@ -93,13 +93,24 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: '/movie/add',
-        component: () => import('src/components/movie/MoviePage.vue'),
+        component: () => import('src/modules/movie/views/MovieAddView.vue'),
         name: 'add',
         meta: {
           roles: ['ADM', 'USER'],
           tags: {
             set: true,
-            title: 'Cineminha - Cadastrar Filme',
+            title: 'Movie Mux - Cadastrar Filme',
+          },
+        },
+      },
+      {
+        path: '/movie/edit/:id',
+        component: () => import('src/modules/movie/views/MovieEditView.vue'),
+        name: 'movie-edit',
+        meta: {
+          roles: ['ADM', 'USER'],
+          tags: {
+            set: false,
           },
         },
       },
@@ -111,7 +122,7 @@ const routes: RouteRecordRaw[] = [
           roles: ['ADM', 'USER'],
           tags: {
             set: true,
-            title: 'Cineminha - Perfil',
+            title: 'Movie Mux - Perfil',
           },
         },
       },
@@ -123,7 +134,7 @@ const routes: RouteRecordRaw[] = [
           roles: ['ADM', 'USER'],
           tags: {
             set: true,
-            title: 'Cineminha - Descobrir',
+            title: 'Movie Mux - Descobrir',
           },
         },
       },
@@ -135,7 +146,7 @@ const routes: RouteRecordRaw[] = [
           roles: ['ADM', 'USER'],
           tags: {
             set: true,
-            title: 'Cineminha - Lista de Filmes',
+            title: 'Movie Mux - Lista de Filmes',
           },
         },
       },
@@ -158,7 +169,7 @@ const routes: RouteRecordRaw[] = [
           roles: ['ADM', 'USER'],
           tags: {
             set: true,
-            title: 'Cineminha - Dashboard',
+            title: 'Movie Mux - Dashboard',
           },
         },
       },

@@ -29,7 +29,7 @@
           <BaseTooltip anchor="bottom right" :delay="500" :hide-delay="300">Alternar visibilidade das notas</BaseTooltip>
         </div>
         <div>
-          <q-btn class="q-mr-sm" flat round icon="add" @click="showConfirmPromptDelete" :disable="isUserAlreadyVoted" />
+          <q-btn class="q-mr-sm" flat round icon="add" @click="showDialogCreateNote" :disable="isUserAlreadyVoted" />
           <BaseTooltip anchor="bottom right" :delay="500" :hide-delay="300" v-if="isUserAlreadyVoted"
             >Você já votou nesse filme!</BaseTooltip
           >
@@ -85,7 +85,6 @@
       </template>
     </q-table>
     <BaseConfirmDialog ref="confirmDialogRef" @ok="deleteNote()" />
-    <ConfirmDialogPrompt ref="confirmDialogPromptRef" @ok="createNote($event)" />
   </div>
 </template>
 <script setup lang="ts">
@@ -96,17 +95,17 @@ import type { QInput, QTableProps } from 'quasar';
 import { MovieNoteType } from 'src/core/types/movie/MovieType';
 
 import { useUserStore } from 'src/core/stores/UserStore';
-import { useMovieStore } from 'src/core/stores/MovieStore';
+import { useMovieStore } from '../stores/MovieStore';
 
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
-import ConfirmDialogPrompt from './confirmDialogPrompt/ConfirmDialogPrompt.vue';
 
-import MovieService from 'src/core/services/MovieService';
+import MovieService from '../services/MovieService';
 import DateUtils from 'src/core/utils/DateUtils';
 import { socketMovie, stateSocketMovie } from 'src/boot/socket';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
+import { dialogMovieNote } from '../utils/MovieDialogUtils';
 
 const props = defineProps<{
   movieId: string | string[];
@@ -167,7 +166,6 @@ const visibleColumns = columns.value?.map((column) => {
 
 const inputNoteRef = ref<InstanceType<typeof QInput>>();
 const confirmDialogRef = ref<InstanceType<typeof BaseConfirmDialog>>();
-const confirmDialogPromptRef = ref<InstanceType<typeof ConfirmDialogPrompt>>();
 
 const movieStore = useMovieStore();
 const userStore = useUserStore();
@@ -266,8 +264,12 @@ function showConfirmDialogDelete() {
     ok: 'Deletar',
   });
 }
-function showConfirmPromptDelete() {
-  confirmDialogPromptRef.value?.dialog();
+function showDialogCreateNote() {
+  dialogMovieNote({
+    onOk(data) {
+      createNote(data);
+    },
+  });
 }
 async function createNote(note: string | undefined) {
   if (!note) {

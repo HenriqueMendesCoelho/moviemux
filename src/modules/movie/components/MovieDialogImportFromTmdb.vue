@@ -58,15 +58,15 @@
 import { ref, computed, watch } from 'vue';
 import { useQuasar, openURL } from 'quasar';
 
-import { useMovieStore } from 'src/core/stores/MovieStore';
+import BaseTextInput from 'src/core/components/BaseTextInput.vue';
+import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
+import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
+import BaseCardImage from 'src/core/components/BaseCardImage.vue';
 
 import type { MovieResultResponseTmdb } from 'src/core/types/movie/MovieType';
 
-import BaseTextInput from 'src/core/components/BaseTextInput.vue';
-import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
+import { useMovieStore } from '../stores/MovieStore';
 import Movie from 'src/core/domain/movie/movie';
-import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
-import BaseCardImage from 'src/core/components/BaseCardImage.vue';
 
 import KitService from 'src/core/services/KitService';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';

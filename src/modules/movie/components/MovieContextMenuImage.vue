@@ -1,5 +1,5 @@
 <template>
-  <BaseContextMenu v-if="userStore.isAdmin">
+  <BaseContextMenu>
     <q-list style="min-width: 100px">
       <q-item clickable @click="showConfirmDialog('send')" v-close-popup>
         <span class="material-icons" style="font-size: 25pt"> send </span>
@@ -18,7 +18,6 @@
 import { computed, ref } from 'vue';
 
 import { useMovieStore } from 'src/core/stores/MovieStore';
-import { useUserStore } from 'src/core/stores/UserStore';
 
 import BaseContextMenu from 'src/core/components/BaseContextMenu.vue';
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
@@ -28,8 +27,6 @@ import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
 const movieStore = useMovieStore();
 const movie = computed(() => movieStore.moviePage.selectedMovie);
-
-const userStore = useUserStore();
 
 const confirmDialogRef = ref<InstanceType<typeof BaseConfirmDialog>>();
 

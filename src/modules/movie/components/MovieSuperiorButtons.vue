@@ -1,12 +1,12 @@
 <template>
   <div class="row" :class="isDesktop ? 'q-col-gutter-md' : 'q-col-gutter-sm'">
-    <div class="col-auto" v-if="showTopButtons()">
+    <div class="col-auto">
       <q-btn color="grey-mid2" text-color="white" round icon="refresh" @click="loadMovie()" />
     </div>
-    <div class="col-auto" v-if="showEditAndDeleteButton() && showTopButtons()">
-      <q-btn color="primary" text-color="white" label="Editar" icon="edit" @click="moviePage.isEditing = !moviePage.isEditing" />
+    <div class="col-auto" v-if="props.showEditBtn">
+      <q-btn color="primary" text-color="white" label="Editar" icon="edit" @click="goToEditPage" />
     </div>
-    <div class="col-auto" v-if="showEditAndDeleteButton() && showTopButtons()">
+    <div class="col-auto" v-if="userStore.isAdmin && showDeleteBtn">
       <q-btn color="red" text-color="white" label="Deletar" icon="delete" @click="deleteMovie" />
     </div>
 
@@ -14,11 +14,11 @@
       <div class="row justify-end">
         <div class="col-auto">
           <q-btn
+            v-if="props.showImportBtn"
             @click="moviePage.showImportMovieDialog = !moviePage.showImportMovieDialog"
             color="primary"
             text-color="white"
             label="Importar do TMDB"
-            v-if="showBtnImport()"
             :disable="movieStore.selectedMovieHasAnyFieldFilled()"
             icon="download"
           />
@@ -33,13 +33,28 @@ import { computed, toRaw, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 
-import { useMovieStore } from 'src/core/stores/MovieStore';
+import { useMovieStore } from '../stores/MovieStore';
 import { useUserStore } from 'src/core/stores/UserStore';
 
 import { stateSocketMovie } from 'src/boot/socket';
 
 import MovieService from 'src/core/services/MovieService';
 import { showError, showSuccess, showWarning } from 'src/core/utils/NotificationUtils';
+
+const props = withDefaults(
+  defineProps<{
+    showImportBtn?: boolean;
+    showEditBtn?: boolean;
+    showRefreshBtn?: boolean;
+    showDeleteBtn?: boolean;
+  }>(),
+  {
+    showImportBtn: false,
+    showEditBtn: false,
+    showRefreshBtn: false,
+    showDeleteBtn: false,
+  }
+);
 
 const $q = useQuasar();
 const isDesktop = $q.platform.is.desktop;
@@ -50,7 +65,6 @@ const router = useRouter();
 
 const moviePage = computed(() => movieStore.moviePage);
 const user = computed(() => userStore.user);
-const routeName = computed(() => route.name);
 const routeIDPath = computed(() => route.params.id);
 
 watch(
@@ -79,26 +93,6 @@ watch(
   },
   { deep: true }
 );
-
-function showBtnImport() {
-  if (routeName.value === 'add') {
-    return true;
-  }
-
-  return moviePage.value.isEditing;
-}
-function showTopButtons() {
-  return routeName.value === 'movie';
-}
-function showEditAndDeleteButton() {
-  if (moviePage.value.isEditing) {
-    return false;
-  }
-
-  if (user.value.id === moviePage.value.selectedMovie.user_id || user.value.roles.includes('ADM')) {
-    return true;
-  }
-}
 async function loadMovie(showDialog = true) {
   if (routeIDPath.value) {
     try {
@@ -121,5 +115,8 @@ async function deleteMovie() {
   } catch {
     showError('Erro ao deletar filme');
   }
+}
+function goToEditPage() {
+  router.push({ name: 'movie-edit', params: { id: moviePage.value.selectedMovie.id } });
 }
 </script>

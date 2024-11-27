@@ -1,20 +1,8 @@
-<template>
-  <div></div>
-</template>
-<script setup lang="ts">
-import { useQuasar } from 'quasar';
+import { Dialog } from 'quasar';
 
-const $q = useQuasar();
-
-defineExpose({ dialog });
-
-const emit = defineEmits<{
-  (e: 'ok', value: string | undefined): void;
-  (e: 'cancel', value: void): void;
-}>();
-
-function dialog() {
-  $q.dialog({
+export type dialogMovieNote = { onOk: (data: string | undefined) => void; onCancel?: () => void };
+export function dialogMovieNote({ onOk, onCancel }: dialogMovieNote) {
+  Dialog.create({
     dark: true,
     message: 'Insira uma nota de 0 a 10',
     persistent: false,
@@ -40,10 +28,13 @@ function dialog() {
     focus: 'ok',
   })
     .onOk((data: string | undefined) => {
-      emit('ok', data);
+      onOk(data);
     })
     .onCancel(() => {
-      emit('cancel');
+      if (!onCancel) {
+        return;
+      }
+
+      onCancel();
     });
 }
-</script>

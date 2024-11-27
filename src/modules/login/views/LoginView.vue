@@ -54,7 +54,7 @@ const tab = ref('login');
 const metaTagsStore = useMetaTagsStore();
 const movieInfo = metaTagsStore.info;
 if (Object.keys(movieInfo)?.length) {
-  const title = `Cineminha - Descobrir - ${metaTagsStore.info.title}`;
+  const title = `Movie Mux - Descobrir - ${metaTagsStore.info.title}`;
   const imgUrl = getImageUrl(metaTagsStore.info.url_image);
 
   useMeta({
@@ -73,7 +73,7 @@ if (Object.keys(movieInfo)?.length) {
     },
   });
 } else {
-  const defaultTitle = 'Cineminha - KronusBoss';
+  const defaultTitle = 'Movie Mux';
   const defaultDescription = 'Descubra o melhor do cinema, classificações e informações sobre filmes.';
   const defaultImage = 'https://img.cine.kronusboss.com/m3AJqU9tUmOpFgTb-VH3RlGd7tp6GD7QngPMqhSc/cine/kb_1200.png';
 

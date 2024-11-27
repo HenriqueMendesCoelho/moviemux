@@ -1,5 +1,5 @@
 <template>
-  <div></div>
+  <div v-show="false"></div>
 </template>
 <script lang="ts" setup>
 import { useQuasar } from 'quasar';

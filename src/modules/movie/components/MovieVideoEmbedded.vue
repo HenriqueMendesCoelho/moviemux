@@ -6,14 +6,14 @@
   >
     <div class="column items-center" v-if="moviePage.selectedMovie.portuguese_url_trailer">
       <h6>Trailer Dublado</h6>
-      <IframeVideo :width="props.width" :url="moviePage.selectedMovie.portuguese_url_trailer" />
+      <MovieYoutubeTrailerIframe :width="props.width" :url="moviePage.selectedMovie.portuguese_url_trailer" />
     </div>
     <BaseVerticalSeparator
       v-if="moviePage.selectedMovie.portuguese_url_trailer && moviePage.selectedMovie.english_url_trailer && isDesktop"
     />
     <div class="column items-center" v-if="moviePage.selectedMovie.english_url_trailer">
       <h6>Trailer Legendado</h6>
-      <IframeVideo :width="props.width" :url="moviePage.selectedMovie.english_url_trailer" />
+      <MovieYoutubeTrailerIframe :width="props.width" :url="moviePage.selectedMovie.english_url_trailer" />
     </div>
   </div>
 </template>
@@ -22,9 +22,9 @@
 import { computed } from 'vue';
 import { useQuasar } from 'quasar';
 
-import { useMovieStore } from 'src/core/stores/MovieStore';
+import { useMovieStore } from '../stores/MovieStore';
 
-import IframeVideo from './iframeVideo/IframeVideo.vue';
+import MovieYoutubeTrailerIframe from './MovieYoutubeTrailerIframe.vue';
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 import BaseVerticalSeparator from 'src/core/components/BaseVerticalSeparator.vue';
 
