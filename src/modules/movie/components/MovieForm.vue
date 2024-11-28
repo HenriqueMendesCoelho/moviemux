@@ -249,7 +249,7 @@ import MovieTooltipInfo from './MovieTooltipInfo.vue';
 import { useMovieStore } from '../stores/MovieStore';
 import { useUserStore } from 'src/core/stores/UserStore';
 
-import MovieService from 'src/core/services/MovieService';
+import MovieService from '../services/MovieService';
 
 import StringUtils from 'src/core/utils/StringUtils';
 import DateUtils from 'src/core/utils/DateUtils';

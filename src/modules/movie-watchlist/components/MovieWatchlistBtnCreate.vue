@@ -11,7 +11,7 @@ import axios from 'axios';
 
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
-import WishlistService from 'src/core/services/WishlistService';
+import MovieWatchlistService from '../services/MovieWatchlistService';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
@@ -53,7 +53,7 @@ async function createWishlist(name?: string) {
   }
   try {
     showLoading();
-    await WishlistService.createWishlist(name);
+    await MovieWatchlistService.createWatchlist(name);
     showSuccess('Lista de filmes criada com sucesso');
     emit('ok');
   } catch (error: unknown) {

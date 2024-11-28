@@ -72,7 +72,7 @@ import MenuAddMovieWishlist from './menuAddMovieWishlist/MenuAddMovieWishlist.vu
 
 import DateUtils from 'src/core/utils/DateUtils';
 
-import WishlistService from 'src/core/services/WishlistService';
+import MovieWatchlistService from 'src/modules/movie-watchlist/services/MovieWatchlistService';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
@@ -137,7 +137,7 @@ function clickSimilar() {
 async function addMovieToWishlist(wishlistId: string, tmdbId: number) {
   try {
     loading.value = true;
-    const res = await WishlistService.addMovieToWishlist(wishlistId, tmdbId);
+    const res = await MovieWatchlistService.addMovieToWatchlist(wishlistId, tmdbId);
     mergeResult(wishlistId, res);
     showSuccess('Filme adicionado a lista com sucesso');
   } catch {

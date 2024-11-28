@@ -137,9 +137,9 @@ import BaseFloatingActionBtn from 'src/core/components/BaseFloatingActionBtn.vue
 import MenuAddMovieWishlist from './cardImageDiscoverMovies/menuAddMovieWishlist/MenuAddMovieWishlist.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
-import WishlistService from 'src/core/services/WishlistService';
+import MovieWatchlistService from 'src/modules/movie-watchlist/services/MovieWatchlistService';
 import KitService from 'src/core/services/KitService';
-import MovieService from 'src/core/services/MovieService';
+import MovieService from 'src/modules/movie/services/MovieService';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 
@@ -396,13 +396,13 @@ async function searchFromMenu(title: string) {
   await firstSearch();
 }
 async function listWishlist() {
-  const res = await WishlistService.listWishlists();
+  const res = await MovieWatchlistService.listWatchlists();
   wishlists.value = res;
 }
 async function addMovieToWishlist(wishlistId: string, tmdbId: number) {
   try {
     showLoading();
-    const res = await WishlistService.addMovieToWishlist(wishlistId, tmdbId);
+    const res = await MovieWatchlistService.addMovieToWatchlist(wishlistId, tmdbId);
     mergeResult(wishlistId, res);
     showSuccess('Filme adicionado a lista com sucesso');
   } catch {

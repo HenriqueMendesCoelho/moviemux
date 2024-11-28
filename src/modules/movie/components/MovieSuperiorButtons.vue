@@ -38,7 +38,7 @@ import { useUserStore } from 'src/core/stores/UserStore';
 
 import { stateSocketMovie } from 'src/boot/socket';
 
-import MovieService from 'src/core/services/MovieService';
+import MovieService from '../services/MovieService';
 import { showError, showSuccess, showWarning } from 'src/core/utils/NotificationUtils';
 
 const props = withDefaults(

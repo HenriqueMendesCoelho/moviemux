@@ -59,7 +59,7 @@ import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator
 import MovieSixMonthsAgoChart from '../components/MovieSixMonthsAgoChart.vue';
 import MovieByGenderChart from '../components/MovieByGenderChart.vue';
 
-import StatisticService from 'src/core/services/StatisticService';
+import StatisticService from '../services/StatisticService';
 import StringUtils from 'src/core/utils/StringUtils';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 import { showError } from 'src/core/utils/NotificationUtils';

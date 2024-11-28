@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import WishlistService from 'src/core/services/WishlistService';
+import MovieWatchlistService from '../services/MovieWatchlistService';
 import { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistTyoe';
 import { showError } from 'src/core/utils/NotificationUtils';
 
@@ -13,7 +13,7 @@ export const useMovieWatchlistStore = defineStore('MovieWatchlistStore', {
   actions: {
     async getWatchlists() {
       try {
-        this.watchlists = await WishlistService.listWishlists();
+        this.watchlists = await MovieWatchlistService.listWatchlists();
       } catch {
         showError('Erro ao buscar listas de filmes');
       }

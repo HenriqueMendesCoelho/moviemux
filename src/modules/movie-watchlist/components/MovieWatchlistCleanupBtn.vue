@@ -19,7 +19,7 @@ import type { WishlistType } from 'src/core/types/wishlist/WishlistType';
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
-import WishlistService from 'src/core/services/WishlistService';
+import MovieWatchlistService from '../services/MovieWatchlistService';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 
@@ -61,7 +61,7 @@ async function searchMoviesRated() {
   }
 
   try {
-    const res: { movie_tmdb_ids: number[] } = await WishlistService.searchWishlistMoviesRated(props.wishlist.id);
+    const res: { movie_tmdb_ids: number[] } = await MovieWatchlistService.searchWatchlistMoviesRated(props.wishlist.id);
     tmdbIds.value = [...res?.movie_tmdb_ids];
 
     return !!tmdbIds.value?.length;
@@ -144,7 +144,7 @@ async function deteleMoviesFromWishlist() {
 async function updateWishlist(wishlist: WishlistType) {
   try {
     showLoading();
-    return await WishlistService.updateWishlist(wishlist);
+    return await MovieWatchlistService.updateWatchlist(wishlist);
   } catch {
     showError('Erro ao salvar lista de filmes');
   } finally {

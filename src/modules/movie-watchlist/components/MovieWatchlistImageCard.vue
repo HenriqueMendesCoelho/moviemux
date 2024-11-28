@@ -76,7 +76,7 @@ import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 import MovieWatchlistImageContextMenu from './MovieWatchlistImageContextMenu.vue';
 
 import DateUtils from 'src/core/utils/DateUtils';
-import WishlistService from 'src/core/services/WishlistService';
+import MovieWatchlistService from '../services/MovieWatchlistService';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
@@ -121,7 +121,7 @@ function disableList(list: WishlistType) {
 async function addMovieToWishlist(wishlistId: string, tmdbId: number) {
   try {
     loading.value = true;
-    const res = await WishlistService.addMovieToWishlist(wishlistId, tmdbId);
+    const res = await MovieWatchlistService.addMovieToWatchlist(wishlistId, tmdbId);
     mergeResult(wishlistId, res);
     showSuccess('Filme adicionado a lista com sucesso');
   } catch {

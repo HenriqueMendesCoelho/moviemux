@@ -180,7 +180,7 @@ import BaseMovieWatchProviders from 'src/core/components/BaseMovieWatchProviders
 import BaseDialogCast from 'src/core/components/BaseBtnDialogCast.vue';
 
 import KitService from 'src/core/services/KitService';
-import MovieService from 'src/core/services/MovieService';
+import MovieService from 'src/modules/movie/services/MovieService';
 import StringUtils from 'src/core/utils/StringUtils';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 import { showError } from 'src/core/utils/NotificationUtils';
