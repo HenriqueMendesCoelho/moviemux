@@ -12,7 +12,7 @@
             <BaseTooltip :delay="1000">Já está em uma lista</BaseTooltip>
           </div>
         </div>
-        <ContextMenuDiscover :movie-id="props.movie.id" @copy-url="emit('copy-url', $event)" />
+        <MovieDiscoverContextMenu :movie-id="props.movie.id" @copy-url="emit('copy-url', $event)" />
         <q-inner-loading :showing="loading" label="Aguarde..." color="kb-primary" label-class="text-white" dark />
       </BaseCardImage>
     </router-link>
@@ -42,8 +42,8 @@
             <q-item-section class="q-pl-sm">Ver recomendações</q-item-section>
           </q-item>
 
-          <q-separator dark v-if="wishlists?.length" />
-          <q-item clickable v-if="wishlists?.length">
+          <q-separator dark v-if="watchlists?.length" />
+          <q-item clickable v-if="watchlists?.length">
             <q-item-section side>
               <q-icon name="playlist_add" color="white" />
             </q-item-section>
@@ -51,7 +51,7 @@
             <q-item-section side>
               <q-icon name="keyboard_arrow_right" color="white" />
             </q-item-section>
-            <MenuAddMovieWishlist @add-movie="addMovieToWishlist($event, movie.id)" :wishlists="wishlists" :movie="movie.id" />
+            <MovieDiscoverMenuWatchlist @add-movie="addMovieToWishlist($event, movie.id)" :watchlists="watchlists" :movie="movie.id" />
           </q-item>
         </q-list>
       </q-menu>
@@ -59,16 +59,17 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onActivated, onMounted, ref, watch } from 'vue';
+import { ref } from 'vue';
 import { useQuasar } from 'quasar';
 
-import type { WishlistType } from 'src/core/types/wishlist/WishlistType';
+import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 import type { MovieResultResponseTmdb } from 'src/core/types/movie/MovieType';
 
 import BaseCardImage from 'src/core/components/BaseCardImage.vue';
-import ContextMenuDiscover from './contextMenuDiscover/ContextMenuDiscover.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
-import MenuAddMovieWishlist from './menuAddMovieWishlist/MenuAddMovieWishlist.vue';
+
+import MovieDiscoverContextMenu from './MovieDiscoverContextMenu.vue';
+import MovieDiscoverMenuWatchlist from './MovieDiscoverMenuWatchlist.vue';
 
 import DateUtils from 'src/core/utils/DateUtils';
 
@@ -78,46 +79,21 @@ import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 interface Props {
   movie: ArrayElement<MovieResultResponseTmdb['results']>;
-  modelValue: WishlistType[];
+  modelValue: WatchlistType[];
 }
 
 const emit = defineEmits<{
   (e: 'callTmdb', value: { label: string; value: string }): void;
   (e: 'clickOnImage', value: void): void;
   (e: 'copy-url', value: number): void;
-  (e: 'update:model-value', value: WishlistType[]): void;
 }>();
 
 const $q = useQuasar();
 const props = defineProps<Props>();
 
 const selected = ref(false);
-const wishlists = ref<WishlistType[]>([]);
+const watchlists = defineModel<WatchlistType[]>();
 const loading = ref(false);
-
-onMounted(() => {
-  wishlists.value = props.modelValue;
-});
-
-onActivated(() => {
-  wishlists.value = props.modelValue;
-});
-
-watch(
-  () => props.modelValue,
-  (val) => {
-    wishlists.value = val;
-  },
-  { deep: true }
-);
-
-watch(
-  () => wishlists.value,
-  (val) => {
-    emit('update:model-value', val);
-  },
-  { deep: true }
-);
 
 function getUrl() {
   return `https://image.tmdb.org/t/p/w342${props.movie?.poster_path}`;
@@ -146,18 +122,18 @@ async function addMovieToWishlist(wishlistId: string, tmdbId: number) {
     loading.value = false;
   }
 }
-function mergeResult(wishlistId: string, newWishlist: WishlistType) {
-  const wishlist = wishlists.value.find((w) => w.id === wishlistId);
+function mergeResult(wishlistId: string, newWishlist: WatchlistType) {
+  const watchlist = watchlists.value?.find((w) => w.id === wishlistId);
 
-  if (!wishlist) {
+  if (!watchlist) {
     return;
   }
 
-  const index = wishlists.value.indexOf(wishlist);
-  wishlists.value[index] = newWishlist;
+  const index = watchlists.value?.indexOf(watchlist);
+  (watchlists.value || [])[index || 0] = newWishlist;
 }
 function isInAnyWishlist() {
-  return wishlists.value?.some((w) => w.movies_wishlists?.some((m) => m.tmdb_id === props.movie.id));
+  return watchlists.value?.some((w) => w.movies_wishlists?.some((m) => m.tmdb_id === props.movie.id));
 }
 function clickOnCard() {
   if (loading.value) {

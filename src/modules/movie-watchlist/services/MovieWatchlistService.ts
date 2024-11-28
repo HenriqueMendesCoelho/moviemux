@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistTyoe';
+import { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 import StringUtils from 'src/core/utils/StringUtils';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;

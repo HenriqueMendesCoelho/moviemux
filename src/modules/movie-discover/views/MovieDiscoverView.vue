@@ -84,8 +84,8 @@
         <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="10">
           <div class="row justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'">
             <div class="col-auto" v-for="(movie, index) in movies" :key="index">
-              <CardImageDiscoverMovies
-                v-model="wishlists"
+              <MovieDiscoverCardImage
+                v-model="watchlists"
                 :movie="movie"
                 @call-tmdb="cardCallTmdb($event, movie.id)"
                 @copy-url="copyMovie($event)"
@@ -101,9 +101,9 @@
       <BaseDialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" position="standard" @hide="onHideDialog()">
         <template #prepend:bar>
           <q-btn round dense flat icon="playlist_add" color="white" size="md">
-            <MenuAddMovieWishlist
+            <MovieDiscoverMenuWatchlist
               @add-movie="addMovieToWishlist($event, movieIdDialog)"
-              :wishlists="wishlists"
+              :watchlists="watchlists"
               :movie="movieIdDialog"
               anchor="bottom middle"
               self="top middle"
@@ -118,24 +118,25 @@
 
 <script lang="ts" setup>
 import { computed, onActivated, onMounted, onUpdated, ref, watch, nextTick } from 'vue';
-import { QItem, useQuasar } from 'quasar';
+import { QItem, useQuasar, QInfiniteScroll } from 'quasar';
 import { useRoute } from 'vue-router';
 import { useRouter } from 'vue-router';
 
 import { useStyleStore } from 'src/core/stores/StyleStore';
 
 import type { MovieResultResponseTmdb } from 'src/core/types/movie/MovieType';
-import type { WishlistType } from 'src/core/types/wishlist/WishlistType';
+import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import BaseSearchToolbar from 'src/core/components/BaseSearchToolbar.vue';
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
-import CardImageDiscoverMovies from './cardImageDiscoverMovies/CardImageDiscoverMovies.vue';
 import BasePageTitle from 'src/core/components/BasePageTitle.vue';
 import BaseDialogFormMovieSummary from 'src/core/components/BaseDialogFormMovieSummary.vue';
 import BaseFloatingActionBtn from 'src/core/components/BaseFloatingActionBtn.vue';
-import MenuAddMovieWishlist from './cardImageDiscoverMovies/menuAddMovieWishlist/MenuAddMovieWishlist.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
+
+import MovieDiscoverCardImage from '../components/MovieDiscoverCardImage.vue';
+import MovieDiscoverMenuWatchlist from '../components/MovieDiscoverMenuWatchlist.vue';
 
 import MovieWatchlistService from 'src/modules/movie-watchlist/services/MovieWatchlistService';
 import KitService from 'src/core/services/KitService';
@@ -156,9 +157,7 @@ const filterOptions = ref([
   { label: 'Avaliação (Menor)', value: 'voteAverageAsc' },
   { label: 'Em breve nos cinemas', value: 'upcoming', badgeLabel: 'novo' },
 ]);
-const infinitScrollRef = ref<{
-  resume: () => void;
-}>();
+const infinitScrollRef = ref<InstanceType<typeof QInfiniteScroll>>();
 const selectOrder = ref<string | undefined | { label: string; value: string }>('');
 const movies = ref<MovieResultResponseTmdb['results']>();
 const moviesWhenTyping = ref<MovieResultResponseTmdb['results']>();
@@ -170,7 +169,7 @@ const movieIdSelected = ref(0);
 const movieIdDialog = ref(0);
 const showDialogMovieSummary = ref(false);
 const menuIsFocused = ref(false);
-const wishlists = ref<WishlistType[]>([]);
+const watchlists = ref<WatchlistType[]>([]);
 const genresOptions = ref<{ id: number; name: string; tmdb_id: number }[]>();
 const genresSelected = ref<{ id: number; name: string; tmdb_id: number }[]>();
 const loadingGenres = ref(false);
@@ -397,7 +396,7 @@ async function searchFromMenu(title: string) {
 }
 async function listWishlist() {
   const res = await MovieWatchlistService.listWatchlists();
-  wishlists.value = res;
+  watchlists.value = res;
 }
 async function addMovieToWishlist(wishlistId: string, tmdbId: number) {
   try {
@@ -411,15 +410,15 @@ async function addMovieToWishlist(wishlistId: string, tmdbId: number) {
     hideLoading();
   }
 }
-function mergeResult(wishlistId: string, newWishlist: WishlistType) {
-  const wishlist = wishlists.value.find((w) => w.id === wishlistId);
+function mergeResult(wishlistId: string, newWishlist: WatchlistType) {
+  const watchlist = watchlists.value?.find((w) => w.id === wishlistId);
 
-  if (!wishlist) {
+  if (!watchlist) {
     return;
   }
 
-  const index = wishlists.value.indexOf(wishlist);
-  wishlists.value[index] = newWishlist;
+  const index = watchlists.value?.indexOf(watchlist);
+  (watchlists.value || [])[index || 0] = newWishlist;
 }
 async function loadGenres(): Promise<void> {
   try {

@@ -67,13 +67,13 @@ const routes: RouteType = [
     isAdm: false,
   },
   {
-    to: { name: 'movieCharts' },
+    to: { name: 'movie-charts' },
     icon: 'dashboard',
     text: 'Dashboard',
     isAdm: false,
   },
   {
-    to: { name: 'discoverMovies' },
+    to: { name: 'movie-discover' },
     icon: 'search',
     text: 'Descobrir Filmes',
     isAdm: false,

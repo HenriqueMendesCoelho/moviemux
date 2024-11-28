@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 
-import { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistTyoe';
+import { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 
 import BasePageTitle from 'src/core/components/BasePageTitle.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';

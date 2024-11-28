@@ -36,7 +36,7 @@
   </BaseTooltip>
 </template>
 <script setup lang="ts">
-import { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistTyoe';
+import { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 

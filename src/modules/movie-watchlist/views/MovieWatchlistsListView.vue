@@ -38,7 +38,7 @@ import MovieWatchlistCard from '../components/MovieWatchlistCard.vue';
 import { showSuccess, showError } from 'src/core/utils/NotificationUtils';
 import MovieWatchlistService from '../services/MovieWatchlistService';
 import { useMovieWatchlistStore } from '../stores/MovieWatchlistStore';
-import { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistTyoe';
+import { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 
 const watchlistStore = useMovieWatchlistStore();

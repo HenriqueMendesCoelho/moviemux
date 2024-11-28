@@ -120,7 +120,7 @@ import BaseFloatingActionBtn from 'src/core/components/BaseFloatingActionBtn.vue
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
 import { useUserStore } from 'src/core/stores/UserStore';
-import { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistTyoe';
+import { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 import { confirmReorder, notificationReorder } from '../utils/MovieWatchlistNotificationUtils';

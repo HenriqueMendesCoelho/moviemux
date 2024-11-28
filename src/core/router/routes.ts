@@ -128,13 +128,13 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: '/movie/discover',
-        component: () => import('src/components/discoverMovies/DiscoverMoviesPage.vue'),
-        name: 'discoverMovies',
+        component: () => import('src/modules/movie-discover/views/MovieDiscoverView.vue'),
+        name: 'movie-discover',
         meta: {
           roles: ['ADM', 'USER'],
           tags: {
             set: true,
-            title: 'Movie Mux - Descobrir',
+            title: 'Movie Mux - Descobrir Filmes',
           },
         },
       },
@@ -164,7 +164,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/movie/dashboard',
         component: () => import('src/modules/movie-charts/views/MovieChartsView.vue'),
-        name: 'movieCharts',
+        name: 'movie-charts',
         meta: {
           roles: ['ADM', 'USER'],
           tags: {
