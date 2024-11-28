@@ -1,6 +1,6 @@
 import { reactive } from 'vue';
 import { io } from 'socket.io-client';
-import { MovieNoteType } from 'src/types/movie/MovieType';
+import { MovieNoteType } from 'src/core/types/movie/MovieType';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_SOCKET;
 

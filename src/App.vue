@@ -9,7 +9,7 @@ import { mapState } from 'pinia';
 import { defineComponent } from 'vue';
 import { Cookies } from 'quasar';
 
-import { useStyleStore } from './stores/StyleStore';
+import { useStyleStore } from 'src/core/stores/StyleStore';
 
 export default defineComponent({
   name: 'App',
@@ -42,8 +42,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@import 'src/components/shared/scss/style.scss';
-
 :root {
   --primary: #00f6ff;
   --grey-dark: #0b0e14;

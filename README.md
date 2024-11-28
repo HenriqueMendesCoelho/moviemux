@@ -13,7 +13,7 @@ The project takes inspiration from renowned platforms such as IMDB (Internet Mov
 ## Technologies
 
 ```
-Vue.js, Java, Spring Boot, Lombok, Hibernate, Apache Maven, PostgreSQL, Discord API, Git, Github, Docker, Angular 16, Bootstrap, NodeJS, ExpressJS, Axios,Typescript, Prisma, SQLite, HTML, CSS, SASS, VSCode, Quasar Framework, TypeORM, Socket.io, Kotlin, Spring Cloud Gateway, Spring Webflux...
+Vue.js, Java, Spring Boot, Lombok, Hibernate, Apache Maven, PostgreSQL, Discord API, Git, Github, Docker, Angular 16, Bootstrap, NodeJS, ExpressJS, Axios,Typescript, Prisma, SQLite, HTML, CSS, SASS, VSCode, Quasar Framework, TypeORM, Socket.io, Kotlin, Spring Cloud Gateway, Spring Webflux, Redis, Nginx...
 ```
 
 <div >
@@ -40,6 +40,8 @@ Vue.js, Java, Spring Boot, Lombok, Hibernate, Apache Maven, PostgreSQL, Discord 
 	<img width="50" src="https://user-images.githubusercontent.com/25181517/117208740-bfb78400-adf5-11eb-97bb-09072b6bedfc.png" alt="PostgreSQL" title="PostgreSQL"/>
 	<img width="50" src="https://github.com/marwin1991/profile-technology-icons/assets/136815194/82df4543-236b-4e45-9604-5434e3faab17" alt="SQLite" title="SQLite"/>
 	<img width="50" src="https://user-images.githubusercontent.com/25181517/117207330-263ba280-adf4-11eb-9b97-0ac5b40bc3be.png" alt="Docker" title="Docker"/>
+  <img width="50" src="https://user-images.githubusercontent.com/25181517/182884894-d3fa6ee0-f2b4-4960-9961-64740f533f2a.png" alt="Redis" title="Redis"/>
+  <img width="50" src="https://user-images.githubusercontent.com/25181517/183345125-9a7cd2e6-6ad6-436f-8490-44c903bef84c.png" alt="Nginx" title="Nginx"/>
 </div>
 
 ## Images
@@ -48,41 +50,41 @@ Vue.js, Java, Spring Boot, Lombok, Hibernate, Apache Maven, PostgreSQL, Discord 
 Home Page
 </p>
 <p align="center">
-  <img src="https://img.cine.kronusboss.com/YlxgjJpfTGPBcZzxZr4dGRRgL1DpLk4uSrA2N-ts/cine/home1.png" style="width: 500px;" />
+  <img src="https://img.moviemux.com/a5gPtjhn251k2PU23ss-dFthQSRYjV1-b2M9TtHo/moviemux/home1.png" style="width: 500px;" />
 </p>
 
 <p align="center">
 Movie Page
 </p>
 <p align="center">
-  <img src="https://img.cine.kronusboss.com/1y6MzMz_PytrzGR_0T90MgBr7vMTE2WGdLTp0B9o/cine/filme1.png" style="width: 500px;" />
+  <img src="https://img.moviemux.com/MuO1edBmEj-R9wSpHOygoCH5PYROM_zFmtXRTSdP/moviemux/filme1.png" style="width: 500px;" />
 </p>
 
 <p align="center">
 Discover Page
 </p>
 <p align="center">
-  <img src="https://img.cine.kronusboss.com/wmPxCs1OdG0euV61iHB--JVa3Mg3kWUd43xrod9S/cine/descobrir1.png" style="width: 500px;" />
+  <img src="https://img.moviemux.com/ye3BHFpit9PSvLvPFebshWbkLhJJ9QJJJpI7XJ-i/moviemux/descobrir1.png" style="width: 500px;" />
 </p>
 <p align="center">
-  <img src="https://img.cine.kronusboss.com/yz3JwY0qd98oVnL2YlPxFCtrB8rwnHjgGwqGZU9K/cine/descobrir2.png" style="width: 500px;" />
+  <img src="https://img.moviemux.com/GNlwmwySx8J5Ftq2CuV0Ws6wyyPEgnEEInI7j3uZ/moviemux/descobrir2.png" style="width: 500px;" />
 </p>
 
 <p align="center">
 Wishlist Page
 </p>
 <p align="center">
-  <img src="https://img.cine.kronusboss.com/gaAbeSVgVNMZrv3OMXzB2wWdLzDtWqOqV19NVXeS/cine/lista1.png" style="width: 500px;" />
+  <img src="https://img.moviemux.com/Zlg1tAQ6iua0E-u5BPQR_Tx81Pqik4z3MI1JjsX1/moviemux/lista1.png" style="width: 500px;" />
 </p>
 <p align="center">
-  <img src="https://img.cine.kronusboss.com/mlOwW3QVJ8AMPqxpEYSsYFumtl8eVamfetJ7gYvz/cine/lista2.png" style="width: 500px;" />
+  <img src="https://img.moviemux.com/l0TAPT9l9VVa2iGOiSlVY7r40kLTb86YtmmRHrx1/moviemux/lista2.png" style="width: 500px;" />
 </p>
 
 <p align="center">
 Dashboard
 </p>
 <p align="center">
-  <img src="https://img.cine.kronusboss.com/Z_HvkMeDzapvoPWV67cIBPQs2cBT_3DmIN7L8r5u/cine/dashboard.png" style="width: 500px;" />
+  <img src="https://img.moviemux.com/qYZMPV6tZKfH-aet-BdkMJIhpCRzzeTTTZ2webLA/moviemux/dashboard.png" style="width: 500px;" />
 </p>
 
 ### Website (Access by invitation only):
