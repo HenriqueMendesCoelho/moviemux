@@ -75,7 +75,7 @@ if (Object.keys(movieInfo)?.length) {
 } else {
   const defaultTitle = 'Movie Mux';
   const defaultDescription = 'Descubra o melhor do cinema, classificações e informações sobre filmes.';
-  const defaultImage = 'https://img.cine.kronusboss.com/m3AJqU9tUmOpFgTb-VH3RlGd7tp6GD7QngPMqhSc/cine/kb_1200.png';
+  const defaultImage = 'https://img.moviemux.com/04VfS86K-_pAcjgaBHKzinmNiUp0gSD3VyuP0wjm/moviemux/MovieMux.webp';
 
   useMeta({
     title: defaultTitle,
