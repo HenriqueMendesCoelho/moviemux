@@ -1,4 +1,4 @@
-# Cine KronusBoss Movie Rating Portal
+# Movie Mux - Movie Rating Portal
 
 ## Introduction:
 
@@ -89,13 +89,13 @@ Dashboard
 
 ### Website (Access by invitation only):
 
-[Cine KronusBoss](https://www.cine.kronusboss.com)
+[Movie Mux](https://www.moviemux.com)
 
 ### Project Ecosystem:
 
-[Cine KronusBoss Back-End](https://github.com/HenriqueMendesCoelho/cine-kronusBoss-api) - A corresponding backend project complements the frontend, ensuring the cohesive operation of the movie rating portal.<br>
-[Cine KronusBoss Socket.io Back-End](https://github.com/HenriqueMendesCoelho/cine-kronusboss-websocket) - Designed and implemented a real-time update system using Socket.io<br>
-[Cine KronusBoss Gateway](https://github.com/HenriqueMendesCoelho/cine-gateway) - The gateway serves as a single entry point for all client requests, routing them to the appropriate backend services.
+[Movie Mux Back-End](https://github.com/HenriqueMendesCoelho/cine-kronusBoss-api) - A corresponding backend project complements the frontend, ensuring the cohesive operation of the movie rating portal.<br>
+[Movie Mux Socket.io Back-End](https://github.com/HenriqueMendesCoelho/cine-kronusboss-websocket) - Designed and implemented a real-time update system using Socket.io<br>
+[Movie Mux Gateway](https://github.com/HenriqueMendesCoelho/cine-gateway) - The gateway serves as a single entry point for all client requests, routing them to the appropriate backend services.
 
 External integration aggregator projects<br>
 [Kronus Integration Tool Front-End](https://github.com/HenriqueMendesCoelho/kronus-integration-tool-frontend)<br>
