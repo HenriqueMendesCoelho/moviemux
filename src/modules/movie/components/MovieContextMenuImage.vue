@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 
-import { useMovieStore } from 'src/core/stores/MovieStore';
+import { useMovieStore } from '../stores/MovieStore';
 
 import BaseContextMenu from 'src/core/components/BaseContextMenu.vue';
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
@@ -25,8 +25,7 @@ import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import DiscordService from 'src/core/services/DiscordService';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
-const movieStore = useMovieStore();
-const movie = computed(() => movieStore.moviePage.selectedMovie);
+const movie = computed(() => useMovieStore().moviePage.selectedMovie);
 
 const confirmDialogRef = ref<InstanceType<typeof BaseConfirmDialog>>();
 
@@ -36,9 +35,9 @@ function showConfirmDialog(action: string) {
 
   confirmDialogRef.value?.show({
     title: `Confirme ${actionTextTitle}`,
-    message: `Deseja ${actionTextMessage} a mensagem para o discord? Do filme ${
+    message: `Deseja ${actionTextMessage} a mensagem para o discord? Do filme '${
       movie.value.portuguese_title || movie.value.english_title
-    }.`,
+    }'.`,
     focus: 'cancel',
     ok: 'Sim',
     cancel: 'Não',
