@@ -50,41 +50,41 @@ Vue.js, Java, Spring Boot, Lombok, Hibernate, Apache Maven, PostgreSQL, Discord 
 Home Page
 </p>
 <p align="center">
-  <img src="https://img.moviemux.com/a5gPtjhn251k2PU23ss-dFthQSRYjV1-b2M9TtHo/moviemux/home1.png" style="width: 500px;" />
+  <img src="./showcase/home.png" style="width: 500px;" />
 </p>
 
 <p align="center">
 Movie Page
 </p>
 <p align="center">
-  <img src="https://img.moviemux.com/MuO1edBmEj-R9wSpHOygoCH5PYROM_zFmtXRTSdP/moviemux/filme1.png" style="width: 500px;" />
+  <img src="./showcase/movie.png" style="width: 500px;" />
 </p>
 
 <p align="center">
 Discover Page
 </p>
 <p align="center">
-  <img src="https://img.moviemux.com/ye3BHFpit9PSvLvPFebshWbkLhJJ9QJJJpI7XJ-i/moviemux/descobrir1.png" style="width: 500px;" />
+  <img src="./showcase/discover.png" style="width: 500px;" />
 </p>
 <p align="center">
-  <img src="https://img.moviemux.com/GNlwmwySx8J5Ftq2CuV0Ws6wyyPEgnEEInI7j3uZ/moviemux/descobrir2.png" style="width: 500px;" />
+  <img src="./showcase/discover2.png" style="width: 500px;" />
 </p>
 
 <p align="center">
-Wishlist Page
+Movie Watchlist Page
 </p>
 <p align="center">
-  <img src="https://img.moviemux.com/Zlg1tAQ6iua0E-u5BPQR_Tx81Pqik4z3MI1JjsX1/moviemux/lista1.png" style="width: 500px;" />
+  <img src="./showcase/watchlist.png" style="width: 500px;" />
 </p>
 <p align="center">
-  <img src="https://img.moviemux.com/l0TAPT9l9VVa2iGOiSlVY7r40kLTb86YtmmRHrx1/moviemux/lista2.png" style="width: 500px;" />
+  <img src="./showcase/watchlist2.png" style="width: 500px;" />
 </p>
 
 <p align="center">
 Dashboard
 </p>
 <p align="center">
-  <img src="https://img.moviemux.com/qYZMPV6tZKfH-aet-BdkMJIhpCRzzeTTTZ2webLA/moviemux/dashboard.png" style="width: 500px;" />
+  <img src="./showcase/dashboard.png" style="width: 500px;" />
 </p>
 
 ### Website (Access by invitation only):
@@ -94,8 +94,8 @@ Dashboard
 ### Project Ecosystem:
 
 [Movie Mux Back-End](https://github.com/HenriqueMendesCoelho/cine-kronusBoss-api) - A corresponding backend project complements the frontend, ensuring the cohesive operation of the movie rating portal.<br>
-[Movie Mux Socket.io Back-End](https://github.com/HenriqueMendesCoelho/cine-kronusboss-websocket) - Designed and implemented a real-time update system using Socket.io<br>
-[Movie Mux Gateway](https://github.com/HenriqueMendesCoelho/cine-gateway) - The gateway serves as a single entry point for all client requests, routing them to the appropriate backend services.
+[Movie Mux Socket.io Back-End](https://github.com/HenriqueMendesCoelho/moviemux-websocket) - Designed and implemented a real-time update system using Socket.io<br>
+[Movie Mux Gateway](https://github.com/HenriqueMendesCoelho/moviemux-gateway) - The gateway serves as a single entry point for all client requests, routing them to the appropriate backend services.
 
 External integration aggregator projects<br>
 [Kronus Integration Tool Front-End](https://github.com/HenriqueMendesCoelho/kronus-integration-tool-frontend)<br>
