@@ -984,22 +984,6 @@ ci-info@^3.7.1:
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-3.9.0.tgz#4279a62028a7b1f262f3473fc9605f5e218c59b4"
   integrity sha512-NIxF55hv4nSqQswkAeiOi1r83xy8JldOFDTWiug55KBu9Jnblncd2U6ViHmYgHf01TPZS77NJBhBMKdWj9HQMQ==
 
-"cine-kronusboss@file:.":
-  version "2.0.0"
-  dependencies:
-    "@quasar/extras" "^1.16.12"
-    apexcharts "^3.54.0"
-    axios "^1.7.7"
-    cine-kronusboss "file:./C:/Users/henri/AppData/Local/Yarn/Cache/v6/npm-cine-kronusboss-2.0.0-bb7bd110-62a1-4210-8c13-e27702c728c2-1747889922930/node_modules/cine-kronusboss"
-    dotenv "^16.4.5"
-    jwt-decode "^4.0.0"
-    pinia "^2.2.4"
-    quasar "^2.17.0"
-    socket.io-client "^4.8.0"
-    vue "^3.5.12"
-    vue-router "^4.4.5"
-    vue3-apexcharts "^1.7.0"
-
 clean-css@~5.3.2:
   version "5.3.3"
   resolved "https://registry.yarnpkg.com/clean-css/-/clean-css-5.3.3.tgz#b330653cd3bd6b75009cc25c714cae7b93351ccd"

@@ -1,4 +1,4 @@
-FROM node:20.11.1-slim as build-stage
+FROM node:22.16-slim as build-stage
 
 ARG CINE_BACKEND_URL=${CINE_BACKEND_URL}
 ARG CINE_BACKEND_SOCKET_URL=${CINE_BACKEND_SOCKET_URL}
@@ -11,7 +11,7 @@ RUN corepack enable
 RUN yarn install
 RUN yarn build
 
-FROM node:20.5.1-slim as production-stage
+FROM node:22.16-slim as production-stage
 
 WORKDIR /usr/src/app
 COPY --from=build-stage /usr/src/app/dist ./dist
