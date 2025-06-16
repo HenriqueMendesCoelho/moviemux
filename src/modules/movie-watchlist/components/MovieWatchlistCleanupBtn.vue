@@ -14,7 +14,7 @@ import { useQuasar } from 'quasar';
 
 import { useUserStore } from 'src/core/stores/UserStore';
 
-import type { WishlistType } from 'src/core/types/wishlist/WishlistType';
+import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
@@ -24,12 +24,12 @@ import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 
 interface Props {
-  wishlist?: WishlistType;
+  wishlist?: WatchlistType;
 }
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  (e: 'update:wishlist', value: WishlistType): void;
+  (e: 'update:wishlist', value: WatchlistType): void;
 }>();
 
 const $q = useQuasar();
@@ -141,7 +141,7 @@ async function deteleMoviesFromWishlist() {
   showSuccess('Filmes removidos da lista');
   emit('update:wishlist', res);
 }
-async function updateWishlist(wishlist: WishlistType) {
+async function updateWishlist(wishlist: WatchlistType) {
   try {
     showLoading();
     return await MovieWatchlistService.updateWatchlist(wishlist);

@@ -65,14 +65,14 @@
   </q-card>
 </template>
 <script setup lang="ts">
-import type { WishlistType } from 'src/core/types/wishlist/WishlistType';
+import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 
 import DateUtils from 'src/core/utils/DateUtils';
 
 import MovieWatchlistCardContextMenu from './MovieWatchlistCardContextMenu.vue';
 
 interface Props {
-  wishlist: WishlistType;
+  wishlist: WatchlistType;
 }
 
 const emit = defineEmits<{
