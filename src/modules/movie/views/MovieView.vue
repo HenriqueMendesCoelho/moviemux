@@ -37,7 +37,7 @@ const $q = useQuasar();
 const user = computed(() => useUserStore().user);
 
 const isMobile = $q.platform.is.mobile;
-const movieId = ref(route.params.id?.toString());
+const movieId = ref(route.params.id?.toString() || '');
 const moviePage = computed(() => useMovieStore().moviePage);
 
 onMounted(async () => {
@@ -57,7 +57,7 @@ async function loadMovie() {
     setDocumentTitle();
   } catch {
     showError('Erro ao buscar filme. Tente novamente mais tarde.');
-    router.push('/home');
+    await router.push('/home');
   }
 }
 function setDocumentTitle() {

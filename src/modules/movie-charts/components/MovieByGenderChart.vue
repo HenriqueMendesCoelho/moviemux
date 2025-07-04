@@ -1,5 +1,5 @@
 <template>
-  <apexchart
+  <apex-chart
     v-if="showChart"
     :height="isDesktop ? '' : '400px'"
     :width="isDesktop ? '600px' : '100%'"
@@ -72,7 +72,7 @@ watch(
     setLabels();
     setData();
     showChart.value = true;
-  }
+  },
 );
 
 function setLabels() {

@@ -13,8 +13,13 @@
     clearable
     :lazy-rules="true"
     ><template v-slot:append v-if="icon">
-      <q-icon :name="icon" @click="emit('iconClick')" :style="`cursor: ${iconCursor ? iconCursor : 'auto'}`"
-        ><BaseTooltip v-if="iconTooltip" :delay="300" :hide-delay="300">{{ iconTooltip }}</BaseTooltip></q-icon
+      <q-icon
+        :name="icon"
+        @click="emit('iconClick')"
+        :style="`cursor: ${iconCursor ? iconCursor : 'auto'}`"
+        ><BaseTooltip v-if="iconTooltip" :delay="300" :hide-delay="300">{{
+          iconTooltip
+        }}</BaseTooltip></q-icon
       >
     </template></q-input
   >
@@ -60,36 +65,36 @@ watch(
   () => props.modelValue,
   (val) => {
     text.value = val || '';
-  }
+  },
 );
 
 watch(
   () => text.value,
   (val) => {
     emit('update:modelValue', val);
-  }
+  },
 );
 
 function defaultRules() {
   if (!props.required) {
     return () => true;
   }
-  return () => (!!text.value ? true : '*Obrigatório');
+  return () => (text.value ? true : '*Obrigatório');
 }
 function getRules(): ValidationRule[] {
   return [defaultRules(), props.customRules];
 }
-function hasErrors(): boolean {
+async function hasErrors(): Promise<boolean> {
   let hasErrors = false;
   if (inputTextRef.value) {
-    inputTextRef.value.validate();
+    await inputTextRef.value.validate();
     hasErrors = inputTextRef.value?.hasError;
   }
   return hasErrors;
 }
-function resetValidation(): void {
-  nextTick(() => {
-    inputTextRef.value?.resetValidation();
-  });
+async function resetValidation(): Promise<void> {
+  await nextTick();
+
+  inputTextRef.value?.resetValidation();
 }
 </script>

@@ -3,7 +3,12 @@
     <div class="row justify-center">
       <div>
         <router-link to="/">
-          <img src="../../../assets/logo.webp" class="left-img-login" alt="logo" draggable="false" />
+          <img
+            src="../../../assets/logo.webp"
+            class="left-img-login"
+            alt="logo"
+            draggable="false"
+          />
         </router-link>
       </div>
       <div class="col-12"></div>
@@ -34,11 +39,11 @@ onMounted(() => {
 
     if (counter.value <= 0) {
       if (userStore.user.isLoged) {
-        router.push('/home');
+        router.push('/home').catch(() => {});
         return;
       }
 
-      router.push('/');
+      router.push('/').catch(() => {});
     }
   }, 1000);
 });

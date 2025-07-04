@@ -18,10 +18,11 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
+import { copyToClipboard } from 'quasar';
 
-import type { QTableProps } from 'quasar';
+import type { QTableColumn } from 'quasar';
 
-import User from 'src/core/domain/user/User';
+import type User from 'src/core/domain/user/User';
 
 import BaseTableCopyDelete from 'src/core/components/BaseTableCopyDelete.vue';
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
@@ -29,7 +30,7 @@ import UserService from 'src/core/services/UserService';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 import DateUtils from 'src/core/utils/DateUtils';
 
-const columns: QTableProps['columns'] = [
+const columns: QTableColumn[] = [
   {
     name: 'nome',
     label: 'Nome',
@@ -54,6 +55,7 @@ const columns: QTableProps['columns'] = [
     label: 'Data de criação',
     field: 'created_at',
     align: 'center',
+
     format: (val) => DateUtils.toLocaleString(val),
   },
   {
@@ -61,6 +63,7 @@ const columns: QTableProps['columns'] = [
     label: 'Data da ultima modificação',
     field: 'updated_at',
     align: 'center',
+
     format: (val) => DateUtils.toLocaleString(val),
   },
   {
@@ -68,6 +71,7 @@ const columns: QTableProps['columns'] = [
     label: 'Último acesso',
     field: (row) => row.statistics.last_login_at,
     align: 'center',
+
     format: (val) => (val ? DateUtils.toLocaleString(val) : 'Não Registrado'),
   },
   {
@@ -89,7 +93,7 @@ onMounted(async () => {
   }
 });
 
-function actionCopy(user?: User) {
+async function actionCopy(user?: User) {
   if (!user) {
     showError('Nenhum usuario encontrado');
     return;
@@ -98,7 +102,7 @@ function actionCopy(user?: User) {
     showError('Usuario não possui e-mail');
     return;
   }
-  navigator.clipboard.writeText(user.email);
+  await copyToClipboard(user.email);
   showSuccess('E-mail do usuario copiado');
 }
 

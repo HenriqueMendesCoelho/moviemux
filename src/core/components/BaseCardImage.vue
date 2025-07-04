@@ -10,6 +10,7 @@
       transform: `rotateX(${roll * rotateConstant}deg)
       rotateY(${tilt * rotateConstant}deg)
       ${scale}`,
+      transcode: '.3s ease-out all',
     }"
     @mouseenter="onEnter"
     @mouseleave="onLeave"
@@ -39,13 +40,13 @@ const props = withDefaults(
   }>(),
   {
     animate: true,
-  }
+  },
 );
 
 const $q = useQuasar();
 const isMobile = $q.platform.is.mobile;
 
-const imageRef = ref();
+const imageRef = ref<HTMLElement | null>(null);
 
 const rotateConstant = 25;
 const { tilt: _tilt, roll: _roll } = useParallax(imageRef);
@@ -87,7 +88,7 @@ watch(
       roll.value = 0;
       scale.value = 'scale(1)';
     }
-  }
+  },
 );
 
 function getHeight() {

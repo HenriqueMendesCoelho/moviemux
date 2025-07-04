@@ -1,5 +1,6 @@
 import { boot } from 'quasar/wrappers';
-import axios, { AxiosInstance } from 'axios';
+import type { AxiosInstance } from 'axios';
+import axios from 'axios';
 import { useUserStore } from 'src/core/stores/UserStore';
 import { Cookies } from 'quasar';
 
@@ -39,9 +40,9 @@ export default boot(({ app, ssrContext }) => {
 
       return request;
     },
-    function (error) {
-      return Promise.reject(error);
-    }
+    (error) => {
+      return error;
+    },
   );
 
   axios.interceptors.response.use(
@@ -54,8 +55,8 @@ export default boot(({ app, ssrContext }) => {
         userStore.showDialogLogin = true;
         userStore.user.isLoged = false;
       }
-      return Promise.reject(error);
-    }
+      return error;
+    },
   );
 });
 

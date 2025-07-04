@@ -17,11 +17,11 @@ export default defineComponent({
     ...mapState(useStyleStore, ['layoutSettings']),
   },
   mounted() {
-    const cookieTheme = Cookies.get('theme') as 'dark' | 'light';
+    const cookieTheme: string = Cookies.get('theme');
     this.setCookieTheme(cookieTheme);
   },
   methods: {
-    setCookieTheme(cookieTheme: 'dark' | 'light') {
+    setCookieTheme(cookieTheme: string) {
       if (cookieTheme) {
         this.setCookie(cookieTheme);
         return;
@@ -33,7 +33,7 @@ export default defineComponent({
 
       this.setCookie('light');
     },
-    setCookie(theme: 'dark' | 'light') {
+    setCookie(theme: string) {
       Cookies.set('theme', theme, { expires: 30 });
       document.documentElement.setAttribute('data-theme', theme);
     },

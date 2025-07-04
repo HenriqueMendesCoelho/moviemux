@@ -20,8 +20,16 @@
       </q-input>
     </div>
     <div class="col-10 justify-center q-mt-md">
-      <BasePasswordInput ref="inputPasswordRef" @keyup.enter="login()" v-model="password" required :error-text-required="false" />
-      <button class="btn-underline q-mt-md" @click="changeTab('forgot')">Esqueceu sua senha ?</button>
+      <BasePasswordInput
+        ref="inputPasswordRef"
+        @keyup.enter="login()"
+        v-model="password"
+        required
+        :error-text-required="false"
+      />
+      <button class="btn-underline q-mt-md" @click="changeTab('forgot')">
+        Esqueceu sua senha ?
+      </button>
     </div>
     <div class="col-10 q-mt-xl">
       <q-btn
@@ -98,7 +106,7 @@ function changeTab(tab: string) {
   emit('changeTab', tab);
 }
 async function login() {
-  if (hasErrors()) {
+  if (await hasErrors()) {
     return;
   }
 
@@ -107,11 +115,11 @@ async function login() {
     await userStore.login({ email: email.value, password: password.value });
     if (route.name === 'login') {
       if (route.query.from) {
-        router.push(route.query.from.toString());
+        await router.push(route.query.from.toString());
         return;
       }
 
-      router.push('/home');
+      await router.push('/home');
     } else {
       window.location.reload();
     }
@@ -121,14 +129,14 @@ async function login() {
     emit('loading', false);
   }
 }
-function hasErrors() {
+async function hasErrors() {
   let hasErrors = false;
   if (inputEmailRef.value) {
-    inputEmailRef.value.validate();
+    await inputEmailRef.value.validate();
     hasErrors = inputEmailRef.value.hasError;
   }
   if (inputPasswordRef.value) {
-    hasErrors = inputPasswordRef.value.hasErrors();
+    hasErrors = await inputPasswordRef.value.hasErrors();
   }
   return hasErrors;
 }

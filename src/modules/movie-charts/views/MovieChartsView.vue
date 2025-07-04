@@ -12,7 +12,13 @@
         </div>
         <div class="card-bordered justify-center text-center text-white q-pa-md">
           <div class="text-title-responsive-2">Tempo médio dos filmes</div>
-          <q-chip class="q-mt-md" color="kb-primary" text-color="white" icon="hourglass_empty" size="30px">
+          <q-chip
+            class="q-mt-md"
+            color="kb-primary"
+            text-color="white"
+            icon="hourglass_empty"
+            size="30px"
+          >
             {{ StringUtils.runtimeToText(chartsData?.average_runtime) }}
           </q-chip>
         </div>
@@ -67,8 +73,8 @@ import { showError } from 'src/core/utils/NotificationUtils';
 const chartsData = ref<MovieStatistics>();
 const knobAvgNote = ref<number>(0);
 
-onMounted(() => {
-  getChartsData();
+onMounted(async () => {
+  await getChartsData();
 });
 
 async function getChartsData() {

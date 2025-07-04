@@ -14,9 +14,19 @@
         label-set="Salvar"
         :validate="(val) => !!val && val.length >= 3 && val.length <= 30"
       >
-        <q-input ref="inputNoteRef" color="kb-primary" dark v-model="scope.value" dense autofocus :rules="[(val) => ruleInput(val)]" />
+        <q-input
+          ref="inputNoteRef"
+          color="kb-primary"
+          dark
+          v-model="scope.value"
+          dense
+          autofocus
+          :rules="[(val) => ruleInput(val)]"
+        />
       </q-popup-edit>
-      <BaseTooltip :delay="200" v-if="_wishlist?.user.id === userId">Clique para editar</BaseTooltip>
+      <BaseTooltip :delay="200" v-if="_wishlist?.user.id === userId"
+        >Clique para editar</BaseTooltip
+      >
     </template>
     <template #after-icon v-if="watchlist">
       <MovieWatchlistTooltipInfo :watchlist="watchlist" />
@@ -26,7 +36,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 
-import { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
+import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 
 import BasePageTitle from 'src/core/components/BasePageTitle.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
@@ -56,7 +66,7 @@ watch(
   () => props.watchlist,
   () => {
     _wishlist.value = props.watchlist;
-  }
+  },
 );
 
 async function updateNameWatchlist(wishlistName: string) {
@@ -68,9 +78,14 @@ async function updateNameWatchlist(wishlistName: string) {
 
   try {
     await MovieWatchlistService.updateWatchlist(_wishlist.value);
-  } catch {}
+  } catch {
+    void 0;
+  }
 }
 function ruleInput(val: string): boolean | string {
-  return (!!val && val.length >= 3 && val.length <= 30) || 'Deve ter no mínimo 3 caracteres e no máximo 30';
+  return (
+    (!!val && val.length >= 3 && val.length <= 30) ||
+    'Deve ter no mínimo 3 caracteres e no máximo 30'
+  );
 }
 </script>

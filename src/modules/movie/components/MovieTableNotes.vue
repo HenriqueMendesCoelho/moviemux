@@ -26,11 +26,24 @@
             checked-icon="visibility"
             unchecked-icon="visibility_off"
           />
-          <BaseTooltip anchor="bottom right" :delay="500" :hide-delay="300">Alternar visibilidade das notas</BaseTooltip>
+          <BaseTooltip anchor="bottom right" :delay="500" :hide-delay="300"
+            >Alternar visibilidade das notas</BaseTooltip
+          >
         </div>
         <div>
-          <q-btn class="q-mr-sm" flat round icon="add" @click="showDialogCreateNote" :disable="isUserAlreadyVoted" />
-          <BaseTooltip anchor="bottom right" :delay="500" :hide-delay="300" v-if="isUserAlreadyVoted"
+          <q-btn
+            class="q-mr-sm"
+            flat
+            round
+            icon="add"
+            @click="showDialogCreateNote"
+            :disable="isUserAlreadyVoted"
+          />
+          <BaseTooltip
+            anchor="bottom right"
+            :delay="500"
+            :hide-delay="300"
+            v-if="isUserAlreadyVoted"
             >Você já votou nesse filme!</BaseTooltip
           >
         </div>
@@ -39,7 +52,9 @@
 
       <template v-slot:body="props">
         <q-tr :props="props">
-          <q-td key="owner" :props="props"><q-icon name="fa-solid fa-crown" v-if="showCrown(props.row)" /></q-td>
+          <q-td key="owner" :props="props"
+            ><q-icon name="fa-solid fa-crown" v-if="showCrown(props.row)"
+          /></q-td>
           <q-td key="userName" :props="props">{{ props.cols[1].value }}</q-td>
           <q-td key="note" :props="props">
             {{ !isNaN(props.row?.note) ? props.row.note : '-' }}
@@ -77,8 +92,18 @@
             <q-td key="updatedAt" :props="props">{{ props.cols[3].value }}</q-td>
           </template>
           <q-td key="actions" :props="props"
-            ><q-btn dense round flat color="white" icon="delete" v-if="showEdit(props.row)" @click="showConfirmDialogDelete">
-              <BaseTooltip anchor="bottom right" :delay="500" :hide-delay="300">Deletar</BaseTooltip>
+            ><q-btn
+              dense
+              round
+              flat
+              color="white"
+              icon="delete"
+              v-if="showEdit(props.row)"
+              @click="showConfirmDialogDelete"
+            >
+              <BaseTooltip anchor="bottom right" :delay="500" :hide-delay="300"
+                >Deletar</BaseTooltip
+              >
             </q-btn></q-td
           >
         </q-tr>
@@ -92,7 +117,7 @@ import { ref, computed, onMounted, onBeforeUnmount, watch, toRaw } from 'vue';
 import { useQuasar, Cookies } from 'quasar';
 
 import type { QInput, QTableProps } from 'quasar';
-import { MovieNoteType } from 'src/core/types/movie/MovieType';
+import type { MovieNoteType } from 'src/core/types/movie/MovieType';
 
 import { useUserStore } from 'src/core/stores/UserStore';
 import { useMovieStore } from '../stores/MovieStore';
@@ -139,6 +164,7 @@ const columns = ref<QTableProps['columns']>([
     label: 'Criado em',
     field: 'created_at',
     align: 'center',
+
     format: (val) => DateUtils.toLocaleString(val),
   },
   {
@@ -146,6 +172,7 @@ const columns = ref<QTableProps['columns']>([
     label: 'Última atualização',
     field: 'updated_at',
     align: 'center',
+
     format: (val) => DateUtils.toLocaleString(val),
   },
   {
@@ -204,12 +231,16 @@ watch(
   (val) => {
     const lastEvent = toRaw(val)[val.length - 1];
     const movieSelected = moviePage.value.selectedMovie;
-    if (lastEvent.content.user.id === user.value.id || lastEvent.movie !== movieSelected.id) {
+    if (
+      !lastEvent?.content ||
+      lastEvent?.content.user.id === user.value.id ||
+      lastEvent?.movie !== movieSelected.id
+    ) {
       return;
     }
     moviePage.value.selectedMovie.notes?.push(lastEvent.content);
   },
-  { deep: true }
+  { deep: true },
 );
 
 watch(
@@ -217,12 +248,17 @@ watch(
   (val) => {
     const lastEvent = toRaw(val)[val.length - 1];
     const movieSelected = moviePage.value.selectedMovie;
-    if (lastEvent.content.user.id === user.value.id || lastEvent.movie !== movieSelected.id) {
+    if (
+      lastEvent === undefined ||
+      lastEvent?.content ||
+      lastEvent?.content.user.id === user.value.id ||
+      lastEvent?.movie !== movieSelected.id
+    ) {
       return;
     }
 
     const notes = moviePage.value.selectedMovie.notes;
-    const userIdToOverride = lastEvent.content.user.id;
+    const userIdToOverride = lastEvent?.content.user.id;
 
     notes?.forEach((n, index) => {
       if (n.user.id === userIdToOverride) {
@@ -230,7 +266,7 @@ watch(
       }
     });
   },
-  { deep: true }
+  { deep: true },
 );
 
 watch(
@@ -238,12 +274,19 @@ watch(
   (val) => {
     const lastEvent = toRaw(val)[val.length - 1];
     const movieSelected = moviePage.value.selectedMovie;
-    if (lastEvent.content.user.id === user.value.id || lastEvent.movie !== movieSelected.id) {
+    if (
+      lastEvent === undefined ||
+      lastEvent?.content ||
+      lastEvent?.content.user.id === user.value.id ||
+      lastEvent?.movie !== movieSelected.id
+    ) {
       return;
     }
-    moviePage.value.selectedMovie.notes = moviePage.value.selectedMovie.notes?.filter((n) => n.user.id !== lastEvent.content.user.id);
+    moviePage.value.selectedMovie.notes = moviePage.value.selectedMovie.notes?.filter(
+      (n) => n.user.id !== lastEvent.content.user.id,
+    );
   },
-  { deep: true }
+  { deep: true },
 );
 
 function showEdit(row: MovieNoteType): boolean {
@@ -254,7 +297,10 @@ function showCrown(row: MovieNoteType): boolean {
 }
 function showToggleVisibility() {
   const timeSinceCreation = moviePage.value.selectedMovie.time_since_creation || 0;
-  return (user.value.roles.includes('ADM') || user.value.id === moviePage.value.selectedMovie.user_id) && timeSinceCreation < 1800;
+  return (
+    (user.value.roles.includes('ADM') || user.value.id === moviePage.value.selectedMovie.user_id) &&
+    timeSinceCreation < 1800
+  );
 }
 function showConfirmDialogDelete() {
   confirmDialogRef.value?.show({
@@ -267,7 +313,7 @@ function showConfirmDialogDelete() {
 function showDialogCreateNote() {
   dialogMovieNote({
     onOk(data) {
-      createNote(data);
+      createNote(data).catch(() => void 0);
     },
   });
 }

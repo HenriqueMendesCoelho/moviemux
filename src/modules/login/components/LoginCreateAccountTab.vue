@@ -32,7 +32,9 @@
       v-model="repeatePassword"
       label="Repita a senha"
       required
-      :custom-rules="() => password === repeatePassword || 'Deve ser igual a senha preenchida anteriormente'"
+      :custom-rules="
+        () => password === repeatePassword || 'Deve ser igual a senha preenchida anteriormente'
+      "
     />
     <q-input
       ref="inputNicknameRef"
@@ -63,17 +65,27 @@
       </template>
     </q-input>
     <div class="col-10 q-mt-xl">
-      <q-btn class="btn-login" label="Criar conta" color="kb-primary" text-color="black" style="width: 100%" @click="create" />
+      <q-btn
+        class="btn-login"
+        label="Criar conta"
+        color="kb-primary"
+        text-color="black"
+        style="width: 100%"
+        @click="create"
+      />
     </div>
     <div class="col-10 justify-center">
-      <button class="btn-underline q-mt-xs" style="color: white" @click="changeTab('login')">Volta para login</button>
+      <button class="btn-underline q-mt-xs" style="color: white" @click="changeTab('login')">
+        Volta para login
+      </button>
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import { ref } from 'vue';
 import { QInput, useQuasar } from 'quasar';
-import axios, { AxiosError } from 'axios';
+import type { AxiosError } from 'axios';
+import axios from 'axios';
 
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 import LoginPassowordInfoTooltip from './LoginPassowordInfoTooltip.vue';
@@ -125,7 +137,7 @@ function changeTab(tab: string) {
   emit('changeTab', tab);
 }
 async function create() {
-  if (hasErrors()) {
+  if (await hasErrors()) {
     return;
   }
   try {
@@ -154,10 +166,10 @@ async function create() {
     emit('loading', false);
   }
 }
-function hasErrors() {
+async function hasErrors() {
   let hasErrors = false;
   if (inputEmailRef.value) {
-    inputEmailRef.value.validate();
+    await inputEmailRef.value.validate();
     hasErrors = inputEmailRef.value.hasError;
   }
   if (inputPasswordRef.value) {
@@ -167,11 +179,11 @@ function hasErrors() {
     hasErrors = inputRepeatPasswordRef.value.hasErrors();
   }
   if (inputNicknameRef.value) {
-    inputNicknameRef.value.validate();
+    await inputNicknameRef.value.validate();
     hasErrors = inputNicknameRef.value.hasError;
   }
   if (inputInviteRef.value) {
-    inputInviteRef.value.validate();
+    await inputInviteRef.value.validate();
     hasErrors = inputInviteRef.value.hasError;
   }
   return hasErrors;

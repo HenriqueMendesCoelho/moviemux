@@ -24,7 +24,14 @@
           :separeted-input-event="true"
         >
           <template #input-search>
-            <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
+            <q-menu
+              class="bg-grey-mid text-white"
+              fit
+              no-focus
+              no-refocus
+              no-parent-event
+              v-model="showMenu"
+            >
               <q-list dense dark>
                 <q-item
                   ref="itensMenuRef"
@@ -35,9 +42,17 @@
                   bordered
                   clickable
                 >
-                  <q-item-section @click="searchFromMenu(movie.title)" v-close-popup class="q-pl-sm">{{ movie.title }}</q-item-section>
+                  <q-item-section
+                    @click="searchFromMenu(movie.title)"
+                    v-close-popup
+                    class="q-pl-sm"
+                    >{{ movie.title }}</q-item-section
+                  >
                 </q-item>
-                <q-separator dark v-if="!!moviesWhenTyping ? moviesWhenTyping?.length > 1 : false" />
+                <q-separator
+                  dark
+                  v-if="!!moviesWhenTyping ? moviesWhenTyping?.length > 1 : false"
+                />
               </q-list>
             </q-menu>
           </template>
@@ -82,7 +97,10 @@
       </div>
       <div class="row justify-center q-mt-lg">
         <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="10">
-          <div class="row justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'">
+          <div
+            class="row justify-center"
+            :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'"
+          >
             <div class="col-auto" v-for="(movie, index) in movies" :key="index">
               <MovieDiscoverCardImage
                 v-model="watchlists"
@@ -98,7 +116,12 @@
         </div>
         <BaseFloatingActionBtn class="mobile-hide" />
       </div>
-      <BaseDialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" position="standard" @hide="onHideDialog()">
+      <BaseDialogFormMovieSummary
+        v-model="showDialogMovieSummary"
+        :movie-id="movieIdDialog"
+        position="standard"
+        @hide="onHideDialog()"
+      >
         <template #prepend:bar>
           <q-btn round dense flat icon="playlist_add" color="white" size="md">
             <MovieDiscoverMenuWatchlist
@@ -108,7 +131,9 @@
               anchor="bottom middle"
               self="top middle"
             />
-            <BaseTooltip anchor="center left" self="center end" :delay="400">Adicionar a uma lista</BaseTooltip>
+            <BaseTooltip anchor="center left" self="center end" :delay="400"
+              >Adicionar a uma lista</BaseTooltip
+            >
           </q-btn>
         </template>
       </BaseDialogFormMovieSummary>
@@ -118,7 +143,7 @@
 
 <script lang="ts" setup>
 import { computed, onActivated, onMounted, onUpdated, ref, watch, nextTick } from 'vue';
-import { QItem, useQuasar, QInfiniteScroll } from 'quasar';
+import { QItem, useQuasar, QInfiniteScroll, copyToClipboard } from 'quasar';
 import { useRoute } from 'vue-router';
 import { useRouter } from 'vue-router';
 
@@ -201,21 +226,21 @@ watch(
   () => searchText.value,
   async (val: string) => {
     moviesWhenTyping.value = await getMoviesByName({ query: val });
-  }
+  },
 );
 
 watch(
   () => genresSelected.value,
-  () => {
+  async () => {
     selectOrder.value = undefined;
     searchText.value = '';
-    firstSearch();
+    await firstSearch();
   },
-  { deep: true }
+  { deep: true },
 );
 
-function onHideDialog() {
-  router.push('/movie/discover');
+async function onHideDialog() {
+  await router.push('/movie/discover');
 }
 function showDialogByParam() {
   const movieParam = parseInt(route.query.movie?.toString() || '');
@@ -239,9 +264,8 @@ async function firstSearch() {
     page.value = 1;
     const result = await callTmdb();
     movies.value = result;
-    nextTick(() => {
-      infinitScrollRef.value?.resume();
-    });
+    await nextTick();
+    infinitScrollRef.value?.resume();
   } catch {
     showError('Não foi possível realizar a consulta');
     errorRequest.value = true;
@@ -311,7 +335,9 @@ async function callTmdb() {
   }
 
   if (genresSelected.value?.length) {
-    return await getMoviesDiscover({ with_genres: genresSelected.value.join(',') });
+    return await getMoviesDiscover({
+      with_genres: genresSelected.value.map((g) => String(g.id)).join(','),
+    });
   }
 
   switch (selectOrder.value) {
@@ -351,13 +377,22 @@ async function getMoviesTopRated() {
   page.value += 1;
   return res.results;
 }
-async function getMoviesDiscover({ sort, year, with_genres }: { sort?: string; year?: number; with_genres?: string }) {
+async function getMoviesDiscover({
+  sort,
+  year,
+  with_genres,
+}: {
+  sort?: string;
+  year?: number;
+  with_genres?: string;
+}) {
   const res = await KitService.getMoviesDiscover(sort, page.value, year, with_genres);
   lastPage.value = res.total_pages;
   page.value += 1;
   return res.results;
 }
-async function getMoviesByName(payload: { query: string; page?: 1 | number; language?: 'pt-Br' }) {
+async function getMoviesByName(payload: { query: string; page?: number; language?: 'pt-Br' }) {
+  payload.page = payload.page ?? 1;
   const res = await KitService.searchByName(payload);
   lastPage.value = res.total_pages;
   page.value += 1;
@@ -379,13 +414,13 @@ function showDialog(movieId: number) {
   showDialogMovieSummary.value = true;
   movieIdDialog.value = movieId;
 }
-function copyMovie(id?: number) {
+async function copyMovie(id?: number) {
   if (!id) {
     return;
   }
 
   const url = `${window.location.origin}/movie/discover?movie=${id}`;
-  navigator.clipboard.writeText(url);
+  await copyToClipboard(url);
   showSuccess('URL copiada');
   return url ? url : '';
 }
@@ -437,14 +472,25 @@ function moveSelection(step: number) {
     selectedIndexMenu.value = newIndex;
   }
   if (itensMenuRef.value?.length && selectedIndexMenu.value) {
-    itensMenuRef.value[selectedIndexMenu.value]?.$el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    itensMenuRef.value[selectedIndexMenu.value]?.$el.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    });
   }
 }
-function searchFromIndexMenu() {
-  if (selectedIndexMenu.value === undefined || !moviesWhenTyping.value?.length) {
-    firstSearch();
+async function searchFromIndexMenu() {
+  const movies = moviesWhenTyping.value ?? [];
+  const index = selectedIndexMenu.value ?? -1;
+
+  const isValidIndex = index >= 0 && index < movies.length;
+  const movie = isValidIndex ? movies[index] : null;
+
+  if (!movie) {
+    await firstSearch();
     return;
   }
-  searchFromMenu(moviesWhenTyping.value[selectedIndexMenu.value].title);
+
+  const title = movie.title ?? '';
+  await searchFromMenu(title);
 }
 </script>

@@ -24,7 +24,14 @@
     </div>
     <div class="col-10">
       <div class="col-12 row justify-center">
-        <q-btn class="btn-login" label="Enviar E-mail" color="kb-primary" text-color="black" style="width: 100%" @click="sendEmail()" />
+        <q-btn
+          class="btn-login"
+          label="Enviar E-mail"
+          color="kb-primary"
+          text-color="black"
+          style="width: 100%"
+          @click="sendEmail()"
+        />
       </div>
     </div>
     <div class="col-12 row justify-center">
@@ -67,16 +74,16 @@ const regexEmail = ref(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
 function changeTab(tab: string) {
   emit('changeTab', tab);
 }
-function hasErrors() {
+async function hasErrors() {
   let hasErrors = false;
   if (inputEmailRef.value) {
-    inputEmailRef.value.validate();
+    await inputEmailRef.value.validate();
     hasErrors = inputEmailRef.value.hasError;
   }
   return hasErrors;
 }
 async function sendEmail() {
-  if (hasErrors()) {
+  if (await hasErrors()) {
     return;
   }
 

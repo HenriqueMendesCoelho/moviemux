@@ -4,7 +4,9 @@
       <BasePageTitle title="Minhas Listas de Filmes" icon="list" />
       <BaseHorizontalSeparator class="q-mb-xl" />
       <div class="col-md-12 col-lg-10 col-xl-9 row q-col-gutter-md q-py-md">
-        <div class="text-title-responsive-2 text-white">Minhas Listas ({{ watchlists?.length ?? 0 }}/10)</div>
+        <div class="text-title-responsive-2 text-white">
+          Minhas Listas ({{ watchlists?.length ?? 0 }}/10)
+        </div>
         <MovieWatchlistBtnCreate @ok="watchlistStore.getWatchlists()" />
         <div class="col-12 row q-col-gutter-md" v-if="watchlists?.length">
           <router-link
@@ -13,13 +15,22 @@
             v-for="list in watchlists"
             :key="list.name"
           >
-            <MovieWatchlistCard class="col" :wishlist="list" @copy-url="copyWatchlistUrl(list.id)" @delete="openDialogConfirm(list)" />
+            <MovieWatchlistCard
+              class="col"
+              :wishlist="list"
+              @copy-url="copyWatchlistUrl(list.id)"
+              @delete="openDialogConfirm(list)"
+            />
           </router-link>
         </div>
         <div class="col-12 row justify-center" v-else>
           <div class="text-h4 text-white q-mt-md">Você ainda não tem nenhuma lista criada...</div>
         </div>
-        <BaseConfirmDialog ref="confirmDialogRef" @ok="deleteWatchlist()" @cancel="watchlistIdToDelete = ''" />
+        <BaseConfirmDialog
+          ref="confirmDialogRef"
+          @ok="deleteWatchlist()"
+          @cancel="watchlistIdToDelete = ''"
+        />
       </div>
     </div>
   </BaseContainerMain>
@@ -27,6 +38,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import { copyToClipboard } from 'quasar';
 
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import BasePageTitle from 'src/core/components/BasePageTitle.vue';
@@ -38,7 +50,7 @@ import MovieWatchlistCard from '../components/MovieWatchlistCard.vue';
 import { showSuccess, showError } from 'src/core/utils/NotificationUtils';
 import MovieWatchlistService from '../services/MovieWatchlistService';
 import { useMovieWatchlistStore } from '../stores/MovieWatchlistStore';
-import { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
+import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 
 const watchlistStore = useMovieWatchlistStore();
@@ -51,13 +63,13 @@ onMounted(async () => {
   await watchlistStore.getWatchlists();
 });
 
-function copyWatchlistUrl(id?: string) {
+async function copyWatchlistUrl(id?: string) {
   if (!id) {
     return;
   }
 
   const url = `${window.location.origin}/movie/watchlist/${id}`;
-  navigator.clipboard.writeText(url);
+  await copyToClipboard(url);
   showSuccess('Link copiado');
   return url ? url : '';
 }

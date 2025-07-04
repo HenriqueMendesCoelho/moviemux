@@ -3,7 +3,7 @@ import { jwtDecode } from 'jwt-decode';
 import { defineStore } from 'pinia';
 import { Cookies } from 'quasar';
 
-import { tokenPayload } from 'src/core/types/token/TokenType';
+import type { tokenPayload } from 'src/core/types/token/TokenType';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_API;
 
@@ -38,36 +38,25 @@ export const useUserStore = defineStore('UserStore', {
   },
   actions: {
     async login(payload: { email: string; password: string }): Promise<void> {
-      try {
-        const url = `${BASE_URL}/login`;
-        const res = await axios.post(url, payload);
-        const responsePayload = res.data;
-        const token = responsePayload.access_token;
+      const url = `${BASE_URL}/login`;
+      const res = await axios.post(url, payload);
+      const responsePayload = res.data;
+      const token = responsePayload.access_token;
 
-        Cookies.set('auth-kb', token, { expires: new Date(responsePayload.expires), secure: true });
-        this.user.isLoged = true;
-        this.showDialogLogin = false;
-        this.decodeToken(token);
-
-        return Promise.resolve();
-      } catch (error) {
-        return Promise.reject(error);
-      }
+      Cookies.set('auth-kb', token, { expires: new Date(responsePayload.expires), secure: true });
+      this.user.isLoged = true;
+      this.showDialogLogin = false;
+      this.decodeToken(token);
     },
     async refreshToken(): Promise<void> {
-      try {
-        axios.post(`${BASE_URL}/refresh-token`);
-        return Promise.resolve();
-      } catch {
-        return Promise.reject();
-      }
+      await axios.post(`${BASE_URL}/refresh-token`);
     },
     decodeToken(token: string) {
       if (!token) {
         return;
       }
 
-      const tokenPayload = jwtDecode(token) as tokenPayload;
+      const tokenPayload: tokenPayload = jwtDecode(token);
 
       this.user.id = tokenPayload.id;
       this.user.name = tokenPayload.name;
