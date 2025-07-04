@@ -3,11 +3,23 @@
     <h5>Alteração de senha</h5>
     <BaseHorizontalSeparator />
     <div class="q-mt-md col-xs-12 col-md-6">
-      <BaseTextInput ref="inputTextCurrentPassRef" :label="'Senha atual'" v-model="currentPass" :type="'password'" :required="true" />
+      <BaseTextInput
+        ref="inputTextCurrentPassRef"
+        :label="'Senha atual'"
+        v-model="currentPass"
+        :type="'password'"
+        :required="true"
+      />
     </div>
     <div class="col-12" />
     <div class="q-mt-md col-xs-12 col-md-6">
-      <BaseTextInput ref="inputTextNewPassRef" :label="'Nova Senha'" v-model="newPass" :type="'password'" :required="true" />
+      <BaseTextInput
+        ref="inputTextNewPassRef"
+        :label="'Nova Senha'"
+        v-model="newPass"
+        :type="'password'"
+        :required="true"
+      />
     </div>
     <div class="col-12" />
     <div class="q-mt-md q-mb-xl col-xs-12 col-md-6">
@@ -21,10 +33,22 @@
     </div>
     <div class="col-12" />
     <div class="col-xs-4 col-md-2">
-      <q-btn class="full-width" color="positive" text-color="white" label="Salvar" @click="updatePassword" />
+      <q-btn
+        class="full-width"
+        color="positive"
+        text-color="white"
+        label="Salvar"
+        @click="updatePassword"
+      />
     </div>
     <div class="col-xs-4 col-md-2 q-ml-md">
-      <q-btn class="full-width" color="red" text-color="white" label="Cancelar" @click="clearInputs" />
+      <q-btn
+        class="full-width"
+        color="red"
+        text-color="white"
+        label="Cancelar"
+        @click="clearInputs"
+      />
     </div>
   </div>
 </template>
@@ -36,7 +60,8 @@ import UserService from 'src/core/services/UserService';
 
 import BaseTextInput from 'src/core/components/BaseTextInput.vue';
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
-import axios, { AxiosError } from 'axios';
+import type { AxiosError } from 'axios';
+import axios from 'axios';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 

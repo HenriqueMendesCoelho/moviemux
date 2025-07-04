@@ -21,7 +21,9 @@ import { ref, watch, nextTick } from 'vue';
 import type { QInput, ValidationRule } from 'quasar';
 
 const password = ref<string>('');
-const regexPassword = ref<RegExp>(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{8,70}$/);
+const regexPassword = ref<RegExp>(
+  /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{8,70}$/,
+);
 const inputPasswordRef = ref<InstanceType<typeof QInput>>();
 const visibility = ref(false);
 
@@ -54,14 +56,14 @@ watch(
   () => props.modelValue,
   (val) => {
     password.value = val;
-  }
+  },
 );
 
 watch(
   () => password.value,
   (val) => {
     emit('update:modelValue', val);
-  }
+  },
 );
 
 function getRules(): ValidationRule[] {
@@ -87,18 +89,19 @@ function passwordRule(): ValidationRule {
     return (val) => regexPassword.value.test(val);
   }
 
-  return (val) => regexPassword.value.test(val) || 'A senha deve conter letras maiúsculas e minúsculas, números e caracteres especiais';
+  return (val) =>
+    regexPassword.value.test(val) ||
+    'A senha deve conter letras maiúsculas e minúsculas, números e caracteres especiais';
 }
-function hasErrors() {
+async function hasErrors() {
   if (inputPasswordRef.value) {
-    inputPasswordRef.value.validate();
+    await inputPasswordRef.value.validate();
     return inputPasswordRef.value.hasError;
   }
   return false;
 }
-function resetValidation() {
-  nextTick(() => {
-    inputPasswordRef.value?.resetValidation();
-  });
+async function resetValidation() {
+  await nextTick();
+  inputPasswordRef.value?.resetValidation();
 }
 </script>

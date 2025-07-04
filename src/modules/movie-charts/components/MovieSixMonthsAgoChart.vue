@@ -1,5 +1,12 @@
 <template>
-  <apexchart v-if="showChart" :height="height" :width="width" type="bar" :options="chartOptions" :series="series" />
+  <apex-chart
+    v-if="showChart"
+    :height="height"
+    :width="width"
+    type="bar"
+    :options="chartOptions"
+    :series="series"
+  />
 </template>
 
 <script setup lang="ts">
@@ -14,7 +21,11 @@ const props = defineProps<{
 
 const $q = useQuasar();
 const isDesktop = $q.platform.is.desktop;
-const chartTitle = ref(isDesktop ? 'Quantidade de Filmes Assistidos nos Últimos 6 Meses' : 'Qtd de Filmes nos Últimos 6 Meses');
+const chartTitle = ref(
+  isDesktop
+    ? 'Quantidade de Filmes Assistidos nos Últimos 6 Meses'
+    : 'Qtd de Filmes nos Últimos 6 Meses',
+);
 const chartFontSize = ref(isDesktop ? '20px' : '15px');
 const height = isDesktop ? 'auto' : '300px';
 const width = isDesktop ? '600px' : '100%';
@@ -72,7 +83,7 @@ watch(
     setCategories();
     setData();
     showChart.value = true;
-  }
+  },
 );
 
 function setCategories() {

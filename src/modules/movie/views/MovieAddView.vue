@@ -61,7 +61,10 @@ async function save() {
     return;
   }
   const movie = { ...moviePage.value.selectedMovie };
-  const request = { ...moviePage.value.selectedMovie, genres: movie.genres?.map((g: { id: number }) => g.id) };
+  const request = {
+    ...moviePage.value.selectedMovie,
+    genres: movie.genres?.map((g: { id: number }) => g.id),
+  };
   if (!request) {
     return;
   }
@@ -76,7 +79,9 @@ async function save() {
     notifyRouteToMovie({
       movieTitle: movieTitle!,
       handler: () => {
-        router.push(`/movie/${movie.id}`);
+        router.push(`/movie/${movie.id}`).catch(() => {
+          showError('Erro ao redirecionar para o filme');
+        });
       },
     });
     showSuccess('Filme foi salvo com sucesso');

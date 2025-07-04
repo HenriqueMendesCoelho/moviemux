@@ -5,19 +5,9 @@ const API_DISCORD = `${BASE_URL}/restricted/discord`;
 
 export default {
   async sendDiscordMessage(movieId: string): Promise<void> {
-    try {
-      await axios.post(`${API_DISCORD}/${movieId}`);
-      return Promise.resolve();
-    } catch (error) {
-      return Promise.reject(error);
-    }
+    await axios.post(`${API_DISCORD}/${movieId}`);
   },
   async updateDiscordMessage(movieId: string): Promise<void> {
-    try {
-      await axios.patch(`${API_DISCORD}/${movieId}`);
-      return Promise.resolve();
-    } catch (error) {
-      return Promise.reject(error);
-    }
+    await axios.patch(`${API_DISCORD}/${movieId}`);
   },
 };

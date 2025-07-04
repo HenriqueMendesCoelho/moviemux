@@ -4,58 +4,55 @@
       <q-card-section class="row justify-center">
         <q-tab-panels v-model="tab" class="tabs" animated>
           <q-tab-panel name="login">
-            <LoginTab @change-tab="tab = $event" @loading="loading = $event" :createAccount="createAccount" />
+            <LoginTab
+              @change-tab="tab = $event"
+              @loading="loading = $event"
+              :createAccount="props.createAccount"
+            />
           </q-tab-panel>
 
-          <q-tab-panel name="create"><LoginCreateAccountTab @change-tab="tab = $event" @loading="loading = $event" /></q-tab-panel>
+          <q-tab-panel name="create"
+            ><LoginCreateAccountTab @change-tab="tab = $event" @loading="loading = $event"
+          /></q-tab-panel>
 
           <q-tab-panel name="forgot"
-            ><LoginForgotPasswordTab @change-tab="tab = $event" @loading="loading = $event" :createAccount="createAccount" />
+            ><LoginForgotPasswordTab
+              @change-tab="tab = $event"
+              @loading="loading = $event"
+              :createAccount="props.createAccount"
+            />
           </q-tab-panel>
         </q-tab-panels>
       </q-card-section>
-      <q-inner-loading :showing="loading" label="Aguarde..." color="kb-primary" label-class="text-white" dark />
+      <q-inner-loading
+        :showing="loading"
+        label="Aguarde..."
+        color="kb-primary"
+        label-class="text-white"
+        dark
+      />
     </q-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 
 import LoginTab from './LoginTab.vue';
 import LoginForgotPasswordTab from './LoginForgotPasswordTab.vue';
 import LoginCreateAccountTab from './LoginCreateAccountTab.vue';
 
 interface Props {
-  modelValue: string;
   createAccount?: boolean;
 }
 
+const tab = defineModel<string>({
+  default: 'login',
+});
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: 'login',
   createAccount: true,
 });
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void;
-}>();
-
-const tab = ref('login');
 const loading = ref(false);
-
-watch(
-  () => props.modelValue,
-  (val: string) => {
-    tab.value = val;
-  }
-);
-
-watch(
-  () => tab.value,
-  (val: string) => {
-    emit('update:modelValue', val);
-  }
-);
 </script>
 
 <style lang="scss" scoped>

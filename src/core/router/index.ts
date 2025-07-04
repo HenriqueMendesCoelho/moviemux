@@ -1,6 +1,12 @@
 import { route } from 'quasar/wrappers';
 import { Cookies, useMeta, Platform } from 'quasar';
-import { RouteLocationNormalized, createMemoryHistory, createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
+import type { RouteLocationNormalized } from 'vue-router';
+import {
+  createMemoryHistory,
+  createRouter,
+  createWebHashHistory,
+  createWebHistory,
+} from 'vue-router';
 
 import routes from './routes';
 import { useUserStore } from 'src/core/stores/UserStore';
@@ -87,8 +93,10 @@ export default route(function (/* { store, ssrContext } */ { ssrContext }) {
 
 function setMetaTags(route: RouteLocationNormalized) {
   const defaultTitle = 'Movie Mux';
-  const defaultDescription = 'Descubra o melhor do cinema, classificações e informações sobre filmes.';
-  const defaultImage = 'https://img.moviemux.com/04VfS86K-_pAcjgaBHKzinmNiUp0gSD3VyuP0wjm/moviemux/MovieMux.webp';
+  const defaultDescription =
+    'Descubra o melhor do cinema, classificações e informações sobre filmes.';
+  const defaultImage =
+    'https://img.moviemux.com/04VfS86K-_pAcjgaBHKzinmNiUp0gSD3VyuP0wjm/moviemux/MovieMux.webp';
   const routeMeta = route.meta as {
     tags: {
       set: boolean;
@@ -96,7 +104,10 @@ function setMetaTags(route: RouteLocationNormalized) {
     };
   };
 
-  const meta: { title?: string; meta: { [prop: string]: object } } = { title: undefined, meta: {} };
+  const meta: { title?: string | undefined; meta: { [prop: string]: object } } = {
+    title: undefined,
+    meta: {},
+  };
 
   if (routeMeta.tags.set) {
     meta['title'] = routeMeta.tags?.title || defaultTitle;
@@ -107,8 +118,14 @@ function setMetaTags(route: RouteLocationNormalized) {
     meta.meta['ogDescription'] = { property: 'og:description', content: defaultDescription };
     meta.meta['ogImage'] = { property: 'og:image', content: defaultImage };
 
-    meta.meta['twitterTitle'] = { property: 'twitter:title', content: routeMeta.tags?.title || defaultTitle };
-    meta.meta['twitterDescription'] = { property: 'twitter:description', content: defaultDescription };
+    meta.meta['twitterTitle'] = {
+      property: 'twitter:title',
+      content: routeMeta.tags?.title || defaultTitle,
+    };
+    meta.meta['twitterDescription'] = {
+      property: 'twitter:description',
+      content: defaultDescription,
+    };
     meta.meta['twitterImage'] = { property: 'twitter:image', content: defaultImage };
   }
   useMeta(meta);

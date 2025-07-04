@@ -14,7 +14,14 @@
         <MovieContextMenuImage v-if="useUserStore().isAdmin" />
         <MovieTooltipInfo />
       </q-img>
-      <q-skeleton v-else :width="getImgWidth()" :height="getImgHeight()" animation="fade" dark bordered />
+      <q-skeleton
+        v-else
+        :width="getImgWidth()"
+        :height="getImgHeight()"
+        animation="fade"
+        dark
+        bordered
+      />
     </div>
     <div class="col-md-8 col-xs-12">
       <q-form ref="formRef">
@@ -194,8 +201,10 @@
               :readonly="props.readonly"
               :customRules="
                 () =>
-                  !!(moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer) ||
-                  'É necessário ter url do trailer dublado ou legendado'
+                  !!(
+                    moviePage.selectedMovie.portuguese_url_trailer ||
+                    moviePage.selectedMovie.english_url_trailer
+                  ) || 'É necessário ter url do trailer dublado ou legendado'
               "
               :hint="!props.readonly ? 'Insira a url do youtube ou key do video' : ''"
               :dense="screenHeight <= 1080"
@@ -209,23 +218,35 @@
               :readonly="props.readonly"
               :customRules="
                 () =>
-                  !!(moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer) ||
-                  'É necessário ter url do trailer dublado ou legendado'
+                  !!(
+                    moviePage.selectedMovie.portuguese_url_trailer ||
+                    moviePage.selectedMovie.english_url_trailer
+                  ) || 'É necessário ter url do trailer dublado ou legendado'
               "
               :hint="!props.readonly ? 'Insira a url do youtube ou key do video' : ''"
               :dense="screenHeight <= 1080"
             />
           </div>
           <div class="col-12 row q-col-gutter-md">
-            <div class="col-auto" v-if="moviePage.selectedMovie.notes?.length && moviePage.selectedMovie.show_notes">
+            <div
+              class="col-auto"
+              v-if="moviePage.selectedMovie.notes?.length && moviePage.selectedMovie.show_notes"
+            >
               <div class="text-h6">Nota</div>
-              <BaseChipNote :size="isMobile ? 'lg' : 'xl'" :movie="moviePage.selectedMovie" :dense="screenHeight <= 1080" />
+              <BaseChipNote
+                :size="isMobile ? 'lg' : 'xl'"
+                :movie="moviePage.selectedMovie"
+                :dense="screenHeight <= 1080"
+              />
             </div>
             <div class="col-auto">
               <BaseDialogCast :movie-id="moviePage.selectedMovie.tmdb_id" />
             </div>
             <div class="col offset-1 row justify-end" v-if="moviePage.selectedMovie.tmdb_id">
-              <BaseMovieWatchProviders class="col-auto" :tmdb-id="moviePage.selectedMovie.tmdb_id" />
+              <BaseMovieWatchProviders
+                class="col-auto"
+                :tmdb-id="moviePage.selectedMovie.tmdb_id"
+              />
             </div>
           </div>
         </div>
@@ -260,7 +281,7 @@ const props = withDefaults(
   }>(),
   {
     readonly: false,
-  }
+  },
 );
 
 const $q = useQuasar();
@@ -302,8 +323,9 @@ function getImageAndAlt(): Array<string> {
 async function hasErrors(): Promise<boolean> {
   return (await formRef.value?.validate(true)) === false;
 }
-function resetValidation(): void {
-  nextTick(() => formRef.value?.resetValidation());
+async function resetValidation(): Promise<void> {
+  await nextTick();
+  formRef.value?.resetValidation();
 }
 function changeTrailerPortuguese(url: string) {
   const key = getYoutubeVideoKey(url);
@@ -320,7 +342,11 @@ function getYoutubeVideoKey(url: string) {
 
   const split = url.split(/(vi\/|v=|\/b\/|youtu\.be\/|\/embed\/)/);
 
-  const param = split[2] !== undefined ? split[2].split(/[^0-9a-z_\-]/i)[0] : split[0].split(/[^0-9a-z_\-]/i)[0];
+  const param = split[2]
+    ? split[2].split(/[^0-9a-z_-]/i)[0]
+    : split[0]
+      ? split[0].split(/[^0-9a-z_-]/i)[0]
+      : '';
   return param;
 }
 function openTmdbInNewTab() {
@@ -352,7 +378,9 @@ function runtimeToText() {
   return StringUtils.runtimeToText(moviePage.value.selectedMovie.runtime);
 }
 function showEnglishTitle() {
-  return moviePage.value.selectedMovie.original_title !== moviePage.value.selectedMovie.english_title;
+  return (
+    moviePage.value.selectedMovie.original_title !== moviePage.value.selectedMovie.english_title
+  );
 }
 function getImgWidth() {
   if (isMobile) {

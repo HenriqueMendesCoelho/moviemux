@@ -5,18 +5,41 @@
         <div class="col-md-6 col-xs-10 row text-white">
           <q-icon color="white" name="download" size="lg" />
           <div class="text-title-responsive-2">Importar Filme do&nbsp;</div>
-          <div class="text-title-responsive-2 cursor-pointer" @click="openURL('https://www.themoviedb.org/?language=pt-BR')">TMDB</div>
+          <div
+            class="text-title-responsive-2 cursor-pointer"
+            @click="openURL('https://www.themoviedb.org/?language=pt-BR')"
+          >
+            TMDB
+          </div>
         </div>
         <div class="col row justify-end">
-          <q-btn color="white" icon="close" size="md" @click="moviePage.showImportMovieDialog = false" flat round />
+          <q-btn
+            color="white"
+            icon="close"
+            size="md"
+            @click="moviePage.showImportMovieDialog = false"
+            flat
+            round
+          />
         </div>
         <BaseHorizontalSeparator />
         <div class="col-12 row q-col-gutter-sm">
           <div class="col-md-4 col-xs-6">
-            <BaseTextInput @keyup.enter="firstSearch()" v-model="text" :label="'Título Do Filme'" dense />
+            <BaseTextInput
+              @keyup.enter="firstSearch()"
+              v-model="text"
+              :label="'Título Do Filme'"
+              dense
+            />
           </div>
           <div class="col-auto">
-            <q-btn color="kb-primary" text-color="black" :label="isDesktop ? 'Pesquisar' : ''" icon="search" @click="firstSearch()" />
+            <q-btn
+              color="kb-primary"
+              text-color="black"
+              :label="isDesktop ? 'Pesquisar' : ''"
+              icon="search"
+              @click="firstSearch()"
+            />
           </div>
           <div class="col-auto col-xs-2">
             <q-btn color="white" icon="refresh" @click="refreshSearch()" flat round />
@@ -25,9 +48,17 @@
         <BaseHorizontalSeparator />
       </q-card-section>
       <q-separator />
-      <q-card-section ref="cardScrollRef" class="scroll" style="max-height: 60vh" v-if="movies?.length">
+      <q-card-section
+        ref="cardScrollRef"
+        class="scroll"
+        style="max-height: 60vh"
+        v-if="movies?.length"
+      >
         <q-infinite-scroll class="q-mt-md" @load="onLoad" :offset="50">
-          <div class="row justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'">
+          <div
+            class="row justify-center"
+            :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'"
+          >
             <div class="col-auto" v-for="movie in movies" :key="movie.id">
               <BaseCardImage
                 :height="getHeight()"
@@ -74,7 +105,11 @@ import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
 type divScrollTopRef = {
   $el: {
-    scrollTo: (options: { top: number; left: number; behavior: 'smooth' | 'instant' | 'auto' }) => void;
+    scrollTo: (options: {
+      top: number;
+      left: number;
+      behavior: 'smooth' | 'instant' | 'auto';
+    }) => void;
   };
 };
 
@@ -100,7 +135,7 @@ watch(
   () => {
     movies.value = [];
     text.value = '';
-  }
+  },
 );
 
 async function firstSearch() {
@@ -162,7 +197,7 @@ async function importMovie() {
       res.description,
       getGenres(res.genres),
       new Date(res.release_date || new Date()),
-      res.runtime
+      res.runtime,
     );
 
     moviePage.value.showImportMovieDialog = false;
@@ -192,9 +227,9 @@ function getGenres(genres?: Array<string>): Array<{ id: number; name: string }> 
 
   return genresStore.filter((g) => genres.some((gR) => g.name === gR));
 }
-function refreshSearch() {
+async function refreshSearch() {
   text.value = '';
-  firstSearch();
+  await firstSearch();
 }
 function getHeight() {
   if (isMobile) {

@@ -12,13 +12,18 @@
           @click="tab = 'login'"
         />
         <div class="col-12" />
-        <p class="q-mt-xl desktop-only" style="font-size: smaller; color: white">Powered by Kronus Platform</p>
+        <p class="q-mt-xl desktop-only" style="font-size: smaller; color: white">
+          Powered by Kronus Platform
+        </p>
       </div>
     </div>
     <div class="col-md-6 col-xs-12 row justify-center">
       <LoginForm class="col-xs-12 col-md-8 col-xl-7 col-xxl-5 q-pa-xs" v-model="tab" />
     </div>
-    <div class="absolute-bottom cursor-pointer desktop-only" @click="openURL('https://www.themoviedb.org/?language=pt-BR')">
+    <div
+      class="absolute-bottom cursor-pointer desktop-only"
+      @click="openURL('https://www.themoviedb.org/?language=pt-BR')"
+    >
       <div class="row justify-center">
         <div class="col-auto">
           <img src="../../../assets/tmdb-logo-long.svg" style="height: 20px" />
@@ -68,14 +73,19 @@ if (Object.keys(movieInfo)?.length) {
       ogImage: { property: 'og:image', content: imgUrl },
 
       twitterTitle: { property: 'twitter:title', content: title },
-      twitterDescription: { property: 'twitter:description', content: metaTagsStore.info.description },
+      twitterDescription: {
+        property: 'twitter:description',
+        content: metaTagsStore.info.description,
+      },
       twitterImage: { property: 'twitter:image', content: imgUrl },
     },
   });
 } else {
   const defaultTitle = 'Movie Mux';
-  const defaultDescription = 'Descubra o melhor do cinema, classificações e informações sobre filmes.';
-  const defaultImage = 'https://img.moviemux.com/04VfS86K-_pAcjgaBHKzinmNiUp0gSD3VyuP0wjm/moviemux/MovieMux.webp';
+  const defaultDescription =
+    'Descubra o melhor do cinema, classificações e informações sobre filmes.';
+  const defaultImage =
+    'https://img.moviemux.com/04VfS86K-_pAcjgaBHKzinmNiUp0gSD3VyuP0wjm/moviemux/MovieMux.webp';
 
   useMeta({
     title: defaultTitle,
@@ -95,10 +105,10 @@ if (Object.keys(movieInfo)?.length) {
 }
 
 defineOptions({
-  async preFetch({ store, currentRoute }) {
-    const userStore = useUserStore(store);
+  async preFetch({ currentRoute }) {
+    const userStore = useUserStore();
     userStore.$reset();
-    const metaStore = useMetaTagsStore(store);
+    const metaStore = useMetaTagsStore();
     const movieId = Number(currentRoute.query.from?.toString().split('discover?movie=')[1]);
     if (!movieId) {
       return;
@@ -108,9 +118,9 @@ defineOptions({
   },
 });
 
-onMounted(() => {
+onMounted(async () => {
   if (user.value.isLoged) {
-    router.push('/home');
+    await router.push('/home');
   }
 });
 
@@ -148,7 +158,13 @@ function getImageUrl(path?: string, size = 'w342') {
   align-items: center;
   justify-content: center;
   background-size: 300% 300%;
-  background-image: linear-gradient(-45deg, var(--grey-dark) 0%, var(--grey-dark) 25%, var(--grey-dark) 51%, var(--dark-alt) 100%);
+  background-image: linear-gradient(
+    -45deg,
+    var(--grey-dark) 0%,
+    var(--grey-dark) 25%,
+    var(--grey-dark) 51%,
+    var(--dark-alt) 100%
+  );
   -webkit-animation: AnimateBG 20s ease infinite;
   animation: AnimateBG 20s ease infinite;
 }

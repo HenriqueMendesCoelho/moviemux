@@ -53,7 +53,7 @@ const props = withDefaults(
     showEditBtn: false,
     showRefreshBtn: false,
     showDeleteBtn: false,
-  }
+  },
 );
 
 const $q = useQuasar();
@@ -72,26 +72,26 @@ watch(
   async (val) => {
     const lastEvent = toRaw(val)[val.length - 1];
     const movieSelected = moviePage.value.selectedMovie;
-    if (lastEvent.movie !== movieSelected.id) {
+    if (lastEvent?.movie !== movieSelected.id) {
       return;
     }
     await loadMovie(false);
   },
-  { deep: true }
+  { deep: true },
 );
 
 watch(
   () => stateSocketMovie.deletedMovie,
-  (val) => {
+  async (val) => {
     const lastEvent = toRaw(val)[val.length - 1];
-    if (user.value.id === lastEvent.emmitedByUserId) {
+    if (user.value.id === lastEvent?.emmitedByUserId) {
       return;
     }
 
-    router.push('/home');
+    await router.push('/home');
     showWarning('Oops! Parece que o filme que você estava vendo foi deletado.', 10000);
   },
-  { deep: true }
+  { deep: true },
 );
 async function loadMovie(showDialog = true) {
   if (routeIDPath.value) {
@@ -111,12 +111,12 @@ async function deleteMovie() {
   try {
     await MovieService.deleteMovie(moviePage.value.selectedMovie.id);
     showSuccess('Filme deletado');
-    router.push('/home');
+    await router.push('/home');
   } catch {
     showError('Erro ao deletar filme');
   }
 }
-function goToEditPage() {
-  router.push({ name: 'movie-edit', params: { id: moviePage.value.selectedMovie.id } });
+async function goToEditPage() {
+  await router.push({ name: 'movie-edit', params: { id: moviePage.value.selectedMovie.id } });
 }
 </script>

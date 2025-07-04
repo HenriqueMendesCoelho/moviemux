@@ -1,10 +1,15 @@
 import { reactive } from 'vue';
 import { io } from 'socket.io-client';
-import { MovieNoteType } from 'src/core/types/movie/MovieType';
+import type { MovieNoteType } from 'src/core/types/movie/MovieType';
 
 const BASE_URL = process.env.VUE_APP_KB_CINE_SOCKET;
 
-type eventMovieNote = { event: string; movie: string; content: MovieNoteType; emmitedByUserId?: string };
+type eventMovieNote = {
+  event: string;
+  movie: string;
+  content: MovieNoteType;
+  emmitedByUserId?: string;
+};
 
 export const stateSocketAllMovies = reactive({
   connected: false,

@@ -5,10 +5,22 @@
     <div class="col-md-10 q-mt-md">
       <div class="row">
         <div class="col-md-2 col-xs-6">
-          <q-btn style="width: 100%; height: 100%" color="info" text-color="white" label="Gerar convite" @click="createInvite" />
+          <q-btn
+            style="width: 100%; height: 100%"
+            color="info"
+            text-color="white"
+            label="Gerar convite"
+            @click="createInvite"
+          />
         </div>
         <div class="q-pl-md col-md-5 col-xs-6">
-          <BaseTextInput :label="'Convite gerado'" v-model="invite" :required="false" :readonly="true" :dense="true" />
+          <BaseTextInput
+            :label="'Convite gerado'"
+            v-model="invite"
+            :required="false"
+            :readonly="true"
+            :dense="true"
+          />
         </div>
         <div class="col-12 q-mt-md">
           <BaseTableCopyDelete
@@ -28,6 +40,7 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
+import { copyToClipboard } from 'quasar';
 
 import type { QTableProps } from 'quasar';
 
@@ -99,11 +112,11 @@ async function deleteInvite(invite: { code: string }) {
   }
 }
 
-function actionCopy(invite: { code: string }) {
+async function actionCopy(invite: { code: string }) {
   if (!invite) {
     return;
   }
-  navigator.clipboard.writeText(invite.code);
+  await copyToClipboard(invite.code);
   showSuccess('Convite copiado');
 }
 

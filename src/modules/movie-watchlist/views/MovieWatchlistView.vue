@@ -38,7 +38,9 @@
                 checked-icon="public"
                 unchecked-icon="public_off"
               />
-              <BaseTooltip :delay="500">{{ shareable ? 'Lista Pública' : 'Lista Privada' }}</BaseTooltip>
+              <BaseTooltip :delay="500">{{
+                shareable ? 'Lista Pública' : 'Lista Privada'
+              }}</BaseTooltip>
             </div>
             <div class="mobile-hide">
               <div>
@@ -48,7 +50,14 @@
             </div>
           </template>
           <template #input-search>
-            <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
+            <q-menu
+              class="bg-grey-mid text-white"
+              fit
+              no-focus
+              no-refocus
+              no-parent-event
+              v-model="showMenu"
+            >
               <q-list dense dark>
                 <q-item
                   ref="itensMenuRef"
@@ -59,18 +68,30 @@
                   bordered
                   clickable
                 >
-                  <q-item-section @click="searchFromMenu(movie.title)" v-close-popup class="q-pl-sm">{{
-                    movie.title || movie.title_english || 'Erro ao carregar título'
-                  }}</q-item-section>
+                  <q-item-section
+                    @click="searchFromMenu(movie.title)"
+                    v-close-popup
+                    class="q-pl-sm"
+                    >{{
+                      movie.title || movie.title_english || 'Erro ao carregar título'
+                    }}</q-item-section
+                  >
                 </q-item>
-                <q-separator dark v-if="moviesWhenTyping?.length ? moviesWhenTyping?.length > 1 : false" />
+                <q-separator
+                  dark
+                  v-if="moviesWhenTyping?.length ? moviesWhenTyping?.length > 1 : false"
+                />
               </q-list>
             </q-menu>
           </template>
         </BaseSearchToolbar>
       </div>
       <div class="row justify-center q-mt-lg">
-        <div class="row justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'" v-if="moviesFiltered?.length">
+        <div
+          class="row justify-center"
+          :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'"
+          v-if="moviesFiltered?.length"
+        >
           <transition-group type="transition" name="flip-list">
             <div
               class="col-auto"
@@ -120,7 +141,7 @@ import BaseFloatingActionBtn from 'src/core/components/BaseFloatingActionBtn.vue
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
 import { useUserStore } from 'src/core/stores/UserStore';
-import { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
+import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 import { confirmReorder, notificationReorder } from '../utils/MovieWatchlistNotificationUtils';
@@ -136,7 +157,8 @@ const isDesktop = $q.platform.is.desktop;
 const router = useRouter();
 const route = useRoute();
 
-type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
+type ArrayElement<ArrayType extends readonly unknown[]> =
+  ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 
 const idPathParam = computed(() => route.params.id?.toString() || '');
 const userStore = useUserStore();
@@ -172,7 +194,7 @@ watch(
   () => searchText.value,
   () => {
     moviesWhenTyping.value = filterMovies();
-  }
+  },
 );
 watch(
   () => watchlist?.value,
@@ -182,7 +204,7 @@ watch(
     }
     moviesFiltered.value = watchlist.value?.movies_wishlists;
     shareable.value = watchlist.value?.shareable || false;
-  }
+  },
 );
 watch(
   () => allowDrag.value,
@@ -193,14 +215,14 @@ watch(
     notificationReorder();
     confirmReorder({
       done() {
-        reorderWatchlistAndUpdate();
+        reorderWatchlistAndUpdate().catch(() => void 0);
       },
       cancel() {
         allowDrag.value = false;
-        searchWatchlistById();
+        searchWatchlistById().catch(() => void 0);
       },
     });
-  }
+  },
 );
 
 function firstSearch() {
@@ -219,7 +241,7 @@ function filterMovies() {
   }
 
   return watchlist.value?.movies_wishlists?.filter(
-    (m) => m.title?.includes(searchText.value) || m.title_english.includes(searchText.value)
+    (m) => m.title?.includes(searchText.value) || m.title_english.includes(searchText.value),
   );
 }
 function searchFromMenu(title?: string) {
@@ -241,7 +263,10 @@ async function searchWatchlistById() {
 
   const list = watchlistStore.watchlists.find((w) => w.id === idPathParam.value);
   if (list) {
-    watchlist.value = { ...list, movies_wishlists: list.movies_wishlists?.length ? [...list.movies_wishlists] : [] };
+    watchlist.value = {
+      ...list,
+      movies_wishlists: list.movies_wishlists?.length ? [...list.movies_wishlists] : [],
+    };
     return;
   }
 
@@ -251,14 +276,14 @@ async function searchWatchlistById() {
 
     if (!res) {
       showError('Lista não existe ou não é pública');
-      router.push('/home');
+      await router.push('/home');
     }
 
     watchlist.value = res;
     moviesFiltered.value = res?.movies_wishlists;
   } catch {
     showError('Erro ao carregar lista de filmes');
-    router.push('/home');
+    await router.push('/home');
   } finally {
     hideLoading();
   }
@@ -286,7 +311,9 @@ async function deleteMovieFromWatchlist() {
     return;
   }
 
-  watchlist.value.movies_wishlists = watchlist.value?.movies_wishlists.filter((m) => m.tmdb_id !== movieIdToDelete.value);
+  watchlist.value.movies_wishlists = watchlist.value?.movies_wishlists.filter(
+    (m) => m.tmdb_id !== movieIdToDelete.value,
+  );
   const res = await updateWatchlist(watchlist.value);
   if (!res) {
     return;
@@ -326,13 +353,21 @@ function dragStart(index: number) {
   draggedItemIndex.value = index;
 }
 function drop(index: number) {
-  if (!moviesFiltered.value || !draggedItemIndex.value) {
+  if (
+    !moviesFiltered.value ||
+    draggedItemIndex.value === null ||
+    draggedItemIndex.value === undefined
+  ) {
     return;
   }
 
   const draggedItem = moviesFiltered.value[draggedItemIndex.value];
-  moviesFiltered.value?.splice(draggedItemIndex.value, 1);
-  moviesFiltered.value?.splice(index, 0, draggedItem);
+  if (!draggedItem) {
+    return;
+  }
+
+  moviesFiltered.value.splice(draggedItemIndex.value, 1);
+  moviesFiltered.value.splice(index, 0, draggedItem);
   draggedItemIndex.value = null;
 }
 async function reorderWatchlistAndUpdate() {
@@ -355,17 +390,30 @@ function moveSelection(step: number) {
     selectedIndexMenu.value = newIndex;
   }
   if (itensMenuRef.value?.length && selectedIndexMenu.value) {
-    itensMenuRef.value[selectedIndexMenu.value]?.$el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    itensMenuRef.value[selectedIndexMenu.value]?.$el.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    });
   }
 }
 function searchFromIndexMenu() {
-  if (selectedIndexMenu.value === undefined || !moviesWhenTyping.value?.length) {
+  if (
+    selectedIndexMenu.value === undefined ||
+    !moviesWhenTyping.value?.length ||
+    selectedIndexMenu.value < 0 ||
+    selectedIndexMenu.value >= moviesWhenTyping.value.length
+  ) {
     firstSearch();
     return;
   }
-  searchFromMenu(moviesWhenTyping.value[selectedIndexMenu.value].title);
+
+  const selectedMovie = moviesWhenTyping.value[selectedIndexMenu.value];
+  if (selectedMovie) {
+    searchFromMenu(selectedMovie.title);
+  }
 }
-function backToWatchlists() {
-  router.push({ name: 'movie-watchlist-list' });
+
+async function backToWatchlists() {
+  await router.push({ name: 'movie-watchlist-list' });
 }
 </script>

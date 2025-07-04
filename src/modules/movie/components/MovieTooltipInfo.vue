@@ -1,5 +1,10 @@
 <template>
-  <BaseTooltip class="q-pa-none q-ma-none" :delay="1200" :hide-delay="300" style="border-radius: 15px">
+  <BaseTooltip
+    class="q-pa-none q-ma-none"
+    :delay="1200"
+    :hide-delay="300"
+    style="border-radius: 15px"
+  >
     <q-list bordered dark style="border-radius: 15px; min-width: 15vw" :dense="dense()">
       <q-item>
         <q-item-section avatar>

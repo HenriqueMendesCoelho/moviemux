@@ -18,6 +18,8 @@
 </template>
 
 <script lang="ts" setup>
+import { copyToClipboard } from 'quasar';
+
 import BaseContextMenu from 'src/core/components/BaseContextMenu.vue';
 
 interface Props {
@@ -29,13 +31,13 @@ const props = withDefaults(defineProps<Props>(), {
   deleteEnable: false,
 });
 
-function copyMovie(id?: string) {
+async function copyMovie(id?: string) {
   const url = `${window.location.origin}/movie/${id}`;
-  navigator.clipboard.writeText(url);
+  await copyToClipboard(url);
   return url ? url : '';
 }
-function openNewMovieTab(id?: string) {
-  const url: string = copyMovie(id);
+async function openNewMovieTab(id?: string) {
+  const url: string = await copyMovie(id);
   const w = window.open(url);
   if (w) w.focus();
 }

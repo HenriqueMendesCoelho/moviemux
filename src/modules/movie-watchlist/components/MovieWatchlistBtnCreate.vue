@@ -43,8 +43,8 @@ function dialog() {
     },
     seamless: false,
     focus: 'ok',
-  }).onOk(async (data: string | undefined) => {
-    await createWishlist(data);
+  }).onOk((data: string | undefined) => {
+    createWishlist(data).catch(() => void 0);
   });
 }
 async function createWishlist(name?: string) {

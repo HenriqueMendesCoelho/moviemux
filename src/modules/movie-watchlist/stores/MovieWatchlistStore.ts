@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import MovieWatchlistService from '../services/MovieWatchlistService';
-import { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
+import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 import { showError } from 'src/core/utils/NotificationUtils';
 
 export const useMovieWatchlistStore = defineStore('MovieWatchlistStore', {

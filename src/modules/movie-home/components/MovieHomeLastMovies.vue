@@ -15,8 +15,11 @@
     </div>
     <div class="row justify-center q-mt-md">
       <q-slide-transition>
-        <div class="col-auto row no-wrap scroll q-col-gutter-lg justify-center-md q-px-xs" v-show="isVisibleLastFilms">
-          <div v-for="movie of movies" :key="movie.id">
+        <div
+          class="col-auto row no-wrap scroll q-col-gutter-lg justify-center-md q-px-xs"
+          v-show="isVisibleLastFilms"
+        >
+          <div v-for="(movie, index) of movies" :key="index">
             <MovieHomeCardImageLastMovies
               class="col-auto"
               :id="movie.id"
@@ -35,7 +38,7 @@
 import { onActivated, onMounted, ref, watch } from 'vue';
 import { useQuasar, Cookies } from 'quasar';
 
-import Movie from 'src/core/domain/movie/movie';
+import type Movie from 'src/core/domain/movie/movie';
 
 import MovieHomeCardImageLastMovies from './MovieHomeCardImageLastMovies.vue';
 
@@ -71,7 +74,7 @@ watch(
   async () => {
     await loadLastMoviesOnSocketEvent();
   },
-  { deep: true }
+  { deep: true },
 );
 
 async function loadLastMovies() {
@@ -82,7 +85,11 @@ async function loadLastMovies() {
   } finally {
     loading.value = false;
   }
-  const res = await MovieService.listMoviesPageable({ page: 1, size: isDesktop ? 10 : 3, sort: 'createdAt,desc' });
+  const res = await MovieService.listMoviesPageable({
+    page: 1,
+    size: isDesktop ? 10 : 3,
+    sort: 'createdAt,desc',
+  });
   movies.value = res.content;
 }
 async function loadLastMoviesOnSocketEvent() {

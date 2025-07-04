@@ -19,7 +19,7 @@ export const useMetaTagsStore = defineStore('MetaTagsStore', {
 
         return Promise.resolve();
       } catch {
-        return Promise.reject();
+        return Promise.reject(Error('Failed to fetch movie info'));
       }
     },
   },

@@ -7,7 +7,11 @@
     <div class="text-white">
       <MovieForm ref="formMovieRef" />
       <MovieVideoEmbedded :width="isMobile ? '100%' : '560px'" />
-      <MovieSaveBtnGroup @save="save()" @cancel="showConfirmDialogCancel()" :disable-save="!movieStore.selectedMovieHasAnyFieldFilled()" />
+      <MovieSaveBtnGroup
+        @save="save()"
+        @cancel="showConfirmDialogCancel()"
+        :disable-save="!movieStore.selectedMovieHasAnyFieldFilled()"
+      />
     </div>
     <BaseConfirmDialog ref="confirmDialogRef" @ok="cancel()" />
   </BaseContainerMain>
@@ -65,7 +69,7 @@ async function loadMovie(): Promise<void> {
     setDocumentTitle();
   } catch {
     showError('Erro ao buscar filme. Tente novamente mais tarde.');
-    router.push('/home');
+    await router.push('/home');
   }
 }
 function showConfirmDialogCancel() {
@@ -85,7 +89,10 @@ async function save(): Promise<void> {
     return;
   }
   const movie = { ...moviePage.value.selectedMovie };
-  const request = { ...moviePage.value.selectedMovie, genres: movie.genres?.map((g: { id: number }) => g.id) };
+  const request = {
+    ...movie,
+    genres: movie.genres?.map((g: { id: number }) => g.id),
+  };
   if (!request) {
     return;
   }
@@ -95,7 +102,7 @@ async function save(): Promise<void> {
     const res = await MovieService.updateMovie(request);
     moviePage.value.selectedMovie = res;
     showSuccess('Filme foi salvo com sucesso');
-    router.push(`/movie/${movie.id}`);
+    await router.push(`/movie/${movie.id}`);
   } catch {
     showError('Erro ao salvar filme');
   } finally {
@@ -107,7 +114,7 @@ function setDocumentTitle() {
     title: `Movie Mux - Editando ${moviePage.value.selectedMovie.portuguese_title}`,
   });
 }
-function cancel() {
-  router.push(`/movie/${idPathParam.value}`);
+async function cancel() {
+  await router.push(`/movie/${idPathParam.value}`);
 }
 </script>

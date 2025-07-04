@@ -69,7 +69,7 @@
 import { onMounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 
-import type { WishlistType } from 'src/core/types/wishlist/WishlistType';
+import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 
 import BaseCardImage from 'src/core/components/BaseCardImage.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
@@ -81,8 +81,8 @@ import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 const props = defineProps<{
-  movie: ArrayElement<WishlistType['movies_wishlists']>;
-  wishlists: WishlistType[];
+  movie: ArrayElement<WatchlistType['movies_wishlists']>;
+  wishlists: WatchlistType[];
   showRemoveItem: boolean;
   animate: boolean;
 }>();
@@ -99,7 +99,7 @@ const isDesktop = $q.platform.is.desktop;
 
 const selected = ref(false);
 const loading = ref(false);
-const _wishlists = ref<WishlistType[]>([]);
+const _wishlists = ref<WatchlistType[]>([]);
 
 onMounted(() => {
   setWishlists();
@@ -115,7 +115,7 @@ watch(
 function getUrl() {
   return `https://image.tmdb.org/t/p/w500${props.movie?.url_image}`;
 }
-function disableList(list: WishlistType) {
+function disableList(list: WatchlistType) {
   return list.movies_wishlists?.some((m) => m.tmdb_id === props.movie.tmdb_id);
 }
 async function addMovieToWishlist(wishlistId: string, tmdbId: number) {
@@ -130,7 +130,7 @@ async function addMovieToWishlist(wishlistId: string, tmdbId: number) {
     loading.value = false;
   }
 }
-function mergeResult(wishlistId: string, newWishlist: WishlistType) {
+function mergeResult(wishlistId: string, newWishlist: WatchlistType) {
   const wishlist = _wishlists.value.find((w) => w.id === wishlistId);
 
   if (!wishlist) {

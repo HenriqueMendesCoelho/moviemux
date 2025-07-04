@@ -1,17 +1,22 @@
 import { date } from 'quasar';
 
 export default {
-  toLocaleString(date: string | Date) {
+  toLocaleString(date: string | Date): string {
     if (!date) {
-      return '';
+      return 'Invalid date';
     }
 
-    return new Date(date).toLocaleString('pt-br', {
+    const parsedDate = date instanceof Date ? date : new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return 'Invalid date';
+    }
+
+    return parsedDate.toLocaleString('pt-BR', {
       dateStyle: 'short',
       timeStyle: 'short',
     });
   },
-  toLocaleDateString(date?: string | Date) {
+  toLocaleDateString(date?: string | Date): string {
     switch (true) {
       case !date:
         return 'Invalid date';
@@ -21,16 +26,16 @@ export default {
         return new Date(date.toString().split(/T|\s/)[0] + 'T12:00:00').toLocaleDateString();
     }
   },
-  toLocaleDateStringLong(date: string | Date | undefined) {
+  toLocaleDateStringLong(date: string | Date | undefined): string {
     if (!date) {
-      return;
+      return 'Invalid date';
     }
 
     return new Date(date).toLocaleString('pt-Br', {
       dateStyle: 'long',
     });
   },
-  extractDate(val: string, pattern = 'DD/MM/YYYY') {
+  extractDate(val: string, pattern = 'DD/MM/YYYY'): Date | undefined {
     if (!val) {
       return;
     }

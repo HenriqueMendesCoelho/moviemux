@@ -14,7 +14,7 @@ import { useQuasar } from 'quasar';
 
 import { useUserStore } from 'src/core/stores/UserStore';
 
-import type { WishlistType } from 'src/core/types/wishlist/WishlistType';
+import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
@@ -24,12 +24,12 @@ import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 
 interface Props {
-  wishlist?: WishlistType;
+  wishlist?: WatchlistType;
 }
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  (e: 'update:wishlist', value: WishlistType): void;
+  (e: 'update:wishlist', value: WatchlistType): void;
 }>();
 
 const $q = useQuasar();
@@ -40,19 +40,19 @@ const tmdbIds = ref<number[]>([]);
 
 const confirmDialogRef = ref<InstanceType<typeof BaseConfirmDialog>>();
 
-onMounted(() => {
+onMounted(async () => {
   if (props.wishlist?.id) {
-    showNotifyMovie();
+    await showNotifyMovie();
   }
 });
 
 watch(
   () => props.wishlist,
-  () => {
+  async () => {
     if (props.wishlist?.id) {
-      showNotifyMovie();
+      await showNotifyMovie();
     }
-  }
+  },
 );
 
 async function searchMoviesRated() {
@@ -61,8 +61,9 @@ async function searchMoviesRated() {
   }
 
   try {
-    const res: { movie_tmdb_ids: number[] } = await MovieWatchlistService.searchWatchlistMoviesRated(props.wishlist.id);
-    tmdbIds.value = [...res?.movie_tmdb_ids];
+    const res: { movie_tmdb_ids: number[] } =
+      await MovieWatchlistService.searchWatchlistMoviesRated(props.wishlist.id);
+    tmdbIds.value = [...res.movie_tmdb_ids];
 
     return !!tmdbIds.value?.length;
   } catch {
@@ -80,7 +81,8 @@ async function showNotifyMovie(showNotify = true) {
   }
   $q.notify({
     type: 'warning',
-    message: 'Existem filmes nessa lista que já estão cadastrados no ranking do cineminha. Deseja removê-los?',
+    message:
+      'Existem filmes nessa lista que já estão cadastrados no ranking do cineminha. Deseja removê-los?',
     multiLine: false,
     position: 'top',
     timeout: 15000,
@@ -103,7 +105,7 @@ function showDialogConfirm() {
   const names = getMoviesNames();
   confirmDialogRef.value?.show({
     message: `Tem certeza que deseja remover ${names?.length > 1 ? 'os filmes' : 'o filme'} '${names.join(
-      ', '
+      ', ',
     )}' dessa lista? Caso remova não há como desfazer a ação.`,
     focus: 'cancel',
     title: 'Quer mesmo remover?',
@@ -124,7 +126,9 @@ function getMoviesRated() {
     return [];
   }
   const wishlist = { ...props.wishlist };
-  return wishlist?.movies_wishlists?.length ? wishlist.movies_wishlists.filter((m) => tmdbIds.value.includes(m.tmdb_id)) : [];
+  return wishlist?.movies_wishlists?.length
+    ? wishlist.movies_wishlists.filter((m) => tmdbIds.value.includes(m.tmdb_id))
+    : [];
 }
 async function deteleMoviesFromWishlist() {
   if (!props.wishlist) {
@@ -132,7 +136,9 @@ async function deteleMoviesFromWishlist() {
   }
 
   const wishlist = { ...props.wishlist };
-  wishlist.movies_wishlists = wishlist.movies_wishlists.filter((m) => !tmdbIds.value.includes(m.tmdb_id));
+  wishlist.movies_wishlists = wishlist.movies_wishlists.filter(
+    (m) => !tmdbIds.value.includes(m.tmdb_id),
+  );
   const res = await updateWishlist(wishlist);
   if (!res) {
     return;
@@ -141,7 +147,7 @@ async function deteleMoviesFromWishlist() {
   showSuccess('Filmes removidos da lista');
   emit('update:wishlist', res);
 }
-async function updateWishlist(wishlist: WishlistType) {
+async function updateWishlist(wishlist: WatchlistType) {
   try {
     showLoading();
     return await MovieWatchlistService.updateWatchlist(wishlist);

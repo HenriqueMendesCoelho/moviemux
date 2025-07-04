@@ -1,20 +1,20 @@
-import Movie from 'src/core/domain/movie/movie';
+import type Movie from 'src/core/domain/movie/movie';
 
 export type MovieSummaryTypeKit = {
-  tmdb_id?: number;
-  imdb_id?: string;
-  portuguese_title?: string;
-  english_title?: string;
-  original_title?: string;
-  director?: string;
-  url_image_portuguese?: string;
-  url_image_english?: string;
-  portuguese_url_trailer?: string;
-  english_url_trailer?: string;
-  description?: string;
-  genres?: Array<string>;
-  release_date?: Date;
-  runtime?: number;
+  tmdb_id: number;
+  imdb_id: string;
+  portuguese_title: string;
+  english_title: string;
+  original_title: string;
+  director: string;
+  url_image_portuguese: string;
+  url_image_english: string;
+  portuguese_url_trailer: string;
+  english_url_trailer: string;
+  description: string;
+  genres: Array<string>;
+  release_date: Date;
+  runtime: number;
 };
 
 export type MovieInfoTypeKit = {
@@ -58,20 +58,20 @@ export type UserMovieNoteType = {
 };
 
 export type MovieRequestType = {
-  id?: string;
-  tmdb_id?: number;
-  imdbId?: string;
-  portuguese_title?: string;
-  english_title?: string;
-  original_title?: string;
-  director?: string;
-  url_image?: string;
-  portuguese_url_trailer?: string;
-  english_url_trailer?: string;
-  description?: string;
-  genres?: number[];
-  release_date?: Date;
-  notes?: MovieNoteType[];
+  id?: string | undefined;
+  tmdb_id?: number | undefined;
+  imdbId?: string | undefined;
+  portuguese_title?: string | undefined;
+  english_title?: string | undefined;
+  original_title?: string | undefined;
+  director?: string | undefined;
+  url_image?: string | undefined;
+  portuguese_url_trailer?: string | undefined;
+  english_url_trailer?: string | undefined;
+  description?: string | undefined;
+  genres?: number[] | undefined;
+  release_date?: Date | undefined;
+  notes?: MovieNoteType[] | undefined;
 };
 
 export type MoviePageableType = {

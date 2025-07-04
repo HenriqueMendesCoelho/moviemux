@@ -1,4 +1,4 @@
-import { MovieNoteType } from 'src/core/types/movie/MovieType';
+import type { MovieNoteType } from 'src/core/types/movie/MovieType';
 
 export default class Movie {
   constructor(
@@ -25,6 +25,6 @@ export default class Movie {
     public created_at?: Date,
     public updated_at?: Date,
     public show_notes?: boolean,
-    public time_since_creation?: number
+    public time_since_creation?: number,
   ) {}
 }

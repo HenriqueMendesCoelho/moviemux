@@ -1,11 +1,19 @@
 <template>
   <q-img
-    :class="`${props.animate && 'animate'}`"
-    class="img-movie"
+    ref="imageRef"
     :width="getWidth()"
     :height="getHeight()"
+    class="img-movie"
     :no-native-menu="true"
     :draggable="false"
+    :style="{
+      transform: `rotateX(${roll * rotateConstant}deg)
+      rotateY(${tilt * rotateConstant}deg)
+      ${scale}`,
+      transcode: '.3s ease-out all',
+    }"
+    @mouseenter="onEnter"
+    @mouseleave="onLeave"
   >
     <slot></slot>
     <template v-slot:loading>
@@ -22,7 +30,9 @@
   </q-img>
 </template>
 <script lang="ts" setup>
+import { useParallax } from '@vueuse/core';
 import { useQuasar } from 'quasar';
+import { ref, watch } from 'vue';
 
 const props = withDefaults(
   defineProps<{
@@ -30,11 +40,56 @@ const props = withDefaults(
   }>(),
   {
     animate: true,
-  }
+  },
 );
 
 const $q = useQuasar();
 const isMobile = $q.platform.is.mobile;
+
+const imageRef = ref<HTMLElement | null>(null);
+
+const rotateConstant = 25;
+const { tilt: _tilt, roll: _roll } = useParallax(imageRef);
+const tilt = ref(0);
+const roll = ref(0);
+const scale = ref('scale(1)');
+
+let watching = false;
+watch([_tilt, _roll], ([newTilt, newRoll]) => {
+  if (!watching) {
+    return;
+  }
+
+  tilt.value = newTilt;
+  roll.value = newRoll;
+});
+function onEnter() {
+  if (!props.animate) {
+    return;
+  }
+  watching = true;
+  scale.value = 'scale(1.1)';
+}
+function onLeave() {
+  if (!props.animate) {
+    return;
+  }
+  watching = false;
+  tilt.value = 0;
+  roll.value = 0;
+  scale.value = 'scale(1)';
+}
+watch(
+  () => props.animate,
+  (newValue) => {
+    if (!newValue) {
+      watching = false;
+      tilt.value = 0;
+      roll.value = 0;
+      scale.value = 'scale(1)';
+    }
+  },
+);
 
 function getHeight() {
   if (isMobile) {
@@ -56,7 +111,7 @@ function getWidth() {
 .img-movie {
   border-radius: 10px;
   transition: 0.2s ease-out;
-
+  border: var(--grey-mid) solid 2px;
   cursor: pointer;
 
   .hover-show-img {

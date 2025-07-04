@@ -56,7 +56,11 @@
             label="Confirme a Nova Senha"
             v-model="confirmNewPassword"
             required
-            :custom-rules="() => newPassword === confirmNewPassword || 'Deve ser igual a senha preenchida anteriormente'"
+            :custom-rules="
+              () =>
+                newPassword === confirmNewPassword ||
+                'Deve ser igual a senha preenchida anteriormente'
+            "
           />
         </div>
         <div class="col-auto">
@@ -102,9 +106,9 @@ const inputConfirmPasswordRef = ref<{
 
 const keyPathParam = computed(() => route.params?.key?.toString());
 
-onMounted(() => {
+onMounted(async () => {
   if (!keyPathParam.value || keyPathParam.value?.length !== 200) {
-    router.push('/login');
+    await router.push('/login');
   }
 });
 
@@ -115,11 +119,11 @@ async function redefinePassword() {
 
   try {
     showLoading();
-    await UserService.redefinePasswordByKey(keyPathParam.value, {
+    await UserService.redefinePasswordByKey(keyPathParam.value || '', {
       email: email.value,
       password: newPassword.value,
     });
-    router.push('/');
+    await router.push('/');
   } catch {
     showError('Erro ao executar ação, tente novamente mais tarde.');
   } finally {

@@ -11,10 +11,24 @@
         {{ movie?.portuguese_title }}<br />
         {{ DateUtils.toLocaleDateStringLong(props.movie?.release_date) }}
       </div>
-      <q-icon class="absolute all-pointer-events" size="32px" name="info" color="grey-4" style="top: 8px; left: 8px" v-if="!showChipNote()">
+      <q-icon
+        class="absolute all-pointer-events"
+        size="32px"
+        name="info"
+        color="grey-4"
+        style="top: 8px; left: 8px"
+        v-if="!showChipNote()"
+      >
         <BaseTooltip :delay="500"> Esse filme ainda não tem notas </BaseTooltip>
       </q-icon>
-      <BaseChipNote class="hover-show-img desktop-only" size="lg" :movie="movie" style="top: 8px; left: 8px" v-if="showChipNote()" dense />
+      <BaseChipNote
+        class="hover-show-img desktop-only"
+        size="lg"
+        :movie="movie"
+        style="top: 8px; left: 8px"
+        v-if="showChipNote()"
+        dense
+      />
     </BaseCardImage>
     <MovieHomeContextMenu :movie-id="movie?.id || ''" />
   </router-link>
@@ -23,7 +37,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 
-import Movie from 'src/core/domain/movie/movie';
+import type Movie from 'src/core/domain/movie/movie';
 
 import MovieHomeContextMenu from './MovieHomeContextMenu.vue';
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';

@@ -28,7 +28,14 @@
           </div>
         </template>
         <template #input-search>
-          <q-menu class="bg-grey-mid text-white" fit no-focus no-refocus no-parent-event v-model="showMenu">
+          <q-menu
+            class="bg-grey-mid text-white"
+            fit
+            no-focus
+            no-refocus
+            no-parent-event
+            v-model="showMenu"
+          >
             <q-list dense dark>
               <q-item
                 ref="itensMenuRef"
@@ -39,9 +46,12 @@
                 bordered
                 clickable
               >
-                <q-item-section @click="searchActionToolbar(movie.portuguese_title)" v-close-popup class="q-pl-sm">{{
-                  movie.portuguese_title
-                }}</q-item-section>
+                <q-item-section
+                  @click="searchActionToolbar(movie.portuguese_title)"
+                  v-close-popup
+                  class="q-pl-sm"
+                  >{{ movie.portuguese_title }}</q-item-section
+                >
               </q-item>
               <q-separator dark v-if="moviesWhenTyping?.length > 1" />
             </q-list>
@@ -88,7 +98,7 @@
     </div>
     <q-infinite-scroll ref="infinitScrollRef" class="full-width" @load="onLoad" :offset="10">
       <div class="row justify-center" :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'">
-        <div class="col-auto" v-for="movie in movies" :key="movie.id">
+        <div class="col-auto" v-for="(movie, index) in movies" :key="index">
           <MovieHomeCardImageGrid :movie="movie" />
         </div>
       </div>
@@ -105,7 +115,7 @@ import { QInfiniteScroll, QItem, useQuasar } from 'quasar';
 
 import type { MoviePageableType } from 'src/core/types/movie/MovieType';
 
-import Movie from 'src/core/domain/movie/movie';
+import type Movie from 'src/core/domain/movie/movie';
 
 import MovieHomeCardImageGrid from './MovieHomeCardImageGrid.vue';
 import MovieService from 'src/modules/movie/services/MovieService';
@@ -163,11 +173,11 @@ const showMenu = computed<boolean>(() => {
 const selectedIndexMenu = ref<number | undefined>(undefined);
 const itensMenuRef = ref<InstanceType<typeof QItem>[]>();
 
-onMounted(() => {
+onMounted(async () => {
   loading.value = false;
   pagesFouded.value = 2;
   page.value = 1;
-  loadGenres();
+  await loadGenres();
 });
 
 watch(
@@ -176,15 +186,15 @@ watch(
     pagesFouded.value = 2;
     page.value = 1;
     moviesWhenTyping.value = (await searchMovies({ title: val })).content;
-  }
+  },
 );
 
 watch(
   () => genresSelected.value,
-  () => {
-    search();
+  async () => {
+    await search();
   },
-  { deep: true }
+  { deep: true },
 );
 
 async function btnSearchAction(): Promise<void> {
@@ -262,10 +272,10 @@ async function searchMovies({
   size = 30,
   withGenres,
 }: {
-  title?: string;
-  sort?: string;
-  page?: number;
-  size?: number;
+  title?: string | undefined;
+  sort?: string | undefined;
+  page?: number | undefined;
+  size?: number | undefined;
   withGenres?: string;
 }): Promise<MoviePageableType> {
   try {
@@ -273,7 +283,7 @@ async function searchMovies({
     return res;
   } catch (error) {
     errorRequest.value = true;
-    return Promise.reject(error);
+    throw error;
   }
 }
 async function searchActionToolbar(title?: string): Promise<void> {
@@ -300,14 +310,28 @@ function moveSelection(step: number) {
     selectedIndexMenu.value = newIndex;
   }
   if (itensMenuRef.value?.length && selectedIndexMenu.value) {
-    itensMenuRef.value[selectedIndexMenu.value]?.$el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    itensMenuRef.value[selectedIndexMenu.value]?.$el.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    });
   }
 }
-function searchFromIndexMenu() {
+async function searchFromIndexMenu() {
   if (selectedIndexMenu.value === undefined || !moviesWhenTyping.value?.length) {
-    btnSearchAction();
+    await btnSearchAction();
     return;
   }
-  searchActionToolbar(moviesWhenTyping.value[selectedIndexMenu.value].portuguese_title);
+  const indexSelected = selectedIndexMenu.value ?? -1;
+  const validIndex = indexSelected >= 0 && indexSelected < moviesWhenTyping.value.length;
+  if (!validIndex) {
+    await btnSearchAction();
+    return;
+  }
+  const movieSelected = moviesWhenTyping.value[selectedIndexMenu.value];
+  if (!movieSelected) {
+    await btnSearchAction();
+    return;
+  }
+  await searchActionToolbar(movieSelected.portuguese_title);
 }
 </script>
