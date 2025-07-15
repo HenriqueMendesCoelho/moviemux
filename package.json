@@ -23,6 +23,7 @@
     "jwt-decode": "^4.0.0",
     "pinia": "^3.0.1",
     "quasar": "^2.18.1",
+    "register-service-worker": "^1.7.2",
     "socket.io-client": "^4.8.1",
     "vue": "^3.5.17",
     "vue-router": "^4.0.12",
@@ -41,12 +42,19 @@
     "prettier": "^3.3.3",
     "typescript": "~5.5.3",
     "vite-plugin-checker": "^0.9.0",
-    "vue-tsc": "^2.0.29"
+    "vue-tsc": "^2.0.29",
+    "workbox-build": "^7.0.0",
+    "workbox-cacheable-response": "^7.0.0",
+    "workbox-core": "^7.0.0",
+    "workbox-expiration": "^7.0.0",
+    "workbox-precaching": "^7.0.0",
+    "workbox-routing": "^7.0.0",
+    "workbox-strategies": "^7.0.0"
   },
   "engines": {
     "node": "^28 || ^26 || ^24 || ^22 || ^20 || ^18",
     "npm": ">= 6.13.4",
     "yarn": ">= 1.21.1"
   },
-  "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977"
+  "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad"
 }

@@ -150,7 +150,7 @@ export default defineConfig((/* ctx */) => {
       // manualStoreHydration: true,
       // manualPostHydrationTrigger: true,
 
-      pwa: false,
+      pwa: true,
       // pwaOfflineHtmlFilename: 'offline.html', // do NOT use index.html as name!
 
       // pwaExtendGenerateSWOptions (cfg) {},
