@@ -1,4 +1,7 @@
 {
+  "name": "Movie Mux",
+  "short_name": "Movie Mux",
+  "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#00f6ff",
