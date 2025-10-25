@@ -41,7 +41,7 @@ export default boot(({ app, ssrContext }) => {
       return request;
     },
     (error) => {
-      return error;
+      return Promise.reject(error as Error);
     },
   );
 
@@ -55,7 +55,7 @@ export default boot(({ app, ssrContext }) => {
         userStore.showDialogLogin = true;
         userStore.user.isLoged = false;
       }
-      return error;
+      return Promise.reject(error as Error);
     },
   );
 });
