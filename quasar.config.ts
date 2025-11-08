@@ -86,6 +86,32 @@ export default defineConfig((/* ctx */) => {
           { server: false },
         ],
       ],
+
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+          passes: 3,
+        },
+        mangle: {
+          toplevel: true,
+        },
+        format: {
+          comments: false,
+        },
+      },
+
+      htmlMinifyOptions: {
+        removeComments: true,
+        collapseWhitespace: true,
+        removeAttributeQuotes: true,
+        collapseBooleanAttributes: true,
+        removeScriptTypeAttributes: true,
+        removeStyleLinkTypeAttributes: true,
+        minifyCSS: true,
+        minifyJS: true,
+      },
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#devserver
