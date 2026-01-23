@@ -62,6 +62,7 @@ export default defineConfig((/* ctx */) => {
       env: {
         VUE_APP_KB_CINE_API: process.env.CINE_BACKEND_URL,
         VUE_APP_KB_CINE_SOCKET: process.env.CINE_BACKEND_SOCKET_URL,
+        VUE_APP_TMDB_IMAGE_BASE: process.env.TMDB_IMAGE_BASE,
         ...dotenv.config().parsed,
       },
       // rawDefine: {}
