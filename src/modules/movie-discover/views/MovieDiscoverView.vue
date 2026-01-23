@@ -144,8 +144,7 @@
 <script lang="ts" setup>
 import { computed, onActivated, onMounted, onUpdated, ref, watch, nextTick } from 'vue';
 import { QItem, useQuasar, QInfiniteScroll, copyToClipboard } from 'quasar';
-import { useRoute } from 'vue-router';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 import { useStyleStore } from 'src/core/stores/StyleStore';
 
@@ -336,7 +335,7 @@ async function callTmdb() {
 
   if (genresSelected.value?.length) {
     return await getMoviesDiscover({
-      with_genres: genresSelected.value.map((g) => String(g.id)).join(','),
+      with_genres: genresSelected.value.join(','),
     });
   }
 
@@ -422,7 +421,7 @@ async function copyMovie(id?: number) {
   const url = `${window.location.origin}/movie/discover?movie=${id}`;
   await copyToClipboard(url);
   showSuccess('URL copiada');
-  return url ? url : '';
+  return url ?? '';
 }
 async function searchFromMenu(title: string) {
   searchText.value = title;

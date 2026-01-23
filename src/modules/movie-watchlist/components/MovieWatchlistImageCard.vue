@@ -1,5 +1,10 @@
 <template>
-  <BaseCardImage :class="`${selected && 'img-movie-selected'}`" :src="getUrl()" @click="emit('open')" :animate="!selected && props.animate">
+  <BaseCardImage
+    :class="`${selected && 'img-movie-selected'}`"
+    :src="getUrl()"
+    @click="emit('open')"
+    :animate="!selected && props.animate"
+  >
     <div class="absolute-bottom hover-show-img text-center desktop-only" v-if="!selected">
       {{ props.movie?.title }}<br />
       {{ DateUtils.toLocaleDateStringLong(props.movie.release_date) }}
@@ -25,7 +30,12 @@
       @click.stop
       v-if="showRemoveItem || _wishlists?.length"
     >
-      <q-menu class="bg-grey-dark2" dark @before-show="selected = true" @before-hide="selected = false">
+      <q-menu
+        class="bg-grey-dark2"
+        dark
+        @before-show="selected = true"
+        @before-hide="selected = false"
+      >
         <q-list>
           <q-item v-if="showRemoveItem" @click="emit('removeMovie')" clickable v-close-popup>
             <q-item-section side>
@@ -53,7 +63,9 @@
                   @click="addMovieToWishlist(list.id, props.movie?.tmdb_id)"
                 >
                   <q-item-section v-close-popup class="q-pl-sm">{{ list.name }}</q-item-section>
-                  <BaseTooltip v-if="disableList(list)" :delay="500">Filme já adicionado nessa lista</BaseTooltip>
+                  <BaseTooltip v-if="disableList(list)" :delay="500"
+                    >Filme já adicionado nessa lista</BaseTooltip
+                  >
                 </q-item>
               </q-list>
             </q-menu>
@@ -62,7 +74,13 @@
       </q-menu>
     </q-btn>
     <MovieWatchlistImageContextMenu @copy-url="emit('copy-url')" />
-    <q-inner-loading :showing="loading" label="Aguarde..." color="kb-primary" label-class="text-white" dark />
+    <q-inner-loading
+      :showing="loading"
+      label="Aguarde..."
+      color="kb-primary"
+      label-class="text-white"
+      dark
+    />
   </BaseCardImage>
 </template>
 <script setup lang="ts">
@@ -79,7 +97,8 @@ import DateUtils from 'src/core/utils/DateUtils';
 import MovieWatchlistService from '../services/MovieWatchlistService';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
-type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
+type ArrayElement<ArrayType extends readonly unknown[]> =
+  ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 const props = defineProps<{
   movie: ArrayElement<WatchlistType['movies_wishlists']>;
   wishlists: WatchlistType[];
@@ -109,7 +128,7 @@ watch(
   () => props.wishlists,
   () => {
     setWishlists();
-  }
+  },
 );
 
 function getUrl() {
@@ -125,6 +144,7 @@ async function addMovieToWishlist(wishlistId: string, tmdbId: number) {
     mergeResult(wishlistId, res);
     showSuccess('Filme adicionado a lista com sucesso');
   } catch {
+    console.log('error');
     showError('Erro ao adicionar filme na lista');
   } finally {
     loading.value = false;
@@ -141,7 +161,9 @@ function mergeResult(wishlistId: string, newWishlist: WatchlistType) {
   _wishlists.value[index] = newWishlist;
 }
 function isInAnyWishlist() {
-  return _wishlists.value?.some((w) => w.movies_wishlists?.some((m) => m.tmdb_id === props.movie.tmdb_id));
+  return _wishlists.value?.some((w) =>
+    w.movies_wishlists?.some((m) => m.tmdb_id === props.movie.tmdb_id),
+  );
 }
 function setWishlists() {
   if (props.wishlists?.length) {
