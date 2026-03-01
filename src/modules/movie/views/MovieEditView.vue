@@ -4,7 +4,7 @@
       <MovieSuperiorButtons showDeleteBtn />
       <BaseHorizontalSeparator />
     </div>
-    <div class="text-white">
+    <div>
       <MovieForm ref="formMovieRef" />
       <MovieVideoEmbedded :width="isMobile ? '100%' : '560px'" />
       <MovieSaveBtnGroup

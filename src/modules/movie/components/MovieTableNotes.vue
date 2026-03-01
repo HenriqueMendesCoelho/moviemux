@@ -6,7 +6,7 @@
       title="Notas"
       :rows="moviePage.selectedMovie.notes || []"
       dense
-      card-class="text-white bg-grey-mid2"
+      card-class="bg-grey-mid2"
       row-key="name"
       virtual-scroll
       no-data-label="Ainda não há notas para esse filme :("
@@ -93,7 +93,6 @@
               dense
               round
               flat
-              color="white"
               icon="delete"
               v-if="showEdit(props.row)"
               @click="showConfirmDialogDelete"
