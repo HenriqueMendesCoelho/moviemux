@@ -77,6 +77,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
+import type { QInput } from 'quasar';
 
 import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 import BasePageTitle from 'src/core/components/BasePageTitle.vue';
@@ -95,12 +96,13 @@ const router = useRouter();
 const email = ref('');
 const newPassword = ref('');
 const confirmNewPassword = ref('');
+const inputEmailRef = ref<InstanceType<typeof QInput>>();
 const inputPasswordRef = ref<{
-  hasErrors: () => boolean;
+  hasErrors: () => Promise<boolean>;
   resetValidation: () => void;
 }>();
 const inputConfirmPasswordRef = ref<{
-  hasErrors: () => boolean;
+  hasErrors: () => Promise<boolean>;
   resetValidation: () => void;
 }>();
 
@@ -113,7 +115,8 @@ onMounted(async () => {
 });
 
 async function redefinePassword() {
-  if (hasErrors()) {
+  if (await hasErrors()) {
+    console.error('has errors');
     return;
   }
 
@@ -136,15 +139,16 @@ function cancel() {
   newPassword.value = '';
   confirmNewPassword.value = '';
 }
-function hasErrors() {
-  let hasErrors = false;
+async function hasErrors() {
+  const emailValid = await inputEmailRef.value?.validate();
+  let errors = !emailValid;
   if (inputPasswordRef.value) {
-    hasErrors = inputPasswordRef.value.hasErrors();
+    errors = (await inputPasswordRef.value.hasErrors()) || errors;
   }
   if (inputConfirmPasswordRef.value) {
-    hasErrors = inputConfirmPasswordRef.value.hasErrors();
+    errors = (await inputConfirmPasswordRef.value.hasErrors()) || errors;
   }
-  return hasErrors;
+  return errors;
 }
 </script>
 <style lang="scss">
