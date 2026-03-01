@@ -5,7 +5,6 @@
     label="Senha"
     v-model="password"
     color="kb-primary"
-    dark
     :type="visibility ? 'text' : 'password'"
     :rules="[...getRules()]"
   >

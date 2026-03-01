@@ -6,7 +6,6 @@
       title="Notas"
       :rows="moviePage.selectedMovie.notes || []"
       dense
-      dark
       card-class="text-white bg-grey-mid2"
       row-key="name"
       virtual-scroll
@@ -66,7 +65,6 @@
               buttons
               v-slot="scope"
               color="kb-primary"
-              dark
               label-set="Salvar"
               :validate="(val) => rulePopUp(val)"
               v-if="showEdit(props.row)"
@@ -74,7 +72,6 @@
               <q-input
                 ref="inputNoteRef"
                 color="kb-primary"
-                dark
                 v-model="scope.value"
                 dense
                 autofocus

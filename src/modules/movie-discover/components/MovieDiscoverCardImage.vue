@@ -30,7 +30,6 @@
           label="Aguarde..."
           color="kb-primary"
           label-class="text-white"
-          dark
         />
         <q-btn
           class="absolute-top-right all-pointer-events cursor-pointer btn-ham"
@@ -38,13 +37,11 @@
           color="grey-mid2"
           style="top: 8px; right: 8px"
           :size="$q.platform.is.desktop ? 'sm' : 'xs'"
-          dark
           round
           @click.stop.prevent
         >
           <q-menu
             class="bg-grey-dark2"
-            dark
             @before-show="selected = true"
             @before-hide="selected = false"
           >
@@ -63,7 +60,7 @@
                 <q-item-section class="q-pl-sm">Ver recomendações</q-item-section>
               </q-item>
 
-              <q-separator dark v-if="watchlists?.length" />
+              <q-separator v-if="watchlists?.length" />
               <q-item clickable v-if="watchlists?.length">
                 <q-item-section side>
                   <q-icon name="playlist_add" color="white" />

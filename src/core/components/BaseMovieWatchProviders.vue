@@ -15,7 +15,6 @@
         </div>
       </div>
       <q-separator
-        dark
         vertical
         inset
         v-if="
@@ -35,7 +34,6 @@
         </div>
       </div>
       <q-separator
-        dark
         vertical
         inset
         v-if="

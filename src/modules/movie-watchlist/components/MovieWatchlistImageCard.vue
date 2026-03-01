@@ -25,14 +25,12 @@
       color="grey-mid2"
       style="top: 8px; right: 8px"
       :size="isDesktop ? 'sm' : 'xs'"
-      dark
       round
       @click.stop
       v-if="showRemoveItem || _wishlists?.length"
     >
       <q-menu
         class="bg-grey-dark2"
-        dark
         @before-show="selected = true"
         @before-hide="selected = false"
       >
@@ -44,7 +42,7 @@
             <q-item-section class="q-pl-sm">Remover da lista</q-item-section>
           </q-item>
 
-          <q-separator dark />
+          <q-separator />
           <q-item clickable v-if="_wishlists?.length">
             <q-item-section side>
               <q-icon name="playlist_add" color="white" />
@@ -53,7 +51,7 @@
             <q-item-section side>
               <q-icon name="keyboard_arrow_right" color="white" />
             </q-item-section>
-            <q-menu anchor="top end" self="top start" class="bg-grey-dark2" dark>
+            <q-menu anchor="top end" self="top start" class="bg-grey-dark2">
               <q-list>
                 <q-item
                   v-for="list in _wishlists"
@@ -79,7 +77,6 @@
       label="Aguarde..."
       color="kb-primary"
       label-class="text-white"
-      dark
     />
   </BaseCardImage>
 </template>

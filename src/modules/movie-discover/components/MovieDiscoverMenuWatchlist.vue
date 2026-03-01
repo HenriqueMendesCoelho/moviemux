@@ -1,5 +1,5 @@
 <template>
-  <q-menu anchor="top end" self="top start" class="bg-grey-dark2" dark>
+  <q-menu anchor="top end" self="top start" class="bg-grey-dark2">
     <q-list>
       <q-item
         v-for="list in watchlists"

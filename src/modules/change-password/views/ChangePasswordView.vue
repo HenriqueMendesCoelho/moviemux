@@ -10,7 +10,7 @@
             </q-avatar>
           </q-btn>
 
-          <q-toolbar-title>Cineminha KronusBoss</q-toolbar-title>
+          <q-toolbar-title>Movie Mux</q-toolbar-title>
         </q-toolbar>
       </div>
     </div>
@@ -31,7 +31,6 @@
             v-model="email"
             color="kb-primary"
             bg-color="grey-mid"
-            dark
             :type="'email'"
             :rules="[(val) => !!val]"
           >

@@ -31,7 +31,6 @@ function show({
   event?: string;
 }) {
   $q.dialog({
-    dark: true,
     title: title,
     message: message,
     persistent: persistent,

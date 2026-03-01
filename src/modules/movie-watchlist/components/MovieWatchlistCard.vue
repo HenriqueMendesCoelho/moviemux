@@ -1,7 +1,7 @@
 <template>
-  <q-card dark bordered flat class="bg-grey-mid cursor-pointer" @click="emit('clickOnCard')">
+  <q-card bordered flat class="bg-grey-mid cursor-pointer" @click="emit('clickOnCard')">
     <q-list>
-      <q-item dark>
+      <q-item>
         <q-item-section side>
           <q-icon name="list" color="white" />
         </q-item-section>
@@ -15,8 +15,8 @@
           <q-btn icon="delete" color="white" size="md" flat round @click.prevent.stop="emit('delete')" />
         </q-item-section>
       </q-item>
-      <q-separator dark />
-      <q-item dark>
+      <q-separator />
+      <q-item>
         <q-item-section side>
           <q-icon name="public" color="white" />
         </q-item-section>
@@ -27,7 +27,7 @@
           <q-item-label>{{ wishlist.shareable ? 'Sim' : 'Não' }}</q-item-label>
         </q-item-section>
       </q-item>
-      <q-item dark>
+      <q-item>
         <q-item-section side>
           <q-icon name="fa-solid fa-film" color="white" />
         </q-item-section>
@@ -38,7 +38,7 @@
           <q-item-label>{{ wishlist.movies_wishlists?.length ? wishlist.movies_wishlists?.length : 0 }}/100</q-item-label>
         </q-item-section>
       </q-item>
-      <q-item dark>
+      <q-item>
         <q-item-section side>
           <q-icon name="event" color="white" />
         </q-item-section>
@@ -49,7 +49,7 @@
           <q-item-label>{{ DateUtils.toLocaleString(props.wishlist.created_at) }}</q-item-label>
         </q-item-section>
       </q-item>
-      <q-item dark>
+      <q-item>
         <q-item-section side>
           <q-icon name="event" color="white" />
         </q-item-section>

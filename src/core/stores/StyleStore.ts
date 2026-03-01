@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { Cookies } from 'quasar';
+import { Cookies, Dark } from 'quasar';
 
 export const useStyleStore = defineStore('StyleStore', {
   state: () => {
@@ -10,15 +10,10 @@ export const useStyleStore = defineStore('StyleStore', {
   },
   actions: {
     darkThemeToggle() {
-      if (Cookies.get('theme') == 'dark') {
-        Cookies.set('theme', 'light');
-        document.documentElement.setAttribute('data-theme', 'light');
-        this.layoutSettings.darkMode = false;
-      } else {
-        Cookies.set('theme', 'dark');
-        document.documentElement.setAttribute('data-theme', 'dark');
-        this.layoutSettings.darkMode = true;
-      }
+      const isDark = !Dark.isActive;
+      Dark.set(isDark);
+      Cookies.set('theme', isDark ? 'dark' : 'light', { expires: 30 });
+      this.layoutSettings.darkMode = isDark;
     },
     // eslint-disable-next-line
     scrollToContainer: (_top: number, _left: number, _behavior: 'smooth' | 'auto') => null,

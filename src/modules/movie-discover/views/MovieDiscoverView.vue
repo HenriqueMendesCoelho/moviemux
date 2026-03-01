@@ -32,7 +32,7 @@
               no-parent-event
               v-model="showMenu"
             >
-              <q-list dense dark>
+              <q-list dense>
                 <q-item
                   ref="itensMenuRef"
                   active-class="text-kb-primary bg-grey-mid2"
@@ -50,14 +50,13 @@
                   >
                 </q-item>
                 <q-separator
-                  dark
                   v-if="!!moviesWhenTyping ? moviesWhenTyping?.length > 1 : false"
                 />
               </q-list>
             </q-menu>
           </template>
           <template #append>
-            <q-separator class="q-mx-md" dark vertical inset />
+            <q-separator class="q-mx-md" vertical inset />
             <q-select
               class="col-2"
               borderless
@@ -66,7 +65,6 @@
               label="Gêneros"
               standout="text-kb-primary"
               color="kb-primary"
-              dark
               popup-content-class="bg-grey-dark2"
               clearable
               option-label="name"
@@ -85,7 +83,6 @@
                   @remove="scope.removeAtIndex(scope.index)"
                   :tabindex="scope.tabindex"
                   color="grey-dark2"
-                  text-color="white"
                   class="q-ma-none"
                 >
                   {{ scope.opt.name }}

@@ -9,7 +9,6 @@
         v-model="email"
         color="kb-primary"
         bg-color="grey-mid"
-        dark
         :type="'email'"
         hint="Insira seu e-mail para seguir com a recuperação"
         :rules="[(val) => !!val, (val) => regexEmail.test(val) || 'E-mail inválido']"

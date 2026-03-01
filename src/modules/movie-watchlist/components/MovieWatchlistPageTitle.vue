@@ -10,14 +10,12 @@
         buttons
         v-slot="scope"
         color="kb-primary"
-        dark
         label-set="Salvar"
         :validate="(val) => !!val && val.length >= 3 && val.length <= 30"
       >
         <q-input
           ref="inputNoteRef"
           color="kb-primary"
-          dark
           v-model="scope.value"
           dense
           autofocus

@@ -9,7 +9,6 @@
       v-model="email"
       color="kb-primary"
       bg-color="grey-mid"
-      dark
       :type="'email'"
       :rules="[(val) => !!val, (val) => regexEmail.test(val) || 'E-mail inválido']"
       ><template v-slot:append> <q-icon name="mail" /> </template
@@ -43,7 +42,6 @@
       v-model="nickname"
       color="kb-primary"
       bg-color="grey-mid"
-      dark
       :type="'email'"
       :rules="[(val) => !!val, (val) => val.length >= 3 || 'Deve ter no mínimo 3 caracteres']"
       ><template v-slot:append> <q-icon name="badge" /> </template
@@ -56,7 +54,6 @@
       type="password"
       color="kb-primary"
       bg-color="grey-mid"
-      dark
       :rules="[(val) => !!val]"
       hint="É necessário ter um convite para prosseguir."
     >

@@ -29,7 +29,6 @@
         label="Aguarde..."
         color="kb-primary"
         label-class="text-white"
-        dark
       />
     </q-card>
   </div>

@@ -4,7 +4,6 @@
     :style="`max-height: 350px !important`"
     :rows="props.rows"
     dense
-    dark
     card-class="text-white bg-grey-mid2"
     row-key="index"
     virtual-scroll

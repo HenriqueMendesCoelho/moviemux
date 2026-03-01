@@ -9,7 +9,7 @@
         class="col-md-2 col-xs-6 q-pl-sm"
         color="kb-primary"
         label="Ações"
-        content-style="background-color: #343c4c; color: white"
+        content-style="background-color: var(--grey-mid2); color: var(--light-grey2)"
       >
         <q-list>
           <q-item clickable v-close-popup @click="searchUser()">

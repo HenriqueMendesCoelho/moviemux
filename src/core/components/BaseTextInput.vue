@@ -7,7 +7,6 @@
     outlined
     v-model="text"
     :label="label"
-    dark
     :rules="[...getRules()]"
     hide-bottom-space
     clearable
