@@ -5,7 +5,7 @@
     :hide-delay="300"
     style="border-radius: 15px"
   >
-    <q-list bordered dark style="border-radius: 15px; min-width: 15vw" :dense="dense()">
+    <q-list bordered style="border-radius: 15px; min-width: 15vw" :dense="dense()">
       <q-item>
         <q-item-section avatar>
           <q-icon color="white" name="fa-solid fa-crown" />
@@ -13,7 +13,7 @@
         <q-item-section>Cadastrado por:</q-item-section>
         <q-item-section>{{ movie.user_name || 'Usuário desconhecido' }}</q-item-section>
       </q-item>
-      <q-separator dark />
+      <q-separator />
       <q-item>
         <q-item-section avatar>
           <q-icon color="white" name="event" />
@@ -21,7 +21,7 @@
         <q-item-section>Criado em:</q-item-section>
         <q-item-section>{{ getCreatedAt() }}</q-item-section>
       </q-item>
-      <q-separator dark />
+      <q-separator />
       <q-item>
         <q-item-section avatar>
           <q-icon color="white" name="event" />

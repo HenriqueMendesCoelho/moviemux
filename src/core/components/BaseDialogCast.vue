@@ -27,7 +27,7 @@
                 <i> {{ castMember.character }}</i>
               </div>
               <template v-slot:loading>
-                <q-skeleton width="160px" height="230px" animation="fade" dark />
+                <q-skeleton width="160px" height="230px" animation="fade" />
               </template>
               <template v-slot:error>
                 <div class="absolute-full flex flex-center bg-grey-mid text-white text-center">
@@ -80,7 +80,7 @@
                   <i> {{ crewMember.department }} - {{ crewMember.job }}</i>
                 </div>
                 <template v-slot:loading>
-                  <q-skeleton width="160px" height="230px" animation="fade" dark />
+                  <q-skeleton width="160px" height="230px" animation="fade" />
                 </template>
                 <template v-slot:error>
                   <div class="absolute-full flex flex-center bg-grey-mid text-white text-center">

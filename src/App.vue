@@ -7,7 +7,7 @@
 <script lang="ts">
 import { mapState } from 'pinia';
 import { defineComponent } from 'vue';
-import { Cookies } from 'quasar';
+import { Cookies, Dark } from 'quasar';
 
 import { useStyleStore } from 'src/core/stores/StyleStore';
 
@@ -35,43 +35,14 @@ export default defineComponent({
     },
     setCookie(theme: string) {
       Cookies.set('theme', theme, { expires: 30 });
-      document.documentElement.setAttribute('data-theme', theme);
+      Dark.set(theme === 'dark');
+      this.layoutSettings.darkMode = theme === 'dark';
     },
   },
 });
 </script>
 
 <style lang="scss">
-:root {
-  --primary: #00f6ff;
-  --grey-dark: #0b0e14;
-  --grey-dark2: #1f2531;
-  --grey-mid: #293244;
-  --grey-mid2: #343c4c;
-  --light-grey: #f0ffff94;
-  --light-grey2: #f0ffffde;
-  --light-blue: #9bf6f9;
-  --shadow: #00000056;
-  --sidebar-width: 300px;
-  --dark-alt: #334155;
-  --dark-alt2: rgb(98, 114, 139) 5;
-}
-
-[data-theme='light'] {
-  --primary: #00f6ff;
-  --grey-dark: #828383;
-  --grey-dark2: #b8b7b7;
-  --grey-mid: #a6a7a7;
-  --grey-mid2: #acaeae;
-  --light-grey: #f0ffff94;
-  --light-grey2: #f0ffffde;
-  --light-blue: #9bf6f9;
-  --shadow: #cacaca95;
-  --sidebar-width: 300px;
-  --dark-alt: #9f9f9f;
-  --dark-alt2: rgb(98, 114, 139) 5;
-}
-
 * {
   margin: 0;
   padding: 0;

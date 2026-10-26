@@ -1,22 +1,22 @@
 <template>
   <BaseTooltip class="bg-grey-mid2" v-model="show" style="border-radius: 15px" no-parent-event>
-    <q-list dark style="border-radius: 15px">
+    <q-list style="border-radius: 15px">
       <q-item>
         <q-item-section
           ><p>- A senha <strong>deve</strong> conter:</p></q-item-section
         >
       </q-item>
-      <q-separator dark />
+      <q-separator />
       <q-item>
         <q-item-section><p>- Letras maiúsculas e minúsculas</p></q-item-section>
       </q-item>
-      <q-separator dark />
+      <q-separator />
       <q-item>
         <q-item-section>
           <p>- Números</p>
         </q-item-section>
       </q-item>
-      <q-separator dark />
+      <q-separator />
       <q-item>
         <q-item-section>
           <p>- Caracteres especiais</p>

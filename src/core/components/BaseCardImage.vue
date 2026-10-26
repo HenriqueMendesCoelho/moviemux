@@ -17,7 +17,7 @@
   >
     <slot></slot>
     <template v-slot:loading>
-      <q-skeleton :width="getWidth()" :height="getHeight()" animation="fade" dark />
+      <q-skeleton :width="getWidth()" :height="getHeight()" animation="fade" />
     </template>
     <template v-slot:error>
       <div class="absolute-full flex flex-center bg-grey-mid text-white">

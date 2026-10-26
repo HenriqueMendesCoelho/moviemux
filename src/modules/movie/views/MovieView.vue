@@ -4,7 +4,7 @@
       <MovieSuperiorButtons :show-edit-btn="showEditBtn()" show-refresh-btn />
       <BaseHorizontalSeparator />
     </div>
-    <div class="text-white">
+    <div>
       <MovieForm ref="formMovieRef" readonly />
       <MovieTableNotes :movie-id="movieId" />
       <MovieVideoEmbedded :width="isMobile ? '100%' : '560px'" />

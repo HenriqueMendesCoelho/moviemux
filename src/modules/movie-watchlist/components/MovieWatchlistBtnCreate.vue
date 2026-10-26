@@ -23,7 +23,6 @@ const emit = defineEmits<{
 
 function dialog() {
   $q.dialog({
-    dark: true,
     message: 'Insira o nome da lista (Mínimo 3 caracteres e máximo de 30)',
     persistent: false,
     color: 'kb-primary',

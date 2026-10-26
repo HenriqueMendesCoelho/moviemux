@@ -1,4 +1,4 @@
-import { route } from 'quasar/wrappers';
+import { defineRouter } from '#q-app';
 import { Cookies, useMeta, Platform } from 'quasar';
 import type { RouteLocationNormalized } from 'vue-router';
 import {
@@ -21,10 +21,10 @@ import { useStyleStore } from 'src/core/stores/StyleStore';
  * with the Router instance.
  */
 
-export default route(function (/* { store, ssrContext } */ { ssrContext }) {
-  const createHistory = process.env.SERVER
+export default defineRouter(function (/* { store, ssrContext } */ { ssrContext }) {
+  const createHistory = import.meta.env.QUASAR_SERVER
     ? createMemoryHistory
-    : process.env.VUE_ROUTER_MODE === 'history'
+    : import.meta.env.QUASAR_VUE_ROUTER_MODE === 'history'
       ? createWebHistory
       : createWebHashHistory;
 
@@ -35,48 +35,40 @@ export default route(function (/* { store, ssrContext } */ { ssrContext }) {
     // Leave this as is and make changes in quasar.conf.js instead!
     // quasar.conf.js -> build -> vueRouterMode
     // quasar.conf.js -> build -> publicPath
-    history: createHistory(process.env.VUE_ROUTER_BASE),
+    history: createHistory(import.meta.env.QUASAR_VUE_ROUTER_BASE),
   });
 
-  Router.beforeEach((to, from, next) => {
+  Router.beforeEach((to, from) => {
     const loginStore = useUserStore();
     const user = loginStore.user;
 
-    const cookies = process.env.SERVER ? Cookies.parseSSR(ssrContext) : Cookies;
+    const cookies = import.meta.env.QUASAR_SERVER ? Cookies.parseSSR(ssrContext) : Cookies;
     const token = cookies.get('auth-kb');
     if (token) {
       loginStore.decodeToken(token);
     }
 
     if (!to.name) {
-      next({ name: 'login' });
-      return;
+      return { name: 'login' };
     }
 
     const roles = to.meta.roles as Array<string>;
     const unsecureRoute = roles.some((r) => r === 'UNSECURE');
 
     if (unsecureRoute) {
-      next();
-      return;
+      return true;
     }
 
     if (!user.isLoged && from.name !== 'login' && from.name !== 'notFound') {
       loginStore.showDialogLogin = true;
-      next({ name: from.name || 'login', query: { from: to.fullPath } });
-      return;
+      return { name: from.name || 'login', query: { from: to.fullPath } };
     } else if (!user.isLoged) {
-      next({ name: 'login' });
-      return;
+      return { name: 'login' };
     }
 
     const isAuthorized = roles.some((r) => user.roles.some((rU) => rU === r));
 
-    if (isAuthorized) {
-      next();
-    } else {
-      next(from);
-    }
+    return isAuthorized ? true : from;
   });
 
   Router.afterEach((to, from) => {

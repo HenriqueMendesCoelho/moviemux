@@ -1,4 +1,34 @@
 // app global css in SCSS form
+
+// Dark mode (default)
+:root {
+  --primary: #00f6ff;
+  --grey-dark: #0b0e14;
+  --grey-dark2: #1f2531;
+  --grey-mid: #293244;
+  --grey-mid2: #343c4c;
+  --light-grey: #f0ffff94;
+  --light-grey2: #f0ffffde;
+  --light-blue: #9bf6f9;
+  --shadow: #00000056;
+  --sidebar-width: 300px;
+  --dark-alt: #334155;
+  --dark-alt2: rgb(98, 114, 139) 5;
+}
+
+// Light mode: Quasar adds body.body--light automatically
+body.body--light {
+  --grey-dark: #f0f2f5;
+  --grey-dark2: #e2e5ea;
+  --grey-mid: #d5d9e0;
+  --grey-mid2: #c8cdd6;
+  --light-grey: rgba(0, 0, 0, 0.35);
+  --light-grey2: rgba(0, 0, 0, 0.82);
+  --shadow: #a0a8b440;
+  --dark-alt: #dde0e6;
+  --dark-alt2: rgb(98, 114, 139) 5;
+}
+
 .input-std {
   padding: 15px;
   color: var(--light-grey2);

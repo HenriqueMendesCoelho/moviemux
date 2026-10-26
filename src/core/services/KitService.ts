@@ -8,7 +8,7 @@ import type {
 import axios from 'axios';
 import StringUtils from 'src/core/utils/StringUtils';
 
-const BASE_URL = process.env.VUE_APP_KB_CINE_API;
+const BASE_URL = import.meta.env.VUE_APP_KB_CINE_API;
 const API_KIT = `${BASE_URL}/movie/tmdb`;
 const API_KIT_PUBLIC = `${BASE_URL}/public/movie/tmdb`;
 

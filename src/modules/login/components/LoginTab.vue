@@ -10,7 +10,6 @@
         v-model="email"
         color="kb-primary"
         bg-color="grey-mid"
-        dark
         :type="'email'"
         :rules="[(val) => !!val]"
       >

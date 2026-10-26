@@ -5,7 +5,7 @@
     :hide-delay="300"
     style="border-radius: 15px"
   >
-    <q-list bordered dark style="border-radius: 15px">
+    <q-list bordered style="border-radius: 15px">
       <q-item>
         <q-item-section side>
           <q-icon color="white" name="fa-solid fa-crown" />
@@ -13,7 +13,7 @@
         <q-item-section>Cadastrado por:</q-item-section>
         <q-item-section side class="text-white">{{ props.watchlist?.user.name }}</q-item-section>
       </q-item>
-      <q-separator dark />
+      <q-separator />
       <q-item>
         <q-item-section side>
           <q-icon color="white" name="fa-solid fa-film" />
@@ -23,7 +23,7 @@
           >{{ watchlist?.movies_wishlists?.length || 0 }}/100</q-item-section
         >
       </q-item>
-      <q-separator dark />
+      <q-separator />
       <q-item>
         <q-item-section side>
           <q-icon color="white" name="event" />
@@ -33,7 +33,7 @@
           DateUtils.toLocaleString(watchlist?.created_at)
         }}</q-item-section>
       </q-item>
-      <q-separator dark />
+      <q-separator />
       <q-item>
         <q-item-section side>
           <q-icon color="white" name="event" />

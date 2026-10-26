@@ -19,7 +19,6 @@
         :width="getImgWidth()"
         :height="getImgHeight()"
         animation="fade"
-        dark
         bordered
       />
     </div>
@@ -109,7 +108,6 @@
               :rows="screenHeight > 1080 ? '9' : '7'"
               label="Descrição - Sinopse"
               bg-color="grey-mid2"
-              dark
               type="textarea"
               :readonly="props.readonly"
               :rules="[(val) => !!val || '*Obrigatório']"
@@ -127,7 +125,6 @@
                 standout="text-info"
                 color="info"
                 bg-color="grey-mid2"
-                dark
                 :multiple="true"
                 popup-content-class="bg-grey-dark2"
                 option-label="name"
@@ -146,7 +143,6 @@
                     @remove="scope.removeAtIndex(scope.index)"
                     :tabindex="scope.tabindex"
                     color="grey-dark2"
-                    text-color="white"
                     class="q-ma-none"
                   >
                     {{ scope.opt.name }}

@@ -2,13 +2,12 @@
   <q-toolbar class="bg-grey-mid text-white row toolbar">
     <q-icon name="menu" size="sm" v-if="isSlotPrependEmpty()" />
     <slot name="prepend"></slot>
-    <q-separator class="q-mx-md" dark vertical inset />
+    <q-separator class="q-mx-md" vertical inset />
     <q-input
       ref="inputSearchRef"
       class="col q-mr-sm"
       label="Digite"
       v-model="searchText"
-      dark
       color="kb-primary"
       maxlength="150"
       @keydown.enter="onSearchAndRemoveFocus"
@@ -24,7 +23,7 @@
       <slot name="input-search"></slot>
     </q-input>
     <q-btn icon="search" flat round @click="emit('search')" />
-    <q-separator class="q-mx-md" dark vertical inset v-if="showSelect || !isSlotAppendEmpty()" />
+    <q-separator class="q-mx-md" vertical inset v-if="showSelect || !isSlotAppendEmpty()" />
     <q-select
       v-if="showSelect"
       :class="isSlotAppendEmpty() ? 'col-3' : 'col-2'"
@@ -34,7 +33,6 @@
       :label="props.selectOrderLabel"
       standout="text-kb-primary"
       color="kb-primary"
-      dark
       popup-content-class="bg-grey-dark2"
       clearable
       option-label="label"
@@ -55,7 +53,7 @@
       </template>
     </q-select>
     <slot name="append"></slot>
-    <q-separator class="q-mx-md" dark vertical inset />
+    <q-separator class="q-mx-md" vertical inset />
     <q-btn @click="emit('refresh')" icon="refresh" flat round />
   </q-toolbar>
 </template>

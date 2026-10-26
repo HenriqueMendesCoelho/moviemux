@@ -178,8 +178,7 @@ function getImageUrl(path?: string, size = 'w342') {
     return;
   }
 
-  console.log(`${process.env.VUE_APP_TMDB_IMAGE_BASE}/${size}${path}`);
-  return `${process.env.VUE_APP_TMDB_IMAGE_BASE}/${size}${path}`;
+  return `${import.meta.env.VUE_APP_TMDB_IMAGE_BASE}/${size}${path}`;
 }
 async function importMovie() {
   try {

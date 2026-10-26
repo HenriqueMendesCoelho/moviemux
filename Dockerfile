@@ -14,9 +14,14 @@ COPY . .
 
 RUN corepack enable && \
     corepack prepare pnpm@latest --activate && \
-    pnpm install --frozen-lockfile
+    pnpm install --frozen-lockfile && \
+    pnpm --dir src-ssr install --frozen-lockfile && \
+    pnpm --dir src-pwa install --frozen-lockfile
 
 RUN pnpm build
+
+# SSR runtime dependencies (express, vue, quasar...) are installed into the build output
+RUN pnpm --dir dist/ssr install --prod
 
 
 FROM node:24.3.0-alpine3.22 as production-stage
@@ -26,7 +31,6 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 WORKDIR /usr/src/app
 
 COPY --from=build-stage /usr/src/app/dist ./dist
-COPY --from=build-stage /usr/src/app/node_modules ./node_modules
 
 USER appuser
 

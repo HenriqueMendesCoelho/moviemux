@@ -28,7 +28,6 @@
           standout="text-info"
           color="info"
           label="Quantidade de tentativas de login"
-          dark
           :readonly="true"
           type="number"
         />
@@ -44,7 +43,6 @@
             standout="text-info"
             color="info"
             label="Perfil de Acesso"
-            dark
             :readonly="true"
           />
         </div>
@@ -56,7 +54,6 @@
             standout="text-info"
             color="info"
             label="Data criação da conta"
-            dark
             :readonly="true"
           />
         </div>
@@ -68,7 +65,6 @@
             standout="text-info"
             color="info"
             label="Data Último Login"
-            dark
             :readonly="true"
           />
         </div>
@@ -84,7 +80,6 @@
             standout="text-info"
             color="info"
             label="Filmes cadastrados"
-            dark
             :readonly="true"
           />
         </div>
@@ -96,7 +91,6 @@
             standout="text-info"
             color="info"
             label="Notas cadastrados"
-            dark
             :readonly="true"
           />
         </div>
@@ -108,7 +102,6 @@
             standout="text-info"
             color="info"
             label="Tempo de Exibição"
-            dark
             :readonly="true"
           />
         </div>
@@ -120,7 +113,6 @@
             standout="text-info"
             color="info"
             label="Nota Média"
-            dark
             :readonly="true"
           />
         </div>

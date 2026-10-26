@@ -1,5 +1,5 @@
 <template>
-  <q-popup-proxy context-menu style="background-color: rgb(41, 50, 68, 0.85); color: white">
+  <q-popup-proxy context-menu style="background-color: var(--grey-mid); color: var(--light-grey2)">
     <div class="q-my-sm"><slot></slot></div>
   </q-popup-proxy>
 </template>

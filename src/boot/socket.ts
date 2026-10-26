@@ -2,7 +2,7 @@ import { reactive } from 'vue';
 import { io } from 'socket.io-client';
 import type { MovieNoteType } from 'src/core/types/movie/MovieType';
 
-const BASE_URL = process.env.VUE_APP_KB_CINE_SOCKET;
+const BASE_URL = import.meta.env.VUE_APP_KB_CINE_SOCKET;
 
 type eventMovieNote = {
   event: string;

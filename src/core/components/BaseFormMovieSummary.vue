@@ -10,7 +10,7 @@
         :height="getImgHeight()"
         v-if="movie?.url_image"
       />
-      <q-skeleton v-else :width="getImgWidth()" :height="getImgHeight()" animation="fade" dark bordered />
+      <q-skeleton v-else :width="getImgWidth()" :height="getImgHeight()" animation="fade" bordered />
     </div>
 
     <div class="col-md-8 col-xs-12">
@@ -84,7 +84,6 @@
             :rows="screenHeight > 1080 ? '9' : '7'"
             label="Descrição - Sinopse"
             bg-color="grey-mid2"
-            dark
             type="textarea"
             readonly
             :dense="screenHeight <= 1080"
@@ -99,7 +98,6 @@
               standout="text-info"
               color="info"
               bg-color="grey-mid2"
-              dark
               :multiple="true"
               popup-content-class="bg-grey-dark2"
               option-label="name"
@@ -107,7 +105,7 @@
               :dense="screenHeight <= 1080"
               use-chips
               ><template v-slot:selected-item="scope">
-                <q-chip dense :tabindex="scope.tabindex" color="grey-dark2" text-color="white" class="q-ma-none">
+                <q-chip dense :tabindex="scope.tabindex" color="grey-dark2" class="q-ma-none">
                   {{ scope.opt.name }}
                 </q-chip>
               </template>
@@ -270,7 +268,7 @@ function getImageUrl(path?: string, size = 'w342') {
   if (!path) {
     return;
   }
-  return `${process.env.VUE_APP_TMDB_IMAGE_BASE}/${size}${path}`;
+  return `${import.meta.env.VUE_APP_TMDB_IMAGE_BASE}/${size}${path}`;
 }
 function getUrl(key: string) {
   return key ? `https://www.youtube.com/embed/${key}` : '';

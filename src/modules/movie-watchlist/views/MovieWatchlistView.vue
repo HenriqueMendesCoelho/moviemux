@@ -58,7 +58,7 @@
               no-parent-event
               v-model="showMenu"
             >
-              <q-list dense dark>
+              <q-list dense>
                 <q-item
                   ref="itensMenuRef"
                   active-class="text-kb-primary bg-grey-mid2"
@@ -78,7 +78,6 @@
                   >
                 </q-item>
                 <q-separator
-                  dark
                   v-if="moviesWhenTyping?.length ? moviesWhenTyping?.length > 1 : false"
                 />
               </q-list>
