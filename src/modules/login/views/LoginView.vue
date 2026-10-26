@@ -128,7 +128,7 @@ function getImageUrl(path?: string, size = 'w342') {
   if (!path) {
     return;
   }
-  return `${process.env.VUE_APP_TMDB_IMAGE_BASE}/${size}${path}`;
+  return `${import.meta.env.VUE_APP_TMDB_IMAGE_BASE}/${size}${path}`;
 }
 </script>
 

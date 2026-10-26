@@ -9,7 +9,7 @@ import type {
 } from 'src/core/types/movie/MovieType';
 import type Movie from 'src/core/domain/movie/movie';
 
-const BASE_URL = process.env.VUE_APP_KB_CINE_API;
+const BASE_URL = import.meta.env.VUE_APP_KB_CINE_API;
 const API_MOVIE = `${BASE_URL}/movie`;
 
 export default {

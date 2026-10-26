@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 import StringUtils from 'src/core/utils/StringUtils';
 
-const BASE_URL = process.env.VUE_APP_KB_CINE_API;
+const BASE_URL = import.meta.env.VUE_APP_KB_CINE_API;
 const API_WATCHLIST = `${BASE_URL}/user/wishlist`;
 
 export default {

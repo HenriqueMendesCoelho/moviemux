@@ -5,7 +5,7 @@ import { Cookies } from 'quasar';
 
 import type { tokenPayload } from 'src/core/types/token/TokenType';
 
-const BASE_URL = process.env.VUE_APP_KB_CINE_API;
+const BASE_URL = import.meta.env.VUE_APP_KB_CINE_API;
 
 export const useUserStore = defineStore('UserStore', {
   state: () => {

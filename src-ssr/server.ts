@@ -6,18 +6,30 @@
  */
 
 /**
- * Make sure to yarn add / npm install (in your project root)
- * anything you import here (except for express and compression).
+ * Make sure to pnpm add (in /src-ssr folder)
+ * anything you import here.
  */
 import express from 'express';
 import compression from 'compression';
+import type { Application, Request, Response } from 'express';
+import type { Server } from 'node:http';
 import {
   defineSsrCreate,
+  defineSsrInjectDevMiddleware,
   defineSsrListen,
   defineSsrClose,
   defineSsrServeStaticContent,
-  defineSsrRenderPreloadTag
-} from '#q-app/wrappers';
+  defineSsrRenderPreloadTag,
+} from '#q-app';
+
+declare module '#q-app' {
+  interface SsrDriver {
+    app: Application;
+    listenResult: Server;
+    request: Request;
+    response: Response;
+  }
+}
 
 /**
  * Create your webserver and return its instance.
@@ -35,11 +47,23 @@ export const create = defineSsrCreate((/* { ... } */) => {
 
   // place here any middlewares that
   // absolutely need to run before anything else
-  if (process.env.PROD) {
+  if (import.meta.env.QUASAR_PROD) {
     app.use(compression());
   }
 
   return app;
+});
+
+/**
+ * Used by Quasar SSR dev server to inject middleware into the webserver.
+ * It uses it to handle Vite dev server, handle public paths, etc.
+ *
+ * Can be async: defineSsrInjectDevMiddleware(async ({ app }) => { ... })
+ */
+export const injectDevMiddleware = defineSsrInjectDevMiddleware(({ app }) => {
+  return (middleware) => {
+    app.use(middleware);
+  };
 });
 
 /**
@@ -52,13 +76,22 @@ export const create = defineSsrCreate((/* { ... } */) => {
  *
  * For production, you can instead export your
  * handler for serverless use or whatever else fits your needs.
- *
- * Can be async: defineSsrListen(async ({ app, devHttpsApp, port }) => { ... })
  */
-export const listen = defineSsrListen(({ app, devHttpsApp, port }) => {
-  const server = devHttpsApp || app;
+export const listen = defineSsrListen(async ({ app, devHttpsOptions, port }) => {
+  if (import.meta.env.QUASAR_DEV && devHttpsOptions) {
+    const https = await import('node:https');
+    const server = https.createServer(devHttpsOptions, (req, res) => {
+      app(req, res);
+    });
+    return server.listen(port);
+  }
+
+  const http = await import('node:http');
+  const server = http.createServer((req, res) => {
+    app(req, res);
+  });
   return server.listen(port, () => {
-    if (process.env.PROD) {
+    if (import.meta.env.QUASAR_PROD) {
       console.log('Server listening at port ' + port);
     }
   });
@@ -78,7 +111,7 @@ export const close = defineSsrClose(({ listenResult }) => {
   return listenResult.close();
 });
 
-const maxAge = process.env.DEV ? 0 : 1000 * 60 * 60 * 24 * 30;
+const maxAge = import.meta.env.QUASAR_DEV ? 0 : 1000 * 60 * 60 * 24 * 30;
 
 /**
  * Should return a function that will be used to configure the webserver
@@ -90,7 +123,7 @@ const maxAge = process.env.DEV ? 0 : 1000 * 60 * 60 * 24 * 30;
  * Can return an async function: return async ({ urlPath = '/', pathToServe = '.', opts = {} }) => {
  */
 export const serveStaticContent = defineSsrServeStaticContent(({ app, resolve }) => {
-  return ({ urlPath = '/', pathToServe = '.', opts = {} }) => {
+  return ({ urlPath, pathToServe, opts = {} }) => {
     const serveFn = express.static(resolve.public(pathToServe), { maxAge, ...opts });
     app.use(resolve.urlPath(urlPath), serveFn);
   };
@@ -108,7 +141,7 @@ const pngRE = /\.png$/;
  * Should return a String with HTML output
  * (if any) for preloading indicated file
  */
-export const renderPreloadTag = defineSsrRenderPreloadTag((file/* , { ssrContext } */) => {
+export const renderPreloadTag = defineSsrRenderPreloadTag((file /* , { ssrContext } */) => {
   if (jsRE.test(file) === true) {
     return `<link rel="modulepreload" href="${file}" crossorigin>`;
   }
