@@ -24,7 +24,7 @@
   </q-table>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends object">
 import type { QTableProps } from 'quasar';
 
 import BaseTooltip from 'src/core/components/BaseTooltip.vue';
@@ -32,13 +32,13 @@ import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 interface Props {
   title: string;
   columns: QTableProps['columns'];
-  rows: QTableProps['rows'];
+  rows: T[];
 }
 
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  (e: 'copy', value: object): void;
-  (e: 'delete', value: object): void;
+  (e: 'copy', value: T): void;
+  (e: 'delete', value: T): void;
 }>();
 </script>
