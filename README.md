@@ -20,27 +20,34 @@ cp .env.example .env.local
 pnpm dev --dotenv .env.local
 ```
 
-Configure these **public endpoint URLs**, never secrets:
+Configure private server values (never `NUXT_PUBLIC_*`):
 
-- `NUXT_PUBLIC_API_URL`: gateway base including `/api` (for example `http://localhost:8080/api`). Direct monolith access instead requires its `/api/monolith` context path.
-- `NUXT_PUBLIC_SOCKET_URL`: separate Socket.IO service origin (default local transport `http://localhost:3334`; `/ws` path remains unchanged).
-- `NUXT_PUBLIC_TMDB_IMAGE_BASE`: image base, normally `https://image.tmdb.org/t/p`.
+- `NUXT_API_UPSTREAM`: fixed gateway base including `/api`, e.g. `http://127.0.0.1:8080/api`.
+- `NUXT_SOCKET_UPSTREAM`: fixed Socket.IO service origin, e.g. `http://127.0.0.1:3334`.
+- `NUXT_TRUSTED_ORIGINS`: exact browser origins separated by commas, e.g. `https://moviemux.example`; no wildcards, paths or inferred forwarded Host.
+- `NUXT_APP_SECRET`: generate with `openssl rand -base64 32`, store outside Git and retain across server restarts. Production startup rejects an absent/short secret.
+- `NUXT_PUBLIC_TMDB_IMAGE_BASE`: nonsecret image CDN base, normally `https://image.tmdb.org/t/p`.
 
-The gateway and Socket.IO service are separate endpoints: the gateway does not forward `/ws`. Prefer a same-origin reverse proxy for browser deployment. The currently inspected gateway CORS configuration omits `PATCH`; cross-origin profile/password/review/watchlist mutations require the gateway owner to allow that method, or same-origin routing. This frontend retains the backend’s existing PATCH contracts.
+### Server-owned session and same-origin API
 
-Legacy build-time `CINE_BACKEND_URL`, `CINE_BACKEND_SOCKET_URL` and `TMDB_IMAGE_BASE` values remain fallbacks. Prefer `NUXT_PUBLIC_*` variables for runtime deployment configuration. Authentication and authorization must still be enforced by the backend; decoded client JWT roles only control frontend navigation.
+The browser calls only Nuxt `/api` and `/ws`. Nuxt Auth Utils0.6.0 seals an HttpOnly session; upstream JWTs exist only in its private server data. Public session JSON/SSR contains whitelisted identity/roles, absolute expiry, a nonsecret generation and CSRF nonce—not bearer credentials. Existing `auth-kb` cookies are ignored and cleared on login/logout. Existing users must log in again after migration.
+
+Unsafe requests require an explicitly trusted Origin; authenticated writes also require the session CSRF nonce. The BFF permits only known API paths/methods, forwards the JWT server-side, limits request/response sizes and rejects upstream redirects. Server rendering uses internal request-scoped dispatch, not a Host-derived network URL. Backend authorization remains authoritative. The backend has no implemented refresh-token route; expiry requires reauthentication rather than pretending to renew it.
+
+A server-side Socket.IO protocol bridge preserves existing namespaces/events/rooms while supplying the JWT only to the upstream connection. Browser connections authenticate with the HttpOnly cookie and CSRF nonce. Expiry/logout ends associated bridges. The bridge targets the Node Nitro runtime and uses the official pinned Engine.IO/Nitro adapter; other deployment presets need separate validation.
+
+**Deployment boundary:** the revocation registry is in-process. Logout rejects copied-cookie replay while that process remains alive, but clearing a sealed cookie cannot revoke every stolen copy after a restart. Multiple instances need shared revocation/session infrastructure and polling affinity; this is not silently provided. HTTPS and production Secure cookies are required. A local HTTP production smoke test may explicitly set `NUXT_SESSION_COOKIE_SECURE=false` only with exclusively loopback trusted origins; startup rejects that override for non-loopback origins.
 
 ### Local same-origin backend testing
 
-For a gateway running locally on port 18081, enable the opt-in development proxy:
-
 ```sh
-NUXT_PUBLIC_API_URL=/api MOVIEMUX_DEV_API_ORIGIN=http://127.0.0.1:18081 pnpm dev --host 127.0.0.1
+NUXT_API_UPSTREAM=http://127.0.0.1:18081/api \
+NUXT_SOCKET_UPSTREAM=http://127.0.0.1:3334 \
+NUXT_TRUSTED_ORIGINS=http://127.0.0.1:3000,http://localhost:3000 \
+NUXT_APP_SECRET="$(openssl rand -base64 32)" pnpm dev --host 127.0.0.1
 ```
 
-Set `NUXT_PUBLIC_API_URL=/api` explicitly (or unset any absolute runtime override); Nuxt runtime environment values otherwise override configuration defaults. The browser calls the frontend’s `/api` on the same origin; Nitro forwards to the local gateway while retaining `/api`, Authorization, request bodies and HTTP methods including PATCH. Only loopback HTTP origins are allowed; do not put secrets in the target. This setting applies only to the development server, not production builds or deployments. The gateway must point to the local monolith (for example port 18080, context `/api/monolith`); Socket.IO remains a separate configured local service.
-
-The proxy can be checked without external services using `node tests/dev-proxy-smoke.ts` (local echo upstream only).
+The server-owned BFF replaces the earlier development-only forwarding proxy. Legacy public API/socket variables and `MOVIEMUX_DEV_API_ORIGIN` are not the session transport configuration. No gateway CORS changes are needed: browser traffic is same-origin, including PATCH. Configure the gateway to reach the local monolith and the separate socket service normally.
 
 ### Verify and build
 
@@ -50,11 +57,13 @@ pnpm typecheck
 pnpm test
 pnpm build
 pnpm test:ssr
+pnpm test:session
+pnpm test:socket
 pnpm test:pwa
 node .output/server/index.mjs
 ```
 
-`test:ssr` runs the production build against isolated fictional fixtures and checks redirects, malformed tokens, concurrent session isolation, routes and PWA assets. Component/unit tests use mocks. Neither replaces acceptance against the real backend.
+`test:ssr` runs the production build against isolated fictional fixtures and checks HttpOnly login, safe public claims, concurrent session isolation, role denial, CSRF rejection, logout replay rejection, routes and PWA assets. `test:session` runs independent HTTP/SSR/Socket.IO policy and cookie-configuration regressions against the built server using ephemeral synthetic upstreams. `test:socket` additionally checks full polling/WebSocket namespace connections, transport/session binding, room isolation, reconnect and cleanup through the actual built BFF. Component/unit tests use mocks. Neither replaces acceptance against the real backend.
 
 For a local interactive preview without a backend, see [QA fixture instructions](scripts/qa/README.md). Fixture tokens are not real credentials and that server must never be deployed.
 

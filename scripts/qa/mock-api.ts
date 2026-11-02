@@ -86,8 +86,8 @@ const lists = [
   },
 ];
 let invites = [{ code: 'MOVIEMUX-DEMO' }];
-const token = () =>
-  `${Buffer.from(JSON.stringify({ alg: 'none', typ: 'JWT' })).toString('base64url')}.${Buffer.from(JSON.stringify({ sub: user.id, id: user.id, name: user.name, aud: user.email, roles: user.roles, exp: Math.floor(Date.now() / 1000) + 86400 })).toString('base64url')}.qa-fixture-not-a-real-signature`;
+const token = (actor = user) =>
+  `${Buffer.from(JSON.stringify({ alg: 'none', typ: 'JWT' })).toString('base64url')}.${Buffer.from(JSON.stringify({ sub: actor.email, id: actor.id, name: actor.name, aud: ['https://www.moviemux.com/api'], roles: actor.roles, exp: Math.floor(Date.now() / 1000) + 86400 })).toString('base64url')}.qa-fixture-not-a-real-signature`;
 const server = createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
@@ -129,7 +129,7 @@ const server = createServer(async (req, res) => {
   }
   let data: unknown = {};
   if (path === '/login')
-    data = { access_token: token(), expires: new Date(Date.now() + 86400000).toISOString() };
+    data = { access_token: token(typeof body.email === 'string' && body.email.endsWith('@ssr.test') ? { ...user, id: body.email, email: body.email, name: body.email.split('@')[0]!, roles: body.email.startsWith('Admin') ? ['ADM', 'USER'] : ['USER'] } : user), expires: new Date(Date.now() + 86400000).toISOString() };
   else if (path === '/qa/token')
     data = { token: token(), warning: 'Local QA fixture only; not valid for any real backend' };
   else if (path === '/movie/genres' || path === '/movie/genres-with-movies') data = genres;

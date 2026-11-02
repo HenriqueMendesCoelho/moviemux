@@ -1,11 +1,11 @@
 import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+const authServerModule = join(
+  dirname(fileURLToPath(import.meta.resolve('nuxt-auth-utils'))),
+  'runtime/server/utils/session.js',
+);
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { localDevApiProxy } from './config/local-dev-api';
-const developmentApiProxy = localDevApiProxy(
-  process.env.MOVIEMUX_DEV_API_ORIGIN,
-  process.env.NODE_ENV === 'development',
-);
 const offlineAssets = ['offline.html'].map((asset) => ({
   url: `/${asset}`,
   revision: createHash('sha256')
@@ -14,24 +14,36 @@ const offlineAssets = ['offline.html'].map((asset) => ({
 }));
 export default defineNuxtConfig({
   compatibilityDate: '2026-11-02',
-  // Nuxt's development override is never applied to production builds.
-  $development: developmentApiProxy
-    ? {
-        runtimeConfig: { public: { apiUrl: '/api' } },
-        nitro: { devProxy: { '/api': developmentApiProxy } },
-      }
-    : {},
   srcDir: 'src/',
+  serverDir: 'src/server',
   dir: { app: '.' },
-  modules: ['@pinia/nuxt', '@vite-pwa/nuxt'],
-  alias: { src: fileURLToPath(new URL('./src', import.meta.url)) },
+  modules: ['@pinia/nuxt', '@vite-pwa/nuxt', 'nuxt-auth-utils'],
+  auth: { loadStrategy: 'none' },
+  nitro: { preset: 'node-server', experimental: { websocket: true } },
+  alias: {
+    src: fileURLToPath(new URL('./src', import.meta.url)),
+    '#auth-server': authServerModule,
+  },
   css: ['~/css/app.scss'],
   components: false,
   devtools: { enabled: false },
   runtimeConfig: {
+    apiUpstream: '',
+    socketUpstream: '',
+    trustedOrigins: '',
+    session: {
+      name: 'moviemux-session',
+      maxAge: 3600,
+      cookie: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax' as const,
+        path: '/',
+      },
+    },
     public: {
-      apiUrl: process.env.CINE_BACKEND_URL || '',
-      socketUrl: process.env.CINE_BACKEND_SOCKET_URL || '',
+      apiUrl: '/api',
+      socketUrl: '',
       tmdbImageBase: process.env.TMDB_IMAGE_BASE || 'https://image.tmdb.org/t/p',
     },
   },

@@ -1,17 +1,26 @@
-import { resolveApiBaseURL } from '~/core/resolveApiBaseURL';
-import { createApiClient } from '~/core/createApiClient';
-import { readBrowserAuthToken } from '~/core/session';
+import {
+  createApiClient,
+  createInternalApiAdapter,
+  requestFetchBridge,
+} from '~/core/createApiClient';
 import { useUserStore } from '~/core/stores/UserStore';
 export default defineNuxtPlugin(() => {
-  const config = useRuntimeConfig();
-  const token = useCookie<string | null>('auth-kb');
   const store = useUserStore();
-  const requestOrigin = import.meta.server
-    ? useRequestURL({ xForwardedHost: false, xForwardedProto: false }).origin
-    : undefined;
+  const requestFetch = import.meta.server ? useRequestFetch() : undefined;
   const api = createApiClient({
-    baseURL: resolveApiBaseURL(config.public.apiUrl || undefined, requestOrigin),
-    getToken: () => (import.meta.client ? readBrowserAuthToken() : token.value),
+    getCsrfToken: () => store.csrfToken,
+    getSessionGeneration: () => store.user.generation,
+    adapter: requestFetch
+      ? createInternalApiAdapter(
+          requestFetchBridge((path, options) =>
+            requestFetch(path, {
+              ...options,
+              method: options.method as
+                'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS',
+            }),
+          ),
+        )
+      : undefined,
     onUnauthorized: () => {
       store.user.isLoged = false;
       if (import.meta.client) store.showDialogLogin = true;

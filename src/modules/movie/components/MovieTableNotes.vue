@@ -251,7 +251,7 @@ function hasTarget() {
 }
 const { join: joinRoom } = useMovieRoom(
   () => (hasTarget() ? targetId() : undefined),
-  () => requests.token.value || '',
+  () => requests.sessionGeneration.value || '',
 );
 watch(
   requests.context,

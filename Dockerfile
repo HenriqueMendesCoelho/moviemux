@@ -4,8 +4,8 @@ RUN npm install --global pnpm@12.16.1
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 RUN pnpm install --frozen-lockfile
 COPY nuxt.config.ts tsconfig.json ./
-COPY config ./config
 COPY src ./src
+COPY shared ./shared
 COPY public ./public
 RUN pnpm build
 FROM node:26.13.0-alpine

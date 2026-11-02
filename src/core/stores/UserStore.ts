@@ -1,89 +1,64 @@
 import axios from 'src/core/http';
-import { jwtDecode } from 'jwt-decode';
 import { defineStore } from 'pinia';
-import { useCookie } from '#app';
-
-import type { tokenPayload } from 'src/core/types/token/TokenType';
-
-const BASE_URL = '';
+import { publicSession } from 'src/core/session';
 
 export const useUserStore = defineStore('UserStore', {
-  state: () => {
-    return {
-      user: {
-        id: '',
-        name: '',
-        username: '',
-        roles: [''],
-        expirationToken: Date.now() / 1000,
-        isLoged: false,
-      },
-      showDialogLogin: false,
-    };
-  },
+  state: () => ({
+    user: {
+      id: '',
+      name: '',
+      username: '',
+      roles: [] as string[],
+      expirationToken: 0,
+      generation: '',
+      isLoged: false,
+    },
+    csrfToken: '',
+    sessionLoaded: false,
+    showDialogLogin: false,
+  }),
   getters: {
     timeToExpire(): number {
-      const until = this.user.expirationToken;
-      const dateNow = Math.floor(Date.now() / 1000);
-
-      const diff = until - dateNow;
-
-      const result = diff > 0 ? Math.floor(diff / 60) : 0;
-
-      return result;
+      return Math.max(0, Math.floor((this.user.expirationToken - Date.now() / 1000) / 60));
     },
     isAdmin(): boolean {
-      return Boolean(this.user.roles?.includes('ADM'));
+      return this.user.roles.includes('ADM');
     },
   },
   actions: {
-    async login(payload: { email: string; password: string }): Promise<void> {
-      const url = `${BASE_URL}/login`;
-      const res = await axios.post(url, payload);
-      const responsePayload = res.data;
-      const token = responsePayload.access_token;
-
-      useCookie('auth-kb', {
-        expires: new Date(responsePayload.expires),
-        secure: import.meta.client && location.protocol === 'https:',
-        sameSite: 'lax',
-        path: '/',
-      }).value = token;
-      this.user.isLoged = true;
+    applySession(value: unknown) {
+      const session = publicSession(value);
+      if (!session.user) {
+        this.$reset();
+        this.sessionLoaded = true;
+        return;
+      }
+      this.user = {
+        id: session.user.id,
+        name: session.user.name,
+        username: session.user.username,
+        roles: session.user.roles,
+        expirationToken: session.user.expiresAt / 1000,
+        generation: session.user.generation,
+        isLoged: true,
+      };
+      this.csrfToken = session.csrfToken || '';
+      this.sessionLoaded = true;
       this.showDialogLogin = false;
-      this.decodeToken(token);
     },
-    async refreshToken(): Promise<void> {
-      await axios.post(`${BASE_URL}/refresh-token`);
+    async fetchSession(): Promise<void> {
+      const response = await axios.get('/_auth/session');
+      this.applySession(response.data);
     },
-    logout() {
-      useCookie('auth-kb', { path: '/' }).value = null;
+    async login(payload: { email: string; password: string }): Promise<void> {
+      const response = await axios.post('/login', payload);
+      this.applySession(response.data);
+      if (!this.user.isLoged) throw new Error('Invalid login session');
+    },
+    async logout(): Promise<void> {
+      await axios.post('/logout');
       this.$reset();
-    },
-    decodeToken(token: string) {
-      if (!token) {
-        this.user.isLoged = false;
-        return;
-      }
-
-      let tokenPayload: tokenPayload;
-      try {
-        tokenPayload = jwtDecode<tokenPayload>(token);
-      } catch {
-        this.$reset();
-        return;
-      }
-      if (!Array.isArray(tokenPayload.roles) || typeof tokenPayload.exp !== 'number') {
-        this.$reset();
-        return;
-      }
-
-      this.user.id = tokenPayload.id;
-      this.user.name = tokenPayload.name;
-      this.user.roles = tokenPayload.roles;
-      this.user.username = tokenPayload.aud;
-      this.user.expirationToken = tokenPayload.exp;
-      this.user.isLoged = this.timeToExpire > 2;
+      this.sessionLoaded = true;
     },
   },
 });

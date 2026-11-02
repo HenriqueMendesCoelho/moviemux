@@ -75,12 +75,6 @@ onMounted(async () => {
   await loadLastMovies();
   if (disposed || !userStore.user.isLoged) return;
   if (!stateSocketAllMovies.connected) {
-    stateSocketAllMovies.token = decodeURIComponent(
-      document.cookie
-        .split('; ')
-        .find((item) => item.startsWith('auth-kb='))
-        ?.slice(8) || '',
-    );
     socketAllMovies.connect();
   }
 });

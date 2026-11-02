@@ -28,18 +28,18 @@ export const stateSocketAllMovies = reactive({
   connected: false,
   updateEvents: [] as { event: string }[],
   hasToExecuteUpdate: false,
-  token: '',
+  csrfToken: '',
 });
 
-export function initializeSockets(baseUrl: string) {
+export function initializeSockets() {
   if (all || !import.meta.client) return;
-  all = io(`${baseUrl}/movie/all`, {
+  all = io('/movie/all', {
     autoConnect: false,
     // Independent lifecycles prevent shared-manager reconnect races between namespaces.
     forceNew: true,
     auth: (cb) => {
       cb({
-        token: stateSocketAllMovies.token,
+        csrf: stateSocketAllMovies.csrfToken,
       });
     },
     path: '/ws',
@@ -48,6 +48,10 @@ export function initializeSockets(baseUrl: string) {
 
   socketAllMovies.on('connect', () => {
     stateSocketAllMovies.connected = true;
+  });
+
+  socketAllMovies.on('bridge:upstream', (state: { connected: boolean }) => {
+    stateSocketAllMovies.connected = state.connected === true;
   });
 
   socketAllMovies.on('disconnect', () => {
@@ -67,18 +71,18 @@ export const stateSocketMovie = reactive({
   updateNote: [] as eventMovieNote[],
   deleteNote: [] as eventMovieNote[],
   deletedMovie: [] as eventMovieNote[],
-  token: '',
+  csrfToken: '',
 });
 
-export function initializeMovieSocket(baseUrl: string) {
+export function initializeMovieSocket() {
   if (movie || !import.meta.client) return;
-  movie = io(`${baseUrl}/movie/note`, {
+  movie = io('/movie/note', {
     autoConnect: false,
     // Independent lifecycles prevent shared-manager reconnect races between namespaces.
     forceNew: true,
     auth: (cb) => {
       cb({
-        token: stateSocketMovie.token,
+        csrf: stateSocketMovie.csrfToken,
       });
     },
     path: '/ws',
@@ -87,6 +91,10 @@ export function initializeMovieSocket(baseUrl: string) {
 
   socketMovie.on('connect', () => {
     stateSocketMovie.connected = true;
+  });
+
+  socketMovie.on('bridge:upstream', (state: { connected: boolean }) => {
+    stateSocketMovie.connected = state.connected === true;
   });
 
   socketMovie.on('disconnect', () => {
@@ -115,17 +123,17 @@ export function initializeMovieSocket(baseUrl: string) {
 }
 
 /** Clear account-scoped events and credentials before another session can subscribe. */
-export function resetSocketSession(token = '') {
-  const reconnectAll = Boolean(all?.connected && token);
-  const reconnectMovie = Boolean(movie?.connected && token);
+export function resetSocketSession(csrfToken = '') {
+  const reconnectAll = Boolean(all?.connected && csrfToken);
+  const reconnectMovie = Boolean(movie?.connected && csrfToken);
   all?.disconnect();
   movie?.disconnect();
   stateSocketAllMovies.connected = false;
-  stateSocketAllMovies.token = token;
+  stateSocketAllMovies.csrfToken = csrfToken;
   stateSocketAllMovies.updateEvents = [];
   stateSocketAllMovies.hasToExecuteUpdate = false;
   stateSocketMovie.connected = false;
-  stateSocketMovie.token = token;
+  stateSocketMovie.csrfToken = csrfToken;
   stateSocketMovie.updateMovie = [];
   stateSocketMovie.createNote = [];
   stateSocketMovie.updateNote = [];

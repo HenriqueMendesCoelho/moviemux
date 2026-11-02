@@ -1,51 +1,127 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { InternalAxiosRequestConfig } from 'axios';
-import { createApiClient } from '../../src/core/createApiClient';
-import { readBrowserAuthToken } from '../../src/core/session';
+import {
+  createApiClient,
+  createInternalApiAdapter,
+  safeApiPath,
+  requestFetchBridge,
+} from '../../src/core/createApiClient';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 describe('request-scoped HTTP clients', () => {
-  it('isolates concurrent users and resolves fresh credentials per request', async () => {
-    const headers: string[] = [];
+  it('isolates public CSRF and never sends bearer credentials', async () => {
+    const seen: InternalAxiosRequestConfig[] = [];
     const adapter = async (config: InternalAxiosRequestConfig) => {
-      headers.push(String(config.headers.Authorization || ''));
+      seen.push(config);
       return { data: {}, status: 200, statusText: 'OK', config, headers: {} };
     };
-    let firstToken = 'first-user';
-    const first = createApiClient({ getToken: () => firstToken, onUnauthorized: vi.fn() });
-    const second = createApiClient({ getToken: () => 'second-user', onUnauthorized: vi.fn() });
-    first.defaults.adapter = adapter;
-    second.defaults.adapter = adapter;
-    await Promise.all([first.get('/profile'), second.get('/profile')]);
-    expect(headers).toEqual(expect.arrayContaining(['Bearer first-user', 'Bearer second-user']));
-    firstToken = 'renewed-first';
-    await first.get('/profile');
-    expect(headers.at(-1)).toBe('Bearer renewed-first');
+    let csrf = 'first';
+    const first = createApiClient({ getCsrfToken: () => csrf, onUnauthorized: vi.fn(), adapter });
+    const second = createApiClient({
+      getCsrfToken: () => 'second',
+      onUnauthorized: vi.fn(),
+      adapter,
+    });
+    await Promise.all([first.post('/movie'), second.post('/movie')]);
+    expect(seen.map((c) => c.headers.get('x-csrf-token'))).toEqual(['first', 'second']);
+    csrf = 'fresh';
+    await first.post('/movie', {}, { headers: { Authorization: 'Bearer forbidden' } });
+    expect(seen.at(-1)?.headers.get('x-csrf-token')).toBe('fresh');
+    expect(seen.at(-1)?.headers.has('Authorization')).toBe(false);
+    await first.get('/movie');
+    expect(seen.at(-1)?.headers.has('x-csrf-token')).toBe(false);
   });
-  it('handles transport errors without falsely expiring a session', async () => {
+  it('only signals unauthorized, not forbidden or transport failure', async () => {
     const expired = vi.fn();
-    const api = createApiClient({ getToken: () => null, onUnauthorized: expired });
-    api.defaults.adapter = () => Promise.reject(new Error('Offline'));
-    await expect(api.get('/movie')).rejects.toThrow('Offline');
+    const api = createApiClient({ getCsrfToken: () => '', onUnauthorized: expired });
+    for (const status of [403, 500, undefined]) {
+      api.defaults.adapter = () => Promise.reject({ response: { status } });
+      await expect(api.get('/movie')).rejects.toBeDefined();
+    }
     expect(expired).not.toHaveBeenCalled();
-  });
-  it('signals unauthorized response once', async () => {
-    const expired = vi.fn();
-    const api = createApiClient({ getToken: () => 'old', onUnauthorized: expired });
     api.defaults.adapter = () => Promise.reject({ response: { status: 401 } });
     await expect(api.get('/movie')).rejects.toBeDefined();
     expect(expired).toHaveBeenCalledOnce();
   });
-});
-
-describe('legacy cookie compatibility', () => {
-  it('reads URI encoded token and ignores unrelated cookies', () => {
-    document.cookie = 'other=value; path=/';
-    document.cookie = 'auth-kb=abc%2Edef%2Eghi; path=/';
-    expect(readBrowserAuthToken()).toBe('abc.def.ghi');
-    document.cookie = 'auth-kb=; max-age=0; path=/';
-    expect(readBrowserAuthToken()).toBe('');
+  it('ignores a stale unauthorized response after another login', async () => {
+    let generation = 'old';
+    const expired = vi.fn();
+    const api = createApiClient({
+      getCsrfToken: () => '',
+      getSessionGeneration: () => generation,
+      onUnauthorized: expired,
+      adapter: async (config) => {
+        generation = 'new';
+        throw { config, response: { status: 401 } };
+      },
+    });
+    await expect(api.get('/movie')).rejects.toBeDefined();
+    expect(expired).not.toHaveBeenCalled();
+  });
+  it('rejects external or ambiguous credential forwarding paths', () => {
+    for (const path of [
+      'https://evil.test/api/a',
+      '//evil.test/api/a',
+      '/api/../user',
+      '/api/%2e%2e/user',
+      '/api/%252e/user',
+      '/api/a%5cb',
+    ]) {
+      expect(() => safeApiPath(path)).toThrow();
+    }
+    expect(safeApiPath('/api/movie?page=1')).toBe('/api/movie?page=1');
+  });
+  it('supports the real plain-callable Nuxt request fetch shape without raw', async () => {
+    const plainFetch = vi.fn(async (_path, options) => {
+      const response = {
+        _data: { user: { id: 'safe' } },
+        status: 200,
+        statusText: 'OK',
+        headers: new Headers(),
+      };
+      options.onResponse({ response });
+      return response._data;
+    });
+    expect('raw' in plainFetch).toBe(false);
+    const api = createApiClient({
+      getCsrfToken: () => '',
+      onUnauthorized: vi.fn(),
+      adapter: createInternalApiAdapter(requestFetchBridge(plainFetch)),
+    });
+    expect((await api.get('/_auth/session')).data).toEqual({ user: { id: 'safe' } });
+    expect(plainFetch).toHaveBeenCalledWith(
+      '/api/_auth/session',
+      expect.objectContaining({ retry: 0, timeout: 20000, ignoreResponseError: true }),
+    );
+  });
+  it('uses internal fetch for SSR and translates upstream errors', async () => {
+    const internal = vi.fn().mockResolvedValue({
+      _data: { ok: true },
+      status: 200,
+      statusText: 'OK',
+      headers: new Headers(),
+    });
+    const api = createApiClient({
+      getCsrfToken: () => 'csrf',
+      onUnauthorized: vi.fn(),
+      adapter: createInternalApiAdapter(internal),
+    });
+    await api.post('/movie', { name: 'test' });
+    expect(internal).toHaveBeenCalledWith(
+      '/api/movie',
+      expect.objectContaining({ method: 'POST', body: '{"name":"test"}' }),
+    );
+    internal.mockResolvedValue({
+      _data: {},
+      status: 403,
+      statusText: 'Forbidden',
+      headers: new Headers(),
+    });
+    await expect(api.get('/movie')).rejects.toMatchObject({
+      isAxiosError: true,
+      response: { status: 403 },
+    });
   });
 });
 

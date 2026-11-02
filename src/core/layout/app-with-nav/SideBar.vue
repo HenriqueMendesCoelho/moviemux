@@ -5,6 +5,7 @@ import { useUserStore } from '~/core/stores/UserStore';
 import { useStyleStore } from '~/core/stores/StyleStore';
 import SidebarRouteButtons from './SidebarRouteButtons.vue';
 import logo from '~/assets/logo.webp';
+import { showError } from '~/core/utils/NotificationUtils';
 const props = withDefaults(defineProps<{ mobile?: boolean }>(), { mobile: false });
 const panel = ref<HTMLElement>();
 const pwa = useNuxtApp().$pwa;
@@ -79,10 +80,19 @@ onBeforeUnmount(() => {
   focusGeneration++;
   opener = null;
 });
+const loggingOut = ref(false);
 async function logout() {
-  close();
-  user.logout();
-  await navigateTo('/');
+  if (loggingOut.value) return;
+  loggingOut.value = true;
+  try {
+    await user.logout();
+    close();
+    await navigateTo('/');
+  } catch {
+    showError('Não foi possível sair. Verifique sua conexão e tente novamente.');
+  } finally {
+    loggingOut.value = false;
+  }
 }
 </script>
 <template>
@@ -128,7 +138,7 @@ async function logout() {
         ><span
           >{{ user.user.name || 'Meu perfil' }}<small>Seu espaço de cinema</small></span
         ></NuxtLink
-      ><button class="mm-text-button" @click="logout">
+      ><button class="mm-text-button" :disabled="loggingOut" @click="logout">
         Sair da conta <BaseIcon name="arrow" />
       </button>
     </div>

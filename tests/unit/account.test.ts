@@ -240,6 +240,16 @@ describe('login session recovery', () => {
       mocks.replace.mock.invocationCallOrder[0]!,
     );
   });
+  it('keeps recovery open when server logout fails', async () => {
+    mocks.logout.mockRejectedValueOnce(new Error('offline'));
+    const wrapper = track(
+      mount(LoginDialog, { props: { modelValue: true }, global: { stubs: { LoginForm: true } } }),
+    );
+    await wrapper.get('button').trigger('click');
+    await flushPromises();
+    expect(mocks.replace).not.toHaveBeenCalled();
+    expect(wrapper.get('[role="alert"]').text()).toContain('Não foi possível sair');
+  });
   it('prevents exit while authentication is pending', async () => {
     const wrapper = track(
       mount(LoginDialog, { props: { modelValue: true }, global: { stubs: { LoginForm: true } } }),

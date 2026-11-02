@@ -1,5 +1,5 @@
 import { onMounted, onBeforeUnmount, watch } from 'vue';
-import { socketMovie, stateSocketMovie } from 'src/boot/socket';
+import { socketMovie } from 'src/boot/socket';
 
 type RoomOwner = {
   identity: symbol;
@@ -11,7 +11,10 @@ type RoomOwner = {
 // than disconnect/reconnect its shared Manager while the successor is mounting.
 let currentOwner: RoomOwner | undefined;
 
-export function useMovieRoom(getRoom: () => string | undefined, getToken: () => string) {
+export function useMovieRoom(
+  getRoom: () => string | undefined,
+  getSessionGeneration: () => string,
+) {
   const identity = Symbol('movie-room');
   let joinedRoom: string | undefined;
   function ownsRoom() {
@@ -24,12 +27,11 @@ export function useMovieRoom(getRoom: () => string | undefined, getToken: () => 
   function join() {
     if (!ownsRoom()) return;
     const room = getRoom();
-    const token = getToken();
-    stateSocketMovie.token = token;
-    if (!room || !token) {
+    const generation = getSessionGeneration();
+    if (!room || !generation) {
       releaseRoom();
-      // An emptied credential means logout. Ordinary room changes retain transport.
-      if (!token && socketMovie.connected) socketMovie.disconnect();
+      // An empty session generation means logout. Ordinary room changes retain transport.
+      if (!generation && socketMovie.connected) socketMovie.disconnect();
       return;
     }
     if (!socketMovie.connected) {
@@ -61,7 +63,7 @@ export function useMovieRoom(getRoom: () => string | undefined, getToken: () => 
     socketMovie.on('disconnect', disconnected);
     join();
   });
-  watch([getRoom, getToken], join);
+  watch([getRoom, getSessionGeneration], join);
   onBeforeUnmount(() => {
     socketMovie.off('connect', connected);
     socketMovie.off('disconnect', disconnected);

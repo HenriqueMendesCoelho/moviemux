@@ -10,6 +10,7 @@ export default defineConfig({
       '~': root('./src'),
       '@': root('./src'),
       '#imports': root('./tests/unit/nuxt-stubs.ts'),
+      '#auth-server': root('./tests/unit/nuxt-stubs.ts'),
       '#app': root('./tests/unit/nuxt-stubs.ts'),
     },
   },

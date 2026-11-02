@@ -16,15 +16,14 @@ const mocks = vi.hoisted(() => {
     connect: vi.fn(),
     disconnect: vi.fn(),
   };
-  return { socket, handlers, state: { token: '' } };
+  return { socket, handlers };
 });
-vi.mock('src/boot/socket', () => ({ socketMovie: mocks.socket, stateSocketMovie: mocks.state }));
+vi.mock('src/boot/socket', () => ({ socketMovie: mocks.socket }));
 beforeEach(() => {
   vi.resetModules();
   vi.clearAllMocks();
   mocks.handlers.clear();
   mocks.socket.connected = false;
-  mocks.state.token = '';
   mocks.socket.connect.mockImplementation(() => {
     mocks.socket.connected = true;
     mocks.handlers.get('connect')?.forEach((fn) => fn());
@@ -36,22 +35,22 @@ beforeEach(() => {
 });
 async function fixtures() {
   const { useMovieRoom } = await import('../useMovieRoom');
-  function consumer(id: string | undefined, credential = 'account-token') {
+  function consumer(id: string | undefined, generation = 'account-generation') {
     const room = ref(id),
-      token = ref(credential);
+      sessionGeneration = ref(generation);
     let join!: () => void;
     const wrapper = mount(
       defineComponent({
         setup() {
           ({ join } = useMovieRoom(
             () => room.value,
-            () => token.value,
+            () => sessionGeneration.value,
           ));
           return () => null;
         },
       }),
     );
-    return { wrapper, room, token, join: () => join() };
+    return { wrapper, room, sessionGeneration, join: () => join() };
   }
   return consumer;
 }
@@ -122,17 +121,15 @@ describe('movie room ownership', () => {
     expect(mocks.socket.disconnect).not.toHaveBeenCalled();
     next.wrapper.unmount();
   });
-  it('disconnects on logout and only rejoins after a new credential is available', async () => {
+  it('disconnects on logout and only rejoins after a new session generation is available', async () => {
     const consumer = await fixtures(),
       current = consumer('movie');
-    current.token.value = '';
+    current.sessionGeneration.value = '';
     await flushPromises();
-    expect(mocks.state.token).toBe('');
     expect(mocks.socket.disconnect).toHaveBeenCalledTimes(1);
     expect(mocks.socket.emit).toHaveBeenLastCalledWith('leave-room', { room: 'movie' });
-    current.token.value = 'new-token';
+    current.sessionGeneration.value = 'new-generation';
     await flushPromises();
-    expect(mocks.state.token).toBe('new-token');
     expect(mocks.socket.emit).toHaveBeenLastCalledWith('join-room', { room: 'movie' });
     current.wrapper.unmount();
   });

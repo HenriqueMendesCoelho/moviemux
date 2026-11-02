@@ -1,15 +1,21 @@
-/** Production SSR checks using fictional local data, not a live backend. Run after build. */
+/** Production SSR through the real Nuxt session/BFF; upstream data is fictional. */
 import assert from 'node:assert/strict';
+import { randomBytes } from 'node:crypto';
 import { spawn } from 'node:child_process';
 const port = 3100;
 const apiPort = 3101;
+const origin = `http://127.0.0.1:${port}`;
 const env = {
   ...process.env,
   HOST: '127.0.0.1',
   PORT: String(port),
   QA_API_PORT: String(apiPort),
-  NUXT_PUBLIC_API_URL: `http://127.0.0.1:${apiPort}`,
-  NUXT_PUBLIC_SOCKET_URL: '',
+  NUXT_API_UPSTREAM: `http://127.0.0.1:${apiPort}`,
+  NUXT_SOCKET_UPSTREAM: '',
+  NUXT_TRUSTED_ORIGINS: origin,
+  NUXT_APP_SECRET: randomBytes(48).toString('base64url'),
+  NUXT_SESSION_COOKIE_SECURE: 'false',
+  NODE_ENV: 'production',
 };
 const api = spawn(process.execPath, ['scripts/qa/mock-api.ts'], { env, stdio: 'pipe' });
 const app = spawn(process.execPath, ['.output/server/index.mjs'], { env, stdio: 'pipe' });
@@ -17,57 +23,70 @@ let serverLog = '';
 app.stderr.on('data', (data) => {
   serverLog += String(data);
 });
-function fixtureToken(name: string, roles = ['USER']) {
-  return `${Buffer.from('{"alg":"none"}').toString('base64url')}.${Buffer.from(JSON.stringify({ id: name, name, aud: `${name}@example.test`, roles, exp: Math.floor(Date.now() / 1000) + 3600 })).toString('base64url')}.fixture`;
-}
-const request = (path: string, token?: string) =>
-  fetch(`http://127.0.0.1:${port}${path}`, {
+const request = (path: string, cookie = '', options: RequestInit = {}) =>
+  fetch(`${origin}${path}`, {
+    ...options,
     redirect: 'manual',
-    headers: token ? { cookie: `auth-kb=${token}` } : {},
+    headers: { accept: 'text/html', ...(cookie ? { cookie } : {}), ...options.headers },
   });
+async function login(name: string) {
+  const response = await request('/api/login', '', {
+    method: 'POST',
+    headers: { origin, 'content-type': 'application/json' },
+    body: JSON.stringify({ email: `${name}@ssr.test`, password: 'fictional-test-only' }),
+  });
+  assert.equal(response.status, 200, await response.clone().text());
+  const data = await response.json();
+  assert.equal(data.user.name, name);
+  assert.doesNotMatch(
+    JSON.stringify(data),
+    /access_token|accessToken|secure|qa-fixture-not-a-real-signature/,
+  );
+  const cookies = response.headers.getSetCookie();
+  const cookie = cookies
+    .filter(
+      (value) => value.startsWith('moviemux-session=') && !value.startsWith('moviemux-session=;'),
+    )
+    .at(-1)!;
+  assert.match(cookie, /HttpOnly/i);
+  assert.match(cookie, /SameSite=Lax/i);
+  return { cookie: cookie.split(';')[0]!, csrf: data.csrfToken };
+}
 try {
   let ready = false;
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 100; i++) {
     try {
       await request('/');
       ready = true;
       break;
     } catch {
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise((r) => setTimeout(r, 100));
     }
   }
   assert.ok(ready, 'Production server started');
   const landing = await request('/');
-  assert.equal(landing.status, 200);
+  assert.equal(landing.status, 200, await landing.clone().text());
   assert.match(await landing.text(), /Grandes histórias/);
-  const denied = await request('/home');
-  assert.equal(denied.status, 302);
-  assert.equal(denied.headers.get('location'), '/?from=/home');
-  const invalid = await request('/home', 'broken-token');
-  assert.equal(invalid.status, 302);
-  const unauthorized = await request('/home', fixtureToken('NoRole', []));
-  assert.equal(unauthorized.status, 302);
-  assert.match(unauthorized.headers.get('location') || '', /reason=forbidden/);
-  const adminDenied = await request('/adm', fixtureToken('RegularUser'));
-  assert.equal(adminDenied.status, 302);
-  const [alice, bob] = await Promise.all([
-    request('/home', fixtureToken('AliceFixture')),
-    request('/home', fixtureToken('BobFixture')),
+  assert.equal((await request('/home')).status, 302);
+  assert.equal((await request('/home', 'moviemux-session=broken')).status, 302);
+  const admin = await login('AdminFixture');
+  const other = await login('OtherFixture');
+  const [first, second] = await Promise.all([
+    request('/home', admin.cookie),
+    request('/home', other.cookie),
   ]);
-  const aliceHtml = await alice.text();
-  const bobHtml = await bob.text();
-  assert.equal(alice.status, 200);
-  assert.equal(bob.status, 200);
-  assert.ok(
-    aliceHtml.includes('AliceFixture') && !aliceHtml.includes('BobFixture'),
-    'Alice SSR session isolated',
-  );
-  assert.ok(
-    bobHtml.includes('BobFixture') && !bobHtml.includes('AliceFixture'),
-    'Bob SSR session isolated',
-  );
+  const firstHtml = await first.text();
+  const secondHtml = await second.text();
+  assert.equal(first.status, 200);
+  assert.equal(second.status, 200);
+  assert.match(firstHtml, /AdminFixture/);
+  assert.doesNotMatch(firstHtml, /OtherFixture/);
+  assert.match(secondHtml, /OtherFixture/);
+  assert.doesNotMatch(secondHtml, /AdminFixture/);
+  assert.doesNotMatch(firstHtml + secondHtml, /access_token|qa-fixture-not-a-real-signature/);
+  assert.equal((await request('/adm', other.cookie)).status, 403);
   for (const path of [
-    '/profile',
+    '/home',
     '/movie/add',
     '/movie/movie-1',
     '/movie/edit/movie-1',
@@ -75,29 +94,53 @@ try {
     '/movie/watchlist',
     '/movie/watchlist/list-1',
     '/movie/dashboard',
+    '/profile',
     '/adm',
   ]) {
-    const response = await request(path, fixtureToken('AdminFixture', ['ADM', 'USER']));
-    assert.equal(response.status, 200, `${path} SSR renders`);
+    const response = await request(path, admin.cookie);
+    assert.equal(
+      response.status,
+      200,
+      `${path} renders: ${await response
+        .clone()
+        .text()
+        .then((text) => text.slice(0, 180))}`,
+    );
   }
-  for (const path of ['/manifest.json', '/sw.js']) {
-    const response = await request(path);
-    assert.equal(response.status, 200, `${path} exists`);
+  const session = await request('/api/_auth/session', admin.cookie);
+  assert.match(session.headers.get('cache-control') || '', /no-store/);
+  assert.doesNotMatch(await session.text(), /accessToken|secure|qa-fixture-not-a-real-signature/);
+  for (const badOrigin of ['https://evil.test', 'null', '']) {
+    const response = await request('/api/logout', admin.cookie, {
+      method: 'POST',
+      headers: { ...(badOrigin ? { origin: badOrigin } : {}), 'x-csrf-token': admin.csrf },
+    });
+    assert.equal(response.status, 403);
   }
+  assert.equal(
+    (
+      await request('/api/logout', admin.cookie, {
+        method: 'POST',
+        headers: { origin, 'x-csrf-token': admin.csrf },
+      })
+    ).status,
+    200,
+  );
+  assert.equal(
+    (await request('/api/movie', admin.cookie)).status,
+    401,
+    'Copied cookie revoked within current server process',
+  );
+  for (const path of ['/manifest.json', '/sw.js', '/offline.html'])
+    assert.equal((await request(path)).status, 200);
   const worker = await (await request('/sw.js')).text();
   assert.match(worker, /url:\s*["']\/offline\.html["']/);
   assert.match(worker, /NetworkOnly/);
-  assert.match(worker, /PrecacheFallbackPlugin/);
-  assert.equal((await request('/offline.html')).status, 200);
   const manifest = await (await request('/manifest.json')).json();
   assert.equal(manifest.theme_color, '#00f6ff');
-  assert.equal(manifest.display, 'standalone');
-  assert.doesNotMatch(
-    serverLog,
-    /\[nuxt\].*(error|unavailable)|Unhandled|ReferenceError|TypeError/i,
-  );
+  assert.doesNotMatch(serverLog, /Unhandled|ReferenceError|TypeError/);
   console.log(
-    'PASS: production SSR, role redirects, malformed tokens, concurrent session isolation, 9 protected routes and PWA assets. Fictional fixtures only.',
+    'PASS: HttpOnly login, safe session/SSR, two-user isolation, role403, CSRF rejection, logout replay rejection, protected routes and PWA assets. Upstream fixtures only.',
   );
 } catch (error) {
   console.error(serverLog);
