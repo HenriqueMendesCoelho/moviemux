@@ -4,138 +4,134 @@
     <div v-if="loading && movie" class="mm-summary-refresh" role="status">
       Atualizando informações…
     </div>
-    <Transition name="mm-summary-state" mode="out-in">
-      <div v-if="loading && !movie" key="loading" class="mm-summary-skeleton" aria-hidden="true">
-        <div class="mm-skeleton-poster" />
-        <div class="mm-skeleton-copy">
-          <i /><i /><i />
-          <div class="mm-skeleton-chips"><b /><b /><b /></div>
-          <i /><i /><i /><i />
-        </div>
+    <div v-if="loading && !movie" key="loading" class="mm-summary-skeleton" aria-hidden="true">
+      <div class="mm-skeleton-poster" />
+      <div class="mm-skeleton-copy">
+        <i /><i /><i />
+        <div class="mm-skeleton-chips"><b /><b /><b /></div>
+        <i /><i /><i /><i />
       </div>
-      <div v-else-if="error && !movie" key="error" class="mm-summary-error" role="alert">
-        <BaseIcon name="refresh" />
-        <h3>Não foi possível abrir este filme</h3>
-        <p>{{ error }} Tente novamente sem sair desta janela.</p>
-        <button type="button" class="mm-button mm-button-primary" @click="getMovie">
-          Tentar novamente
-        </button>
+    </div>
+    <div v-else-if="error && !movie" key="error" class="mm-summary-error" role="alert">
+      <BaseIcon name="refresh" />
+      <h3>Não foi possível abrir este filme</h3>
+      <p>{{ error }} Tente novamente sem sair desta janela.</p>
+      <button type="button" class="mm-button mm-button-primary" @click="getMovie">
+        Tentar novamente
+      </button>
+    </div>
+    <div
+      v-else-if="movie"
+      key="content"
+      class="mm-movie-summary"
+      :class="{ 'mm-summary-updating': loading }"
+    >
+      <div class="mm-summary-artwork">
+        <img
+          v-if="movie.url_image"
+          class="mm-summary-poster"
+          width="280"
+          height="420"
+          :src="movie.url_image"
+          :srcset="tmdbPosterSrcset(imageBase, movie.url_image)"
+          sizes="(max-width: 650px) 104px, 280px"
+          :alt="`Pôster de ${movie.portuguese_title}`"
+        />
+        <div v-else class="mm-empty">Pôster indisponível</div>
+        <BaseBtnDialogCast :movie-id="movieId" />
       </div>
-      <div
-        v-else-if="movie"
-        key="content"
-        class="mm-movie-summary"
-        :class="{ 'mm-summary-updating': loading }"
-      >
-        <div class="mm-summary-artwork">
-          <img
-            v-if="movie.url_image"
-            class="mm-summary-poster"
-            width="280"
-            height="420"
-            :src="movie.url_image"
-            :srcset="tmdbPosterSrcset(imageBase, movie.url_image)"
-            sizes="(max-width: 650px) 104px, 280px"
-            :alt="`Pôster de ${movie.portuguese_title}`"
-          />
-          <div v-else class="mm-empty">Pôster indisponível</div>
-          <BaseBtnDialogCast :movie-id="movieId" />
-        </div>
-        <div class="mm-summary-info">
-          <p class="mm-eyebrow">INFORMAÇÕES DO FILME</p>
-          <h2>{{ movie.portuguese_title || movie.original_title }}</h2>
-          <p class="mm-muted">
-            {{ movie.original_title
-            }}<template v-if="movie.english_title && movie.english_title !== movie.original_title">
-              · {{ movie.english_title }}</template
-            >
-          </p>
-          <p class="mm-summary-meta">
-            {{ StringUtils.runtimeToText(movie.runtime) }} · {{ releaseDate }} ·
-            {{ movie.director }}
-          </p>
-          <div v-if="matchingRating" class="mm-preview-rating">
-            <button
-              v-if="!ratingRevealed"
-              type="button"
-              class="mm-button mm-button-ghost"
-              @click="ratingRevealed = true"
-            >
-              <BaseIcon name="lock" />Revelar nota do TMDB
-            </button>
-            <p v-else role="status">
-              <template v-if="matchingRating.votes === 0">Ainda sem avaliações no TMDB.</template
-              ><template v-else
-                ><strong>{{ matchingRating.value.toFixed(1) }}</strong> / 10 <span>no TMDB</span
-                ><small v-if="matchingRating.votes !== undefined">
-                  · {{ matchingRating.votes }} avaliações</small
-                ></template
-              ><button type="button" class="mm-link" @click="ratingRevealed = false">
-                Ocultar
-              </button>
-            </p>
-          </div>
-          <div class="mm-genre-list">
-            <span v-for="genre in movie.genres" :key="genre.name" class="mm-chip">{{
-              genre.name
-            }}</span>
-          </div>
-          <h3>Sinopse</h3>
-          <p class="mm-synopsis">{{ movie.description || 'Sinopse não disponível.' }}</p>
-          <div class="mm-actions">
-            <a
-              v-if="movie.tmdb_id"
-              :href="`https://www.themoviedb.org/movie/${movie.tmdb_id}`"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="mm-button mm-button-ghost"
-              >TMDB {{ movie.tmdb_id }} <BaseIcon name="arrow" /></a
-            ><a
-              v-if="movie.imdb_id"
-              :href="`https://www.imdb.com/title/${movie.imdb_id}`"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="mm-button mm-button-ghost"
-              >IMDb {{ movie.imdb_id }} <BaseIcon name="arrow"
-            /></a>
-          </div>
-          <BaseMovieWatchProviders :tmdb-id="movieId" />
-          <section
-            v-if="movie.portuguese_url_trailer || movie.english_url_trailer"
-            class="mm-trailers"
+      <div class="mm-summary-info">
+        <p class="mm-eyebrow">INFORMAÇÕES DO FILME</p>
+        <h2>{{ movie.portuguese_title || movie.original_title }}</h2>
+        <p class="mm-muted">
+          {{ movie.original_title
+          }}<template v-if="movie.english_title && movie.english_title !== movie.original_title">
+            · {{ movie.english_title }}</template
           >
-            <h3>Trailers</h3>
-            <iframe
-              v-if="movie.portuguese_url_trailer"
-              :src="trailer(movie.portuguese_url_trailer)"
-              title="Trailer em português"
-              allow="
-                accelerometer;
-                autoplay;
-                clipboard-write;
-                encrypted-media;
-                gyroscope;
-                picture-in-picture;
-              "
-              allowfullscreen
-            /><iframe
-              v-if="movie.english_url_trailer"
-              :src="trailer(movie.english_url_trailer)"
-              title="Trailer em inglês"
-              allow="
-                accelerometer;
-                autoplay;
-                clipboard-write;
-                encrypted-media;
-                gyroscope;
-                picture-in-picture;
-              "
-              allowfullscreen
-            />
-          </section>
+        </p>
+        <p class="mm-summary-meta">
+          {{ StringUtils.runtimeToText(movie.runtime) }} · {{ releaseDate }} ·
+          {{ movie.director }}
+        </p>
+        <div v-if="matchingRating" class="mm-preview-rating">
+          <button
+            v-if="!ratingRevealed"
+            type="button"
+            class="mm-button mm-button-ghost"
+            @click="ratingRevealed = true"
+          >
+            <BaseIcon name="lock" />Revelar nota do TMDB
+          </button>
+          <p v-else role="status">
+            <template v-if="matchingRating.votes === 0">Ainda sem avaliações no TMDB.</template
+            ><template v-else
+              ><strong>{{ matchingRating.value.toFixed(1) }}</strong> / 10 <span>no TMDB</span
+              ><small v-if="matchingRating.votes !== undefined">
+                · {{ matchingRating.votes }} avaliações</small
+              ></template
+            ><button type="button" class="mm-link" @click="ratingRevealed = false">Ocultar</button>
+          </p>
         </div>
+        <div class="mm-genre-list">
+          <span v-for="genre in movie.genres" :key="genre.name" class="mm-chip">{{
+            genre.name
+          }}</span>
+        </div>
+        <h3>Sinopse</h3>
+        <p class="mm-synopsis">{{ movie.description || 'Sinopse não disponível.' }}</p>
+        <div class="mm-actions">
+          <a
+            v-if="movie.tmdb_id"
+            :href="`https://www.themoviedb.org/movie/${movie.tmdb_id}`"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="mm-button mm-button-ghost"
+            >TMDB {{ movie.tmdb_id }} <BaseIcon name="arrow" /></a
+          ><a
+            v-if="movie.imdb_id"
+            :href="`https://www.imdb.com/title/${movie.imdb_id}`"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="mm-button mm-button-ghost"
+            >IMDb {{ movie.imdb_id }} <BaseIcon name="arrow"
+          /></a>
+        </div>
+        <BaseMovieWatchProviders :tmdb-id="movieId" />
+        <section
+          v-if="movie.portuguese_url_trailer || movie.english_url_trailer"
+          class="mm-trailers"
+        >
+          <h3>Trailers</h3>
+          <iframe
+            v-if="movie.portuguese_url_trailer"
+            :src="trailer(movie.portuguese_url_trailer)"
+            title="Trailer em português"
+            allow="
+              accelerometer;
+              autoplay;
+              clipboard-write;
+              encrypted-media;
+              gyroscope;
+              picture-in-picture;
+            "
+            allowfullscreen
+          /><iframe
+            v-if="movie.english_url_trailer"
+            :src="trailer(movie.english_url_trailer)"
+            title="Trailer em inglês"
+            allow="
+              accelerometer;
+              autoplay;
+              clipboard-write;
+              encrypted-media;
+              gyroscope;
+              picture-in-picture;
+            "
+            allowfullscreen
+          />
+        </section>
       </div>
-    </Transition>
+    </div>
     <p v-if="error && movie" role="alert" class="mm-error">
       {{ error }} <button type="button" class="mm-link" @click="getMovie">Tentar novamente</button>
     </p>
@@ -150,7 +146,6 @@ const imageBase = String(useRuntimeConfig().public.tmdbImageBase).replace(/\/$/,
 import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import Movie from 'src/core/domain/movie/movie';
 import KitService from 'src/core/services/KitService';
-import MovieService from 'src/modules/movie/services/MovieService';
 import StringUtils from 'src/core/utils/StringUtils';
 import BaseBtnDialogCast from './BaseBtnDialogCast.vue';
 import BaseMovieWatchProviders from './BaseMovieWatchProviders.vue';
@@ -199,15 +194,9 @@ async function getMovie() {
   error.value = '';
   try {
     const res = await KitService.summary({ tmdb_id: movieId });
-    let genres: Movie['genres'] = [];
-    if (res.genres?.length) {
-      try {
-        const all = await MovieService.getMoviesGenres();
-        genres = all.filter((g) => res.genres.includes(g.name));
-      } catch {
-        genres = res.genres.map((name, index) => ({ id: index, name, tmdb_id: 0 }));
-      }
-    }
+    // The summary already contains the display names. Do not block film details
+    // on another catalogue request just to look up unused genre identifiers.
+    const genres = (res.genres || []).map((name, index) => ({ id: index, name }));
     if (id !== request) return;
     movie.value = new Movie(
       '',
@@ -449,17 +438,6 @@ defineExpose({ getMovie });
   font-size: 0.8rem;
   margin-bottom: 1rem;
 }
-.mm-summary-state-enter-active,
-.mm-summary-state-leave-active {
-  transition:
-    opacity 0.16s ease,
-    transform 0.16s ease;
-}
-.mm-summary-state-enter-from,
-.mm-summary-state-leave-to {
-  opacity: 0;
-  transform: translateY(4px);
-}
 .mm-sr-only {
   position: absolute;
   width: 1px;
@@ -503,10 +481,6 @@ defineExpose({ getMovie });
 @media (prefers-reduced-motion: reduce) {
   .mm-summary-skeleton {
     animation: none;
-  }
-  .mm-summary-state-enter-active,
-  .mm-summary-state-leave-active {
-    transition: none;
   }
 }
 </style>

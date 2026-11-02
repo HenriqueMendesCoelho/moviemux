@@ -37,7 +37,7 @@
 import BaseIcon from './BaseIcon.vue';
 import { useRuntimeConfig } from '#imports';
 const imageBase = String(useRuntimeConfig().public.tmdbImageBase).replace(/\/$/, '');
-import { computed, ref, watch, onMounted } from 'vue';
+import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import KitService from 'src/core/services/KitService';
 import type { MovieWatchProvider } from 'src/core/types/movie/MovieType';
 const props = defineProps<{ tmdbId?: number }>();
@@ -71,6 +71,7 @@ async function load() {
   }
 }
 onMounted(load);
+onBeforeUnmount(() => request++);
 watch(() => props.tmdbId, load);
 </script>
 <style scoped>
