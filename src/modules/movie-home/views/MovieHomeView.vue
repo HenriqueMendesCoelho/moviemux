@@ -1,9 +1,12 @@
 <template>
   <BaseContainerMain>
     <header class="mm-collection-heading">
-      <p class="mm-eyebrow">BIBLIOTECA PESSOAL</p>
-      <h1>Sua coleção, <span>em cena.</span></h1>
-      <p class="mm-muted">Histórias que ficaram com você. Descobertas que ainda estão por vir.</p>
+      <h1>Minha coleção</h1>
+      <router-link class="mm-button mm-button-primary mm-home-add" :to="{ name: 'add' }"
+        ><BaseIcon name="plus" /> Adicionar<span class="mm-add-long-label">
+          filme</span
+        ></router-link
+      >
     </header>
     <MovieHomeLastMovies />
     <MovieHomeGridMovies />
@@ -11,6 +14,7 @@
 </template>
 
 <script lang="ts" setup>
+import BaseIcon from 'src/core/components/BaseIcon.vue';
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import MovieHomeLastMovies from '../components/MovieHomeLastMovies.vue';
 import MovieHomeGridMovies from '../components/MovieHomeGridMovies.vue';
@@ -18,17 +22,35 @@ import MovieHomeGridMovies from '../components/MovieHomeGridMovies.vue';
 
 <style scoped>
 .mm-collection-heading {
-  padding: 12px 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 0 24px;
 }
 .mm-collection-heading h1 {
-  margin: 10px 0 14px;
-  font-size: clamp(2.2rem, 4vw, 3.6rem);
+  margin: 0;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  letter-spacing: -0.03em;
 }
-.mm-collection-heading h1 span {
-  color: var(--mm-accent-text);
+.mm-home-add {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
-.mm-collection-heading > p:last-child {
-  font-size: 14px;
-  max-width: 560px;
+@media (max-width: 600px) {
+  .mm-home-add {
+    font-size: 0.8rem;
+    padding-inline: 10px;
+  }
+}
+@media (max-width: 380px) {
+  .mm-add-long-label {
+    display: none;
+  }
+  .mm-collection-heading h1 {
+    font-size: 1.25rem;
+  }
 }
 </style>

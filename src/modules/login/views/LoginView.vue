@@ -12,11 +12,12 @@
       </div>
       <small>Powered by Kronus Platform</small>
     </section>
-    <section class="mm-welcome-form"><LoginForm v-model="tab" /></section>
+    <section class="mm-welcome-form">
+      <SpotlightCard class="mm-login-spotlight"><LoginForm v-model="tab" /></SpotlightCard>
+    </section>
     <footer class="mm-welcome-footer">
-      <a href="https://www.themoviedb.org/?language=pt-BR" target="_blank" rel="noopener noreferrer"
-        ><img src="../../../assets/tmdb-logo-long.svg" alt="The Movie Database" /></a
-      ><span>This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
+      <NecessaryCookieNotice />
+      <TmdbCredits />
     </footer>
   </main>
 </template>
@@ -27,6 +28,9 @@ import { useUserStore } from 'src/core/stores/UserStore';
 import KitService from 'src/core/services/KitService';
 import { safeReturnPath } from '../utils/AccountUtils';
 import LoginForm from '../components/LoginForm.vue';
+import NecessaryCookieNotice from '../components/NecessaryCookieNotice.vue';
+import TmdbCredits from '../components/TmdbCredits.vue';
+import SpotlightCard from 'src/core/components/vue-bits/SpotlightCard.vue';
 const tab = ref('login');
 const route = useRoute();
 const router = useRouter();
@@ -132,17 +136,19 @@ onMounted(async () => {
   padding: 0.6rem 1rem;
   border-radius: 2rem;
 }
+.mm-login-spotlight {
+  width: 100%;
+  max-width: 480px;
+}
 .mm-welcome-form {
   display: flex;
   justify-content: center;
 }
 .mm-welcome-footer {
   grid-column: 1 / -1;
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  align-items: center;
-  font-size: 0.7rem;
+  display: grid;
+  gap: 1.5rem;
+  font-size: 0.8rem;
   color: var(--mm-muted);
 }
 .mm-welcome-footer img {
@@ -154,7 +160,17 @@ onMounted(async () => {
     gap: 2rem;
   }
   .mm-brand {
-    margin-bottom: 2rem;
+    margin-bottom: 0;
+  }
+  .mm-brand img {
+    width: 90px;
+  }
+  .mm-welcome-story {
+    text-align: center;
+  }
+  .mm-welcome-story > p,
+  .mm-welcome-story h1 {
+    display: none;
   }
   .mm-welcome-story small,
   .mm-welcome-tags {

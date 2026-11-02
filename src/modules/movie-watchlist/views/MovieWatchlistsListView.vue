@@ -1,10 +1,12 @@
 <template>
   <BaseContainerMain
-    ><header class="mm-section-header">
+    ><header class="mm-library-heading">
       <div>
-        <span class="mm-eyebrow">Sua próxima sessão começa aqui</span>
+        <span class="mm-eyebrow">BIBLIOTECA</span>
         <h1>Minhas listas</h1>
-        <p>{{ watchlists.length }}/10 listas criadas</p>
+        <p>
+          Organize o que você quer assistir. <span>{{ watchlists.length }}/10 listas</span>
+        </p>
       </div>
       <MovieWatchlistBtnCreate @ok="reload" />
     </header>
@@ -151,11 +153,48 @@ async function deleteWatchlist() {
 </script>
 
 <style scoped>
+.mm-library-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 8px 0 20px;
+}
+.mm-library-heading h1 {
+  font-size: clamp(1.7rem, 3vw, 2.25rem);
+  line-height: 1.15;
+  margin: 8px 0;
+  letter-spacing: -0.035em;
+}
+.mm-library-heading p {
+  color: var(--mm-muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+.mm-library-heading p span {
+  display: inline-block;
+  margin-left: 8px;
+  padding-left: 12px;
+  border-left: 1px solid var(--mm-border);
+}
+@media (max-width: 600px) {
+  .mm-library-heading {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .mm-library-heading p span {
+    margin: 8px 0 0;
+    border: 0;
+    padding: 0;
+    display: block;
+  }
+}
+
 .mm-list-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 22px;
-  margin-top: 28px;
+  margin-top: 24px;
 }
 .mm-list-grid > a {
   color: inherit;

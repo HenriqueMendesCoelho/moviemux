@@ -7,9 +7,6 @@
           Todos os filmes <small>{{ totalNumberOfMovies }}</small>
         </h2>
       </div>
-      <router-link class="mm-button mm-button-primary" :to="{ name: 'add' }"
-        >+ Adicionar filme</router-link
-      >
     </header>
     <form class="mm-filter-bar" @submit.prevent="searchFromIndexMenu">
       <div class="mm-search-field">
@@ -28,6 +25,14 @@
           @keydown.up.prevent="moveSelection(-1)"
           @keydown.esc="menuIsFocused = false"
         />
+        <button
+          class="mm-search-submit"
+          aria-label="Buscar na coleção"
+          title="Buscar"
+          :disabled="loading"
+        >
+          <BaseIcon name="search" />
+        </button>
         <ul v-if="showMenu" id="library-suggestions" class="mm-suggestions" role="listbox">
           <li
             v-for="(movie, index) in moviesWhenTyping"
@@ -71,8 +76,7 @@
           <p v-if="!genresOptions.length" class="mm-muted">Nenhum gênero disponível.</p>
         </div>
       </details>
-      <button class="mm-button mm-button-primary" :disabled="loading">Buscar</button
-      ><button type="button" class="mm-button" @click="refreshSearch">Limpar</button>
+      <button type="button" class="mm-clear-filters" @click="refreshSearch">Limpar filtros</button>
     </form>
     <p v-if="error" role="alert" class="mm-error">
       {{ error }} <button class="mm-button" @click="search">Tentar novamente</button>
@@ -88,14 +92,13 @@
         {{ loading ? 'Carregando…' : 'Carregar mais filmes' }}</button
       ><span v-else-if="loading" role="status">Carregando…</span>
     </div>
-    <MovieHomeFloatingActionButton />
   </section>
 </template>
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import type Movie from 'src/core/domain/movie/movie';
 import MovieService from 'src/modules/movie/services/MovieService';
-import MovieHomeFloatingActionButton from './MovieHomeFloatingActionButton.vue';
+import BaseIcon from 'src/core/components/BaseIcon.vue';
 import MovieHomeCardImageGrid from './MovieHomeCardImageGrid.vue';
 import { useUserStore } from 'src/core/stores/UserStore';
 import { showError } from 'src/core/utils/NotificationUtils';
@@ -355,6 +358,67 @@ async function searchFromIndexMenu() {
   .mm-filter-bar > label {
     flex: 1;
     min-width: 130px;
+  }
+}
+.mm-search-field input {
+  width: 100%;
+  padding-right: 48px;
+}
+.mm-search-field > label {
+  margin-bottom: 8px;
+}
+.mm-search-submit {
+  position: absolute;
+  right: 1px;
+  bottom: 1px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--mm-text);
+  cursor: pointer;
+}
+.mm-search-submit:hover {
+  background: var(--grey-mid);
+}
+.mm-clear-filters {
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--mm-muted);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+  padding: 8px;
+}
+@media (max-width: 600px) {
+  .mm-filter-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+    margin: 16px 0 24px;
+  }
+  .mm-search-field {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+  .mm-filter-bar > label {
+    min-width: 0;
+  }
+  .mm-genre-picker {
+    min-width: 0;
+  }
+  .mm-genre-options {
+    left: auto;
+    right: 0;
+  }
+  .mm-clear-filters {
+    grid-column: 1 / -1;
+    justify-self: end;
+    padding: 0 4px;
   }
 }
 </style>

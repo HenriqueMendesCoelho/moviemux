@@ -1,31 +1,40 @@
 <template>
-  <section class="mm-movie-editor">
+  <section
+    class="mm-movie-editor"
+    :class="{ 'mm-editor-no-art': !readonly && !movie.url_image, 'mm-movie-readonly': readonly }"
+  >
     <aside class="mm-movie-art">
       <img
         v-if="movie.url_image"
         :src="movie.url_image"
+        :srcset="tmdbPosterSrcset(imageBase, movie.url_image)"
+        sizes="(max-width: 750px) 120px, 300px"
         :alt="movie.portuguese_title || movie.original_title || 'Cartaz do filme'"
         class="mm-poster"
       />
       <div v-else class="mm-poster mm-poster-empty">
         Seu próximo filme<br /><span>Importe os detalhes do TMDB ou preencha o formulário.</span>
       </div>
-      <MovieContextMenuImage v-if="movie.id && useUserStore().isAdmin" />
-      <MovieTooltipInfo v-if="movie.id" />
     </aside>
     <div class="mm-movie-content">
       <template v-if="readonly">
-        <p class="mm-eyebrow">
-          {{ fullReleaseDate(movie.release_date) }} ·
-          {{ StringUtils.runtimeToText(movie.runtime) }}
-        </p>
-        <h1>{{ movie.portuguese_title || movie.english_title || movie.original_title }}</h1>
-        <p class="mm-muted">
-          {{ movie.original_title
-          }}<span v-if="movie.english_title && movie.english_title !== movie.original_title">
-            · {{ movie.english_title }}</span
-          >
-        </p>
+        <header class="mm-movie-heading">
+          <p class="mm-eyebrow">
+            {{ fullReleaseDate(movie.release_date) }} ·
+            {{ StringUtils.runtimeToText(movie.runtime) }}
+          </p>
+          <h1>{{ movie.portuguese_title || movie.english_title || movie.original_title }}</h1>
+          <p class="mm-muted">
+            {{ movie.original_title
+            }}<span v-if="movie.english_title && movie.english_title !== movie.original_title">
+              · {{ movie.english_title }}</span
+            >
+          </p>
+        </header>
+        <div class="mm-movie-metadata">
+          <MovieContextMenuImage v-if="movie.id && useUserStore().isAdmin" />
+          <MovieTooltipInfo v-if="movie.id" />
+        </div>
         <div class="mm-genre-tags">
           <span v-for="genre in movie.genres" :key="genre.id" class="mm-badge">{{
             genre.name
@@ -40,60 +49,66 @@
             target="_blank"
             rel="noopener noreferrer"
             class="mm-button"
-            >TMDB ↗</a
-          >
+            >TMDB <BaseIcon name="arrow"
+          /></a>
           <a
             v-if="movie.imdb_id"
             :href="`https://www.imdb.com/title/${movie.imdb_id}`"
             target="_blank"
             rel="noopener noreferrer"
             class="mm-button"
-            >IMDb ↗</a
-          >
+            >IMDb <BaseIcon name="arrow"
+          /></a>
         </div>
       </template>
       <form v-else ref="formRef" class="mm-form mm-movie-fields" @submit.prevent>
         <header>
           <p class="mm-eyebrow">Sua coleção, suas histórias</p>
           <h2>Informações do filme</h2>
+          <p class="mm-field-help">
+            Campos com * são obrigatórios. Revise os dados importados antes de salvar.
+          </p>
         </header>
-        <label>Título em português<input v-model="movie.portuguese_title" required /></label>
+        <label>Título em português *<input v-model="movie.portuguese_title" required /></label>
         <label
-          >Título em inglês<input
+          >Título em inglês {{ movie.original_title !== movie.english_title ? '*' : '(opcional)'
+          }}<input
             v-model="movie.english_title"
             :required="movie.original_title !== movie.english_title"
         /></label>
-        <label>Título original<input v-model="movie.original_title" /></label>
-        <label>Diretor<input v-model="movie.director" required /></label>
+        <label>Título original (opcional)<input v-model="movie.original_title" /></label>
+        <label>Diretor *<input v-model="movie.director" required /></label>
         <label
-          >Duração em minutos<input
+          >Duração em minutos *<input
             v-model.number="movie.runtime"
             type="number"
             min="0"
             max="999"
             required
         /></label>
-        <label>Data de lançamento<input v-model="releaseDate" type="date" required /></label>
+        <label>Data de lançamento *<input v-model="releaseDate" type="date" required /></label>
         <label class="mm-span-full"
-          >Sinopse<textarea v-model="movie.description" rows="5" required />
+          >Sinopse *<textarea v-model="movie.description" rows="5" required />
         </label>
         <fieldset class="mm-span-full mm-genre-field">
-          <legend>Gêneros</legend>
+          <legend>Gêneros *</legend>
           <p v-if="loadingGenres" role="status">Carregando gêneros…</p>
           <label v-for="genre in moviePage.genres" :key="genre.id"
             ><input v-model="genreIds" type="checkbox" :value="genre.id" /> {{ genre.name }}</label
           >
           <p v-if="validation && !genreIds.length" role="alert">Escolha ao menos um gênero.</p>
         </fieldset>
-        <label>TMDB ID<input :value="movie.tmdb_id" readonly /></label>
-        <label>IMDb ID<input v-model="movie.imdb_id" /></label>
+        <label>TMDB ID (preenchido na importação)<input :value="movie.tmdb_id" readonly /></label>
+        <label>IMDb ID (opcional)<input v-model="movie.imdb_id" /></label>
         <label class="mm-span-full"
-          >URL do cartaz<input v-model="movie.url_image" required
+          >URL do cartaz *<input v-model="movie.url_image" required
         /></label>
+        <p class="mm-span-full mm-field-help">
+          Trailers: informe ao menos um link do YouTube ou código do vídeo, dublado ou legendado.
+        </p>
         <label
           >Trailer dublado<input
             :value="movie.portuguese_url_trailer"
-            placeholder="Link do YouTube ou código do vídeo"
             @change="
               movie.portuguese_url_trailer = videoKey(($event.target as HTMLInputElement).value)
             "
@@ -101,7 +116,6 @@
         <label
           >Trailer legendado<input
             :value="movie.english_url_trailer"
-            placeholder="Link do YouTube ou código do vídeo"
             @change="
               movie.english_url_trailer = videoKey(($event.target as HTMLInputElement).value)
             "
@@ -114,6 +128,10 @@
           Adicione ao menos um trailer.
         </p>
       </form>
+      <div v-if="!readonly" class="mm-movie-metadata">
+        <MovieContextMenuImage v-if="movie.id && useUserStore().isAdmin" />
+        <MovieTooltipInfo v-if="movie.id" />
+      </div>
       <div class="mm-movie-links">
         <BaseChipNote
           v-if="movie.show_notes && movie.notes?.length"
@@ -127,8 +145,11 @@
 <script setup lang="ts">
 import { useMovieContext } from '../composables/useMovieContext';
 import { useMovieRequests } from '../composables/useMovieRequests';
-import { dateOnly, fullReleaseDate } from '../utils/MovieStateUtils';
+import { dateOnly, fullReleaseDate, tmdbPosterSrcset } from '../utils/MovieStateUtils';
 import { computed, onMounted, ref } from 'vue';
+import { useRuntimeConfig } from '#imports';
+const imageBase = useRuntimeConfig().public.tmdbImageBase;
+import BaseIcon from 'src/core/components/BaseIcon.vue';
 import BaseChipNote from 'src/core/components/BaseChipNote.vue';
 import BaseMovieWatchProviders from 'src/core/components/BaseMovieWatchProviders.vue';
 import BaseDialogCast from 'src/core/components/BaseBtnDialogCast.vue';
@@ -192,6 +213,35 @@ function resetValidation() {
 defineExpose({ hasErrors, resetValidation });
 </script>
 <style scoped>
+.mm-field-help {
+  color: var(--mm-muted);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 0.4rem 0;
+}
+.mm-movie-editor.mm-editor-no-art {
+  grid-template-columns: 1fr;
+}
+.mm-editor-no-art .mm-movie-art {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+.mm-editor-no-art .mm-poster-empty {
+  aspect-ratio: auto;
+  min-height: 0;
+  padding: 1.2rem 1.5rem;
+  font-size: 1rem;
+  text-align: left;
+  border: 1px dashed var(--mm-border);
+  background: var(--mm-surface);
+  box-shadow: none;
+}
+.mm-editor-no-art .mm-poster-empty span {
+  margin-top: 0.35rem;
+  color: var(--mm-muted);
+}
+
 .mm-movie-editor {
   display: grid;
   grid-template-columns: minmax(180px, 300px) minmax(0, 1fr);
@@ -228,10 +278,10 @@ defineExpose({ hasErrors, resetValidation });
   text-transform: uppercase;
   letter-spacing: 0.15em;
   font-size: 0.75rem;
-  color: var(--primary);
+  color: var(--mm-link);
 }
 .mm-muted {
-  opacity: 0.65;
+  color: var(--mm-muted);
 }
 .mm-synopsis {
   font-size: 1.05rem;
@@ -295,12 +345,47 @@ defineExpose({ hasErrors, resetValidation });
   min-width: 0;
 }
 @media (max-width: 750px) {
+  .mm-movie-editor.mm-movie-readonly {
+    grid-template-columns: 120px minmax(0, 1fr);
+  }
+  .mm-movie-readonly .mm-movie-art {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .mm-movie-readonly .mm-movie-content {
+    display: contents;
+  }
+  .mm-movie-readonly .mm-movie-content > * {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+  .mm-movie-readonly .mm-movie-content > .mm-movie-heading {
+    grid-column: 2;
+    grid-row: 1;
+    overflow-wrap: anywhere;
+  }
+  .mm-movie-readonly .mm-movie-heading h1 {
+    font-size: clamp(1.3rem, 5.5vw, 1.8rem);
+    margin-top: 0.4rem;
+  }
+  .mm-movie-heading .mm-eyebrow {
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+  }
+
   .mm-movie-editor {
     grid-template-columns: 1fr;
   }
   .mm-movie-art {
-    max-width: 260px;
-    margin: auto;
+    max-width: 120px;
+    margin: 0;
+  }
+  .mm-movie-editor {
+    gap: 1rem;
+    min-width: 0;
+  }
+  .mm-movie-content h1 {
+    font-size: 1.8rem;
   }
   .mm-movie-fields {
     grid-template-columns: 1fr;

@@ -281,7 +281,7 @@ test('failed realtime refresh keeps its pending marker and explicit retry clears
   mocks.listMoviesPageable.mockResolvedValue(page(['recovered']));
   await wrapper
     .findAll('button')
-    .find((item) => item.text() === 'Atualizar')!
+    .find((item) => item.attributes('aria-label') === 'Atualizar recentes')!
     .trigger('click');
   await flushPromises();
   expect(latestCards(wrapper)).toEqual(['recovered']);
@@ -378,4 +378,32 @@ test('failed next page can retry the same page without skipping or losing earlie
   retry.resolve(page(['second'], 2));
   await flushPromises();
   expect(cards(wrapper)).toEqual(['initial', 'second']);
+});
+
+test('home grid has no duplicate Add or floating action and search submit is secondary', async () => {
+  mocks.listMoviesPageable.mockResolvedValue(page([]));
+  const wrapper = await grid();
+  expect(wrapper.findComponent({ name: 'MovieHomeFloatingActionButton' }).exists()).toBe(false);
+  expect(wrapper.findAll('.mm-button-primary')).toHaveLength(0);
+  expect(wrapper.find('button[aria-label="Buscar na coleção"]').exists()).toBe(true);
+});
+
+test('recent controls have accessible compact labels and expansion keeps all ten films', async () => {
+  mocks.listMoviesPageable.mockResolvedValue(
+    page(Array.from({ length: 10 }, (_, index) => `${index}`)),
+  );
+  const wrapper = await latest();
+  expect(wrapper.find('h2').text()).toBe('Recentes');
+  expect(wrapper.findAll('.mm-recent-actions button')).toHaveLength(2);
+  expect(wrapper.find('button[aria-label="Recolher recentes"]').attributes('aria-expanded')).toBe(
+    'true',
+  );
+  expect(latestCards(wrapper)).toHaveLength(10);
+  await wrapper.find('.mm-recent-more').trigger('click');
+  expect(wrapper.find('.mm-recent-strip').classes()).toContain('mm-recent-expanded');
+  expect(wrapper.find('.mm-recent-more').text()).toBe('Ver menos');
+  await wrapper.find('button[aria-label="Recolher recentes"]').trigger('click');
+  expect(wrapper.find('button[aria-label="Expandir recentes"]').attributes('aria-expanded')).toBe(
+    'false',
+  );
 });

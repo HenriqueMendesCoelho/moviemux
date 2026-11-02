@@ -58,3 +58,26 @@ export function tmdbImageUrl(base: string, path?: string, size = 'w342'): string
   if (/^https?:\/\//i.test(path)) return path;
   return `${base.replace(/\/$/, '')}/${size}/${path.replace(/^\//, '')}`;
 }
+
+/** TMDB poster widths; browser srcset selection accounts for rendered width + DPR.
+ * https://developer.themoviedb.org/docs/image-basics
+ * https://developer.themoviedb.org/reference/configuration-details
+ * External image URLs remain untouched; never manufacture variants for other hosts.
+ */
+export function tmdbPosterSrcset(base: string, source?: string): string | undefined {
+  if (!source) return undefined;
+  let path = source;
+  let imageBase = base.replace(/\/$/, '');
+  if (/^https?:\/\//i.test(source)) {
+    const bases = [imageBase, 'https://image.tmdb.org/t/p', 'http://image.tmdb.org/t/p'];
+    const match = bases.find((candidate) => source.startsWith(`${candidate}/`));
+    if (!match) return undefined;
+    imageBase = match;
+    path = source.slice(match.length);
+  }
+  path = path.replace(/^\//, '').replace(/^(?:w\d+|original)\//, '');
+  if (!path || /\s/.test(path)) return undefined;
+  return [92, 154, 185, 342, 500, 780]
+    .map((width) => `${imageBase}/w${width}/${path} ${width}w`)
+    .join(', ');
+}

@@ -12,6 +12,8 @@
       ><img
         v-if="movie.poster_path"
         :src="tmdbImageUrl(config.public.tmdbImageBase, movie.poster_path)"
+        :srcset="tmdbPosterSrcset(config.public.tmdbImageBase, movie.poster_path)"
+        sizes="(max-width: 700px) calc((100vw - 48px) / 2), 200px"
         :alt="movie.title"
         loading="lazy"
       />
@@ -56,7 +58,7 @@ import { computed, ref, nextTick, onMounted, onBeforeUnmount, type CSSProperties
 import { useRuntimeConfig } from '#imports';
 import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 import type { MovieResultResponseTmdb } from 'src/core/types/movie/MovieType';
-import { tmdbImageUrl } from 'src/modules/movie/utils/MovieStateUtils';
+import { tmdbImageUrl, tmdbPosterSrcset } from 'src/modules/movie/utils/MovieStateUtils';
 import MovieDiscoverMenuWatchlist from './MovieDiscoverMenuWatchlist.vue';
 import MovieDiscoverContextMenu from './MovieDiscoverContextMenu.vue';
 const props = defineProps<{

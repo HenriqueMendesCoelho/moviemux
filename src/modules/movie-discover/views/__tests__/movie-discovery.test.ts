@@ -194,3 +194,10 @@ test('autocomplete ignores an older response and late error after the account ch
   expect(wrapper.find('[role="listbox"]').exists()).toBe(false);
   expect(mocks.showError).not.toHaveBeenCalled();
 });
+test('upstream failure is not presented as a successful empty search', async () => {
+  mocks.getMoviesPopular.mockRejectedValue(new Error('upstream unavailable'));
+  const wrapper = await create();
+  expect(wrapper.get('[role="alert"]').text()).toContain('Sua busca não foi concluída');
+  expect(wrapper.get('h2').text()).toBe('Não foi possível consultar o catálogo');
+  expect(wrapper.text()).not.toContain('Nenhum filme por aqui');
+});

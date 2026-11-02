@@ -1,14 +1,18 @@
 <template>
   <article class="mm-poster-card">
     <router-link :to="{ name: 'movie', params: { id: movie.id } }" class="mm-poster-link">
-      <BaseCardImage :src="movie.url_image"
+      <BaseCardImage :src="movie.url_image" :alt="movie.portuguese_title"
         ><BaseChipNote v-if="showChipNote()" :movie="movie" /><span v-else class="mm-badge"
           >Sem avaliações</span
         ></BaseCardImage
       >
-      <h3>{{ movie.portuguese_title }}</h3>
-      <p>{{ DateUtils.toLocaleDateStringLong(movie.release_date) }}</p> </router-link
-    ><MovieHomeContextMenu :movie-id="movie.id || ''" />
+    </router-link>
+    <div class="mm-card-footer">
+      <router-link :to="{ name: 'movie', params: { id: movie.id } }" class="mm-poster-link">
+        <h3 :title="movie.portuguese_title">{{ movie.portuguese_title }}</h3>
+        <p>{{ DateUtils.toLocaleDateStringLong(movie.release_date) }}</p> </router-link
+      ><MovieHomeContextMenu :movie-id="movie.id || ''" />
+    </div>
   </article>
 </template>
 
@@ -45,7 +49,7 @@ function showChipNote() {
 }
 .mm-poster-link h3 {
   font-size: 1rem;
-  margin: 12px 0 5px;
+  margin: 0 0 5px;
   line-height: 1.4;
 }
 .mm-poster-link p {
@@ -64,5 +68,32 @@ function showChipNote() {
   padding: 5px 8px;
   border-radius: 6px;
   font-size: 0.7rem;
+}
+.mm-card-footer {
+  display: flex;
+  align-items: start;
+  gap: 4px;
+  margin-top: 10px;
+}
+.mm-card-footer > a {
+  flex: 1;
+  min-width: 0;
+}
+.mm-card-footer :deep(details) {
+  flex-shrink: 0;
+  margin: 0;
+}
+.mm-card-footer h3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.mm-card-footer :deep(summary) {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  padding-inline: 0;
+  width: 44px;
 }
 </style>

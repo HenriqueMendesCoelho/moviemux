@@ -4,11 +4,13 @@
     <button
       v-if="showRefreshBtn"
       type="button"
-      class="mm-button"
+      aria-label="Atualizar filme"
+      title="Atualizar filme"
+      class="mm-button mm-button-ghost"
       :disabled="disabled || refreshing || deleting"
       @click="requestRefresh"
     >
-      Atualizar
+      <BaseIcon name="refresh" />
     </button>
     <button
       v-if="showEditBtn && canEdit"
@@ -31,11 +33,11 @@
     <button
       v-if="showImportBtn"
       type="button"
-      class="mm-button mm-button-primary"
+      class="mm-button"
       :disabled="disabled"
       @click="emit('import')"
     >
-      Importar do TMDB
+      <BaseIcon name="download" /> Importar do TMDB
     </button>
   </nav>
   <BaseConfirmDialog ref="deleteDialog" @ok="deleteMovie" /><BaseConfirmDialog
@@ -46,6 +48,7 @@
 <script setup lang="ts">
 import { computed, watch, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import BaseIcon from 'src/core/components/BaseIcon.vue';
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import { useUserStore } from 'src/core/stores/UserStore';
 import { useMovieContext } from '../composables/useMovieContext';

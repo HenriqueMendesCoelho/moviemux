@@ -99,8 +99,9 @@ test('saving reorder submits exactly one payload with desired order', async () =
   mocks.updateWatchlist.mockReturnValue(pending.promise);
   await button(wrapper, 'Reordenar').trigger('click');
   await wrapper.find('button[aria-label="Mover Film 1 para depois"]').trigger('click');
-  await button(wrapper, 'Salvar ordem').trigger('click');
-  await button(wrapper, 'Salvar ordem').trigger('click');
+  const save = button(wrapper, 'Salvar ordem');
+  await save.trigger('click');
+  await save.trigger('click');
   expect(mocks.updateWatchlist).toHaveBeenCalledTimes(1);
   const payload = mocks.updateWatchlist.mock.calls[0]![0] as WatchlistType;
   expect(payload.movies_wishlists.map((movie) => movie.tmdb_id)).toEqual([2, 1, 3]);

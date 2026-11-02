@@ -217,3 +217,12 @@ test('stale server age cannot reopen an expired control or extend its anchored w
     vi.useRealTimers();
   }
 });
+test('empty reviews show one invitation without sorting or page-size controls', async () => {
+  movie().notes = [];
+  const wrapper = await create();
+  expect(wrapper.findAll('select')).toHaveLength(0);
+  expect(
+    wrapper.findAll('button').filter((button) => button.text() === 'Avaliar filme'),
+  ).toHaveLength(1);
+  expect(wrapper.text()).toContain('A primeira opinião pode ser sua');
+});

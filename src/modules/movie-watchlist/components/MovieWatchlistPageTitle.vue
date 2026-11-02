@@ -1,31 +1,52 @@
 <template>
-  <header class="mm-section-header">
-    <div>
-      <span class="mm-eyebrow">Coleção de filmes</span>
+  <header class="mm-list-heading">
+    <div class="mm-list-heading-line">
       <h1>{{ watchlist?.name || 'Lista de filmes' }}</h1>
-      <form v-if="editing && isOwner" class="mm-inline-form" @submit.prevent="save">
-        <input
-          v-model="name"
-          aria-label="Nome da lista"
-          required
-          minlength="3"
-          maxlength="30"
-          :disabled="disabled || saving"
-        /><button class="mm-button mm-button-primary" :disabled="disabled || saving">Salvar</button
-        ><button class="mm-button" type="button" :disabled="saving" @click="editing = false">
-          Cancelar
-        </button>
-      </form>
-      <button v-else-if="isOwner" class="mm-button" :disabled="disabled" @click="beginEdit">
-        Renomear lista
+      <button
+        v-if="isOwner"
+        class="mm-rename-trigger"
+        type="button"
+        :disabled="disabled"
+        @click="beginEdit"
+        aria-label="Renomear lista"
+        title="Renomear lista"
+      >
+        <BaseIcon name="edit" /><span>Renomear</span>
       </button>
     </div>
-    <MovieWatchlistTooltipInfo v-if="watchlist" :watchlist="watchlist" />
+    <div class="mm-list-heading-meta">
+      <span>{{ watchlist?.movies_wishlists.length || 0 }} filmes</span
+      ><span aria-hidden="true">·</span
+      ><span>{{ watchlist?.shareable ? 'Lista pública' : 'Lista privada' }}</span
+      ><MovieWatchlistTooltipInfo v-if="watchlist" :watchlist="watchlist" />
+    </div>
+    <BaseModal v-model="editing" title="Renomear lista">
+      <form v-if="isOwner" class="mm-form" @submit.prevent="save">
+        <label class="mm-field"
+          >Nome da lista<input
+            v-model="name"
+            required
+            minlength="3"
+            maxlength="30"
+            :disabled="disabled || saving"
+            autofocus
+        /></label>
+        <div class="mm-actions">
+          <button class="mm-button" type="button" :disabled="saving" @click="editing = false">
+            Cancelar</button
+          ><button class="mm-button mm-button-primary" :disabled="disabled || saving">
+            {{ saving ? 'Salvando…' : 'Salvar nome' }}
+          </button>
+        </div>
+      </form>
+    </BaseModal>
   </header>
 </template>
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
+import BaseModal from 'src/core/components/BaseModal.vue';
+import BaseIcon from 'src/core/components/BaseIcon.vue';
 import MovieWatchlistTooltipInfo from './MovieWatchlistTooltipInfo.vue';
 import { useUserStore } from 'src/core/stores/UserStore';
 const props = defineProps<{
@@ -74,13 +95,58 @@ async function save() {
 }
 </script>
 <style scoped>
-.mm-inline-form {
+.mm-list-heading {
+  min-width: 0;
+}
+.mm-list-heading-line {
   display: flex;
+  align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  margin-top: 16px;
 }
-.mm-inline-form input {
-  min-width: 180px;
+.mm-list-heading h1 {
+  font-size: clamp(1.5rem, 2.8vw, 2rem);
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.mm-rename-trigger {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  color: var(--mm-muted);
+  min-height: 44px;
+  padding: 8px;
+  font-size: 0.75rem;
+  border-radius: 8px;
+}
+.mm-rename-trigger:hover {
+  background: var(--mm-raised);
+  color: var(--mm-text);
+}
+.mm-rename-trigger svg {
+  width: 16px;
+  height: 16px;
+}
+.mm-list-heading-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 7px;
+  font-size: 0.8rem;
+  color: var(--mm-muted);
+}
+.mm-list-heading-meta > :last-child {
+  margin-left: 4px;
+}
+@media (max-width: 600px) {
+  .mm-rename-trigger span {
+    display: none;
+  }
+  .mm-list-heading-line {
+    gap: 4px;
+  }
 }
 </style>

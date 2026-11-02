@@ -1,28 +1,51 @@
 <template>
   <BaseContainerMain
-    ><header class="mm-section-header">
+    ><header class="mm-dashboard-heading">
       <div>
-        <span class="mm-eyebrow">Sua coleção em perspectiva</span>
-        <h1>Dashboard</h1>
+        <h1>Estatísticas</h1>
       </div>
       <button class="mm-button" :disabled="loading" @click="getChartsData">
         {{ loading ? 'Atualizando…' : 'Atualizar' }}
       </button>
     </header>
-    <div class="mm-stat-grid">
+    <p v-if="error" role="alert">{{ error }}</p>
+    <p v-if="loading && !chartsData" role="status">Carregando estatísticas…</p>
+    <div v-if="chartsData" class="mm-stat-grid">
       <article class="mm-stat-card">
         <span>Total de filmes</span><strong>{{ chartsData?.total_number_of_movies ?? '—' }}</strong>
       </article>
       <article class="mm-stat-card">
         <span>Duração média</span
-        ><strong>{{ StringUtils.runtimeToText(chartsData?.average_runtime) || '—' }}</strong>
+        ><strong>{{
+          chartsData.total_number_of_movies
+            ? StringUtils.runtimeToText(chartsData.average_runtime) || '—'
+            : '—'
+        }}</strong>
       </article>
       <article class="mm-stat-card">
-        <span>Nota média</span><strong>{{ knobAvgNote.toFixed(1) }}<small> / 10</small></strong
-        ><meter :value="knobAvgNote" min="0" max="10" aria-label="Nota média" />
+        <span>Nota média</span
+        ><strong
+          >{{ chartsData.total_number_of_movies ? knobAvgNote.toFixed(1) : '—'
+          }}<small> / 10</small></strong
+        >
+        <div
+          v-if="chartsData.total_number_of_movies"
+          class="mm-average-track"
+          role="meter"
+          :aria-valuenow="knobAvgNote"
+          :aria-valuemin="0"
+          :aria-valuemax="10"
+          :aria-valuetext="`${knobAvgNote.toFixed(1)} de 10`"
+          aria-label="Nota média"
+        >
+          <span :style="{ width: `${Math.min(10, Math.max(0, knobAvgNote)) * 10}%` }" />
+        </div>
       </article>
     </div>
-    <div class="mm-chart-grid">
+    <p v-if="chartsData?.total_number_of_movies === 0" class="mm-muted">
+      Sua coleção ainda está vazia. Adicione filmes para acompanhar suas estatísticas.
+    </p>
+    <div v-if="chartsData" class="mm-chart-grid">
       <section class="mm-chart-card">
         <ClientOnly
           ><MovieSixMonthsAgoChart :charts-data="chartsData" /><template #fallback
@@ -61,6 +84,7 @@ const userStore = useUserStore();
 const chartsData = ref<MovieStatistics>();
 const knobAvgNote = ref(0);
 const loading = ref(false);
+const error = ref('');
 let disposed = false;
 let generation = 0;
 onMounted(getChartsData);
@@ -73,6 +97,7 @@ watch(
   () => {
     generation++;
     chartsData.value = undefined;
+    error.value = '';
     knobAvgNote.value = 0;
     loading.value = false;
     if (userStore.user.isLoged) void getChartsData();
@@ -90,6 +115,7 @@ async function getChartsData() {
     session === userStore.user &&
     userStore.user.isLoged;
   loading.value = true;
+  error.value = '';
   try {
     const res = await StatisticService.movies();
     if (current()) {
@@ -97,7 +123,10 @@ async function getChartsData() {
       knobAvgNote.value = res.average_rate || 0;
     }
   } catch {
-    if (current()) showError('Erro ao buscar dados. Tente novamente mais tarde.');
+    if (current()) {
+      error.value = 'Não foi possível carregar as estatísticas. Tente atualizar novamente.';
+      showError(error.value);
+    }
   } finally {
     if (current()) loading.value = false;
   }
@@ -108,12 +137,12 @@ async function getChartsData() {
 .mm-stat-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-  margin: 28px 0;
+  gap: 12px;
+  margin: 16px 0 20px;
 }
 .mm-stat-card,
 .mm-chart-card {
-  padding: 24px;
+  padding: 18px;
   border: 1px solid var(--grey-mid2);
   background: var(--grey-dark2);
   border-radius: 18px;
@@ -125,17 +154,34 @@ async function getChartsData() {
 }
 .mm-stat-card strong {
   display: block;
-  margin-top: 18px;
-  font-size: 2rem;
+  margin-top: 8px;
+  font-size: 1.6rem;
 }
 .mm-stat-card small {
   font-size: 1rem;
   opacity: 0.5;
 }
-.mm-stat-card meter {
-  width: 100%;
-  margin-top: 12px;
-  accent-color: var(--primary);
+.mm-average-track {
+  height: 5px;
+  background: var(--mm-border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+.mm-average-track span {
+  display: block;
+  height: 100%;
+  background: #00f6ff;
+}
+.mm-dashboard-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.mm-dashboard-heading h1 {
+  font-size: 1.8rem;
+  margin: 0;
 }
 .mm-chart-grid {
   display: grid;
@@ -158,7 +204,16 @@ async function getChartsData() {
 }
 @media (max-width: 500px) {
   .mm-stat-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .mm-stat-card:last-child {
+    grid-column: 1 / -1;
+  }
+  .mm-stat-card {
+    padding: 12px;
+  }
+  .mm-chart-card {
+    padding: 16px 10px;
   }
 }
 </style>

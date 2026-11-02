@@ -6,7 +6,7 @@ const developmentApiProxy = localDevApiProxy(
   process.env.MOVIEMUX_DEV_API_ORIGIN,
   process.env.NODE_ENV === 'development',
 );
-const offlineAssets = ['offline.html', 'icons/icon-192x192.png'].map((asset) => ({
+const offlineAssets = ['offline.html'].map((asset) => ({
   url: `/${asset}`,
   revision: createHash('sha256')
     .update(readFileSync(`public/${asset}`))

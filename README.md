@@ -50,6 +50,7 @@ pnpm typecheck
 pnpm test
 pnpm build
 pnpm test:ssr
+pnpm test:pwa
 node .output/server/index.mjs
 ```
 

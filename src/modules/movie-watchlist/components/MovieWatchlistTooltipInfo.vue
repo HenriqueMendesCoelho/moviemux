@@ -28,23 +28,32 @@ defineProps<Props>();
 <style scoped>
 .mm-list-info {
   font-size: 0.85rem;
+  position: relative;
   max-width: 360px;
 }
 .mm-list-info summary {
   cursor: pointer;
-  color: var(--primary);
+  color: var(--mm-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 dl {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 16px;
+  margin: 8px 0 0;
+  position: absolute;
+  width: min(300px, calc(100vw - 48px));
+  left: 0;
+  z-index: 15;
+  border: 1px solid var(--mm-border);
+  box-shadow: 0 12px 24px #0002;
   padding: 16px;
   background: var(--grey-dark2);
   border-radius: 12px;
 }
 dt {
-  opacity: 0.6;
+  color: var(--mm-muted);
 }
 dd {
   margin: 0;

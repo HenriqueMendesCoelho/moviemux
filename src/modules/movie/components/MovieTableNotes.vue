@@ -16,9 +16,18 @@
             @change="updateShowNotes(($event.target as HTMLInputElement).checked)"
           />
           Notas visíveis</label
-        ><button class="mm-button" type="button" :disabled="loading" @click="getMovieNotes">
-          Atualizar</button
         ><button
+          v-if="privacyPending || !stateSocketMovie.connected"
+          class="mm-button mm-button-ghost"
+          type="button"
+          aria-label="Atualizar avaliações"
+          title="Atualizar avaliações"
+          :disabled="loading"
+          @click="getMovieNotes"
+        >
+          <BaseIcon name="refresh" /></button
+        ><button
+          v-if="notes.length && !isUserAlreadyVoted"
           class="mm-button mm-button-primary"
           type="button"
           :disabled="loading || isUserAlreadyVoted"
@@ -28,7 +37,7 @@
         </button>
       </div>
     </header>
-    <div class="mm-review-controls">
+    <div v-if="notes.length" class="mm-review-controls">
       <label
         >Ordenar
         <select v-model="sort">
@@ -45,10 +54,25 @@
         </select></label
       >
     </div>
-    <p v-if="!notes.length" class="mm-empty">
-      A conversa começa com você. Seja o primeiro a avaliar.
-    </p>
-    <div class="mm-table-scroll" v-else>
+    <div v-if="!notes.length" class="mm-empty">
+      <h3>A primeira opinião pode ser sua</h3>
+      <p>Avalie de 0 a 10 e comece a conversa sobre este filme.</p>
+      <button
+        class="mm-button mm-button-primary"
+        type="button"
+        :disabled="loading"
+        @click="openEditor()"
+      >
+        Avaliar filme
+      </button>
+    </div>
+    <div
+      class="mm-table-scroll"
+      v-else
+      tabindex="0"
+      role="region"
+      aria-label="Avaliações, tabela com rolagem horizontal"
+    >
       <table class="mm-table">
         <thead>
           <tr>
@@ -56,7 +80,7 @@
             <th>Nota</th>
             <th>Criada em</th>
             <th>Atualizada em</th>
-            <th><span class="mm-sr-only">Ações</span></th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -132,6 +156,7 @@ import {
   mergeReview,
   cloneMovie,
 } from '../utils/MovieStateUtils';
+import BaseIcon from 'src/core/components/BaseIcon.vue';
 import BaseModal from 'src/core/components/BaseModal.vue';
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import MovieService from '../services/MovieService';
@@ -464,6 +489,9 @@ async function updateShowNotes(visible: boolean) {
 </script>
 <style scoped>
 .mm-reviews {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   margin-top: 3rem;
   padding: 1.5rem;
   border: 1px solid #8883;
@@ -488,7 +516,7 @@ async function updateShowNotes(visible: boolean) {
   font-size: 0.7rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--primary);
+  color: var(--mm-link);
 }
 .mm-review-controls {
   justify-content: flex-end;
@@ -504,7 +532,12 @@ async function updateShowNotes(visible: boolean) {
   padding: 0.5rem;
 }
 .mm-table-scroll {
-  overflow: auto;
+  position: relative;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
 }
 .mm-table {
   border-collapse: collapse;
@@ -535,7 +568,12 @@ async function updateShowNotes(visible: boolean) {
 }
 .mm-empty {
   padding: 2rem 0;
-  opacity: 0.6;
+  color: var(--mm-text);
+}
+.mm-empty p {
+  color: var(--mm-muted);
+  line-height: 1.6;
+  margin: 0.6rem 0 1.25rem;
 }
 .mm-note-form {
   display: flex;
@@ -552,5 +590,19 @@ async function updateShowNotes(visible: boolean) {
   height: 1px;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
+}
+@media (max-width: 600px) {
+  .mm-reviews {
+    padding: 1rem;
+  }
+  .mm-review-header,
+  .mm-review-actions,
+  .mm-review-controls {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .mm-review-controls {
+    justify-content: flex-start;
+  }
 }
 </style>

@@ -1,22 +1,34 @@
 <template>
   <section class="mm-section" v-if="movies.length || loading || loadError">
-    <header class="mm-section-header">
-      <div>
-        <span class="mm-eyebrow">Adicionados recentemente</span>
-        <h2>Últimas sessões</h2>
-      </div>
-      <div class="mm-actions">
+    <header class="mm-recent-heading">
+      <h2>Recentes</h2>
+      <div class="mm-recent-actions">
         <button
-          class="mm-button"
+          class="mm-recent-control"
           :aria-expanded="isVisibleLastFilms"
+          :aria-label="isVisibleLastFilms ? 'Recolher recentes' : 'Expandir recentes'"
+          :title="isVisibleLastFilms ? 'Recolher recentes' : 'Expandir recentes'"
           @click="isVisibleLastFilms = !isVisibleLastFilms"
         >
-          {{ isVisibleLastFilms ? 'Recolher' : 'Expandir' }}</button
-        ><button class="mm-button" :disabled="loading" @click="loadLastMovies">Atualizar</button>
+          <BaseIcon :name="isVisibleLastFilms ? 'chevron-up' : 'chevron-down'" />
+        </button>
+        <button
+          class="mm-recent-control"
+          aria-label="Atualizar recentes"
+          title="Atualizar recentes"
+          :disabled="loading"
+          @click="loadLastMovies"
+        >
+          <BaseIcon name="refresh" />
+        </button>
       </div>
     </header>
     <p v-if="loadError" role="alert">{{ loadError }}</p>
-    <div v-show="isVisibleLastFilms" class="mm-recent-strip">
+    <div
+      v-show="isVisibleLastFilms"
+      class="mm-recent-strip"
+      :class="{ 'mm-recent-expanded': showAllRecent }"
+    >
       <MovieHomeCardImageLastMovies
         v-for="movie in movies"
         :key="movie.id"
@@ -25,10 +37,19 @@
         :url="movie.url_image"
       />
     </div>
+    <button
+      v-if="isVisibleLastFilms && movies.length > 4"
+      class="mm-recent-more"
+      :aria-expanded="showAllRecent"
+      @click="showAllRecent = !showAllRecent"
+    >
+      {{ showAllRecent ? 'Ver menos' : 'Ver mais' }}
+    </button>
   </section>
 </template>
 
 <script lang="ts" setup>
+import BaseIcon from 'src/core/components/BaseIcon.vue';
 import { onActivated, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { useUserStore } from 'src/core/stores/UserStore';
 
@@ -43,6 +64,7 @@ import { showError } from 'src/core/utils/NotificationUtils';
 
 const userStore = useUserStore();
 const isVisibleLastFilms = ref(true);
+const showAllRecent = ref(false);
 const movies = ref<Movie[]>([]);
 const loading = ref(false);
 const loadError = ref('');
@@ -131,17 +153,81 @@ async function loadLastMovies() {
 </script>
 
 <style scoped>
-.mm-recent-strip {
+.mm-recent-heading {
   display: flex;
-  overflow-x: auto;
-  gap: 20px;
-  padding: 12px 0 24px;
-  scroll-snap-type: x proximity;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
 }
-.mm-recent-strip > * {
-  scroll-snap-align: start;
+.mm-recent-heading h2 {
+  margin: 0;
+}
+.mm-recent-actions {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 4px;
+}
+.mm-recent-control {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--grey-mid2);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--mm-text);
+  cursor: pointer;
+}
+.mm-recent-control:hover {
+  background: var(--grey-mid);
+}
+.mm-recent-control:disabled {
+  opacity: 0.45;
+  cursor: wait;
+}
+.mm-recent-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 24px 16px;
+}
+.mm-recent-strip:not(.mm-recent-expanded) > :nth-child(n + 6) {
+  display: none;
+}
+.mm-recent-more {
+  display: block;
+  margin: 12px auto 0;
+  min-height: 44px;
+  padding: 8px 16px;
+  color: var(--mm-muted);
+  background: transparent;
+  border: 0;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
 }
 .mm-section {
-  margin-bottom: 40px;
+  margin-bottom: 32px;
+}
+@media (max-width: 600px) {
+  .mm-recent-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 12px;
+  }
+  .mm-recent-strip:not(.mm-recent-expanded) > :nth-child(n + 5) {
+    display: none;
+  }
+  .mm-recent-more {
+    display: block;
+    margin: 12px auto 0;
+    min-height: 44px;
+    padding: 8px 16px;
+    color: var(--mm-muted);
+    background: transparent;
+    border: 0;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+  }
 }
 </style>

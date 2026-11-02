@@ -190,6 +190,9 @@ importers:
       socket.io-client:
         specifier: ^4.8.4
         version: 4.8.4(supports-color@10.2.2)
+      swapy:
+        specifier: 1.0.5
+        version: 1.0.5
       vue:
         specifier: ^3.5.44
         version: 3.5.44(typescript@6.0.3)
@@ -4416,6 +4419,9 @@ packages:
   supports-preserve-symlinks-flag@1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
+
+  swapy@1.0.5:
+    resolution: {integrity: sha512-XEzy5HCw7yESb7QajKTBJ+NA/BL0kAKlE7XhSMPZawF740X4ws/5CFtXRsVDQ+EztISC759a9+DJM9mxjz4hXg==}
 
   sync-child-process@1.1.0:
     resolution: {integrity: sha512-1LMf/x0kU0CKFSesh5DfYktvj1KhiqYi5LAh5HU2G4SkKk1TGDhsMFBOL47g/E+mNfYpgs365pVNlIYOIHPvlQ==}
@@ -10016,6 +10022,8 @@ snapshots:
     optional: true
 
   supports-preserve-symlinks-flag@1.0.0: {}
+
+  swapy@1.0.5: {}
 
   sync-child-process@1.1.0:
     dependencies:

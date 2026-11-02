@@ -49,12 +49,12 @@ watch(tab, async () => {
 <style scoped>
 .mm-admin-panel {
   margin-top: 1.5rem;
-  padding: clamp(1rem, 3vw, 2rem);
+  padding: clamp(1rem, 2vw, 1.5rem);
 }
 .mm-tabs {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 </style>

@@ -33,3 +33,22 @@ export function isCurrentWatchlistOperation(
     start.generation === current.generation
   );
 }
+
+/** Swapy slots are positional. Reject incomplete/duplicate maps instead of dropping movies. */
+export function orderMoviesBySlots<T extends { tmdb_id: number }>(
+  movies: readonly T[],
+  map: readonly { slot: string; item: string }[],
+): T[] {
+  if (map.length !== movies.length) return [...movies];
+  const sorted = [...map].sort(
+    (a, b) => Number(a.slot.replace('position-', '')) - Number(b.slot.replace('position-', '')),
+  );
+  if (
+    sorted.some((entry, index) => entry.slot !== `position-${index}`) ||
+    new Set(sorted.map((entry) => entry.item)).size !== movies.length
+  )
+    return [...movies];
+  const byId = new Map(movies.map((movie) => [String(movie.tmdb_id), movie]));
+  const ordered = sorted.map((entry) => byId.get(entry.item));
+  return ordered.every((movie): movie is T => movie !== undefined) ? ordered : [...movies];
+}

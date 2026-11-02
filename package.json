@@ -15,38 +15,40 @@
     "lint": "eslint .",
     "test": "vitest run",
     "format": "prettier --write src nuxt.config.ts",
-    "test:ssr": "node tests/ssr-smoke.ts"
+    "test:ssr": "node tests/ssr-smoke.ts",
+    "test:pwa": "node tests/pwa-worker-smoke.ts"
   },
   "dependencies": {
+    "@pinia/nuxt": "^1.0.3",
     "@vueuse/core": "13.3.0",
     "apexcharts": "^5.16.0",
     "axios": "^1.20.0",
     "jwt-decode": "^4.0.0",
+    "nuxt": "^4.6.3",
     "pinia": "^4.1.0",
     "socket.io-client": "^4.8.4",
+    "swapy": "1.0.5",
     "vue": "^3.5.44",
     "vue-router": "^5.4.0",
-    "vue3-apexcharts": "^1.11.3",
-    "nuxt": "^4.6.3",
-    "@pinia/nuxt": "^1.0.3"
+    "vue3-apexcharts": "^1.11.3"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^26.6.6",
+    "@vite-pwa/nuxt": "^1.1.1",
+    "@vitejs/plugin-vue": "^6.0.10",
     "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/eslint-config-typescript": "^14.9.0",
+    "@vue/test-utils": "^2.5.1",
     "eslint": "^10.14.0",
     "eslint-plugin-vue": "^10.12.0",
     "globals": "^16.5.0",
-    "prettier": "^3.9.10",
-    "typescript": "~6.0.3",
-    "vue-tsc": "^3.3.14",
-    "sass": "^1.93.0",
-    "vitest": "^5.0.5",
-    "@vue/test-utils": "^2.5.1",
-    "@vitejs/plugin-vue": "^6.0.10",
     "happy-dom": "^21.0.4",
-    "@vite-pwa/nuxt": "^1.1.1"
+    "prettier": "^3.9.10",
+    "sass": "^1.93.0",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.5",
+    "vue-tsc": "^3.3.14"
   },
   "engines": {
     "node": ">=26.13.0 <27"

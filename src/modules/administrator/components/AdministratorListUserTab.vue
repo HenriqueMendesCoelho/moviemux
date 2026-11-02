@@ -14,24 +14,33 @@
         </caption>
         <thead>
           <tr>
-            <th>Nome</th>
-            <th>E-mail</th>
+            <th>Pessoa</th>
             <th>Perfis</th>
-            <th>Criado em</th>
-            <th>Atualizado em</th>
-            <th>Último acesso</th>
+            <th>Atividade</th>
             <th>Ações</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="user in pagedRows" :key="user.id">
-            <td>{{ user.name }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.roles.join(', ') }}</td>
-            <td>{{ formatDate(user.created_at) }}</td>
-            <td>{{ formatDate(user.updated_at) }}</td>
-            <td>{{ formatDate(user.statistics?.last_login_at) }}</td>
+            <td class="mm-user-identity">
+              <strong>{{ user.name }}</strong
+              ><span>{{ user.email }}</span>
+            </td>
+            <td data-label="Perfis">{{ user.roles.join(', ') }}</td>
             <td>
+              <details class="mm-user-dates">
+                <summary>Ver datas</summary>
+                <dl>
+                  <dt>Cadastro</dt>
+                  <dd>{{ formatDate(user.created_at) }}</dd>
+                  <dt>Atualização</dt>
+                  <dd>{{ formatDate(user.updated_at) }}</dd>
+                  <dt>Último acesso</dt>
+                  <dd>{{ formatDate(user.statistics?.last_login_at) }}</dd>
+                </dl>
+              </details>
+            </td>
+            <td class="mm-user-row-actions">
               <div class="mm-actions">
                 <button class="mm-btn" @click="copy(user.email)">Copiar e-mail</button
                 ><button
@@ -134,6 +143,70 @@ async function remove(user: User) {
 .mm-table-wrap {
   max-height: 36rem;
   overflow: auto;
+}
+.mm-user-identity {
+  min-width: 0;
+}
+.mm-user-identity strong,
+.mm-user-identity span {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.mm-user-identity span {
+  color: var(--mm-muted);
+  margin-top: 5px;
+}
+.mm-user-dates summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--mm-link);
+  white-space: nowrap;
+}
+.mm-user-dates dl {
+  font-size: 12px;
+  margin: 0 0 8px;
+}
+.mm-user-dates dt {
+  color: var(--mm-muted);
+  margin-top: 8px;
+}
+.mm-user-dates dd {
+  margin: 3px 0;
+}
+.mm-user-row-actions .mm-btn {
+  font-size: 12px;
+  min-height: 44px;
+  padding: 8px 10px;
+}
+@media (max-width: 700px) {
+  .mm-table-wrap {
+    max-height: none;
+    overflow: visible;
+  }
+  .mm-table thead {
+    display: none;
+  }
+  .mm-table,
+  .mm-table tbody {
+    display: block;
+  }
+  .mm-table tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    padding: 14px 0;
+    border-bottom: 1px solid var(--mm-border);
+  }
+  .mm-table td {
+    display: block;
+    padding: 6px 0;
+    border: 0;
+  }
+  .mm-table td[data-label]::before {
+    content: attr(data-label) ': ';
+    color: var(--mm-muted);
+  }
 }
 .mm-pagination {
   flex-wrap: wrap;

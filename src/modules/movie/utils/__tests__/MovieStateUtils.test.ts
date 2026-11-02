@@ -164,3 +164,25 @@ test('backend hidden and null ratings remain last behind real zero without fabri
   );
   assert.equal(sortNotes([hidden, zero], 'updated')[0]!.user.id, 'zero');
 });
+test('responsive TMDB posters provide width candidates without rewriting external URLs', async () => {
+  const { tmdbPosterSrcset } = await import('../MovieStateUtils');
+  const relative = tmdbPosterSrcset('https://cdn.example/t/p/', '/poster.jpg');
+  assert.ok(relative?.includes('https://cdn.example/t/p/w500/poster.jpg 500w'));
+  assert.ok(relative?.includes('w780/poster.jpg 780w'));
+  assert.ok(!relative?.includes('original'));
+  assert.equal(
+    tmdbPosterSrcset('https://cdn.example/t/p', 'https://other.example/poster.jpg'),
+    undefined,
+  );
+  assert.equal(
+    tmdbPosterSrcset('https://cdn.example/t/p', 'https://cdn.example/t/p/w342/poster.jpg'),
+    relative,
+  );
+  assert.ok(
+    tmdbPosterSrcset(
+      'https://cdn.example/t/p',
+      'https://image.tmdb.org/t/p/w500/poster.jpg',
+    )?.includes('https://image.tmdb.org/t/p/w780/poster.jpg 780w'),
+  );
+  assert.equal(tmdbPosterSrcset('https://cdn.example/t/p'), undefined);
+});

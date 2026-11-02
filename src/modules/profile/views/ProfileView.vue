@@ -47,10 +47,10 @@ watch(tab, async () => {
 .mm-tabs {
   display: flex;
   gap: 0.5rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 .mm-profile-panel {
   margin-top: 1.5rem;
-  padding: clamp(1rem, 3vw, 2rem);
+  padding: clamp(1rem, 2vw, 1.5rem);
 }
 </style>

@@ -1,8 +1,19 @@
 <template>
   <div v-if="tmdbIds.length && isOwner" class="mm-cleanup">
-    <p>{{ tmdbIds.length }} filme(s) desta lista já estão no ranking.</p>
-    <button class="mm-button" type="button" :disabled="disabled || busy" @click="confirmCleanup">
-      Remover filmes já cadastrados</button
+    <p>
+      <strong
+        >{{ tmdbIds.length }}
+        {{ tmdbIds.length === 1 ? 'filme já no ranking' : 'filmes já no ranking' }}.</strong
+      >
+      <span class="mm-cleanup-explanation"> Você pode tirá-los desta lista.</span>
+    </p>
+    <button
+      class="mm-cleanup-action"
+      type="button"
+      :disabled="disabled || busy"
+      @click="confirmCleanup"
+    >
+      Revisar<span class="mm-cleanup-explanation"> e remover</span></button
     ><BaseConfirmDialog :key="confirmationKey" ref="confirmDialogRef" @ok="remove" />
   </div>
 </template>
@@ -69,7 +80,7 @@ function confirmCleanup() {
     .map((movie) => movie.title || movie.title_english);
   confirmed = { id: props.wishlist.id, account: userStore.user.id, ids };
   confirmDialogRef.value?.show({
-    title: 'Remover filmes já cadastrados?',
+    title: 'Revisar e remover?',
     message: `Remover ${names.join(', ')} desta lista?`,
     focus: 'cancel',
     ok: 'Remover',
@@ -97,18 +108,54 @@ async function remove() {
 </script>
 <style scoped>
 .mm-cleanup {
-  padding: 14px 18px;
-  background: var(--grey-dark2);
-  border: 1px solid var(--grey-mid2);
-  border-radius: 12px;
+  padding: 11px 14px;
+  background: var(--mm-raised);
+  border: 1px solid var(--mm-border);
+  border-radius: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   flex-wrap: wrap;
+  margin: 0 0 16px;
 }
 .mm-cleanup p {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.78rem;
+  color: var(--mm-muted);
+}
+.mm-cleanup strong {
+  font-weight: 500;
+  color: var(--mm-text);
+}
+.mm-cleanup-action {
+  min-height: 32px;
+  padding: 4px 6px;
+  font-size: 0.78rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  color: var(--mm-muted);
+}
+.mm-cleanup-action:hover {
+  color: var(--mm-text);
+}
+@media (max-width: 600px) {
+  .mm-cleanup {
+    flex-wrap: nowrap;
+    padding: 6px 10px;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .mm-cleanup-explanation {
+    display: none;
+  }
+  .mm-cleanup p {
+    font-size: 0.74rem;
+  }
+  .mm-cleanup-action {
+    white-space: nowrap;
+    font-size: 0.74rem;
+    min-height: 32px;
+  }
 }
 </style>

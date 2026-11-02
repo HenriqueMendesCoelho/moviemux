@@ -10,8 +10,7 @@
         :aria-invalid="invalid"
         :aria-describedby="error ? errorId : undefined"
         @input="input"
-        @blur="validate"
-      /><input
+        @blur="validate" /><input
         v-else
         v-bind="inputAttrs()"
         :type="type"
@@ -20,15 +19,14 @@
         :aria-invalid="invalid"
         :aria-describedby="error ? errorId : undefined"
         @input="input"
-        @blur="validate"
-      /><button
+        @blur="validate" /><button
         v-if="canClear()"
         type="button"
         class="mm-button mm-button-ghost"
         :aria-label="`Limpar ${label || 'campo'}`"
         @click="clear"
       >
-        ✕</button
+        <BaseIcon name="close" /></button
       ><button
         v-if="icon"
         type="button"
@@ -37,13 +35,13 @@
         :aria-label="iconTooltip || 'Abrir link'"
         @click="emit('iconClick')"
       >
-        ↗
-      </button></span
+        <BaseIcon name="arrow" /></button></span
     ><small :id="errorId" v-if="error" class="mm-error" role="alert">{{ error }}</small
     ><slot
   /></label>
 </template>
 <script setup lang="ts">
+import BaseIcon from './BaseIcon.vue';
 import { ref, useAttrs, useId } from 'vue';
 defineOptions({ inheritAttrs: false });
 type Rule = (value: string) => boolean | string | Promise<boolean | string>;

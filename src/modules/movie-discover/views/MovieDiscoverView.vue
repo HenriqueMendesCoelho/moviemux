@@ -85,7 +85,9 @@
         ><span v-if="loadingGenres" role="status">Carregando gêneros…</span>
       </div>
     </details>
-    <h2 class="mm-results-title">{{ collectionTitle }}</h2>
+    <h2 class="mm-results-title">
+      {{ error ? 'Não foi possível consultar o catálogo' : collectionTitle }}
+    </h2>
     <p v-if="error" role="alert" class="mm-error">
       {{ error }}
       <button type="button" class="mm-button" @click="loadMovies(false)">Tentar novamente</button>
@@ -321,7 +323,9 @@ async function loadMovies(append: boolean) {
     page.value = requestedPage;
     lastPage.value = Math.min(result.total_pages, 500);
   } catch {
-    if (current()) error.value = 'Não foi possível carregar os filmes.';
+    if (current())
+      error.value =
+        'O serviço de filmes está indisponível no momento. Sua busca não foi concluída. Tente novamente.';
   } finally {
     if (current()) loading.value = false;
   }
@@ -453,7 +457,7 @@ async function addMovieToWatchlist(id: string, movieId: number) {
 }
 .mm-eyebrow {
   font-size: 0.7rem;
-  color: var(--primary);
+  color: var(--mm-link);
   text-transform: uppercase;
   letter-spacing: 0.18em;
 }
@@ -464,10 +468,10 @@ async function addMovieToWatchlist(id: string, movieId: number) {
   margin: 0.6rem 0 1rem;
 }
 .mm-discover-header h1 span {
-  color: var(--primary);
+  color: var(--mm-link);
 }
 .mm-discover-header > p:last-child {
-  opacity: 0.55;
+  color: var(--mm-muted);
 }
 .mm-discover-toolbar {
   display: flex;

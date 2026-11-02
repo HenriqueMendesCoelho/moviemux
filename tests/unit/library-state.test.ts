@@ -4,6 +4,7 @@ import {
   copyWatchlistMovies,
   moveWatchlistMovie,
   isCurrentWatchlistOperation,
+  orderMoviesBySlots,
 } from '../../src/modules/movie-watchlist/utils/WatchlistDraft';
 
 test('reorder draft never mutates confirmed list, including movie fields', () => {
@@ -74,4 +75,30 @@ test('late mutation responses are rejected after route, account or generation ch
     isCurrentWatchlistOperation({ ...start, accountId: '' }, { ...start, accountId: '' }),
     false,
   );
+});
+
+test('Swapy slot maps preserve positional order and reject malformed permutations', () => {
+  const movies = [{ tmdb_id: 1 }, { tmdb_id: 2 }, { tmdb_id: 3 }];
+  assert.deepEqual(
+    orderMoviesBySlots(movies, [
+      { slot: 'position-2', item: '1' },
+      { slot: 'position-0', item: '3' },
+      { slot: 'position-1', item: '2' },
+    ]).map((movie) => movie.tmdb_id),
+    [3, 2, 1],
+  );
+  for (const map of [
+    [],
+    [
+      { slot: 'position-0', item: '1' },
+      { slot: 'position-1', item: '1' },
+      { slot: 'position-2', item: '2' },
+    ],
+    [
+      { slot: 'position-0', item: '8' },
+      { slot: 'position-1', item: '2' },
+      { slot: 'position-2', item: '3' },
+    ],
+  ])
+    assert.deepEqual(orderMoviesBySlots(movies, map), movies);
 });

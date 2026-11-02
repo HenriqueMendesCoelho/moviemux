@@ -1,6 +1,11 @@
 <template>
   <article class="mm-poster-card">
-    <button class="mm-poster-link" type="button" @click="emit('open')">
+    <button
+      class="mm-poster-link"
+      type="button"
+      :disabled="disabled"
+      @click="!disabled && emit('open')"
+    >
       <BaseCardImage :src="getUrl()" :animate="animate"
         ><span v-if="isInAnyWishlist()" class="mm-badge">{{
           showRemoveItem ? 'Em outras listas' : 'Já na sua lista'
@@ -9,7 +14,7 @@
       <h3>{{ movie.title || movie.title_english }}</h3>
       <p>{{ DateUtils.toLocaleDateStringLong(movie.release_date) }}</p>
     </button>
-    <details class="mm-card-actions" @click.stop>
+    <details v-if="!reordering" class="mm-card-actions" @click.stop>
       <summary>Ações do filme</summary>
       <div class="mm-menu">
         <button
@@ -43,6 +48,7 @@ import { useUserStore } from 'src/core/stores/UserStore';
 
 import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 
+import { tmdbImageUrl } from 'src/modules/movie/utils/MovieStateUtils';
 import BaseCardImage from 'src/core/components/BaseCardImage.vue';
 
 import DateUtils from 'src/core/utils/DateUtils';
@@ -57,6 +63,7 @@ const props = defineProps<{
   showRemoveItem: boolean;
   animate: boolean;
   disabled?: boolean;
+  reordering?: boolean;
 }>();
 
 interface Emits {
@@ -81,7 +88,7 @@ onBeforeUnmount(() => {
 });
 function getUrl() {
   const path = props.movie?.url_image;
-  return path ? `${imageBase}/w500${path.startsWith('/') ? '' : '/'}${path}` : '';
+  return tmdbImageUrl(imageBase, path, 'w500');
 }
 function disableList(list: WatchlistType) {
   return list.movies_wishlists?.some((movie) => movie.tmdb_id === props.movie.tmdb_id);

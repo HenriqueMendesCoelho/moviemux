@@ -8,6 +8,8 @@
           v-if="movie.url_image"
           class="mm-summary-poster"
           :src="movie.url_image"
+          :srcset="tmdbPosterSrcset(imageBase, movie.url_image)"
+          sizes="(max-width: 640px) 180px, 280px"
           :alt="`Pôster de ${movie.portuguese_title}`"
         />
         <div v-else class="mm-empty">Pôster indisponível</div>
@@ -39,15 +41,15 @@
             target="_blank"
             rel="noopener noreferrer"
             class="mm-button mm-button-ghost"
-            >TMDB {{ movie.tmdb_id }} ↗</a
+            >TMDB {{ movie.tmdb_id }} <BaseIcon name="arrow" /></a
           ><a
             v-if="movie.imdb_id"
             :href="`https://www.imdb.com/title/${movie.imdb_id}`"
             target="_blank"
             rel="noopener noreferrer"
             class="mm-button mm-button-ghost"
-            >IMDb {{ movie.imdb_id }} ↗</a
-          >
+            >IMDb {{ movie.imdb_id }} <BaseIcon name="arrow"
+          /></a>
         </div>
         <BaseMovieWatchProviders :tmdb-id="movieId" />
         <section
@@ -88,6 +90,8 @@
   </section>
 </template>
 <script setup lang="ts">
+import BaseIcon from './BaseIcon.vue';
+import { tmdbImageUrl, tmdbPosterSrcset } from 'src/modules/movie/utils/MovieStateUtils';
 import { useRuntimeConfig } from '#imports';
 const imageBase = String(useRuntimeConfig().public.tmdbImageBase).replace(/\/$/, '');
 import { computed, onMounted, ref, watch } from 'vue';
@@ -151,7 +155,7 @@ async function getMovie() {
   }
 }
 function image(path?: string) {
-  return path ? `${imageBase}/w500${path}` : undefined;
+  return path ? tmdbImageUrl(imageBase, path, 'w500') : undefined;
 }
 function trailer(value: string) {
   const key = /^[\w-]{11}$/.test(value)

@@ -44,7 +44,7 @@ const visible = ref(false),
 let settled = false;
 async function show(value: Options) {
   options.value = {
-    focus: 'ok',
+    focus: 'cancel',
     title: 'Confirme',
     ok: 'Confirmar',
     cancel: 'Cancelar',

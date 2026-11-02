@@ -12,15 +12,16 @@
         :model-value="modelValue.email"
         :readonly="allReadOnly"
         @update:model-value="update('email', $event)"
-      /><label class="mm-checkbox"
-        ><input
-          type="checkbox"
-          :checked="modelValue.preferences?.notify"
-          :disabled="allReadOnly"
-          @change="notifications"
-        />Notificações por e-mail</label
-      >
+      />
     </div>
+    <label class="mm-checkbox"
+      ><input
+        type="checkbox"
+        :checked="modelValue.preferences?.notify"
+        :disabled="allReadOnly"
+        @change="notifications"
+      />Notificações por e-mail</label
+    >
     <dl class="mm-user-stats">
       <div>
         <dt>Perfil de acesso</dt>
@@ -81,31 +82,41 @@ function notifications(event: Event) {
 }
 </script>
 <style scoped>
-.mm-form-grid,
-.mm-user-stats {
+.mm-form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
 }
 .mm-user-stats {
-  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 18px;
+  margin: 24px 0 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--mm-border);
 }
 .mm-user-stats > div {
-  padding: 18px;
-  border-radius: 14px;
-  background: var(--grey-mid);
+  min-width: 0;
 }
 .mm-user-stats dt {
   font-size: 0.8rem;
-  opacity: 0.65;
+  color: var(--mm-muted);
 }
 .mm-user-stats dd {
-  font-size: 1.15rem;
-  margin: 8px 0 0;
+  font-size: 1rem;
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
 }
 .mm-checkbox {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-height: 44px;
+}
+@media (max-width: 620px) {
+  .mm-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
 }
 </style>

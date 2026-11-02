@@ -1,112 +1,162 @@
 <template>
   <BaseContainerMain>
     <router-link class="mm-back-link" :to="{ name: 'movie-watchlist-list' }"
-      >← Minhas listas</router-link
+      ><BaseIcon name="chevron-left" /> Minhas listas</router-link
     >
-    <MovieWatchlistPageTitle
-      :key="viewKey"
-      :watchlist="watchlist"
-      :disabled="mutationBlocked"
-      :rename="renameWatchlist"
-    />
-    <form class="mm-filter-bar" @submit.prevent="applySearch">
-      <label class="mm-search-field"
-        >Buscar nesta lista<input
-          v-model="searchText"
-          :disabled="allowDrag || loading || saving"
-          list="watchlist-titles"
-          placeholder="Título em português ou inglês"
-          @input="applySearch" /><datalist id="watchlist-titles">
-          <option
-            v-for="movie in watchlist?.movies_wishlists"
-            :key="movie.tmdb_id"
-            :value="movie.title || movie.title_english"
-          /></datalist></label
-      ><button
-        class="mm-button"
-        type="button"
-        @click="
-          searchText = '';
-          applySearch();
-        "
-      >
-        Limpar
-      </button>
-      <template v-if="isOwner"
-        ><label class="mm-checkbox"
+    <div class="mm-detail-top">
+      <MovieWatchlistPageTitle
+        :key="viewKey"
+        :watchlist="watchlist"
+        :disabled="mutationBlocked"
+        :rename="renameWatchlist"
+      />
+      <div v-if="isOwner" class="mm-list-utilities">
+        <label class="mm-visibility-control"
           ><input
             type="checkbox"
             :checked="watchlist?.shareable"
             :disabled="mutationBlocked"
             @change="onShareToggle"
-          />Lista pública</label
-        ><button
+          /><span>Lista pública</span></label
+        >
+        <button
           v-if="!allowDrag"
-          class="mm-button"
+          class="mm-button mm-reorder-entry"
           type="button"
-          :disabled="mutationBlocked"
+          :disabled="mutationBlocked || filteredMovies.length < 2"
           @click="startReorder"
         >
-          Reordenar
-        </button></template
-      >
-    </form>
+          <BaseIcon name="grip" />Reordenar
+        </button>
+      </div>
+    </div>
+    <div v-if="allowDrag" class="mm-reorder-intro">
+      <strong>Organize do seu jeito</strong>
+      <p id="reorder-help">Arraste pela alça ou use as setas. Salve para confirmar sua ordem.</p>
+    </div>
+    <div v-if="allowDrag" class="mm-reorder-toolbar">
+      <span class="mm-unsaved-label">Ordem não salva</span>
+      <div class="mm-actions">
+        <button class="mm-button" :disabled="saving || isSwapping" @click="cancelReorder">
+          Cancelar</button
+        ><button
+          class="mm-button mm-button-primary"
+          :disabled="saving || isSwapping"
+          @click="saveReorder"
+        >
+          {{ saving ? 'Salvando…' : 'Salvar ordem' }}
+        </button>
+      </div>
+    </div>
     <MovieWatchlistCleanupBtn
-      v-if="isOwner"
+      v-if="isOwner && !allowDrag"
       :key="viewKey"
       :wishlist="watchlist"
       :disabled="mutationBlocked"
       :remove-rated="removeRated"
     />
-    <div v-if="allowDrag" class="mm-reorder-toolbar" role="status">
-      <p>Arraste os filmes ou use as setas para reordenar.</p>
-      <button class="mm-button mm-button-primary" :disabled="saving" @click="saveReorder">
-        Salvar ordem</button
-      ><button class="mm-button" :disabled="saving" @click="cancelReorder">Cancelar</button>
-    </div>
+    <form v-if="!allowDrag" class="mm-filter-bar" @submit.prevent="applySearch">
+      <label class="mm-search-field"
+        ><BaseIcon name="search" /><span class="mm-sr-only">Buscar nesta lista</span
+        ><input
+          v-model="searchText"
+          :disabled="loading || saving"
+          list="watchlist-titles"
+          placeholder="Buscar nesta lista"
+          @input="applySearch" /><datalist id="watchlist-titles">
+          <option
+            v-for="movie in watchlist?.movies_wishlists"
+            :key="movie.tmdb_id"
+            :value="movie.title || movie.title_english"
+          /></datalist
+      ></label>
+      <button
+        v-if="searchText"
+        class="mm-clear-search"
+        type="button"
+        aria-label="Limpar busca"
+        @click="
+          searchText = '';
+          applySearch();
+        "
+      >
+        <BaseIcon name="close" />
+      </button>
+      <span class="mm-result-count"
+        >{{ filteredMovies.length }} {{ filteredMovies.length === 1 ? 'filme' : 'filmes' }}</span
+      >
+    </form>
     <p v-if="loading" role="status">Carregando lista…</p>
     <p v-if="error" class="mm-error" role="alert">
       {{ error }} <button class="mm-button" @click="loadWatchlist">Tentar novamente</button>
     </p>
-    <div class="mm-poster-grid">
-      <article
+    <p class="mm-sr-only" role="status" aria-live="polite">{{ reorderAnnouncement }}</p>
+    <div
+      ref="posterGrid"
+      class="mm-poster-grid"
+      :class="{ 'mm-reorder-grid': allowDrag }"
+      :aria-describedby="allowDrag ? 'reorder-help' : undefined"
+    >
+      <div
         v-for="(movie, index) in filteredMovies"
-        :key="movie.tmdb_id"
-        :draggable="allowDrag && !saving"
-        @dragstart="draggedIndex = index"
-        @dragover.prevent
-        @drop="drop(index)"
-        @dragend="draggedIndex = null"
-        :class="{ 'mm-dragging': draggedIndex === index }"
+        :key="allowDrag ? `position-${index}` : movie.tmdb_id"
+        class="mm-poster-slot"
+        :data-swapy-slot="allowDrag ? `position-${index}` : undefined"
       >
-        <MovieWatchlistImageCard
-          :movie="movie"
-          :wishlists="otherWatchlists"
-          :show-remove-item="isOwner"
-          :disabled="loading || saving || allowDrag"
-          :animate="!allowDrag"
-          @open="openSummary(movie.tmdb_id)"
-          @remove-movie="confirmRemove(movie)"
-          @copy-url="copyMovieUrl(movie.tmdb_id)"
-        />
-        <div v-if="allowDrag" class="mm-actions">
-          <button
-            class="mm-button"
-            :disabled="saving || index === 0"
-            @click="move(index, index - 1)"
-            :aria-label="`Mover ${movie.title} para antes`"
-          >
-            ←</button
-          ><button
-            class="mm-button"
-            :disabled="saving || index === filteredMovies.length - 1"
-            @click="move(index, index + 1)"
-            :aria-label="`Mover ${movie.title} para depois`"
-          >
-            →
-          </button>
-        </div>
-      </article>
+        <article
+          :key="movie.tmdb_id"
+          class="mm-sortable-film"
+          :data-swapy-item="allowDrag ? String(movie.tmdb_id) : undefined"
+        >
+          <div v-if="allowDrag" class="mm-drag-bar">
+            <span class="mm-order-number">{{ index + 1 }}</span
+            ><button
+              class="mm-drag-handle"
+              data-swapy-handle
+              type="button"
+              :disabled="saving"
+              :aria-label="`Arrastar ${movie.title || movie.title_english} para reordenar`"
+              title="Arraste para reordenar"
+              @click.stop.prevent
+            >
+              <BaseIcon name="grip" /><span>Mover</span>
+            </button>
+          </div>
+          <div data-swapy-no-drag>
+            <MovieWatchlistImageCard
+              :movie="movie"
+              :wishlists="otherWatchlists"
+              :show-remove-item="isOwner"
+              :disabled="loading || saving || allowDrag"
+              :reordering="allowDrag"
+              :animate="!allowDrag"
+              @open="openSummary(movie.tmdb_id)"
+              @remove-movie="confirmRemove(movie)"
+              @copy-url="copyMovieUrl(movie.tmdb_id)"
+            />
+          </div>
+          <div v-if="allowDrag" class="mm-order-actions" data-swapy-no-drag>
+            <button
+              class="mm-order-button"
+              :disabled="saving || isSwapping || index === 0"
+              @click="move(index, index - 1)"
+              :data-focus-key="`before-${movie.tmdb_id}`"
+              :aria-label="`Mover ${movie.title || movie.title_english} para antes`"
+            >
+              <BaseIcon name="chevron-left" /><span>Antes</span>
+            </button>
+            <button
+              class="mm-order-button"
+              :disabled="saving || isSwapping || index === filteredMovies.length - 1"
+              @click="move(index, index + 1)"
+              :data-focus-key="`after-${movie.tmdb_id}`"
+              :aria-label="`Mover ${movie.title || movie.title_english} para depois`"
+            >
+              <span>Depois</span><BaseIcon name="chevron-right" />
+            </button>
+          </div>
+        </article>
+      </div>
     </div>
     <p v-if="!loading && !error && !filteredMovies.length" class="mm-empty">
       {{
@@ -121,12 +171,15 @@
   </BaseContainerMain>
 </template>
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue';
+import type { Swapy } from 'swapy';
+import BaseIcon from 'src/core/components/BaseIcon.vue';
 import { useRoute } from 'vue-router';
 import {
   copyWatchlistMovies,
   moveWatchlistMovie,
   isCurrentWatchlistOperation,
+  orderMoviesBySlots,
 } from '../utils/WatchlistDraft';
 import BaseFloatingActionBtn from 'src/core/components/BaseFloatingActionBtn.vue';
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
@@ -150,7 +203,86 @@ const saving = ref(false);
 const error = ref('');
 const allowDrag = ref(false);
 const reorderDraft = ref<WatchlistType['movies_wishlists']>([]);
-const draggedIndex = ref<number | null>(null);
+const posterGrid = ref<HTMLElement>();
+const isSwapping = ref(false);
+const reorderAnnouncement = ref('');
+let swapy: Swapy | undefined;
+let swapyGeneration = 0;
+let settleTimer: ReturnType<typeof setTimeout> | undefined;
+let mediaQuery: MediaQueryList | undefined;
+function destroySwapy() {
+  swapyGeneration++;
+  if (settleTimer) clearTimeout(settleTimer);
+  settleTimer = undefined;
+  swapy?.destroy();
+  swapy = undefined;
+  isSwapping.value = false;
+}
+async function initializeSwapy() {
+  destroySwapy();
+  if (!import.meta.client || !allowDrag.value || disposed) return;
+  const generation = swapyGeneration;
+  await nextTick();
+  try {
+    const { createSwapy } = await import('swapy');
+    if (generation !== swapyGeneration || !allowDrag.value || !posterGrid.value || disposed) return;
+    swapy = createSwapy(posterGrid.value, {
+      manualSwap: true,
+      animation: mediaQuery?.matches ? 'none' : 'dynamic',
+      swapMode: 'hover',
+      dragOnHold: false,
+      autoScrollOnDrag: true,
+      enabled: !saving.value,
+    });
+    swapy.onBeforeSwap(() => allowDrag.value && !saving.value && isOwner.value);
+    swapy.onSwapStart(() => {
+      if (generation === swapyGeneration) isSwapping.value = true;
+    });
+    swapy.onSwap((event) => {
+      if (generation !== swapyGeneration || saving.value || !isOwner.value) return;
+      reorderDraft.value = orderMoviesBySlots(reorderDraft.value, event.newSlotItemMap.asArray);
+    });
+    swapy.onSwapEnd((event) => {
+      if (generation !== swapyGeneration) return;
+      reorderAnnouncement.value = event.hasChanged
+        ? 'Ordem alterada. Salve para confirmar ou cancele para voltar à ordem anterior.'
+        : 'Ordem mantida.';
+      if (!event.hasChanged) {
+        isSwapping.value = false;
+        return;
+      }
+      // Swapy 1.0.5 captures the handle DOM node at creation. Vue manualSwap
+      // recreates moved item nodes; rebind after its 300ms dynamic drop animation.
+      // Keep controls locked during that short settling period, including touch.
+      swapy?.enable(false);
+      settleTimer = setTimeout(
+        () => {
+          if (generation === swapyGeneration) void initializeSwapy();
+        },
+        mediaQuery?.matches ? 32 : 320,
+      );
+    });
+  } catch {
+    reorderAnnouncement.value =
+      'Arraste indisponível neste navegador. Use os botões Antes e Depois para reordenar.';
+  }
+}
+watch(
+  allowDrag,
+  (enabled) => {
+    if (enabled) void initializeSwapy();
+    else destroySwapy();
+  },
+  { flush: 'post' },
+);
+watch(saving, (value) => swapy?.enable(!value && allowDrag.value));
+function onMotionPreferenceChange() {
+  if (allowDrag.value) void initializeSwapy();
+}
+onMounted(() => {
+  mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  mediaQuery.addEventListener('change', onMotionPreferenceChange);
+});
 const summaryId = ref<number>();
 const showSummary = ref(false);
 const removeTarget = ref<{ listId: string; movieId: number; accountId: string }>();
@@ -188,6 +320,8 @@ watch(viewKey, loadWatchlist);
 onBeforeUnmount(() => {
   disposed = true;
   loadVersion++;
+  destroySwapy();
+  mediaQuery?.removeEventListener('change', onMotionPreferenceChange);
 });
 async function loadWatchlist() {
   const version = ++loadVersion;
@@ -299,7 +433,7 @@ async function changeShareable(value: boolean) {
     await persist({ ...watchlist.value, shareable: value });
 }
 function openSummary(id: number) {
-  if (loading.value) return;
+  if (loading.value || saving.value || allowDrag.value) return;
   summaryId.value = id;
   showSummary.value = true;
 }
@@ -350,23 +484,33 @@ function startReorder() {
   reorderDraft.value = copyWatchlistMovies(watchlist.value.movies_wishlists);
   allowDrag.value = true;
 }
-function move(from: number, to: number) {
+async function move(from: number, to: number) {
   if (
     !allowDrag.value ||
     saving.value ||
+    isSwapping.value ||
     !isOwner.value ||
     to < 0 ||
     to >= reorderDraft.value.length
   )
     return;
+  const focusKey = (document.activeElement as HTMLElement | null)?.dataset.focusKey;
+  destroySwapy();
   reorderDraft.value = moveWatchlistMovie(reorderDraft.value, from, to);
-}
-function drop(index: number) {
-  if (draggedIndex.value !== null) move(draggedIndex.value, index);
-  draggedIndex.value = null;
+  reorderAnnouncement.value = `Filme movido para a posição ${to + 1}. Salve para confirmar.`;
+  await initializeSwapy();
+  await nextTick();
+  if (focusKey) {
+    const button = posterGrid.value?.querySelector<HTMLButtonElement>(
+      `[data-focus-key="${focusKey}"]`,
+    );
+    if (button && !button.disabled) button.focus();
+    else
+      button?.closest('article')?.querySelector<HTMLButtonElement>('[data-swapy-handle]')?.focus();
+  }
 }
 async function saveReorder() {
-  if (!watchlist.value || !allowDrag.value || !isOwner.value) return;
+  if (!watchlist.value || !allowDrag.value || !isOwner.value || isSwapping.value) return;
   if (await persist({ ...watchlist.value, movies_wishlists: reorderDraft.value }, true)) {
     allowDrag.value = false;
     reorderDraft.value = [];
@@ -374,61 +518,297 @@ async function saveReorder() {
   }
 }
 function cancelReorder() {
-  if (saving.value) return;
+  if (saving.value || isSwapping.value) return;
   allowDrag.value = false;
   reorderDraft.value = [];
-  draggedIndex.value = null;
+  reorderAnnouncement.value = 'Alterações de ordem descartadas.';
 }
 </script>
 
 <style scoped>
-.mm-poster-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 28px 20px;
-  margin-top: 24px;
+.mm-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 16px;
+  color: var(--mm-muted);
+  font-size: 0.8rem;
+  text-decoration: none;
+  min-height: 28px;
+}
+.mm-back-link svg {
+  width: 16px;
+}
+.mm-back-link:hover {
+  color: var(--mm-text);
+}
+.mm-detail-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin-bottom: 20px;
+}
+.mm-list-utilities {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.mm-visibility-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--mm-muted);
+  min-height: 44px;
+}
+.mm-visibility-control input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+}
+.mm-reorder-entry {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
 }
 .mm-filter-bar {
   display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: 16px;
-  margin: 24px 0;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 20px;
+  position: relative;
 }
 .mm-search-field {
-  display: grid;
-  gap: 8px;
-  flex: 1;
-}
-.mm-checkbox {
   display: flex;
-  gap: 8px;
   align-items: center;
+  gap: 10px;
+  flex: 1;
+  max-width: 460px;
+  border: 1px solid var(--mm-border);
+  background: var(--mm-surface);
+  padding: 0 13px;
+  border-radius: 10px;
+  color: var(--mm-muted);
 }
-.mm-checkbox input {
-  width: auto;
+.mm-search-field:focus-within {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.mm-search-field input {
+  min-width: 0;
+  flex: 1;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  border-radius: 0;
+  padding: 12px 0;
+  outline: none;
+  box-shadow: none;
+  font-size: 0.85rem;
+}
+.mm-search-field input:focus {
+  outline: none;
+}
+.mm-clear-search {
+  min-width: 44px;
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+}
+.mm-result-count {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--mm-muted);
+  white-space: nowrap;
+}
+.mm-poster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 24px 18px;
+}
+.mm-poster-slot {
+  min-width: 0;
+  border-radius: 14px;
+}
+.mm-sortable-film {
+  min-width: 0;
+  touch-action: pan-y;
+}
+.mm-reorder-grid .mm-sortable-film {
+  padding: 8px;
+  border: 1px solid var(--mm-border);
+  border-radius: 14px;
+  background: var(--mm-surface);
+}
+.mm-reorder-intro {
+  margin-bottom: 12px;
+}
+.mm-reorder-intro strong {
+  font-size: 0.9rem;
+}
+.mm-reorder-intro p {
+  margin: 4px 0 0;
+  color: var(--mm-muted);
+  font-size: 0.78rem;
 }
 .mm-reorder-toolbar {
-  padding: 16px;
-  border: 1px solid var(--primary);
-  border-radius: 12px;
+  position: sticky;
+  top: 8px;
+  z-index: 18;
+  box-shadow: 0 4px 16px #0001;
   display: flex;
-  gap: 12px;
+  justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-}
-.mm-dragging {
-  opacity: 0.5;
-}
-.mm-back-link {
-  display: inline-block;
+  gap: 12px;
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, var(--mm-border));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary) 5%, var(--mm-surface));
+  padding: 8px 12px;
   margin-bottom: 20px;
-  color: var(--primary);
+}
+.mm-unsaved-label {
+  color: var(--mm-muted);
+  font-size: 0.75rem;
+}
+.mm-reorder-toolbar p {
+  color: var(--mm-muted);
+  font-size: 0.78rem;
+  margin: 5px 0 0;
+  max-width: 470px;
+}
+.mm-reorder-toolbar .mm-actions {
+  margin: 0;
+}
+.mm-drag-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px;
+  margin: -2px 0 5px;
+}
+.mm-order-number {
+  color: var(--mm-muted);
+  font-size: 0.75rem;
+  padding-left: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.mm-drag-handle {
+  display: inline-flex;
+  min-height: 44px;
+  min-width: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 8px;
+  padding: 7px 10px;
+  color: var(--mm-text);
+  background: var(--mm-raised);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  font-size: 0.75rem;
+}
+.mm-drag-handle:active {
+  cursor: grabbing;
+}
+.mm-drag-handle svg {
+  pointer-events: none;
+}
+.mm-order-actions {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--mm-border);
+  margin-top: 10px;
+  padding-top: 6px;
+  gap: 4px;
+}
+.mm-order-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  gap: 3px;
+  font-size: 0.7rem;
+  border-radius: 8px;
+  flex: 1;
+}
+.mm-order-button svg {
+  width: 14px;
+}
+.mm-order-button:hover:not(:disabled) {
+  background: var(--mm-raised);
+}
+.mm-order-button:disabled {
+  opacity: 0.35;
+}
+[data-swapy-highlighted] {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+}
+[data-swapy-dragging] {
+  box-shadow: 0 18px 44px #0005;
+  border-color: var(--primary) !important;
+  cursor: grabbing;
 }
 @media (max-width: 600px) {
+  .mm-back-link {
+    margin-bottom: 8px;
+  }
+  .mm-detail-top {
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .mm-list-utilities {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+  }
   .mm-poster-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px 12px;
+  }
+  .mm-reorder-toolbar {
+    padding: 8px;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+  .mm-reorder-toolbar .mm-button {
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 0.75rem;
+  }
+  .mm-reorder-toolbar .mm-actions {
+    margin-left: auto;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+  .mm-result-count {
+    font-size: 0.7rem;
+  }
+  .mm-filter-bar {
+    gap: 7px;
+  }
+  .mm-search-field {
+    gap: 7px;
+    padding-inline: 10px;
+  }
+  .mm-search-field input {
+    font-size: 0.8rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mm-sortable-film,
+  .mm-poster-slot {
+    transition: none !important;
+    animation: none !important;
   }
 }
 </style>

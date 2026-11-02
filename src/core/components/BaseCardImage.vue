@@ -8,6 +8,8 @@
     <img
       v-if="src && !failed"
       :src="src"
+      :srcset="tmdbPosterSrcset(imageBase, src)"
+      :sizes="sizes"
       :alt="alt"
       loading="lazy"
       draggable="false"
@@ -22,9 +24,23 @@
 </template>
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import { useRuntimeConfig } from '#imports';
+import { tmdbPosterSrcset } from 'src/modules/movie/utils/MovieStateUtils';
+const imageBase = useRuntimeConfig().public.tmdbImageBase;
 const props = withDefaults(
-  defineProps<{ src?: string; alt?: string; animate?: boolean; width?: string; height?: string }>(),
-  { animate: true, alt: 'Pôster do filme' },
+  defineProps<{
+    src?: string;
+    alt?: string;
+    animate?: boolean;
+    width?: string;
+    height?: string;
+    sizes?: string;
+  }>(),
+  {
+    animate: true,
+    alt: 'Pôster do filme',
+    sizes: '(max-width: 600px) calc((100vw - 48px) / 2), (max-width: 1100px) 22vw, 200px',
+  },
 );
 function openContextMenu(event: MouseEvent) {
   const host = (event.currentTarget as HTMLElement).closest('article');

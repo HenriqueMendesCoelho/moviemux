@@ -1,17 +1,23 @@
 <template>
-  <BaseModal v-model="visible" title="Importar do TMDB" wide>
+  <BaseModal v-model="visible" title="Importar do TMDB" :wide="movies.length > 0">
     <p class="mm-muted">Encontre um filme e traga os detalhes para sua coleção.</p>
     <form class="mm-import-search" @submit.prevent="firstSearch">
-      <label class="mm-sr-only" for="tmdb-search">Título do filme</label
+      <label class="mm-import-label" for="tmdb-search">Título do filme</label
       ><input
         id="tmdb-search"
         v-model="text"
         type="search"
-        placeholder="Qual filme você quer adicionar?"
+        placeholder="Ex.: Central do Brasil"
         required
       /><button class="mm-button mm-button-primary" :disabled="loading || importing">
         Pesquisar</button
-      ><button type="button" class="mm-button" :disabled="importing" @click="resetSearch">
+      ><button
+        v-if="text || searched"
+        type="button"
+        class="mm-button mm-button-ghost"
+        :disabled="importing"
+        @click="resetSearch"
+      >
         Limpar
       </button>
     </form>
@@ -33,6 +39,8 @@
         <img
           v-if="movie.poster_path"
           :src="getImageUrl(movie.poster_path)"
+          :srcset="tmdbPosterSrcset(config.public.tmdbImageBase, movie.poster_path)"
+          sizes="(max-width: 480px) calc((100vw - 96px) / 2), 160px"
           :alt="movie.title"
           loading="lazy"
         />
@@ -68,7 +76,7 @@ import { useMovieStore } from '../stores/MovieStore';
 import { useUserStore } from 'src/core/stores/UserStore';
 import { useMovieContext } from '../composables/useMovieContext';
 import { useMovieRequests } from '../composables/useMovieRequests';
-import { tmdbImageUrl } from '../utils/MovieStateUtils';
+import { tmdbImageUrl, tmdbPosterSrcset } from '../utils/MovieStateUtils';
 import Movie from 'src/core/domain/movie/movie';
 import MovieService from '../services/MovieService';
 import KitService from 'src/core/services/KitService';
@@ -210,8 +218,13 @@ async function importMovie() {
 <style scoped>
 .mm-import-search {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.6rem;
   margin: 1.5rem 0;
+}
+.mm-import-label {
+  flex-basis: 100%;
+  font-size: 0.85rem;
 }
 .mm-import-search input {
   flex: 1;
@@ -253,7 +266,7 @@ async function importMovie() {
   place-items: center;
 }
 .mm-import-card span {
-  opacity: 0.6;
+  color: var(--mm-muted);
 }
 .mm-sr-only {
   position: absolute;
@@ -261,5 +274,13 @@ async function importMovie() {
   height: 1px;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
+}
+@media (max-width: 480px) {
+  .mm-import-search input {
+    flex-basis: 100%;
+  }
+  .mm-import-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 </style>
