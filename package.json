@@ -19,7 +19,8 @@
     "test:pwa": "node tests/pwa-worker-smoke.ts",
     "test:session": "node tests/session-security-smoke.ts && node tests/session-cookie-smoke.ts",
     "test:socket": "node tests/bff-socket-smoke.ts",
-    "test:turnstile": "node tests/turnstile-security-smoke.ts"
+    "test:turnstile": "node tests/turnstile-security-smoke.ts",
+    "test:health": "node tests/healthcheck-smoke.ts"
   },
   "dependencies": {
     "@pinia/nuxt": "^1.0.3",

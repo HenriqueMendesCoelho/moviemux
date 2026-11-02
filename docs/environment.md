@@ -63,3 +63,13 @@ Nitro também oferece opções operacionais avançadas (`NITRO_UNIX_SOCKET`, `NI
 5. Verifique HTTPS, cookies, login, recuperação, cadastro, sockets e PWA no domínio final. Nenhuma implantação ou alteração de rede foi realizada neste trabalho.
 
 Fontes no projeto: [`nuxt.config.ts`](../nuxt.config.ts), [`session-policy.ts`](../src/server/plugins/session-policy.ts), [`turnstile.ts`](../src/server/utils/turnstile.ts), [`socket-bridge.ts`](../src/server/plugins/socket-bridge.ts), [`Dockerfile`](../Dockerfile). Referências: [Siteverify](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/) e [hostname management](https://developers.cloudflare.com/turnstile/additional-configuration/hostname-management/).
+
+## Healthcheck da imagem
+
+O Dockerfile inclui `HEALTHCHECK` a cada 30 segundos, timeout de 5 segundos, carência inicial de 30 segundos e 3 falhas consecutivas antes de marcar unhealthy. Usa o próprio Node da imagem, sem depender de curl/wget. O comando é `node scripts/healthcheck.ts`, com deadline interno de 4 segundos.
+
+A rota pública `GET /healthz` retorna somente `{"status":"ok"}`, sem cache, cookie, autenticação ou chamada ao gateway/Turnstile. **É liveness do frontend, não readiness da API**: o container pode estar healthy enquanto login, gateway, banco ou provedor externo estão indisponíveis. Isso não resolve nem esconde um erro de upstream.
+
+O probe usa `NITRO_PORT` antes de `PORT` (default 3000), `NITRO_HOST` antes de `HOST`, converte bind `0.0.0.0` em `127.0.0.1` e `::` em `::1`, e aceita `NITRO_UNIX_SOCKET` quando configurado. Se ambos `NITRO_SSL_CERT`/`NITRO_SSL_KEY` forem usados, verifica HTTPS sem desabilitar validação de certificado; a cadeia/hostname local devem ser válidos para o probe. Na topologia recomendada, o proxy termina TLS e o processo interno escuta HTTP.
+
+Um status diferente de 200, redirect, corpo inesperado, conexão recusada ou timeout produz exit code não zero. O healthcheck não executa reinício por conta própria: a ação ao estado unhealthy depende do orquestrador. Não configure a aplicação para uma porta aleatória (`PORT=0`) se o probe precisa descobri-la pela env.

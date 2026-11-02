@@ -79,6 +79,7 @@ pnpm build
 pnpm test:ssr
 pnpm test:session
 pnpm test:turnstile
+pnpm test:health
 pnpm test:socket
 pnpm test:pwa
 node .output/server/index.mjs
@@ -91,6 +92,8 @@ For a local interactive preview without a backend, see [QA fixture instructions]
 ### Deployment
 
 The Dockerfile builds a Nitro server and runs as non-root. Supply endpoint variables at runtime; expose port 3000. The runtime entrypoint changed from Quasar's `dist/ssr/index.js` to **`.output/server/index.mjs`**. No backend contracts or database changes are needed.
+
+The image includes a Node-only Docker HEALTHCHECK against unauthenticated `GET /healthz` (30-second interval, 5-second timeout, 30-second start period, 3 retries). It checks frontend process liveness only, not API/Turnstile readiness; see the [healthcheck configuration](docs/environment.md#healthcheck-da-imagem). `pnpm test:health` exercises the probe and built route with disposable local fixtures.
 
 PWA support preserves the app's original icons and standalone presentation. Only public frontend assets and the explicit offline notice are precached; authenticated API data is not cached. Updates are offered through an in-app prompt.
 

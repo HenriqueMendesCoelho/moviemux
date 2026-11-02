@@ -12,6 +12,8 @@ FROM node:26.13.0-alpine
 WORKDIR /app
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000
 COPY --from=build --chown=node:node /app/.output ./.output
+COPY --chown=node:node scripts/healthcheck.ts ./scripts/healthcheck.ts
 USER node
 EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 CMD ["node", "scripts/healthcheck.ts"]
 CMD ["node", ".output/server/index.mjs"]
