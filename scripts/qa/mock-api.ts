@@ -3,11 +3,39 @@ import { createServer } from 'node:http';
 const port = Number(process.env.QA_API_PORT || 3001);
 const origin = `http://127.0.0.1:${port}`;
 const now = new Date().toISOString();
+const fixtureCount = Math.max(8, Math.min(120, Number(process.env.QA_MOVIE_COUNT) || 8));
+const summaryDelay = Math.max(0, Math.min(5000, Number(process.env.QA_SUMMARY_DELAY_MS) || 0));
+const creditsDelay = Math.max(0, Math.min(5000, Number(process.env.QA_CREDITS_DELAY_MS) || 0));
+const ratingCount = Math.max(
+  1,
+  Math.min(50, Number(process.env.QA_RATING_COUNT) || (fixtureCount > 8 ? 2 : 1)),
+);
 const genres = [
   { id: 1, name: 'Ficção científica', tmdb_id: 878 },
   { id: 2, name: 'Drama', tmdb_id: 18 },
   { id: 3, name: 'Aventura', tmdb_id: 12 },
 ];
+if (fixtureCount > 8) {
+  [
+    'Ação',
+    'Animação',
+    'Comédia',
+    'Crime',
+    'Documentário',
+    'Família',
+    'Fantasia',
+    'História',
+    'Terror',
+    'Música',
+    'Mistério',
+    'Romance',
+    'Suspense',
+    'Guerra',
+    'Faroeste',
+  ].forEach((name, index) => {
+    genres.push({ id: index + 4, name, tmdb_id: index + 1000 });
+  });
+}
 const titles = [
   'Além do horizonte',
   'A última órbita',
@@ -18,7 +46,10 @@ const titles = [
   'Depois da meia-noite',
   'O mapa do amanhã',
 ];
-const movies = titles.map((title, i) => ({
+const movies = Array.from({ length: fixtureCount }, (_, i) => ({
+  title: titles[i % titles.length]! + (i >= titles.length ? ` · ${i + 1}` : ''),
+  i,
+})).map(({ title, i }) => ({
   id: `movie-${i + 1}`,
   tmdb_id: 100 + i,
   imdb_id: `tt10000${i}`,
@@ -49,6 +80,16 @@ const movies = titles.map((title, i) => ({
   show_notes: true,
   time_since_creation: i,
 }));
+for (const movie of movies) {
+  for (let index = 1; index < ratingCount; index++) {
+    movie.notes.push({
+      note: index % 11,
+      createdAt: now,
+      updatedAt: now,
+      user: { id: `qa-companion-${index}`, name: `Colega de sessão ${index}` },
+    });
+  }
+}
 const user = {
   id: 'qa-user',
   name: 'Conta de demonstração',
@@ -71,15 +112,13 @@ const lists = [
     id: 'list-1',
     name: 'Para o próximo fim de semana',
     shareable: true,
-    movies_wishlists: movies
-      .slice(0, 4)
-      .map((m) => ({
-        tmdb_id: m.tmdb_id,
-        title: m.portuguese_title,
-        title_english: m.english_title,
-        url_image: m.url_image,
-        release_date: m.release_date,
-      })),
+    movies_wishlists: movies.slice(0, 4).map((m) => ({
+      tmdb_id: m.tmdb_id,
+      title: m.portuguese_title,
+      title_english: m.english_title,
+      url_image: m.url_image,
+      release_date: m.release_date,
+    })),
     created_at: now,
     updated_at: now,
     user: { id: user.id, name: user.name },
@@ -129,7 +168,20 @@ const server = createServer(async (req, res) => {
   }
   let data: unknown = {};
   if (path === '/login')
-    data = { access_token: token(typeof body.email === 'string' && body.email.endsWith('@ssr.test') ? { ...user, id: body.email, email: body.email, name: body.email.split('@')[0]!, roles: body.email.startsWith('Admin') ? ['ADM', 'USER'] : ['USER'] } : user), expires: new Date(Date.now() + 86400000).toISOString() };
+    data = {
+      access_token: token(
+        typeof body.email === 'string' && body.email.endsWith('@ssr.test')
+          ? {
+              ...user,
+              id: body.email,
+              email: body.email,
+              name: body.email.split('@')[0]!,
+              roles: body.email.startsWith('Admin') ? ['ADM', 'USER'] : ['USER'],
+            }
+          : user,
+      ),
+      expires: new Date(Date.now() + 86400000).toISOString(),
+    };
   else if (path === '/qa/token')
     data = { token: token(), warning: 'Local QA fixture only; not valid for any real backend' };
   else if (path === '/movie/genres' || path === '/movie/genres-with-movies') data = genres;
@@ -141,29 +193,32 @@ const server = createServer(async (req, res) => {
       movies_by_gender: { Drama: 16, 'Ficção científica': 12, Aventura: 8, Comédia: 6 },
       movies_six_months_ago: { Maio: 4, Junho: 8, Julho: 6, Agosto: 10, Setembro: 7, Outubro: 7 },
     };
-  else if (path.includes('/credits'))
+  else if (path.includes('/credits')) {
+    if (creditsDelay) await new Promise((resolve) => setTimeout(resolve, creditsDelay));
     data = {
-      cast: [
-        {
-          name: 'Elenco de demonstração',
-          original_name: 'Elenco',
-          known_for_department: 'Acting',
-          character: 'Protagonista',
-        },
-      ],
-      crew: [
-        {
-          name: 'Direção de demonstração',
-          original_name: 'Direção',
-          known_for_department: 'Directing',
-          department: 'Directing',
-          job: 'Director',
-        },
-      ],
+      cast: Array.from({ length: 18 }, (_, index) => ({
+        id: index + 1,
+        name: `Pessoa fictícia ${index + 1}`,
+        original_name: `Pessoa fictícia ${index + 1}`,
+        known_for_department: 'Acting',
+        character: index ? 'Participação de demonstração' : 'Protagonista',
+        profile_path:
+          index % 3 === 0 ? null : index % 3 === 1 ? '/missing-person.jpg' : `/poster/${index}`,
+      })),
+      crew: Array.from({ length: 8 }, (_, index) => ({
+        id: index + 101,
+        name: `Equipe fictícia ${index + 1}`,
+        original_name: `Equipe fictícia ${index + 1}`,
+        known_for_department: 'Directing',
+        department: 'Directing',
+        job: 'Director',
+        profile_path: index % 2 ? '/missing-person.jpg' : null,
+      })),
     };
-  else if (path.includes('/watch-providers'))
+  } else if (path.includes('/watch-providers'))
     data = { id: 100, results: { BR: { link: 'https://www.themoviedb.org/', flatrate: [] } } };
   else if (path.endsWith('/summary')) {
+    if (summaryDelay) await new Promise((resolve) => setTimeout(resolve, summaryDelay));
     const m = movies.find((m) => path.includes(String(m.tmdb_id))) || movies[0]!;
     data = {
       ...m,
@@ -188,6 +243,7 @@ const server = createServer(async (req, res) => {
         overview: m.description,
         release_date: m.release_date,
         vote_average: 8.4,
+        vote_count: 152,
         genre_ids: [878],
       })),
     };
@@ -272,14 +328,16 @@ const server = createServer(async (req, res) => {
     } else {
       const query = (url.searchParams.get('title') || '').toLowerCase();
       const found = movies.filter((m) => m.portuguese_title.toLowerCase().includes(query));
+      const pageNumber = Math.max(1, Number(url.searchParams.get('page')) || 1);
+      const pageSize = Math.max(1, Math.min(120, Number(url.searchParams.get('size')) || 30));
       data = {
-        content: found,
+        content: found.slice((pageNumber - 1) * pageSize, pageNumber * pageSize),
         total_elements: found.length,
-        total_pages: 1,
-        number: 0,
-        size: 30,
-        last: true,
-        first: true,
+        total_pages: Math.ceil(found.length / pageSize),
+        number: pageNumber - 1,
+        size: pageSize,
+        last: pageNumber * pageSize >= found.length,
+        first: pageNumber === 1,
         empty: !found.length,
       };
     }
