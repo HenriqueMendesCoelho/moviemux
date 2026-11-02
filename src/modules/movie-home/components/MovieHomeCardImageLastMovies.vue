@@ -6,7 +6,7 @@
     <div class="mm-card-footer">
       <router-link :to="{ name: 'movie', params: { id } }"
         ><h3 :title="title">{{ title }}</h3></router-link
-      ><MovieHomeContextMenu :movie-id="id || ''" />
+      ><MovieHomeContextMenu :movie-id="id || ''" :title="title" />
     </div>
   </article>
 </template>

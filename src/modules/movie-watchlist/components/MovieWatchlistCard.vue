@@ -23,7 +23,7 @@
     <div class="mm-list-body">
       <div class="mm-list-title-row">
         <div>
-          <h2>
+          <h2 :title="wishlist.name">
             <router-link :to="destination">{{ wishlist.name }}</router-link>
           </h2>
           <p>
@@ -130,6 +130,11 @@ h2 {
   font-size: 1.05rem;
   line-height: 1.3;
   overflow-wrap: anywhere;
+  min-height: 2.6em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 h2 a {
   color: var(--mm-text);

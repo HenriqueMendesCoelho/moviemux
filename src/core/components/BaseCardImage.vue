@@ -88,9 +88,14 @@ watch(
   gap: 12px;
 }
 .mm-poster-animate {
-  transition: transform 0.2s;
+  transition: transform 0.2s ease;
 }
-.mm-poster-animate:hover {
+@media (hover: hover) and (pointer: fine) {
+  .mm-poster-animate:hover {
+    transform: translateY(-4px);
+  }
+}
+:where(a, button):focus-visible > .mm-poster-animate {
   transform: translateY(-4px);
 }
 .mm-poster-loading {

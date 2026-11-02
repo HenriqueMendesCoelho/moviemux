@@ -11,7 +11,7 @@
       <router-link :to="{ name: 'movie', params: { id: movie.id } }" class="mm-poster-link">
         <h3 :title="movie.portuguese_title">{{ movie.portuguese_title }}</h3>
         <p>{{ DateUtils.toLocaleDateStringLong(movie.release_date) }}</p> </router-link
-      ><MovieHomeContextMenu :movie-id="movie.id || ''" />
+      ><MovieHomeContextMenu :movie-id="movie.id || ''" :title="movie.portuguese_title" />
     </div>
   </article>
 </template>

@@ -1,42 +1,70 @@
 <template>
-  <article class="mm-poster-card">
+  <article class="mm-poster-card" :aria-busy="loading" :data-reordering="reordering || undefined">
     <button
       class="mm-poster-link"
       type="button"
-      :disabled="disabled"
-      @click="!disabled && emit('open')"
+      :disabled="disabled || reordering"
+      :aria-label="`Ver detalhes de ${movie.title || movie.title_english}`"
+      @click="!disabled && !reordering && emit('open')"
     >
-      <BaseCardImage :src="getUrl()" :animate="animate"
+      <BaseCardImage
+        :src="getUrl()"
+        :alt="movie.title || movie.title_english"
+        :animate="animate && !disabled && !reordering"
         ><span v-if="isInAnyWishlist()" class="mm-badge">{{
           showRemoveItem ? 'Em outras listas' : 'Já na sua lista'
         }}</span></BaseCardImage
       >
-      <h3>{{ movie.title || movie.title_english }}</h3>
-      <p>{{ DateUtils.toLocaleDateStringLong(movie.release_date) }}</p>
     </button>
-    <details v-if="!reordering" class="mm-card-actions" @click.stop>
-      <summary>Ações do filme</summary>
-      <div class="mm-menu">
+    <div class="mm-film-caption">
+      <button
+        class="mm-film-title"
+        type="button"
+        :disabled="disabled || reordering"
+        @click="!disabled && !reordering && emit('open')"
+      >
+        <h3 :title="movie.title || movie.title_english">
+          {{ movie.title || movie.title_english }}
+        </h3>
+      </button>
+      <BaseContextMenu
+        v-if="!reordering"
+        class="mm-film-menu"
+        :label="`Opções de ${movie.title || movie.title_english}`"
+        :title="movie.title || movie.title_english"
+      >
+        <button type="button" :disabled="loading || disabled" @click="emit('copy-url')">
+          <BaseIcon name="share" />Copiar link
+        </button>
+        <template v-if="_wishlists.length">
+          <p class="mm-menu-section" role="presentation">Adicionar a outra lista</p>
+          <button
+            v-for="list in _wishlists"
+            :key="list.id"
+            type="button"
+            :disabled="loading || disabled || store.pendingMembership[list.id] || disableList(list)"
+            @click="addMovieToWishlist(list.id, movie.tmdb_id)"
+          >
+            <BaseIcon :name="disableList(list) ? 'check' : 'plus'" />
+            {{ list.name
+            }}<span v-if="disableList(list)" class="mm-sr-only"> — Já está nesta lista</span>
+          </button>
+        </template>
         <button
           v-if="showRemoveItem"
+          class="mm-remove-movie"
           type="button"
           :disabled="loading || disabled"
           @click="emit('removeMovie')"
         >
-          Remover desta lista</button
-        ><button type="button" @click="emit('copy-url')">Copiar link</button>
-        <p v-if="_wishlists.length">Adicionar a outra lista</p>
-        <button
-          v-for="list in _wishlists"
-          :key="list.id"
-          :disabled="loading || disabled || store.pendingMembership[list.id] || disableList(list)"
-          @click="addMovieToWishlist(list.id, movie.tmdb_id)"
-        >
-          {{ list.name }}{{ disableList(list) ? ' ✓' : '' }}
+          <BaseIcon name="close" />Remover desta lista
         </button>
-      </div>
-    </details>
-    <p v-if="loading" role="status">Salvando…</p>
+      </BaseContextMenu>
+      <p class="mm-film-date" :title="DateUtils.toLocaleDateStringLong(movie.release_date)">
+        {{ DateUtils.toLocaleDateStringLong(movie.release_date) }}
+      </p>
+    </div>
+    <p v-if="loading" role="status" class="mm-film-saving">Salvando…</p>
   </article>
 </template>
 
@@ -50,6 +78,8 @@ import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType
 
 import { tmdbImageUrl } from 'src/modules/movie/utils/MovieStateUtils';
 import BaseCardImage from 'src/core/components/BaseCardImage.vue';
+import BaseContextMenu from 'src/core/components/BaseContextMenu.vue';
+import BaseIcon from 'src/core/components/BaseIcon.vue';
 
 import DateUtils from 'src/core/utils/DateUtils';
 
@@ -132,19 +162,72 @@ function isInAnyWishlist() {
 }
 .mm-poster-link {
   display: block;
-  text-align: left;
   width: 100%;
-  color: inherit;
   padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  border-radius: 16px;
+  transform: none;
 }
-.mm-poster-link h3 {
-  font-size: 1rem;
-  margin: 12px 0 5px;
+.mm-poster-link:disabled {
+  cursor: default;
+  opacity: 1;
+}
+.mm-poster-link:focus-visible {
+  outline: 2px solid var(--mm-link);
+  outline-offset: 4px;
+}
+.mm-film-caption {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  align-items: start;
+  column-gap: 4px;
+  row-gap: 5px;
+  margin-top: 8px;
+}
+.mm-film-title {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--mm-text);
+  text-align: left;
+  transform: none;
+}
+.mm-film-title:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.mm-film-title h3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.8em;
+  margin: 0;
+  font-size: 0.9rem;
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
-.mm-poster-link p {
-  font-size: 0.8rem;
-  opacity: 0.6;
+.mm-film-menu {
+  grid-column: 2;
+  grid-row: 1;
+}
+.mm-film-date {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--mm-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+[data-reordering] .mm-film-caption {
+  grid-template-columns: minmax(0, 1fr);
 }
 .mm-badge {
   position: absolute;
@@ -156,27 +239,23 @@ function isInAnyWishlist() {
   border-radius: 6px;
   font-size: 0.7rem;
 }
-.mm-card-actions {
-  font-size: 0.8rem;
-  margin-top: 12px;
+.mm-menu-section {
+  margin: 4px 6px;
+  padding: 8px 5px 3px;
+  border-top: 1px solid var(--mm-border);
+  font-size: 0.72rem;
+  color: var(--mm-muted);
 }
-.mm-card-actions summary {
-  cursor: pointer;
+.mm-remove-movie {
+  color: var(--mm-danger-text) !important;
+  border-top: 1px solid var(--mm-border) !important;
+  margin-top: 4px !important;
+  border-radius: 0 0 8px 8px !important;
 }
-.mm-menu {
-  display: grid;
-  padding: 10px;
-  background: var(--grey-dark2);
-  border: 1px solid var(--grey-mid2);
-  border-radius: 10px;
-  gap: 4px;
-}
-.mm-menu button {
-  color: inherit;
-  padding: 8px;
-  text-align: left;
-}
-.mm-menu button:disabled {
-  opacity: 0.4;
+.mm-film-saving {
+  margin: 4px 0 0;
+  min-height: 1.5em;
+  color: var(--mm-muted);
+  font-size: 0.75rem;
 }
 </style>
