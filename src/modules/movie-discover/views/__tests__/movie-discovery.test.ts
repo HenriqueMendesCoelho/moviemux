@@ -201,3 +201,33 @@ test('upstream failure is not presented as a successful empty search', async () 
   expect(wrapper.get('h2').text()).toBe('Não foi possível consultar o catálogo');
   expect(wrapper.text()).not.toContain('Nenhum filme por aqui');
 });
+
+test('themed genre selector maps TMDB IDs, filters without sprawling checkboxes and retries failures', async () => {
+  mocks.getMoviesGenres
+    .mockRejectedValueOnce(new Error('offline'))
+    .mockResolvedValueOnce([{ id: 7, name: 'Ação', tmdb_id: 28 }]);
+  const wrapper = await create();
+  const selector = wrapper.findComponent({ name: 'BaseMultiSelect' });
+  expect(selector.props('error')).toContain('Não foi possível');
+  selector.vm.$emit('retry');
+  await flushPromises();
+  expect(selector.props('options')).toEqual([{ value: 28, label: 'Ação' }]);
+  selector.vm.$emit('update:modelValue', [28]);
+  selector.vm.$emit('change', [28]);
+  await flushPromises();
+  expect(mocks.getMoviesDiscover).toHaveBeenLastCalledWith(undefined, 1, undefined, '28');
+  expect(wrapper.find('input[type=checkbox]').exists()).toBe(false);
+});
+test('preview receives external rating only for its matching selected result and clears with account', async () => {
+  const wrapper = await create();
+  mocks.route.query = { movie: '1' };
+  await flushPromises();
+  const summary = wrapper.findComponent({ name: 'BaseDialogFormMovieSummary' });
+  expect(summary.props('externalRating')).toEqual({ movieId: 1, value: 8, votes: 2 });
+  mocks.route.query = { movie: '999' };
+  await flushPromises();
+  expect(summary.props('externalRating')).toBeUndefined();
+  mocks.user.user.isLoged = false;
+  await flushPromises();
+  expect(summary.props('externalRating')).toBeUndefined();
+});

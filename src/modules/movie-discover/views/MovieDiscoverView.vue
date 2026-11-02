@@ -1,9 +1,9 @@
 <template>
   <BaseContainerMain>
     <header class="mm-discover-header">
-      <p class="mm-eyebrow">Uma nova história começa aqui</p>
-      <h1>Explore o cinema<span>.</span></h1>
-      <p>Grandes estreias, favoritos e aquela próxima descoberta.</p>
+      <p class="mm-eyebrow">Catálogo TMDB</p>
+      <h1>Descobrir filmes<span>.</span></h1>
+      <p>Encontre sua próxima sessão.</p>
     </header>
     <form class="mm-discover-toolbar" @submit.prevent="submitSearch">
       <div class="mm-autocomplete" @focusout="onSearchFocusOut">
@@ -57,34 +57,29 @@
           <option value="upcoming">Em breve</option>
         </select></label
       >
-      <button type="submit" class="mm-button mm-button-primary" :disabled="loading">Buscar</button
-      ><button type="button" class="mm-button" @click="resetSearch">Limpar</button>
-    </form>
-    <label class="mm-discover-year"
-      >Ano de lançamento
-      <input
-        v-model="year"
-        type="number"
-        min="1870"
-        max="9999"
-        placeholder="Todos os anos"
+      <label class="mm-discover-year"
+        >Ano
+        <input
+          v-model="year"
+          type="number"
+          min="1870"
+          max="9999"
+          placeholder="Qualquer ano"
+          @change="applyGenres"
+        />
+      </label>
+      <BaseMultiSelect
+        v-model="genreIds"
+        :options="genreOptions"
+        label="Gêneros"
+        :loading="loadingGenres"
+        :error="genreError"
         @change="applyGenres"
-    /></label>
-    <details class="mm-genres-filter">
-      <summary>
-        Filtrar por gênero <span v-if="genreIds.length">({{ genreIds.length }})</span>
-      </summary>
-      <div>
-        <label v-for="genre in genres" :key="genre.id"
-          ><input
-            v-model="genreIds"
-            type="checkbox"
-            :value="genre.tmdb_id"
-            @change="applyGenres"
-          />{{ genre.name }}</label
-        ><span v-if="loadingGenres" role="status">Carregando gêneros…</span>
-      </div>
-    </details>
+        @retry="loadGenres"
+      />
+      <button type="submit" class="mm-button mm-button-primary" :disabled="loading">Buscar</button>
+      <button type="button" class="mm-discover-clear" @click="resetSearch">Limpar filtros</button>
+    </form>
     <h2 class="mm-results-title">
       {{ error ? 'Não foi possível consultar o catálogo' : collectionTitle }}
     </h2>
@@ -93,6 +88,17 @@
       <button type="button" class="mm-button" @click="loadMovies(false)">Tentar novamente</button>
     </p>
     <div class="mm-discover-grid" :aria-busy="loading">
+      <template v-if="loading && !movies.length">
+        <div
+          v-for="index in 8"
+          :key="`loading-${index}`"
+          class="mm-discover-skeleton"
+          aria-hidden="true"
+        >
+          <div />
+          <span /><span />
+        </div>
+      </template>
       <MovieDiscoverCardImage
         v-for="movie in movies"
         :key="movie.id"
@@ -121,7 +127,11 @@
         Carregar mais filmes
       </button>
     </div>
-    <BaseDialogFormMovieSummary v-model="showSummary" :movie-id="summaryId" @hide="closeSummary"
+    <BaseDialogFormMovieSummary
+      v-model="showSummary"
+      :movie-id="summaryId"
+      :external-rating="selectedExternalRating"
+      @hide="closeSummary"
       ><template #prepend:bar
         ><details class="mm-summary-watchlists">
           <summary>Adicionar à lista</summary>
@@ -139,6 +149,7 @@ import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { MovieResultResponseTmdb } from 'src/core/types/movie/MovieType';
 import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
+import BaseMultiSelect from 'src/core/components/BaseMultiSelect.vue';
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import BaseDialogFormMovieSummary from 'src/core/components/BaseDialogFormMovieSummary.vue';
 import BaseFloatingActionBtn from 'src/core/components/BaseFloatingActionBtn.vue';
@@ -163,7 +174,11 @@ const searchText = ref(''),
   genreIds = ref<number[]>([]),
   year = ref<number | string>('');
 const genres = ref<{ id: number; name: string; tmdb_id: number }[]>([]),
-  loadingGenres = ref(false);
+  loadingGenres = ref(false),
+  genreError = ref('');
+const genreOptions = computed(() =>
+  genres.value.map((genre) => ({ value: genre.tmdb_id, label: genre.name })),
+);
 const movies = ref<MovieResultResponseTmdb['results']>([]),
   suggestions = ref<MovieResultResponseTmdb['results']>([]);
 const suggestionsOpen = ref(false),
@@ -178,6 +193,12 @@ const showSummary = ref(false),
   summaryId = ref(0),
   adding = ref(false),
   sentinel = ref<HTMLElement>();
+const selectedExternalRating = computed(() => {
+  const selected = movies.value.find((movie) => movie.id === summaryId.value);
+  return selected
+    ? { movieId: selected.id, value: selected.vote_average, votes: selected.vote_count }
+    : undefined;
+});
 let debounce: ReturnType<typeof setTimeout> | undefined,
   mounted = false;
 const collectionTitle = computed(
@@ -268,11 +289,12 @@ async function loadWatchlists() {
 async function loadGenres() {
   const current = requests.begin('genres');
   loadingGenres.value = true;
+  genreError.value = '';
   try {
     const result = await MovieService.getMoviesGenres();
     if (current()) genres.value = result;
   } catch {
-    if (current()) showError('Não foi possível carregar gêneros.');
+    if (current()) genreError.value = 'Não foi possível carregar os gêneros.';
   } finally {
     if (current()) loadingGenres.value = false;
   }
@@ -436,144 +458,161 @@ async function addMovieToWatchlist(id: string, movieId: number) {
 }
 </script>
 <style scoped>
-.mm-discover-year {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  font-size: 0.85rem;
-  margin-top: 1rem;
-  flex-wrap: wrap;
-}
-.mm-discover-year input {
-  color: inherit;
-  background: var(--grey-dark2);
-  border: 1px solid var(--mm-border);
-  border-radius: 8px;
-  padding: 0.6rem;
-  width: 130px;
-}
 .mm-discover-header {
-  padding: 1rem 0 2rem;
+  padding: 0.25rem 0 1.25rem;
 }
 .mm-eyebrow {
+  margin: 0 0 0.4rem;
   font-size: 0.7rem;
   color: var(--mm-link);
   text-transform: uppercase;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.13em;
 }
 .mm-discover-header h1 {
-  font-size: clamp(2.2rem, 4vw, 3.8rem);
-  line-height: 1.1;
-  letter-spacing: -0.045em;
-  margin: 0.6rem 0 1rem;
+  font-size: clamp(1.7rem, 2.5vw, 2.35rem);
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+  margin: 0 0 0.45rem;
 }
 .mm-discover-header h1 span {
   color: var(--mm-link);
 }
 .mm-discover-header > p:last-child {
   color: var(--mm-muted);
+  font-size: 0.9rem;
+  margin: 0;
 }
 .mm-discover-toolbar {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(180px, 1.6fr) minmax(165px, 1fr) 135px minmax(180px, 1fr) auto auto;
   align-items: end;
-  gap: 0.8rem;
+  gap: 0.75rem;
   padding: 1rem;
-  background: var(--grey-dark2);
-  border: 1px solid #8883;
+  margin-bottom: 1.5rem;
+  background: var(--mm-surface);
+  border: 1px solid var(--mm-border);
   border-radius: 16px;
 }
 .mm-autocomplete {
   position: relative;
-  flex: 1;
+  min-width: 0;
 }
 .mm-autocomplete input,
-.mm-sort select {
+.mm-sort select,
+.mm-discover-year input {
   width: 100%;
-  border: 1px solid #8884;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid var(--mm-border);
   border-radius: 10px;
-  padding: 0.85rem;
-  background: var(--grey-dark);
-  color: inherit;
+  padding: 0.65rem 0.8rem;
+  background: var(--mm-surface);
+  color: var(--mm-text);
   font: inherit;
-}
-.mm-sort {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  font-size: 0.7rem;
-}
-.mm-sort select {
   font-size: 0.85rem;
-  padding: 0.8rem;
+}
+.mm-autocomplete input {
+  padding-inline: 0.8rem;
+}
+.mm-sort,
+.mm-discover-year {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--mm-muted);
+}
+.mm-discover-clear {
+  min-height: 44px;
+  padding: 0.5rem 0.35rem;
+  color: var(--mm-muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.mm-discover-clear:hover {
+  color: var(--mm-text);
 }
 .mm-suggestions {
   position: absolute;
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 20;
-  background: var(--grey-dark2);
-  border: 1px solid #8884;
+  z-index: 40;
+  max-height: min(350px, 45dvh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--mm-surface);
+  border: 1px solid var(--mm-border);
   border-radius: 12px;
   padding: 0.5rem;
   list-style: none;
-  box-shadow: 0 15px 40px #0004;
+  box-shadow: 0 15px 40px #0003;
 }
 .mm-suggestions button {
   display: flex;
   justify-content: space-between;
+  gap: 0.5rem;
   text-align: left;
   width: 100%;
-  padding: 0.8rem;
-  color: inherit;
+  min-height: 44px;
+  padding: 0.7rem;
+  color: var(--mm-text);
   border-radius: 7px;
 }
 .mm-suggestions button:hover,
 .mm-selected {
-  background: var(--grey-mid);
+  background: var(--mm-raised);
 }
 .mm-suggestions span {
-  opacity: 0.4;
-  margin-left: 0.5rem;
-}
-.mm-genres-filter {
-  font-size: 0.8rem;
-  margin: 1rem 0 2rem;
-}
-.mm-genres-filter summary {
-  cursor: pointer;
-  opacity: 0.75;
-}
-.mm-genres-filter > div {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  padding: 1rem 0;
-}
-.mm-genres-filter label {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
+  color: var(--mm-muted);
 }
 .mm-results-title {
-  font-size: 1.15rem;
-  margin: 0 0 1.5rem;
+  font-size: 1.05rem;
+  margin: 0 0 1rem;
 }
 .mm-discover-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 2rem 1.4rem;
+  gap: 1.5rem 1.2rem;
 }
 .mm-status,
 .mm-load-more {
-  padding: 2rem;
+  padding: 1.5rem;
   text-align: center;
+  color: var(--mm-muted);
 }
 .mm-summary-watchlists summary {
   cursor: pointer;
 }
 .mm-summary-watchlists {
   font-size: 0.8rem;
+}
+.mm-discover-skeleton > div {
+  aspect-ratio: 2/3;
+  border-radius: 16px;
+  background: var(--mm-raised);
+}
+.mm-discover-skeleton > span {
+  display: block;
+  height: 0.8rem;
+  margin-top: 0.75rem;
+  width: 80%;
+  border-radius: 4px;
+  background: var(--mm-raised);
+}
+.mm-discover-skeleton > span:last-child {
+  width: 35%;
+  height: 0.65rem;
+}
+.mm-discover-skeleton {
+  animation: mm-discover-pulse 1.4s ease-in-out infinite alternate;
+}
+@keyframes mm-discover-pulse {
+  to {
+    opacity: 0.45;
+  }
 }
 .mm-sr-only {
   position: absolute;
@@ -582,19 +621,50 @@ async function addMovieToWatchlist(id: string, movieId: number) {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
 }
-@media (max-width: 700px) {
+@media (max-width: 1200px) {
   .mm-discover-toolbar {
-    flex-wrap: wrap;
+    grid-template-columns: minmax(160px, 1fr) minmax(160px, 1fr) 135px auto;
   }
   .mm-autocomplete {
-    flex-basis: 100%;
+    grid-column: span 2;
   }
   .mm-sort {
-    flex: 1;
+    grid-column: 3 / span 2;
+  }
+  .mm-discover-toolbar :deep(.mm-multiselect) {
+    grid-column: 2;
+  }
+}
+@media (max-width: 700px) {
+  .mm-discover-header {
+    padding-bottom: 1rem;
+  }
+  .mm-discover-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.75rem;
+    padding: 0.8rem;
+    margin-bottom: 1.25rem;
+  }
+  .mm-autocomplete {
+    grid-column: 1 / -1;
+  }
+  .mm-sort {
+    grid-column: 1;
+  }
+  .mm-discover-year {
+    grid-column: 2;
+  }
+  .mm-discover-toolbar :deep(.mm-multiselect) {
+    grid-column: 1 / -1;
   }
   .mm-discover-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.5rem 1rem;
+    gap: 1.25rem 0.9rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mm-discover-skeleton {
+    animation: none;
   }
 }
 </style>
