@@ -1,5 +1,5 @@
 <template>
-  <BaseContainerMain>
+  <BaseContainerMain class="mm-film-detail">
     <p v-if="loading" role="status">Carregando filme…</p>
     <div v-else-if="error" role="alert" class="mm-empty">
       <p>{{ error }}</p>
@@ -75,3 +75,18 @@ async function loadMovie() {
   }
 }
 </script>
+
+<style scoped>
+.mm-film-detail.mm-container {
+  max-width: 70rem;
+}
+.mm-film-detail :deep(.mm-synopsis) {
+  max-width: 70ch;
+}
+@media (min-width: 751px) {
+  .mm-film-detail :deep(.mm-movie-readonly) {
+    grid-template-columns: minmax(180px, 280px) minmax(0, 1fr);
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+  }
+}
+</style>

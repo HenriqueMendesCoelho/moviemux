@@ -5,42 +5,91 @@
     :aria-busy="loading"
     aria-labelledby="reviews-title"
   >
-    <header class="mm-review-header">
-      <div class="mm-review-heading">
-        <h2 id="reviews-title">
-          Avaliações <span class="mm-review-count">{{ notes.length }}</span>
-        </h2>
-        <p>
-          {{
-            movie.show_notes && !privacyPending
-              ? 'A opinião de quem assistiu.'
-              : 'As notas dos outros ficam ocultas durante a votação.'
-          }}
-        </p>
-      </div>
-      <div class="mm-review-actions">
-        <label v-if="canToggleVisibility" class="mm-visibility-toggle"
-          ><input
-            type="checkbox"
-            role="switch"
-            :checked="movie.show_notes"
+    <div class="mm-reviews-content">
+      <header class="mm-review-header">
+        <div class="mm-review-heading">
+          <h2 id="reviews-title">
+            Avaliações <span class="mm-review-count">{{ notes.length }}</span>
+          </h2>
+          <p>
+            {{
+              movie.show_notes && !privacyPending
+                ? 'A opinião de quem assistiu.'
+                : 'As notas dos outros ficam ocultas durante a votação.'
+            }}
+          </p>
+        </div>
+        <div class="mm-review-actions">
+          <label v-if="canToggleVisibility" class="mm-visibility-toggle"
+            ><input
+              type="checkbox"
+              role="switch"
+              :checked="movie.show_notes"
+              :disabled="loading"
+              @change="updateShowNotes(($event.target as HTMLInputElement).checked)"
+            /><span>Notas visíveis</span></label
+          >
+          <button
+            v-if="privacyPending || !stateSocketMovie.connected"
+            class="mm-review-icon"
+            type="button"
+            aria-label="Atualizar avaliações"
+            title="Atualizar avaliações"
             :disabled="loading"
-            @change="updateShowNotes(($event.target as HTMLInputElement).checked)"
-          /><span>Notas visíveis</span></label
-        >
-        <button
-          v-if="privacyPending || !stateSocketMovie.connected"
-          class="mm-review-icon"
-          type="button"
-          aria-label="Atualizar avaliações"
-          title="Atualizar avaliações"
-          :disabled="loading"
-          @click="getMovieNotes"
-        >
-          <BaseIcon name="refresh" />
+            @click="getMovieNotes"
+          >
+            <BaseIcon name="refresh" />
+          </button>
+          <button
+            v-if="notes.length && !isUserAlreadyVoted"
+            class="mm-button mm-button-primary"
+            type="button"
+            :disabled="loading"
+            @click="openEditor()"
+          >
+            Avaliar filme
+          </button>
+        </div>
+      </header>
+      <div v-if="loading" class="mm-review-progress" role="status">
+        <span aria-hidden="true" /><span class="mm-sr-only">Atualizando avaliações…</span>
+      </div>
+      <p v-if="notesError" class="mm-review-error" role="alert">
+        {{ notesError }}
+        <button type="button" class="mm-link" :disabled="loading" @click="getMovieNotes">
+          Tentar novamente
         </button>
+      </p>
+      <div v-if="notes.length > 1" class="mm-review-controls">
+        <label
+          >Ordenar
+          <select v-model="sort" aria-label="Ordenar avaliações">
+            <option value="name">Nome A–Z</option>
+            <option value="name-desc">Nome Z–A</option>
+            <option value="note" :disabled="!canSortScores">
+              {{ canSortScores ? 'Maior nota' : 'Maior nota — disponível após revelar' }}
+            </option>
+            <option value="updated">Mais recentes</option>
+          </select></label
+        >
+        <label v-if="notes.length > 5"
+          >Por página
+          <select v-model.number="pageSize">
+            <option :value="5">5</option>
+            <option :value="10">10</option>
+          </select></label
+        >
+      </div>
+      <div v-if="!notes.length && loading" class="mm-review-skeleton" aria-hidden="true">
+        <div v-for="n in 2" :key="n"><i /><span /><b /></div>
+      </div>
+      <div v-else-if="!notes.length && !notesError" class="mm-review-empty">
+        <div class="mm-empty-symbol" aria-hidden="true">☆</div>
+        <div>
+          <h3>A primeira opinião pode ser sua</h3>
+          <p>Avalie de 0 a 10 e comece a conversa sobre este filme.</p>
+        </div>
         <button
-          v-if="notes.length && !isUserAlreadyVoted"
           class="mm-button mm-button-primary"
           type="button"
           :disabled="loading"
@@ -49,168 +98,121 @@
           Avaliar filme
         </button>
       </div>
-    </header>
-    <div v-if="loading" class="mm-review-progress" role="status">
-      <span aria-hidden="true" /><span class="mm-sr-only">Atualizando avaliações…</span>
-    </div>
-    <p v-if="notesError" class="mm-review-error" role="alert">
-      {{ notesError }}
-      <button type="button" class="mm-link" :disabled="loading" @click="getMovieNotes">
-        Tentar novamente
-      </button>
-    </p>
-    <div v-if="notes.length > 1" class="mm-review-controls">
-      <label
-        >Ordenar
-        <select v-model="sort" aria-label="Ordenar avaliações">
-          <option value="name">Nome A–Z</option>
-          <option value="name-desc">Nome Z–A</option>
-          <option value="note" :disabled="!canSortScores">
-            {{ canSortScores ? 'Maior nota' : 'Maior nota — disponível após revelar' }}
-          </option>
-          <option value="updated">Mais recentes</option>
-        </select></label
-      >
-      <label v-if="notes.length > 5"
-        >Por página
-        <select v-model.number="pageSize">
-          <option :value="5">5</option>
-          <option :value="10">10</option>
-        </select></label
-      >
-    </div>
-    <div v-if="!notes.length && loading" class="mm-review-skeleton" aria-hidden="true">
-      <div v-for="n in 2" :key="n"><i /><span /><b /></div>
-    </div>
-    <div v-else-if="!notes.length && !notesError" class="mm-review-empty">
-      <div class="mm-empty-symbol" aria-hidden="true">☆</div>
-      <div>
-        <h3>A primeira opinião pode ser sua</h3>
-        <p>Avalie de 0 a 10 e comece a conversa sobre este filme.</p>
-      </div>
-      <button
-        class="mm-button mm-button-primary"
-        type="button"
-        :disabled="loading"
-        @click="openEditor()"
-      >
-        Avaliar filme
-      </button>
-    </div>
-    <table v-else-if="notes.length" class="mm-rating-table">
-      <caption class="mm-sr-only">
-        Avaliações dos participantes
-      </caption>
-      <thead>
-        <tr>
-          <th>Pessoa</th>
-          <th>Nota</th>
-          <th><span class="mm-sr-only">Ações</span></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="note in visibleNotes"
-          :key="note.user.id"
-          :class="{ 'mm-own-review': note.user.id === user.id }"
-        >
-          <td>
-            <div class="mm-review-person">
-              <span class="mm-review-avatar" aria-hidden="true">{{
-                initials(note.user.name)
-              }}</span>
-              <div class="mm-review-identity">
-                <div class="mm-review-name">
-                  {{ note.user.name }}
-                  <span v-if="note.user.id === user.id" class="mm-person-label">Você</span
-                  ><span v-if="note.user.id === movie.user_id" class="mm-person-label"
-                    >Adicionou o filme</span
-                  >
-                </div>
-                <details class="mm-review-dates">
-                  <summary>
-                    {{ formatDate(note, 'updated')
-                    }}<span class="mm-sr-only"> — detalhes das datas</span>
-                  </summary>
-                  <div>
-                    Criada em {{ formatDate(note, 'created') }}<br />Atualizada em
-                    {{ formatDate(note, 'updated') }}
+      <table v-else-if="notes.length" class="mm-rating-table">
+        <caption class="mm-sr-only">
+          Avaliações dos participantes
+        </caption>
+        <thead>
+          <tr>
+            <th>Pessoa</th>
+            <th>Nota</th>
+            <th><span class="mm-sr-only">Ações</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="note in visibleNotes"
+            :key="note.user.id"
+            :class="{ 'mm-own-review': note.user.id === user.id }"
+          >
+            <td>
+              <div class="mm-review-person">
+                <span class="mm-review-avatar" aria-hidden="true">{{
+                  initials(note.user.name)
+                }}</span>
+                <div class="mm-review-identity">
+                  <div class="mm-review-name">
+                    {{ note.user.name }}
+                    <span v-if="note.user.id === user.id" class="mm-person-label">Você</span
+                    ><span v-if="note.user.id === movie.user_id" class="mm-person-label"
+                      >Adicionou o filme</span
+                    >
                   </div>
-                </details>
+                  <details class="mm-review-dates">
+                    <summary>
+                      {{ formatDate(note, 'updated')
+                      }}<span class="mm-sr-only"> — detalhes das datas</span>
+                    </summary>
+                    <div>
+                      Criada em {{ formatDate(note, 'created') }}<br />Atualizada em
+                      {{ formatDate(note, 'updated') }}
+                    </div>
+                  </details>
+                </div>
               </div>
-            </div>
-          </td>
-          <td class="mm-review-score">
-            <span class="mm-score-badge" :class="{ 'mm-score-hidden': !canSeeScore(note) }"
-              ><strong>{{ canSeeScore(note) ? (note.note ?? '—') : '—' }}</strong
-              ><small v-if="canSeeScore(note)">/ 10</small><BaseIcon v-else name="lock" /><span
-                v-if="!canSeeScore(note)"
-                class="mm-sr-only"
-                >Nota oculta</span
-              ></span
-            >
-          </td>
-          <td class="mm-review-own-actions">
-            <details
-              v-if="note.user.id === user.id"
-              class="mm-review-menu"
-              @keydown.esc.prevent.stop="closeMenu($event)"
-            >
-              <summary aria-label="Opções da sua avaliação" title="Opções da sua avaliação">
-                <BaseIcon name="menu" />
-              </summary>
-              <div>
-                <button
-                  type="button"
-                  :disabled="loading"
-                  @click="
-                    closeMenu($event);
-                    openEditor(note);
-                  "
-                >
-                  <BaseIcon name="edit" />Editar</button
-                ><button
-                  type="button"
-                  :disabled="loading"
-                  class="mm-delete-review"
-                  @click="
-                    closeMenu($event);
-                    confirmDelete();
-                  "
-                >
-                  <BaseIcon name="close" />Excluir
-                </button>
-              </div>
-            </details>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <nav v-if="pageCount > 1" class="mm-pagination" aria-label="Páginas de avaliações">
-      <span
-        >{{ (page - 1) * pageSize + 1 }}–{{ Math.min(page * pageSize, notes.length) }} de
-        {{ notes.length }}</span
-      >
-      <div>
-        <button
-          type="button"
-          class="mm-review-icon"
-          :disabled="page === 1"
-          aria-label="Página anterior"
-          @click="page--"
+            </td>
+            <td class="mm-review-score">
+              <span class="mm-score-badge" :class="{ 'mm-score-hidden': !canSeeScore(note) }"
+                ><strong>{{ canSeeScore(note) ? (note.note ?? '—') : '—' }}</strong
+                ><small v-if="canSeeScore(note)">/ 10</small><BaseIcon v-else name="lock" /><span
+                  v-if="!canSeeScore(note)"
+                  class="mm-sr-only"
+                  >Nota oculta</span
+                ></span
+              >
+            </td>
+            <td class="mm-review-own-actions">
+              <details
+                v-if="note.user.id === user.id"
+                class="mm-review-menu"
+                @keydown.esc.prevent.stop="closeMenu($event)"
+              >
+                <summary aria-label="Opções da sua avaliação" title="Opções da sua avaliação">
+                  <BaseIcon name="menu" />
+                </summary>
+                <div>
+                  <button
+                    type="button"
+                    :disabled="loading"
+                    @click="
+                      closeMenu($event);
+                      openEditor(note);
+                    "
+                  >
+                    <BaseIcon name="edit" />Editar</button
+                  ><button
+                    type="button"
+                    :disabled="loading"
+                    class="mm-delete-review"
+                    @click="
+                      closeMenu($event);
+                      confirmDelete();
+                    "
+                  >
+                    <BaseIcon name="close" />Excluir
+                  </button>
+                </div>
+              </details>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <nav v-if="pageCount > 1" class="mm-pagination" aria-label="Páginas de avaliações">
+        <span
+          >{{ (page - 1) * pageSize + 1 }}–{{ Math.min(page * pageSize, notes.length) }} de
+          {{ notes.length }}</span
         >
-          <BaseIcon name="chevron-left" /></button
-        ><button
-          type="button"
-          class="mm-review-icon"
-          :disabled="page === pageCount"
-          aria-label="Próxima página"
-          @click="page++"
-        >
-          <BaseIcon name="chevron-right" />
-        </button>
-      </div>
-    </nav>
+        <div>
+          <button
+            type="button"
+            class="mm-review-icon"
+            :disabled="page === 1"
+            aria-label="Página anterior"
+            @click="page--"
+          >
+            <BaseIcon name="chevron-left" /></button
+          ><button
+            type="button"
+            class="mm-review-icon"
+            :disabled="page === pageCount"
+            aria-label="Próxima página"
+            @click="page++"
+          >
+            <BaseIcon name="chevron-right" />
+          </button>
+        </div>
+      </nav>
+    </div>
     <BaseModal v-model="editorOpen" :title="editing ? 'Editar sua avaliação' : 'Sua avaliação'"
       ><form class="mm-note-form" @submit.prevent="saveNote">
         <label for="movie-note">Qual é sua nota, de 0 a 10?</label
@@ -619,13 +621,16 @@ async function updateShowNotes(visible: boolean) {
 .mm-reviews {
   min-width: 0;
   width: 100%;
-  max-width: 60rem;
-  margin-right: auto;
   margin-top: 2rem;
   padding: clamp(1rem, 2vw, 1.5rem);
   border: 1px solid var(--mm-border);
   border-radius: 20px;
   background: var(--mm-surface);
+}
+.mm-reviews-content {
+  width: 100%;
+  max-width: 60rem;
+  margin-inline: auto;
 }
 .mm-review-header {
   display: flex;
