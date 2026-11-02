@@ -366,8 +366,11 @@ async function submitSearch() {
   if (suggestionsOpen.value && suggestion) searchText.value = suggestion.title;
   activeSearch.value = searchText.value.trim();
   related.value = null;
-  genreIds.value = [];
-  year.value = '';
+  // An empty title submits the current discovery filters; it is not a reset action.
+  if (activeSearch.value) {
+    genreIds.value = [];
+    year.value = '';
+  }
   suggestionsOpen.value = false;
   await loadMovies(false);
 }

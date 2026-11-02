@@ -247,3 +247,19 @@ test('themed Mostrar selector preserves the chosen category contract with one re
   expect(select.props('modelValue')).toBe('voteAverageAsc');
   expect(displayed(wrapper)).toEqual([4]);
 });
+
+test('submitting an empty title preserves selected genres and year', async () => {
+  const wrapper = await create();
+  const selector = wrapper.findComponent({ name: 'BaseMultiSelect' });
+  selector.vm.$emit('update:modelValue', [18, 878]);
+  selector.vm.$emit('change', [18, 878]);
+  await wrapper.get('input[type=number]').setValue('2025');
+  await flushPromises();
+  await wrapper.get('#discover-search').setValue('   ');
+  await wrapper.get('form').trigger('submit');
+  await flushPromises();
+  expect(selector.props('modelValue')).toEqual([18, 878]);
+  expect((wrapper.get('input[type=number]').element as HTMLInputElement).value).toBe('2025');
+  expect(mocks.getMoviesDiscover).toHaveBeenLastCalledWith(undefined, 1, 2025, '18,878');
+  expect(mocks.searchByName).not.toHaveBeenCalled();
+});
