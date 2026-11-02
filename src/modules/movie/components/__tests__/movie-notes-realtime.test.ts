@@ -226,3 +226,44 @@ test('empty reviews show one invitation without sorting or page-size controls', 
   ).toHaveLength(1);
   expect(wrapper.text()).toContain('A primeira opinião pode ser sua');
 });
+
+test('ratings emphasize identity and score while secondary dates and own actions stay disclosed', async () => {
+  movie().notes!.push(note('other', 8));
+  const wrapper = await create();
+  expect(wrapper.findAll('thead th')).toHaveLength(3);
+  expect(wrapper.findAll('.mm-review-menu')).toHaveLength(1);
+  expect(wrapper.find('.mm-review-menu').attributes('open')).toBeUndefined();
+  expect(wrapper.find('.mm-review-count').text()).toBe('2');
+  expect(wrapper.findAll('.mm-review-dates')).toHaveLength(2);
+  expect(wrapper.find('.mm-review-controls').text()).not.toContain('Por página');
+  expect(score(wrapper, 'owner')).toBe('0');
+  expect(score(wrapper, 'other')).toBe('—');
+});
+
+test('score sorting is explicitly unavailable until reveal and falls back when privacy closes', async () => {
+  movie().notes![0]!.user.name = 'Alpha';
+  const other = note('other', 8);
+  other.user.name = 'Zeta';
+  movie().notes!.push(other);
+  const wrapper = await create();
+  const select = wrapper.get('select[aria-label="Ordenar avaliações"]');
+  expect(wrapper.get('option[value="note"]').attributes('disabled')).toBeDefined();
+  expect(wrapper.get('option[value="note"]').text()).toBe('Maior nota — disponível após revelar');
+  movie().show_notes = true;
+  await flushPromises();
+  expect(wrapper.get('option[value="note"]').attributes('disabled')).toBeUndefined();
+  await select.setValue('note');
+  expect(wrapper.findAll('tbody tr')[0]!.text()).toContain('Zeta');
+  movie().show_notes = false;
+  await flushPromises();
+  expect((select.element as HTMLSelectElement).value).toBe('name');
+  expect(wrapper.findAll('tbody tr')[0]!.text()).toContain('Alpha');
+  expect(score(wrapper, 'Zeta')).toBe('—');
+  movie().show_notes = true;
+  await flushPromises();
+  await select.setValue('note');
+  mocks.socket.connected = false;
+  await flushPromises();
+  expect(wrapper.get('option[value="note"]').attributes('disabled')).toBeDefined();
+  expect((select.element as HTMLSelectElement).value).toBe('name');
+});

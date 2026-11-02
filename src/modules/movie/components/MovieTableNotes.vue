@@ -1,52 +1,77 @@
 <template>
-  <section class="mm-reviews" :aria-busy="loading">
+  <section
+    ref="reviewsRoot"
+    class="mm-reviews"
+    :aria-busy="loading"
+    aria-labelledby="reviews-title"
+  >
     <header class="mm-review-header">
-      <div>
-        <p class="mm-eyebrow">O que a comunidade achou</p>
-        <h2>
-          Avaliações <span>{{ notes.length }}</span>
+      <div class="mm-review-heading">
+        <h2 id="reviews-title">
+          Avaliações <span class="mm-review-count">{{ notes.length }}</span>
         </h2>
+        <p>
+          {{
+            movie.show_notes && !privacyPending
+              ? 'A opinião de quem assistiu.'
+              : 'As notas dos outros ficam ocultas durante a votação.'
+          }}
+        </p>
       </div>
       <div class="mm-review-actions">
-        <label v-if="canToggleVisibility"
+        <label v-if="canToggleVisibility" class="mm-visibility-toggle"
           ><input
             type="checkbox"
+            role="switch"
             :checked="movie.show_notes"
             :disabled="loading"
             @change="updateShowNotes(($event.target as HTMLInputElement).checked)"
-          />
-          Notas visíveis</label
-        ><button
+          /><span>Notas visíveis</span></label
+        >
+        <button
           v-if="privacyPending || !stateSocketMovie.connected"
-          class="mm-button mm-button-ghost"
+          class="mm-review-icon"
           type="button"
           aria-label="Atualizar avaliações"
           title="Atualizar avaliações"
           :disabled="loading"
           @click="getMovieNotes"
         >
-          <BaseIcon name="refresh" /></button
-        ><button
+          <BaseIcon name="refresh" />
+        </button>
+        <button
           v-if="notes.length && !isUserAlreadyVoted"
           class="mm-button mm-button-primary"
           type="button"
-          :disabled="loading || isUserAlreadyVoted"
+          :disabled="loading"
           @click="openEditor()"
         >
-          {{ isUserAlreadyVoted ? 'Você já avaliou' : 'Avaliar filme' }}
+          Avaliar filme
         </button>
       </div>
     </header>
-    <div v-if="notes.length" class="mm-review-controls">
+    <div v-if="loading" class="mm-review-progress" role="status">
+      <span aria-hidden="true" /><span class="mm-sr-only">Atualizando avaliações…</span>
+    </div>
+    <p v-if="notesError" class="mm-review-error" role="alert">
+      {{ notesError }}
+      <button type="button" class="mm-link" :disabled="loading" @click="getMovieNotes">
+        Tentar novamente
+      </button>
+    </p>
+    <div v-if="notes.length > 1" class="mm-review-controls">
       <label
         >Ordenar
-        <select v-model="sort">
+        <select v-model="sort" aria-label="Ordenar avaliações">
           <option value="name">Nome A–Z</option>
           <option value="name-desc">Nome Z–A</option>
-          <option value="note">Maior nota</option>
+          <option value="note" :disabled="!canSortScores">
+            {{ canSortScores ? 'Maior nota' : 'Maior nota — disponível após revelar' }}
+          </option>
           <option value="updated">Mais recentes</option>
         </select></label
-      ><label
+      >
+      <label v-if="notes.length > 5"
         >Por página
         <select v-model.number="pageSize">
           <option :value="5">5</option>
@@ -54,9 +79,15 @@
         </select></label
       >
     </div>
-    <div v-if="!notes.length" class="mm-empty">
-      <h3>A primeira opinião pode ser sua</h3>
-      <p>Avalie de 0 a 10 e comece a conversa sobre este filme.</p>
+    <div v-if="!notes.length && loading" class="mm-review-skeleton" aria-hidden="true">
+      <div v-for="n in 2" :key="n"><i /><span /><b /></div>
+    </div>
+    <div v-else-if="!notes.length && !notesError" class="mm-review-empty">
+      <div class="mm-empty-symbol" aria-hidden="true">☆</div>
+      <div>
+        <h3>A primeira opinião pode ser sua</h3>
+        <p>Avalie de 0 a 10 e comece a conversa sobre este filme.</p>
+      </div>
       <button
         class="mm-button mm-button-primary"
         type="button"
@@ -66,61 +97,119 @@
         Avaliar filme
       </button>
     </div>
-    <div
-      class="mm-table-scroll"
-      v-else
-      tabindex="0"
-      role="region"
-      aria-label="Avaliações, tabela com rolagem horizontal"
-    >
-      <table class="mm-table">
-        <thead>
-          <tr>
-            <th>Pessoa</th>
-            <th>Nota</th>
-            <th>Criada em</th>
-            <th>Atualizada em</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="note in visibleNotes" :key="note.user.id">
-            <td>{{ note.user.id === movie.user_id ? '♛ ' : '' }}{{ note.user.name }}</td>
-            <td>
-              <strong>{{ canSeeScore(note) ? (note.note ?? '—') : '—' }}</strong> / 10
-            </td>
-            <td>{{ formatDate(note, 'created') }}</td>
-            <td>{{ formatDate(note, 'updated') }}</td>
-            <td>
-              <template v-if="note.user.id === user.id"
+    <table v-else-if="notes.length" class="mm-rating-table">
+      <caption class="mm-sr-only">
+        Avaliações dos participantes
+      </caption>
+      <thead>
+        <tr>
+          <th>Pessoa</th>
+          <th>Nota</th>
+          <th><span class="mm-sr-only">Ações</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="note in visibleNotes"
+          :key="note.user.id"
+          :class="{ 'mm-own-review': note.user.id === user.id }"
+        >
+          <td>
+            <div class="mm-review-person">
+              <span class="mm-review-avatar" aria-hidden="true">{{
+                initials(note.user.name)
+              }}</span>
+              <div class="mm-review-identity">
+                <div class="mm-review-name">
+                  {{ note.user.name }}
+                  <span v-if="note.user.id === user.id" class="mm-person-label">Você</span
+                  ><span v-if="note.user.id === movie.user_id" class="mm-person-label"
+                    >Adicionou o filme</span
+                  >
+                </div>
+                <details class="mm-review-dates">
+                  <summary>
+                    {{ formatDate(note, 'updated')
+                    }}<span class="mm-sr-only"> — detalhes das datas</span>
+                  </summary>
+                  <div>
+                    Criada em {{ formatDate(note, 'created') }}<br />Atualizada em
+                    {{ formatDate(note, 'updated') }}
+                  </div>
+                </details>
+              </div>
+            </div>
+          </td>
+          <td class="mm-review-score">
+            <span class="mm-score-badge" :class="{ 'mm-score-hidden': !canSeeScore(note) }"
+              ><strong>{{ canSeeScore(note) ? (note.note ?? '—') : '—' }}</strong
+              ><small v-if="canSeeScore(note)">/ 10</small><BaseIcon v-else name="lock" /><span
+                v-if="!canSeeScore(note)"
+                class="mm-sr-only"
+                >Nota oculta</span
+              ></span
+            >
+          </td>
+          <td class="mm-review-own-actions">
+            <details
+              v-if="note.user.id === user.id"
+              class="mm-review-menu"
+              @keydown.esc.prevent.stop="closeMenu($event)"
+            >
+              <summary aria-label="Opções da sua avaliação" title="Opções da sua avaliação">
+                <BaseIcon name="menu" />
+              </summary>
+              <div>
+                <button
+                  type="button"
+                  :disabled="loading"
+                  @click="
+                    closeMenu($event);
+                    openEditor(note);
+                  "
+                >
+                  <BaseIcon name="edit" />Editar</button
                 ><button
                   type="button"
-                  class="mm-button"
                   :disabled="loading"
-                  @click="openEditor(note)"
+                  class="mm-delete-review"
+                  @click="
+                    closeMenu($event);
+                    confirmDelete();
+                  "
                 >
-                  Editar</button
-                ><button
-                  type="button"
-                  class="mm-button mm-danger"
-                  :disabled="loading"
-                  @click="confirmDelete"
-                >
-                  Excluir
-                </button></template
-              >
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+                  <BaseIcon name="close" />Excluir
+                </button>
+              </div>
+            </details>
+          </td>
+        </tr>
+      </tbody>
+    </table>
     <nav v-if="pageCount > 1" class="mm-pagination" aria-label="Páginas de avaliações">
-      <button type="button" class="mm-button" :disabled="page === 1" @click="page--">
-        Anterior</button
-      ><span>{{ page }} / {{ pageCount }}</span
-      ><button type="button" class="mm-button" :disabled="page === pageCount" @click="page++">
-        Próxima
-      </button>
+      <span
+        >{{ (page - 1) * pageSize + 1 }}–{{ Math.min(page * pageSize, notes.length) }} de
+        {{ notes.length }}</span
+      >
+      <div>
+        <button
+          type="button"
+          class="mm-review-icon"
+          :disabled="page === 1"
+          aria-label="Página anterior"
+          @click="page--"
+        >
+          <BaseIcon name="chevron-left" /></button
+        ><button
+          type="button"
+          class="mm-review-icon"
+          :disabled="page === pageCount"
+          aria-label="Próxima página"
+          @click="page++"
+        >
+          <BaseIcon name="chevron-right" />
+        </button>
+      </div>
     </nav>
     <BaseModal v-model="editorOpen" :title="editing ? 'Editar sua avaliação' : 'Sua avaliação'"
       ><form class="mm-note-form" @submit.prevent="saveNote">
@@ -174,6 +263,31 @@ const isUserAlreadyVoted = computed(() =>
   notes.value.some((note) => note.user.id === user.value.id),
 );
 const privacyPending = ref(false);
+const notesError = ref('');
+function initials(name: string) {
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase();
+}
+const reviewsRoot = ref<HTMLElement>();
+function closeMenu(event: Event) {
+  const menu = (event.currentTarget as HTMLElement).closest('details');
+  menu?.removeAttribute('open');
+  menu?.querySelector('summary')?.focus();
+}
+function dismissMenus(event: MouseEvent) {
+  for (const menu of reviewsRoot.value?.querySelectorAll<HTMLDetailsElement>(
+    '.mm-review-menu[open]',
+  ) || []) {
+    if (!menu.contains(event.target as Node)) menu.open = false;
+  }
+}
+onMounted(() => document.addEventListener('click', dismissMenus));
+onBeforeUnmount(() => document.removeEventListener('click', dismissMenus));
 let refreshQueued = false,
   visibilityQueued = false;
 const loading = ref(false),
@@ -184,6 +298,10 @@ const confirmDialogRef = ref<InstanceType<typeof BaseConfirmDialog>>();
 const sort = ref('name'),
   page = ref(1),
   pageSize = ref(5);
+const canSortScores = computed(() => movie.value.show_notes === true && !privacyPending.value);
+watch(canSortScores, (allowed) => {
+  if (!allowed && sort.value === 'note') sort.value = 'name';
+});
 const pageCount = computed(() => Math.max(1, Math.ceil(notes.value.length / pageSize.value)));
 const visibleNotes = computed(() =>
   sortNotes(
@@ -258,6 +376,7 @@ watch(
   () => {
     refreshQueued = visibilityQueued = false;
     privacyPending.value = false;
+    notesError.value = '';
     editorOpen.value = false;
     loading.value = false;
     page.value = 1;
@@ -272,6 +391,7 @@ watch(
     requests.invalidate();
     refreshQueued = visibilityQueued = false;
     privacyPending.value = false;
+    notesError.value = '';
     loading.value = false;
     editorOpen.value = false;
     page.value = 1;
@@ -338,6 +458,7 @@ async function drainRefresh() {
   const target = targetId(),
     current = requests.begin('notes');
   loading.value = true;
+  notesError.value = '';
   try {
     const record = metadata ? await MovieService.getMovie(target) : undefined;
     const result = await MovieService.getMovieNotes(target);
@@ -350,7 +471,10 @@ async function drainRefresh() {
     movie.value.notes = result;
     if (metadata && !visibilityQueued) privacyPending.value = false;
   } catch {
-    if (current()) showError('Erro ao buscar avaliações.');
+    if (current()) {
+      notesError.value = 'Não foi possível atualizar as avaliações.';
+      showError('Erro ao buscar avaliações.');
+    }
   } finally {
     if (current()) loading.value = false;
   }
@@ -419,11 +543,15 @@ async function getMovieNotes() {
   const target = targetId(),
     current = requests.begin('notes');
   loading.value = true;
+  notesError.value = '';
   try {
     const result = await MovieService.getMovieNotes(target);
     if (current() && hasTarget()) movie.value.notes = result;
   } catch {
-    if (current()) showError('Erro ao buscar avaliações.');
+    if (current()) {
+      notesError.value = 'Não foi possível atualizar as avaliações.';
+      showError('Erro ao buscar avaliações.');
+    }
   } finally {
     if (current()) loading.value = false;
   }
@@ -490,90 +618,370 @@ async function updateShowNotes(visible: boolean) {
 <style scoped>
 .mm-reviews {
   min-width: 0;
-  max-width: 100%;
-  box-sizing: border-box;
-  margin-top: 3rem;
-  padding: 1.5rem;
-  border: 1px solid #8883;
+  width: 100%;
+  max-width: 60rem;
+  margin-right: auto;
+  margin-top: 2rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid var(--mm-border);
   border-radius: 20px;
-  background: var(--grey-dark2);
+  background: var(--mm-surface);
 }
-.mm-review-header,
-.mm-review-actions,
-.mm-review-controls,
-.mm-pagination {
+.mm-review-header {
   display: flex;
-  gap: 0.8rem;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
   flex-wrap: wrap;
 }
-.mm-review-header h2 span {
-  font-size: 1rem;
-  opacity: 0.5;
+.mm-review-heading h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 1.25rem;
+  margin: 0;
 }
-.mm-eyebrow {
-  font-size: 0.7rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--mm-link);
+.mm-review-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.8rem;
+  height: 1.8rem;
+  padding: 0 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 8px;
+  color: var(--mm-muted);
+  background: var(--mm-raised);
+}
+.mm-review-heading p {
+  color: var(--mm-muted);
+  font-size: 0.83rem;
+  margin: 0.35rem 0 0;
+  line-height: 1.5;
+}
+.mm-review-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
 }
 .mm-review-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   justify-content: flex-end;
-  font-size: 0.8rem;
-  margin: 1.5rem 0;
+  margin: 0.6rem 0 0.1rem;
 }
-.mm-review-controls select,
-.mm-note-form input {
-  background: var(--grey-mid);
-  color: inherit;
-  border: 1px solid #8884;
-  border-radius: 8px;
-  padding: 0.5rem;
+.mm-review-controls label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--mm-muted);
+  font-size: 0.75rem;
 }
-.mm-table-scroll {
-  position: relative;
-  min-width: 0;
+.mm-review-controls select {
+  width: auto;
+  min-height: 44px;
+  max-width: 180px;
+  margin: 0;
+  padding: 0.4rem 1.8rem 0.4rem 0.7rem;
+  font: inherit;
+  color: var(--mm-text);
+  background: var(--mm-surface);
+  border: 1px solid var(--mm-border);
+  border-radius: 10px;
+}
+.mm-rating-table {
   width: 100%;
-  max-width: 100%;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-}
-.mm-table {
   border-collapse: collapse;
-  width: 100%;
+  margin-top: 0.75rem;
+  table-layout: auto;
+}
+.mm-rating-table th {
   text-align: left;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--mm-muted);
+  padding: 0.6rem 0.5rem;
+}
+.mm-rating-table th:nth-child(2) {
+  text-align: right;
+}
+.mm-rating-table th:last-child {
+  width: 48px;
+}
+.mm-rating-table td {
+  padding: 0.9rem 0.5rem;
+  border-top: 1px solid var(--mm-border);
+  vertical-align: middle;
+}
+.mm-review-person {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+}
+.mm-review-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 38px;
+  height: 38px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--mm-link);
+  background: color-mix(in srgb, var(--mm-accent) 8%, var(--mm-raised));
+  border: 1px solid var(--mm-border);
+}
+.mm-review-identity {
+  min-width: 0;
+}
+.mm-review-name {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+}
+.mm-person-label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--mm-muted);
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--mm-border);
+  border-radius: 4px;
+}
+.mm-review-dates {
+  font-size: 0.72rem;
+  color: var(--mm-muted);
+  margin-top: 0.25rem;
+}
+.mm-review-dates summary {
+  cursor: pointer;
+  width: fit-content;
+}
+.mm-review-dates > div {
+  line-height: 1.6;
+  padding-top: 0.4rem;
+}
+.mm-review-score {
+  text-align: right;
+  width: 90px;
   white-space: nowrap;
 }
-.mm-table th {
+.mm-score-badge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: 10px;
+  background: var(--mm-raised);
+}
+.mm-score-badge strong {
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.mm-score-badge small {
+  font-size: 0.7rem;
+  color: var(--mm-muted);
+}
+.mm-score-hidden {
+  color: var(--mm-muted);
+  align-items: center;
+  gap: 0.45rem;
+}
+.mm-score-hidden svg {
+  width: 13px;
+  height: 13px;
+}
+.mm-review-menu {
+  position: relative;
+}
+.mm-review-menu summary,
+.mm-review-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  list-style: none;
+  border: 0;
+  background: transparent;
+  color: var(--mm-muted);
+  border-radius: 10px;
+  padding: 0;
+}
+.mm-review-menu summary::-webkit-details-marker {
+  display: none;
+}
+.mm-review-menu summary:hover,
+.mm-review-icon:hover {
+  color: var(--mm-text);
+  background: var(--mm-raised);
+}
+.mm-review-menu > div {
+  position: absolute;
+  right: 0;
+  top: 44px;
+  z-index: 4;
+  min-width: 150px;
+  padding: 0.35rem;
+  border: 1px solid var(--mm-border);
+  border-radius: 12px;
+  background: var(--mm-surface);
+  box-shadow: 0 12px 32px #0003;
+}
+.mm-review-menu button {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+  background: transparent;
+  color: var(--mm-text);
+  font: inherit;
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+}
+.mm-review-menu button:hover {
+  background: var(--mm-raised);
+}
+.mm-review-menu .mm-delete-review {
+  color: var(--mm-danger-text);
+}
+.mm-visibility-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  opacity: 0.6;
+  color: var(--mm-muted);
+  min-height: 44px;
+  cursor: pointer;
 }
-.mm-table th,
-.mm-table td {
-  padding: 1rem 0.7rem;
-  border-bottom: 1px solid #8882;
+.mm-visibility-toggle input {
+  appearance: none;
+  width: 32px;
+  height: 20px;
+  min-height: 0;
+  border-radius: 20px;
+  padding: 0;
+  margin: 0;
+  background: var(--mm-raised);
+  border: 1px solid var(--mm-border);
+  position: relative;
+  cursor: pointer;
 }
-.mm-table td .mm-button {
-  font-size: 0.75rem;
+.mm-visibility-toggle input::before {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  background: var(--mm-muted);
+  transition: transform 0.18s;
 }
-.mm-danger {
-  color: #fb7185;
+.mm-visibility-toggle input:checked {
+  background: var(--mm-accent);
+}
+.mm-visibility-toggle input:checked::before {
+  background: #08262a;
+  transform: translateX(12px);
+}
+.mm-review-progress {
+  height: 3px;
+  margin-top: 0.8rem;
+  overflow: hidden;
+  background: var(--mm-raised);
+  border-radius: 4px;
+}
+.mm-review-progress > span:first-child {
+  display: block;
+  height: 100%;
+  width: 35%;
+  background: var(--mm-link);
+  animation: review-progress 1.4s ease-in-out infinite;
+}
+.mm-review-error {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.7rem;
+  color: var(--mm-danger-text);
+  background: var(--mm-raised);
+  border-radius: 10px;
+  font-size: 0.85rem;
+}
+.mm-review-empty {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.8rem 0.25rem;
+  flex-wrap: wrap;
+}
+.mm-review-empty h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+.mm-review-empty p {
+  color: var(--mm-muted);
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+}
+.mm-review-empty > div:nth-child(2) {
+  flex: 1;
+  min-width: 180px;
+}
+.mm-empty-symbol {
+  font-size: 2rem;
+  color: var(--mm-link);
+}
+.mm-review-skeleton > div {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 76px;
+  border-bottom: 1px solid var(--mm-border);
+}
+.mm-review-skeleton i,
+.mm-review-skeleton span,
+.mm-review-skeleton b {
+  display: block;
+  background: var(--mm-raised);
+  border-radius: 8px;
+  height: 18px;
+}
+.mm-review-skeleton i {
+  width: 38px;
+  height: 38px;
+}
+.mm-review-skeleton span {
+  width: 35%;
+}
+.mm-review-skeleton b {
+  width: 50px;
+  margin-left: auto;
 }
 .mm-pagination {
-  justify-content: flex-end;
-  margin-top: 1rem;
-}
-.mm-empty {
-  padding: 2rem 0;
-  color: var(--mm-text);
-}
-.mm-empty p {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--mm-border);
+  padding-top: 0.6rem;
+  font-size: 0.75rem;
   color: var(--mm-muted);
-  line-height: 1.6;
-  margin: 0.6rem 0 1.25rem;
+}
+.mm-pagination > div {
+  display: flex;
 }
 .mm-note-form {
   display: flex;
@@ -589,20 +997,48 @@ async function updateShowNotes(visible: boolean) {
   width: 1px;
   height: 1px;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@keyframes review-progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(390%);
+  }
 }
 @media (max-width: 600px) {
-  .mm-reviews {
-    padding: 1rem;
-  }
-  .mm-review-header,
-  .mm-review-actions,
-  .mm-review-controls {
-    min-width: 0;
-    max-width: 100%;
-  }
   .mm-review-controls {
     justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  .mm-rating-table td {
+    padding: 0.8rem 0.2rem;
+  }
+  .mm-review-avatar {
+    display: none;
+  }
+  .mm-review-score {
+    width: 65px;
+  }
+  .mm-person-label {
+    font-size: 0.6rem;
+  }
+  .mm-review-name {
+    font-size: 0.85rem;
+  }
+  .mm-review-header {
+    gap: 0.6rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mm-review-progress > span:first-child {
+    animation: none;
+    width: 100%;
+  }
+  .mm-visibility-toggle input::before {
+    transition: none;
   }
 }
 </style>

@@ -90,14 +90,20 @@
         <label class="mm-span-full"
           >Sinopse *<textarea v-model="movie.description" rows="5" required />
         </label>
-        <fieldset class="mm-span-full mm-genre-field">
-          <legend>Gêneros *</legend>
-          <p v-if="loadingGenres" role="status">Carregando gêneros…</p>
-          <label v-for="genre in moviePage.genres" :key="genre.id"
-            ><input v-model="genreIds" type="checkbox" :value="genre.id" /> {{ genre.name }}</label
-          >
-          <p v-if="validation && !genreIds.length" role="alert">Escolha ao menos um gênero.</p>
-        </fieldset>
+        <div class="mm-span-full">
+          <BaseMultiSelect
+            v-model="genreIds"
+            :options="moviePage.genres.map((genre) => ({ value: genre.id, label: genre.name }))"
+            label="Gêneros *"
+            placeholder="Selecione os gêneros"
+            :loading="loadingGenres"
+            :error="genresError"
+            @retry="loadGenres"
+          />
+          <p v-if="validation && !genreIds.length" role="alert" class="mm-error">
+            Escolha ao menos um gênero.
+          </p>
+        </div>
         <label>TMDB ID (preenchido na importação)<input :value="movie.tmdb_id" readonly /></label>
         <label>IMDb ID (opcional)<input v-model="movie.imdb_id" /></label>
         <label class="mm-span-full"
@@ -150,6 +156,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRuntimeConfig } from '#imports';
 const imageBase = useRuntimeConfig().public.tmdbImageBase;
 import BaseIcon from 'src/core/components/BaseIcon.vue';
+import BaseMultiSelect from 'src/core/components/BaseMultiSelect.vue';
 import BaseChipNote from 'src/core/components/BaseChipNote.vue';
 import BaseMovieWatchProviders from 'src/core/components/BaseMovieWatchProviders.vue';
 import BaseDialogCast from 'src/core/components/BaseBtnDialogCast.vue';
@@ -164,6 +171,7 @@ defineProps<{ readonly?: boolean }>();
 const moviePage = computed(() => useMovieStore().moviePage);
 const movie = useMovieContext();
 const requests = useMovieRequests();
+const genresError = ref('');
 const loadingGenres = ref(false),
   validation = ref(false);
 const formRef = ref<HTMLFormElement>();
@@ -179,18 +187,24 @@ const releaseDate = computed({
     movie.value.release_date = date ? new Date(`${date}T12:00:00`) : undefined;
   },
 });
-onMounted(async () => {
+async function loadGenres() {
+  if (loadingGenres.value) return;
+  genresError.value = '';
   const current = requests.begin('genres');
   loadingGenres.value = true;
   try {
     const genres = await MovieService.getMoviesGenres();
     if (current()) moviePage.value.genres = genres;
   } catch {
-    if (current()) showError('Não foi possível carregar os gêneros.');
+    if (current()) {
+      genresError.value = 'Não foi possível carregar os gêneros.';
+      showError(genresError.value);
+    }
   } finally {
     if (current()) loadingGenres.value = false;
   }
-});
+}
+onMounted(loadGenres);
 function videoKey(value: string) {
   return (
     value
