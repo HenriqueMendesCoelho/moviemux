@@ -104,8 +104,13 @@ defineExpose({ close });
   margin: 0;
   flex: 1 1 180px;
   overflow-wrap: anywhere;
+  min-width: 0;
 }
 .mm-modal-header > button:last-child {
   margin-left: auto;
+  flex: 0 0 44px;
+  width: 44px;
+  min-height: 44px;
+  padding-inline: 0;
 }
 </style>

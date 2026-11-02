@@ -29,12 +29,12 @@
       </div>
       <p v-if="!hasProviders" class="mm-muted">Nenhuma plataforma informada para este filme.</p>
       <a v-if="providers?.link" :href="providers.link" target="_blank" rel="noopener noreferrer"
-        >Consultar disponibilidade no TMDB ↗</a
-      ></template
-    >
+        >Consultar disponibilidade no TMDB <BaseIcon name="arrow" /></a
+    ></template>
   </section>
 </template>
 <script setup lang="ts">
+import BaseIcon from './BaseIcon.vue';
 import { useRuntimeConfig } from '#imports';
 const imageBase = String(useRuntimeConfig().public.tmdbImageBase).replace(/\/$/, '');
 import { computed, ref, watch, onMounted } from 'vue';

@@ -160,9 +160,6 @@ describe('shared interaction contracts', () => {
       }),
       { attachTo: document.body },
     );
-    const panel = wrapper.get('.mm-context-options').element as HTMLElement;
-    Object.defineProperty(panel, 'offsetWidth', { configurable: true, value: 190 });
-    Object.defineProperty(panel, 'offsetHeight', { configurable: true, value: 100 });
     const event = new MouseEvent('contextmenu', {
       bubbles: true,
       cancelable: true,
@@ -172,13 +169,19 @@ describe('shared interaction contracts', () => {
     wrapper.get('.mm-poster').element.dispatchEvent(event);
     await flushPromises();
     expect(event.defaultPrevented).toBe(true);
-    expect(wrapper.get('details').attributes('open')).toBeDefined();
+    const panel = document.querySelector<HTMLElement>('.mm-context-options')!;
+    Object.defineProperty(panel, 'offsetWidth', { configurable: true, value: 190 });
+    Object.defineProperty(panel, 'offsetHeight', { configurable: true, value: 100 });
+    window.dispatchEvent(new Event('resize'));
+    await flushPromises();
+    expect(wrapper.get('.mm-context-trigger').attributes('aria-expanded')).toBe('true');
     expect(parseFloat(panel.style.left)).toBe(window.innerWidth - 190 - 8);
     expect(parseFloat(panel.style.top)).toBe(window.innerHeight - 100 - 8);
-    expect(document.activeElement).toBe(wrapper.get('.mm-context-options button').element);
-    await wrapper.get('details').trigger('keydown', { key: 'Escape' });
-    expect(wrapper.get('details').attributes('open')).toBeUndefined();
-    expect(document.activeElement).toBe(wrapper.get('summary').element);
+    expect(document.activeElement).toBe(panel.querySelector('button'));
+    panel.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await flushPromises();
+    expect(wrapper.get('.mm-context-trigger').attributes('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(wrapper.get('.mm-context-trigger').element);
     wrapper.unmount();
   });
 
@@ -203,12 +206,11 @@ describe('shared interaction contracts', () => {
       }),
       { attachTo: document.body },
     );
-    const details = wrapper.get('details').element as HTMLDetailsElement;
-    details.open = true;
-    details.dispatchEvent(new Event('toggle'));
+    await wrapper.get('.mm-context-trigger').trigger('click');
     await flushPromises();
-    await wrapper.get('.mm-context-options button').trigger('click');
-    expect(details.open).toBe(false);
+    document.querySelector<HTMLButtonElement>('.mm-context-options button')!.click();
+    await flushPromises();
+    expect(wrapper.get('.mm-context-trigger').attributes('aria-expanded')).toBe('false');
     wrapper.unmount();
   });
 });
