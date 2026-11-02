@@ -1,3 +1,4 @@
+import { assertTurnstileMode } from '../utils/turnstile';
 import { useRuntimeConfig } from 'nuxt/server';
 import { defineNitroPlugin } from 'nitropack/runtime';
 import { sessionHooks } from '#auth-server';
@@ -6,6 +7,8 @@ import { trustedOrigins } from '../utils/security';
 import { revokeSession } from '../utils/session-registry';
 export default defineNitroPlugin(() => {
   const config = useRuntimeConfig();
+  // Explicit local test mode must never disable protection on a public deployment.
+  if (String(config.public.turnstileEnabled) === 'false') assertTurnstileMode();
   if (process.env.NODE_ENV === 'production' && String(config.appSecret || '').length < 32)
     throw new Error('NUXT_APP_SECRET must be a securely generated secret of at least32 characters');
   if (process.env.NODE_ENV === 'production' && config.session?.cookie?.secure === false) {

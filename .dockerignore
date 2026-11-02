@@ -3,5 +3,7 @@ node_modules
 .pnpm-store
 .next
 dist
-.env
+.env*
+!.env.example
+!.env.production.example
 *.log

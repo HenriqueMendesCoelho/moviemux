@@ -29,8 +29,9 @@
     <button type="button" class="mm-link" :disabled="busy" @click="emit('changeTab', 'forgot')">
       Esqueci minha senha
     </button>
+    <TurnstileChallenge ref="widget" v-model="token" action="login" />
     <p v-if="error" role="alert" class="mm-error">{{ error }}</p>
-    <button class="mm-btn mm-btn-primary" :disabled="busy">
+    <button class="mm-btn mm-btn-primary" :disabled="busy || !ready">
       {{ busy ? 'Entrando…' : 'Entrar no Movie Mux' }}
     </button>
     <p v-if="createAccount" class="mm-muted">
@@ -42,6 +43,9 @@
   </form>
 </template>
 <script setup lang="ts">
+import TurnstileChallenge from 'src/core/components/TurnstileChallenge.vue';
+import { useTurnstileForm } from 'src/core/turnstile/useTurnstileForm';
+import { verificationFailureMessage } from 'src/core/turnstile/errors';
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { safeReturnPath } from '../utils/AccountUtils';
@@ -55,14 +59,19 @@ const email = ref('');
 const password = ref('');
 const showPassword = ref(false);
 const busy = ref(false);
+const { token, widget, ready, reset: resetChallenge } = useTurnstileForm();
 const error = ref('');
 async function login() {
-  if (busy.value) return;
+  if (busy.value || !ready.value) return;
   busy.value = true;
   error.value = '';
   emit('loading', true);
   try {
-    await store.login({ email: email.value, password: password.value });
+    await store.login({
+      email: email.value,
+      password: password.value,
+      'cf-turnstile-response': token.value,
+    });
     if (route.name === 'login' || route.path === '/') {
       await router.push(safeReturnPath(route.query.from));
     } else {
@@ -70,9 +79,12 @@ async function login() {
       // This preserves the original session-reauthentication behavior.
       window.location.reload();
     }
-  } catch {
-    error.value = 'Não foi possível entrar. Confira suas credenciais e tente novamente.';
+  } catch (err) {
+    error.value =
+      verificationFailureMessage(err) ??
+      'Não foi possível entrar. Confira suas credenciais e tente novamente.';
   } finally {
+    resetChallenge();
     busy.value = false;
     emit('loading', false);
   }

@@ -20,6 +20,8 @@ cp .env.example .env.local
 pnpm dev --dotenv .env.local
 ```
 
+Complete deployment variable reference and safe production template: [environment guide](docs/environment.md) · [`.env.production.example`](.env.production.example).
+
 Configure private server values (never `NUXT_PUBLIC_*`):
 
 - `NUXT_API_UPSTREAM`: fixed gateway base including `/api`, e.g. `http://127.0.0.1:8080/api`.
@@ -38,12 +40,30 @@ A server-side Socket.IO protocol bridge preserves existing namespaces/events/roo
 
 **Deployment boundary:** the revocation registry is in-process. Logout rejects copied-cookie replay while that process remains alive, but clearing a sealed cookie cannot revoke every stolen copy after a restart. Multiple instances need shared revocation/session infrastructure and polling affinity; this is not silently provided. HTTPS and production Secure cookies are required. A local HTTP production smoke test may explicitly set `NUXT_SESSION_COOKIE_SECURE=false` only with exclusively loopback trusted origins; startup rejects that override for non-loopback origins.
 
+### Turnstile account protection
+
+The existing widget `0x4AAAAAAFwyH9xyrHzMmwps` protects login (including reauthentication), invitation signup, password-recovery requests and final password reset. No replacement widget is created. Each form uses an independent challenge lifecycle and obtains a fresh token after an attempted submission. The Nuxt BFF is the **only** Siteverify verifier: it checks strict success, the action and the exact configured hostname, then removes the challenge field before calling the unchanged Java endpoint. CSRF/Origin checks remain necessary and are not replaced by Turnstile.
+
+Configure these runtime values before enabling the migration in production:
+
+- `NUXT_PUBLIC_TURNSTILE_SITE_KEY`: the existing public sitekey above.
+- `NUXT_PUBLIC_TURNSTILE_ENABLED`: defaults to `true`. Missing verifier configuration fails closed; it never silently removes protection.
+- `NUXT_TURNSTILE_SECRET`: the existing widget's secret, supplied **only** through the server platform's secret manager. Never place it in a public variable, source control, browser storage or chat.
+- `NUXT_TURNSTILE_HOSTNAMES`: comma-separated exact frontend hostnames (no scheme, port, wildcard or path). The historical site link is `www.moviemux.com`; confirm the actual widget/deployment hostnames rather than assuming its dashboard configuration. Do not include local hostnames in production.
+
+Siteverify tokens are single-use and expire after five minutes. Missing/rejected/expired challenges or a verification outage cannot reach the protected upstream operation. Retry obtains a fresh challenge. The server uses Cloudflare's fixed HTTPS endpoint, bounded timeouts and sanitized errors; tokens and secrets are not logged. Cloudflare script/network availability is required for these protected forms. If deployment adds a CSP, allow the official `https://challenges.cloudflare.com` script/frame according to [Cloudflare's CSP guidance](https://developers.cloudflare.com/turnstile/reference/content-security-policy/).
+
+**Ingress boundary:** only Nuxt should be public after migrating. Keep the gateway, monolith and event REST/Socket.IO services private and reachable by their intended internal callers. Otherwise callers can bypass a BFF-only challenge by reaching legacy account endpoints directly. No infrastructure changes are made by this integration. Do not hide those endpoints while the old frontend still depends on them, and do not verify the same token twice in Nuxt and Java.
+
+For isolated loopback fixtures only, explicitly set `NUXT_PUBLIC_TURNSTILE_ENABLED=false`; startup rejects disabling with non-loopback trusted origins. This is configuration-based, never inferred from request Host. To exercise challenges locally use Cloudflare's separate official test keys and exact local hostnames (test keys are rejected for non-loopback deployments); do not add localhost to the production widget. Mock/unit and controlled verifier tests do not establish live acceptance of the existing production widget: final acceptance requires its privately configured secret/hostnames and a fresh browser token, then a rejected replay.
+
 ### Local same-origin backend testing
 
 ```sh
 NUXT_API_UPSTREAM=http://127.0.0.1:18081/api \
 NUXT_SOCKET_UPSTREAM=http://127.0.0.1:3334 \
 NUXT_TRUSTED_ORIGINS=http://127.0.0.1:3000,http://localhost:3000 \
+NUXT_PUBLIC_TURNSTILE_ENABLED=false \
 NUXT_APP_SECRET="$(openssl rand -base64 32)" pnpm dev --host 127.0.0.1
 ```
 
@@ -58,12 +78,13 @@ pnpm test
 pnpm build
 pnpm test:ssr
 pnpm test:session
+pnpm test:turnstile
 pnpm test:socket
 pnpm test:pwa
 node .output/server/index.mjs
 ```
 
-`test:ssr` runs the production build against isolated fictional fixtures and checks HttpOnly login, safe public claims, concurrent session isolation, role denial, CSRF rejection, logout replay rejection, routes and PWA assets. `test:session` runs independent HTTP/SSR/Socket.IO policy and cookie-configuration regressions against the built server using ephemeral synthetic upstreams. `test:socket` additionally checks full polling/WebSocket namespace connections, transport/session binding, room isolation, reconnect and cleanup through the actual built BFF. Component/unit tests use mocks. Neither replaces acceptance against the real backend.
+`test:ssr` runs the production build against isolated fictional fixtures and checks HttpOnly login, safe public claims, concurrent session isolation, role denial, CSRF rejection, logout replay rejection, routes and PWA assets. `test:session` runs independent HTTP/SSR/Socket.IO policy and cookie-configuration regressions against the built server using ephemeral synthetic upstreams. `test:socket` additionally checks full polling/WebSocket namespace connections, transport/session binding, room isolation, reconnect and cleanup through the actual built BFF. `test:turnstile` runs the actual built BFF against a process-local interception of only the fixed Siteverify endpoint and disposable account fixtures; it proves gate/payload/configuration behavior without a real Cloudflare secret or external network. The interception exists only in the explicitly loaded test fixture, never application runtime configuration. Component/unit tests use mocks. Neither replaces acceptance against the real backend.
 
 For a local interactive preview without a backend, see [QA fixture instructions](scripts/qa/README.md). Fixture tokens are not real credentials and that server must never be deployed.
 

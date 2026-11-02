@@ -31,6 +31,8 @@ export default defineNuxtConfig({
     apiUpstream: '',
     socketUpstream: '',
     trustedOrigins: '',
+    turnstileSecret: '',
+    turnstileHostnames: '',
     session: {
       name: 'moviemux-session',
       maxAge: 3600,
@@ -42,6 +44,8 @@ export default defineNuxtConfig({
       },
     },
     public: {
+      turnstileSiteKey: '0x4AAAAAAFwyH9xyrHzMmwps',
+      turnstileEnabled: true,
       apiUrl: '/api',
       socketUrl: '',
       tmdbImageBase: process.env.TMDB_IMAGE_BASE || 'https://image.tmdb.org/t/p',

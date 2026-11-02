@@ -188,6 +188,7 @@ try {
       NODE_ENV: 'production',
       HOST: '127.0.0.1',
       PORT: '3210',
+      NUXT_PUBLIC_TURNSTILE_ENABLED: 'false', // Isolated loopback session/transport fixtures only.
       NUXT_APP_SECRET: secret,
       NUXT_API_UPSTREAM: 'http://127.0.0.1:3211',
       NUXT_SOCKET_UPSTREAM: 'http://127.0.0.1:3212',

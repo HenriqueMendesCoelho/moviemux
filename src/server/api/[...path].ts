@@ -1,4 +1,5 @@
 import { defineEventHandler, createError, setResponseStatus } from 'nuxt/server';
+import { protectedBody, turnstileAction } from '../utils/turnstile';
 import { revokeSession } from '../utils/session-registry';
 import { boundedBody } from '../utils/body';
 import { allowedApiPath, upstreamRequest } from '../utils/upstream';
@@ -17,7 +18,9 @@ export default defineEventHandler(async (event) => {
     !['application/json', 'application/x-www-form-urlencoded'].includes(contentType)
   )
     throw createError({ status: 415, message: 'Unsupported request type' });
-  const body = ['GET', 'HEAD'].includes(method) ? undefined : await boundedBody(event);
+  let body = ['GET', 'HEAD'].includes(method) ? undefined : await boundedBody(event);
+  const action = turnstileAction(path, method);
+  if (action) body = await protectedBody(body, contentType, action);
   try {
     const result = await upstreamRequest(path + event.url.search, {
       method,

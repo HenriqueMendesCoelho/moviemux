@@ -32,8 +32,9 @@
     <label class="mm-field"
       >Código do convite<input v-model.trim="invite" autocomplete="off" required
     /></label>
+    <TurnstileChallenge ref="widget" v-model="token" action="signup" />
     <p v-if="error" role="alert" class="mm-error">{{ error }}</p>
-    <button class="mm-btn mm-btn-primary" :disabled="busy">
+    <button class="mm-btn mm-btn-primary" :disabled="busy || !ready">
       {{ busy ? 'Criando conta…' : 'Criar conta' }}
     </button>
     <button class="mm-link" type="button" :disabled="busy" @click="emit('changeTab', 'login')">
@@ -42,6 +43,9 @@
   </form>
 </template>
 <script setup lang="ts">
+import TurnstileChallenge from 'src/core/components/TurnstileChallenge.vue';
+import { useTurnstileForm } from 'src/core/turnstile/useTurnstileForm';
+import { verificationFailureMessage } from 'src/core/turnstile/errors';
 import { ref } from 'vue';
 import BasePasswordInput from 'src/core/components/BasePasswordInput.vue';
 import axios from 'axios';
@@ -55,8 +59,9 @@ const nickname = ref('');
 const invite = ref('');
 const error = ref('');
 const busy = ref(false);
+const { token, widget, ready, reset: resetChallenge } = useTurnstileForm();
 async function create() {
-  if (busy.value) return;
+  if (busy.value || !ready.value) return;
   error.value = '';
   if (
     !/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{8,70}$/.test(password.value)
@@ -76,15 +81,18 @@ async function create() {
       email: email.value,
       password: password.value,
       invite_code: invite.value,
+      'cf-turnstile-response': token.value,
     });
     showSuccess('Conta criada. Você já pode entrar.');
     emit('changeTab', 'login');
   } catch (err) {
     error.value =
-      axios.isAxiosError(err) && err.response?.data?.message === 'invite is not valid'
+      verificationFailureMessage(err) ??
+      (axios.isAxiosError(err) && err.response?.data?.message === 'invite is not valid'
         ? 'O convite é inválido.'
-        : 'Não foi possível criar sua conta. Confira os dados e tente novamente.';
+        : 'Não foi possível criar sua conta. Confira os dados e tente novamente.');
   } finally {
+    resetChallenge();
     busy.value = false;
     emit('loading', false);
   }

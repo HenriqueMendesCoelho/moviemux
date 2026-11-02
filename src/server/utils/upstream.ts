@@ -5,7 +5,7 @@ const uuid = '[a-zA-Z0-9_-]{1,128}';
 const rules: Array<[RegExp, string[]]> = [
   [/^\/public\/user$/, ['POST']],
   [/^\/public\/user\/password\/reset$/, ['POST']],
-  [new RegExp(`^/public/user/password/${uuid}/reset$`), ['POST']],
+  [/^\/public\/user\/password\/[a-zA-Z0-9]{200}\/reset$/, ['POST']],
   [/^\/public\/movie\/tmdb\/\d+\/info$/, ['GET']],
   [/^\/user$/, ['GET']],
   [/^\/user\/(?:update|p\/update)$/, ['PATCH']],

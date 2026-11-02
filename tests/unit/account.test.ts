@@ -113,6 +113,7 @@ describe('invitation account creation', () => {
       email: 'person@example.com',
       password: 'Strong123!',
       invite_code: 'invite-code',
+      'cf-turnstile-response': '',
     });
     request.resolve();
     await flushPromises();
@@ -277,6 +278,7 @@ describe('password reset contracts', () => {
     await wrapper.get('form').trigger('submit');
     await flushPromises();
     expect(mocks.redefinePasswordByKey).toHaveBeenCalledWith('k'.repeat(200), {
+      'cf-turnstile-response': '',
       email: 'person@example.com',
       password: 'Strong123!',
     });

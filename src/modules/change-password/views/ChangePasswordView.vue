@@ -26,9 +26,10 @@
         required
         autocomplete="new-password"
       />
+      <TurnstileChallenge ref="widget" v-model="token" action="password_reset" />
       <p v-if="error" role="alert" class="mm-error">{{ error }}</p>
       <div class="mm-actions">
-        <button class="mm-btn mm-btn-primary" :disabled="busy">
+        <button class="mm-btn mm-btn-primary" :disabled="busy || !ready">
           {{ busy ? 'Salvando…' : 'Salvar nova senha' }}</button
         ><button class="mm-btn" type="button" :disabled="busy" @click="clear">Limpar</button
         ><router-link to="/" class="mm-link">Voltar ao início</router-link>
@@ -37,6 +38,9 @@
   </main>
 </template>
 <script setup lang="ts">
+import TurnstileChallenge from 'src/core/components/TurnstileChallenge.vue';
+import { useTurnstileForm } from 'src/core/turnstile/useTurnstileForm';
+import { verificationFailureMessage } from 'src/core/turnstile/errors';
 import { computed, onMounted, ref } from 'vue';
 import BasePasswordInput from 'src/core/components/BasePasswordInput.vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -49,18 +53,20 @@ const email = ref('');
 const password = ref('');
 const confirmation = ref('');
 const busy = ref(false);
+const { token, widget, ready, reset: resetChallenge } = useTurnstileForm();
 const error = ref('');
 onMounted(async () => {
   if (key.value.length !== 200) await router.replace('/login');
 });
 function clear() {
+  resetChallenge();
   email.value = '';
   password.value = '';
   confirmation.value = '';
   error.value = '';
 }
 async function redefinePassword() {
-  if (busy.value) return;
+  if (busy.value || !ready.value) return;
   error.value = '';
   if (
     !/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{8,70}$/.test(password.value)
@@ -77,13 +83,16 @@ async function redefinePassword() {
     await UserService.redefinePasswordByKey(key.value, {
       email: email.value,
       password: password.value,
+      'cf-turnstile-response': token.value,
     });
     showSuccess('Senha alterada. Entre com sua nova senha.');
     await router.push('/');
-  } catch {
+  } catch (err) {
     error.value =
+      verificationFailureMessage(err) ??
       'Não foi possível redefinir a senha. Confira o link de recuperação ou solicite outro.';
   } finally {
+    resetChallenge();
     busy.value = false;
   }
 }

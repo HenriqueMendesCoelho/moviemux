@@ -11,7 +11,13 @@ const API_USER_RESTRICTED = `${BASE_URL}/restricted/user`;
 const API_USER_INVITE_RESTRICTED = `${BASE_URL}/restricted/user/invite`;
 
 export default {
-  async create(payload: { name: string; email: string; password: string; invite_code: string }) {
+  async create(payload: {
+    name: string;
+    email: string;
+    password: string;
+    invite_code: string;
+    'cf-turnstile-response'?: string;
+  }) {
     const res = await axios.post(`${API_USER_PUBLIC}`, payload);
 
     return res.data;
@@ -68,12 +74,15 @@ export default {
     return res.data;
   },
   //User PasswordRedefineKey
-  async createRedefinePassowordKey(email: string): Promise<void> {
-    await axios.post(`${API_USER_PUBLIC}/password/reset`, { email: email });
+  async createRedefinePassowordKey(email: string, token?: string): Promise<void> {
+    await axios.post(`${API_USER_PUBLIC}/password/reset`, {
+      email: email,
+      'cf-turnstile-response': token,
+    });
   },
   async redefinePasswordByKey(
     key: string,
-    request: { email: string; password: string },
+    request: { email: string; password: string; 'cf-turnstile-response'?: string },
   ): Promise<void> {
     await axios.post(`${API_USER_PUBLIC}/password/${key}/reset`, request);
   },

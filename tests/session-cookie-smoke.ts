@@ -31,6 +31,7 @@ function launch(port: number, extra: NodeJS.ProcessEnv = {}) {
     NODE_ENV: 'production',
     HOST: '127.0.0.1',
     PORT: String(port),
+    NUXT_PUBLIC_TURNSTILE_ENABLED: 'false', // Isolated loopback session/transport fixtures only.
     NUXT_APP_SECRET: secret,
     NUXT_API_UPSTREAM: 'http://127.0.0.1:3221',
     NUXT_TRUSTED_ORIGINS: `http://127.0.0.1:${port}`,
@@ -78,6 +79,7 @@ try {
   assert.match(cookie, /; Path=\//);
   secure.kill();
   const bad = launch(3222, {
+    NUXT_PUBLIC_TURNSTILE_ENABLED: 'true', // Exercise the cookie guard independently.
     NUXT_SESSION_COOKIE_SECURE: 'false',
     NUXT_TRUSTED_ORIGINS: 'https://public.test',
   });

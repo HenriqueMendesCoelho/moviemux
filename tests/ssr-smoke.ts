@@ -13,6 +13,7 @@ const env = {
   NUXT_API_UPSTREAM: `http://127.0.0.1:${apiPort}`,
   NUXT_SOCKET_UPSTREAM: '',
   NUXT_TRUSTED_ORIGINS: origin,
+  NUXT_PUBLIC_TURNSTILE_ENABLED: 'false', // Isolated loopback session/transport fixtures only.
   NUXT_APP_SECRET: randomBytes(48).toString('base64url'),
   NUXT_SESSION_COOKIE_SECURE: 'false',
   NODE_ENV: 'production',

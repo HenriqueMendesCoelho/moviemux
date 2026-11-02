@@ -50,7 +50,11 @@ export const useUserStore = defineStore('UserStore', {
       const response = await axios.get('/_auth/session');
       this.applySession(response.data);
     },
-    async login(payload: { email: string; password: string }): Promise<void> {
+    async login(payload: {
+      email: string;
+      password: string;
+      'cf-turnstile-response'?: string;
+    }): Promise<void> {
       const response = await axios.post('/login', payload);
       this.applySession(response.data);
       if (!this.user.isLoged) throw new Error('Invalid login session');

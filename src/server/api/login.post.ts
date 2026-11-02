@@ -1,3 +1,4 @@
+import { verifyTurnstile, TURNSTILE_FIELD } from '../utils/turnstile';
 import { randomBytes } from 'node:crypto';
 import { defineEventHandler, createError, deleteCookie } from 'nuxt/server';
 import { clearUserSession, replaceUserSession } from '#auth-server';
@@ -5,7 +6,7 @@ import { boundedBody } from '../utils/body';
 import { upstreamRequest } from '../utils/upstream';
 import { publicSession, safeClaimsFromUpstream } from '../utils/session';
 export default defineEventHandler(async (event) => {
-  let input: { email?: unknown; password?: unknown };
+  let input: { email?: unknown; password?: unknown; [TURNSTILE_FIELD]?: unknown };
   try {
     input = JSON.parse(await boundedBody(event, 8192));
   } catch {
@@ -18,6 +19,7 @@ export default defineEventHandler(async (event) => {
     input.password.length > 1024
   )
     throw createError({ status: 400, message: 'Invalid login request' });
+  await verifyTurnstile(input[TURNSTILE_FIELD], 'login');
   const response = await upstreamRequest('/login', {
     method: 'POST',
     contentType: 'application/json',

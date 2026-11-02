@@ -158,6 +158,7 @@ function startServer() {
       NODE_ENV: 'production',
       PORT: String(port),
       HOST: '127.0.0.1',
+      NUXT_PUBLIC_TURNSTILE_ENABLED: 'false', // Isolated loopback session/transport fixtures only.
       NUXT_APP_SECRET: fixtureSecret,
       NUXT_API_UPSTREAM: `http://127.0.0.1:${apiPort}/api`,
       NUXT_SOCKET_UPSTREAM: `http://127.0.0.1:${upstreamPort}`,
