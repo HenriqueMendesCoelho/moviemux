@@ -1,132 +1,99 @@
 <template>
-  <q-img
-    ref="imageRef"
-    :width="getWidth()"
-    :height="getHeight()"
-    class="img-movie"
-    :no-native-menu="true"
-    :draggable="false"
-    :style="{
-      transform: `rotateX(${roll * rotateConstant}deg)
-      rotateY(${tilt * rotateConstant}deg)
-      ${scale}`,
-      transcode: '.3s ease-out all',
-    }"
-    @mouseenter="onEnter"
-    @mouseleave="onLeave"
+  <div
+    class="mm-poster img-movie"
+    :class="{ 'mm-poster-animate': animate }"
+    :style="{ width, height }"
+    @contextmenu="openContextMenu"
   >
-    <slot></slot>
-    <template v-slot:loading>
-      <q-skeleton :width="getWidth()" :height="getHeight()" animation="fade" />
-    </template>
-    <template v-slot:error>
-      <div class="absolute-full flex flex-center bg-grey-mid text-white">
-        <div class="row justify-center">
-          <q-icon class="col-12 q-mb-md" name="error" size="lg" />
-          <p>Erro ao carregar imagem</p>
-        </div>
-      </div>
-    </template>
-  </q-img>
+    <img
+      v-if="src && !failed"
+      :src="src"
+      :alt="alt"
+      loading="lazy"
+      draggable="false"
+      @load="loaded = true"
+      @error="failed = true"
+    />
+    <div v-else class="mm-poster-fallback" role="img" :aria-label="alt || 'Pôster indisponível'">
+      🎬<small>Imagem indisponível</small>
+    </div>
+    <span v-if="!loaded && !failed && src" class="mm-poster-loading" aria-hidden="true" /><slot />
+  </div>
 </template>
-<script lang="ts" setup>
-import { useParallax } from '@vueuse/core';
-import { useQuasar } from 'quasar';
+<script setup lang="ts">
 import { ref, watch } from 'vue';
-
 const props = withDefaults(
-  defineProps<{
-    animate?: boolean;
-  }>(),
-  {
-    animate: true,
-  },
+  defineProps<{ src?: string; alt?: string; animate?: boolean; width?: string; height?: string }>(),
+  { animate: true, alt: 'Pôster do filme' },
 );
-
-const $q = useQuasar();
-const isMobile = $q.platform.is.mobile;
-
-const imageRef = ref<HTMLElement | null>(null);
-
-const rotateConstant = 25;
-const { tilt: _tilt, roll: _roll } = useParallax(imageRef);
-const tilt = ref(0);
-const roll = ref(0);
-const scale = ref('scale(1)');
-
-let watching = false;
-watch([_tilt, _roll], ([newTilt, newRoll]) => {
-  if (!watching) {
-    return;
-  }
-
-  tilt.value = newTilt;
-  roll.value = newRoll;
-});
-function onEnter() {
-  if (!props.animate) {
-    return;
-  }
-  watching = true;
-  scale.value = 'scale(1.1)';
+function openContextMenu(event: MouseEvent) {
+  const host = (event.currentTarget as HTMLElement).closest('article');
+  // BaseContextMenu listens on the article and positions its own accessible menu.
+  if (host?.querySelector('[data-mm-context-menu]')) return;
+  const details = host?.querySelector<HTMLDetailsElement>(
+    'details.mm-card-actions, details.mm-discover-actions',
+  );
+  if (!details) return; // Preserve the browser menu if this card has no actions.
+  event.preventDefault();
+  details.open = true;
+  details.querySelector<HTMLElement>('button:not(:disabled),a[href]')?.focus();
 }
-function onLeave() {
-  if (!props.animate) {
-    return;
-  }
-  watching = false;
-  tilt.value = 0;
-  roll.value = 0;
-  scale.value = 'scale(1)';
-}
+const failed = ref(false),
+  loaded = ref(false);
 watch(
-  () => props.animate,
-  (newValue) => {
-    if (!newValue) {
-      watching = false;
-      tilt.value = 0;
-      roll.value = 0;
-      scale.value = 'scale(1)';
-    }
+  () => props.src,
+  () => {
+    failed.value = false;
+    loaded.value = false;
   },
 );
-
-function getHeight() {
-  if (isMobile) {
-    return '120px';
-  }
-
-  return '380px';
-}
-function getWidth() {
-  if (isMobile) {
-    return '80px';
-  }
-
-  return '250px';
-}
 </script>
-
-<style lang="scss">
-.img-movie {
-  border-radius: 10px;
-  transition: 0.2s ease-out;
-  border: var(--grey-mid) solid 2px;
-  cursor: pointer;
-
-  .hover-show-img {
-    opacity: 0;
-  }
-
-  &:hover {
-    .hover-show-img {
-      opacity: 1;
-      transition: opacity 0.3s ease-out;
-    }
-  }
-
-  &:hover.animate {
-    transform: scale(1.1);
+<style scoped>
+.mm-poster {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  aspect-ratio: 2/3;
+  background: var(--grey-mid);
+  width: 100%;
+  isolation: isolate;
+}
+.mm-poster > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.mm-poster-fallback {
+  display: grid;
+  place-content: center;
+  text-align: center;
+  height: 100%;
+  gap: 12px;
+}
+.mm-poster-animate {
+  transition: transform 0.2s;
+}
+.mm-poster-animate:hover {
+  transform: translateY(-4px);
+}
+.mm-poster-loading {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent, #ffffff12, transparent);
+  pointer-events: none;
+}
+.img-movie :deep(.hover-show-img) {
+  opacity: 0;
+}
+.img-movie:hover :deep(.hover-show-img),
+.img-movie:focus-within :deep(.hover-show-img) {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mm-poster-animate {
+    transition: none;
+    transform: none !important;
   }
 }
 </style>

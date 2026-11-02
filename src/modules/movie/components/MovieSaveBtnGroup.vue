@@ -1,37 +1,26 @@
 <template>
-  <div class="row justify-center q-col-gutter-md">
-    <BaseHorizontalSeparator />
-    <div class="col-md-1 col-xs-3">
-      <q-btn class="w-100" color="positive" text-color="white" label="Salvar" :disable="false" @click="emit('save')" />
-    </div>
-    <div class="col-md-1 col-xs-3">
-      <q-btn class="w-100" color="red" text-color="white" label="Cancelar" :disable="props.disableSave" @click="emit('cancel')" />
-    </div>
-  </div>
+  <footer class="mm-actions">
+    <button
+      type="button"
+      class="mm-button mm-button-primary"
+      :disabled="disableSave"
+      @click="emit('save')"
+    >
+      Salvar filme</button
+    ><button type="button" class="mm-button" :disabled="disableCancel" @click="emit('cancel')">
+      Cancelar
+    </button>
+  </footer>
 </template>
-
 <script setup lang="ts">
-import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
-
-const emit = defineEmits<{
-  (e: 'save', value: void): void;
-  (e: 'cancel', value: void): void;
-}>();
-
-const props = withDefaults(
-  defineProps<{
-    disableSave?: boolean;
-    disableCancel?: boolean;
-  }>(),
-  {
-    disableSave: false,
-    disableCancel: false,
-  }
-);
+defineProps<{ disableSave?: boolean; disableCancel?: boolean }>();
+const emit = defineEmits<{ save: []; cancel: [] }>();
 </script>
-
 <style scoped>
-.w-100 {
-  width: 100%;
+.mm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin: 2rem 0;
 }
 </style>

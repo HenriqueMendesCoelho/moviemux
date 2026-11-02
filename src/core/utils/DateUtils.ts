@@ -1,5 +1,3 @@
-import { date } from 'quasar';
-
 export default {
   toLocaleString(date: string | Date): string {
     if (!date) {
@@ -40,6 +38,9 @@ export default {
       return;
     }
 
-    return date.extractDate(val, pattern);
+    if (pattern === 'YYYY-MM-DD') return new Date(`${val}T12:00:00`);
+    const [day, month, year] = val.split('/').map(Number);
+    if (!day || !month || !year) return undefined;
+    return new Date(year, month - 1, day, 12);
   },
 };

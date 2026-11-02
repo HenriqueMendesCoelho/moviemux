@@ -1,39 +1,17 @@
-FROM node:24.3.0-alpine3.22 as build-stage
-
-ARG CINE_BACKEND_URL=${CINE_BACKEND_URL}
-ARG CINE_BACKEND_SOCKET_URL=${CINE_BACKEND_SOCKET_URL}
-ARG TMDB_IMAGE_BASE=${TMDB_IMAGE_BASE}
-
-ENV TMDB_IMAGE_BASE=${TMDB_IMAGE_BASE}
-ENV CINE_BACKEND_URL=${CINE_BACKEND_URL}
-ENV CINE_BACKEND_SOCKET_URL=${CINE_BACKEND_SOCKET_URL}
-
-WORKDIR /usr/src/app
-
-COPY . .
-
-RUN corepack enable && \
-    corepack prepare pnpm@latest --activate && \
-    pnpm install --frozen-lockfile && \
-    pnpm --dir src-ssr install --frozen-lockfile && \
-    pnpm --dir src-pwa install --frozen-lockfile
-
+FROM node:26.13.0-alpine AS build
+WORKDIR /app
+RUN npm install --global pnpm@12.16.1
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+RUN pnpm install --frozen-lockfile
+COPY nuxt.config.ts tsconfig.json ./
+COPY config ./config
+COPY src ./src
+COPY public ./public
 RUN pnpm build
-
-# SSR runtime dependencies (express, vue, quasar...) are installed into the build output
-RUN pnpm --dir dist/ssr install --prod
-
-
-FROM node:24.3.0-alpine3.22 as production-stage
-
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
-WORKDIR /usr/src/app
-
-COPY --from=build-stage /usr/src/app/dist ./dist
-
-USER appuser
-
+FROM node:26.13.0-alpine
+WORKDIR /app
+ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000
+COPY --from=build --chown=node:node /app/.output ./.output
+USER node
 EXPOSE 3000
-CMD [ "node", "./dist/ssr/index.js" ]
-
+CMD ["node", ".output/server/index.mjs"]

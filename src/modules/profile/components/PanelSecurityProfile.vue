@@ -1,120 +1,73 @@
 <template>
-  <div class="row q-pt-md justify-center">
-    <h5>Alteração de senha</h5>
-    <BaseHorizontalSeparator />
-    <div class="q-mt-md col-xs-12 col-md-6">
-      <BaseTextInput
-        ref="inputTextCurrentPassRef"
-        :label="'Senha atual'"
-        v-model="currentPass"
-        :type="'password'"
-        :required="true"
-      />
+  <form class="mm-form mm-security-form" @submit.prevent="updatePassword">
+    <h2>Alterar senha</h2>
+    <p class="mm-muted">Escolha uma senha forte que você não usa em outros serviços.</p>
+    <BasePasswordInput
+      label="Senha atual"
+      v-model="currentPass"
+      required
+      autocomplete="current-password"
+    />
+    <BasePasswordInput label="Nova senha" v-model="newPass" required autocomplete="new-password" />
+    <BasePasswordInput
+      label="Confirme a nova senha"
+      v-model="confirmNewPass"
+      required
+      autocomplete="new-password"
+    />
+    <p v-if="error" role="alert" class="mm-error">{{ error }}</p>
+    <div class="mm-actions">
+      <button class="mm-btn mm-btn-primary" :disabled="busy">
+        {{ busy ? 'Atualizando…' : 'Atualizar senha' }}</button
+      ><button class="mm-btn" type="button" :disabled="busy" @click="clearInputs">Cancelar</button>
     </div>
-    <div class="col-12" />
-    <div class="q-mt-md col-xs-12 col-md-6">
-      <BaseTextInput
-        ref="inputTextNewPassRef"
-        :label="'Nova Senha'"
-        v-model="newPass"
-        :type="'password'"
-        :required="true"
-      />
-    </div>
-    <div class="col-12" />
-    <div class="q-mt-md q-mb-xl col-xs-12 col-md-6">
-      <BaseTextInput
-        ref="inputTextConfirmNewPassRef"
-        :label="'Confirme Nova Senha'"
-        v-model="confirmNewPass"
-        :type="'password'"
-        :customRules="() => newPass === confirmNewPass || 'Deve ser igual a nova senha'"
-      />
-    </div>
-    <div class="col-12" />
-    <div class="col-xs-4 col-md-2">
-      <q-btn
-        class="full-width"
-        color="positive"
-        text-color="white"
-        label="Salvar"
-        @click="updatePassword"
-      />
-    </div>
-    <div class="col-xs-4 col-md-2 q-ml-md">
-      <q-btn
-        class="full-width"
-        color="red"
-        text-color="white"
-        label="Cancelar"
-        @click="clearInputs"
-      />
-    </div>
-  </div>
+  </form>
 </template>
-
-<script lang="ts" setup>
+<script setup lang="ts">
 import { ref } from 'vue';
-
-import UserService from 'src/core/services/UserService';
-
-import BaseTextInput from 'src/core/components/BaseTextInput.vue';
-import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
-import type { AxiosError } from 'axios';
+import BasePasswordInput from 'src/core/components/BasePasswordInput.vue';
 import axios from 'axios';
-import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
-import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
-
-const inputTextCurrentPassRef = ref<InstanceType<typeof BaseTextInput>>();
-const inputTextNewPassRef = ref<InstanceType<typeof BaseTextInput>>();
-const inputTextConfirmNewPassRef = ref<InstanceType<typeof BaseTextInput>>();
-
+import UserService from 'src/core/services/UserService';
+import { showSuccess } from 'src/core/utils/NotificationUtils';
 const currentPass = ref('');
 const newPass = ref('');
 const confirmNewPass = ref('');
-
-async function updatePassword() {
-  if (await hasErrors()) {
-    return;
-  }
-  try {
-    showLoading();
-    await UserService.updateUserPassword({
-      password: currentPass.value,
-      newPassword: newPass.value,
-    });
-    showSuccess('Senha atualizada com sucesso');
-    clearInputs();
-  } catch (err) {
-    const error = err as Error | AxiosError;
-    if (axios.isAxiosError(error)) {
-      if (error.response?.data.message === 'user not authorized to do this action') {
-        showError('Senha incorreta');
-      }
-    } else {
-      showError('Erro ao atualizar senha');
-    }
-  } finally {
-    hideLoading();
-  }
-}
+const busy = ref(false);
+const error = ref('');
 function clearInputs() {
   currentPass.value = '';
   newPass.value = '';
   confirmNewPass.value = '';
+  error.value = '';
 }
-
-async function hasErrors(): Promise<boolean> {
-  let hasError = false;
-  if (inputTextCurrentPassRef.value) {
-    hasError = await inputTextCurrentPassRef.value.hasErrors();
+async function updatePassword() {
+  if (busy.value) return;
+  error.value = '';
+  if (newPass.value !== confirmNewPass.value) {
+    error.value = 'A confirmação precisa ser igual à nova senha.';
+    return;
   }
-  if (inputTextNewPassRef.value) {
-    hasError = await inputTextNewPassRef.value.hasErrors();
+  busy.value = true;
+  try {
+    await UserService.updateUserPassword({
+      password: currentPass.value,
+      newPassword: newPass.value,
+    });
+    clearInputs();
+    showSuccess('Senha atualizada com sucesso.');
+  } catch (err) {
+    error.value =
+      axios.isAxiosError(err) &&
+      err.response?.data?.message === 'user not authorized to do this action'
+        ? 'A senha atual está incorreta.'
+        : 'Não foi possível atualizar sua senha.';
+  } finally {
+    busy.value = false;
   }
-  if (inputTextConfirmNewPassRef.value) {
-    hasError = await inputTextConfirmNewPassRef.value.hasErrors();
-  }
-  return Promise.resolve(hasError);
 }
 </script>
+<style scoped>
+.mm-security-form {
+  max-width: 600px;
+}
+</style>

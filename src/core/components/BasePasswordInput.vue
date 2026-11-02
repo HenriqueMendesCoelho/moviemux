@@ -1,106 +1,86 @@
 <template>
-  <q-input
-    ref="inputPasswordRef"
-    name="password"
-    label="Senha"
-    v-model="password"
-    color="kb-primary"
-    :type="visibility ? 'text' : 'password'"
-    :rules="[...getRules()]"
-  >
-    <template v-slot:append>
-      <q-icon name="visibility" v-if="!visibility" @click="visibility = !visibility" />
-      <q-icon name="visibility_off" v-if="visibility" @click="visibility = !visibility" />
-    </template>
-    <slot />
-  </q-input>
+  <label class="mm-field" :class="$attrs.class" :style="$attrs.style"
+    ><span>{{ label }}</span
+    ><span class="mm-input-wrap"
+      ><input
+        v-bind="inputAttrs()"
+        :type="visible ? 'text' : 'password'"
+        :value="modelValue"
+        :required="required"
+        :aria-invalid="invalid"
+        :aria-describedby="error ? errorId : undefined"
+        @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+        @blur="validate"
+      /><button
+        type="button"
+        class="mm-button mm-button-ghost"
+        :aria-label="visible ? 'Ocultar senha' : 'Mostrar senha'"
+        :aria-pressed="visible"
+        @click="visible = !visible"
+      >
+        {{ visible ? 'Ocultar' : 'Mostrar' }}
+      </button></span
+    ><small :id="errorId" v-if="error" class="mm-error" role="alert">{{ error }}</small
+    ><slot
+  /></label>
 </template>
-<script lang="ts" setup>
-import { ref, watch, nextTick } from 'vue';
-import type { QInput, ValidationRule } from 'quasar';
-
-const password = ref<string>('');
-const regexPassword = ref<RegExp>(
-  /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{8,70}$/,
-);
-const inputPasswordRef = ref<InstanceType<typeof QInput>>();
-const visibility = ref(false);
-
-interface Props {
-  customRules?: ValidationRule;
-  required?: boolean;
-  validPassword?: boolean;
-  errorTextRequired?: boolean;
-  errorTextValidPassord?: boolean;
-  modelValue: string;
-}
-const props = withDefaults(defineProps<Props>(), {
-  customRules: () => true,
-  required: false,
-  validPassword: false,
-  errorTextRequired: true,
-  errorTextValidPassord: true,
-});
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void;
-}>();
-
-defineExpose({
-  hasErrors,
-  resetValidation,
-});
-
-watch(
-  () => props.modelValue,
-  (val) => {
-    password.value = val;
+<script setup lang="ts">
+import { ref, useAttrs, useId } from 'vue';
+defineOptions({ inheritAttrs: false });
+type Rule = (value: string) => boolean | string | Promise<boolean | string>;
+const props = withDefaults(
+  defineProps<{
+    modelValue: string;
+    label?: string;
+    customRules?: Rule;
+    required?: boolean;
+    validPassword?: boolean;
+    errorTextRequired?: boolean;
+    errorTextValidPassord?: boolean;
+  }>(),
+  {
+    label: 'Senha',
+    required: false,
+    validPassword: false,
+    errorTextRequired: true,
+    errorTextValidPassord: true,
   },
 );
-
-watch(
-  () => password.value,
-  (val) => {
-    emit('update:modelValue', val);
-  },
-);
-
-function getRules(): ValidationRule[] {
-  return [requireRules(), passwordRule(), props.customRules];
+const emit = defineEmits<{ 'update:modelValue': [value: string] }>();
+const visible = ref(false),
+  error = ref(''),
+  invalid = ref(false);
+const attrs = useAttrs(),
+  errorId = useId();
+function inputAttrs() {
+  const { class: _class, style: _style, ...rest } = attrs;
+  void _class;
+  void _style;
+  return rest;
 }
-function requireRules(): ValidationRule {
-  if (!props.required) {
-    return () => true;
-  }
-
-  if (!props.errorTextRequired) {
-    return () => !!password.value;
-  }
-
-  return () => !!password.value || 'Obrigatório';
-}
-function passwordRule(): ValidationRule {
-  if (!props.validPassword) {
-    return () => true;
-  }
-
-  if (!props.errorTextValidPassord) {
-    return (val) => regexPassword.value.test(val);
-  }
-
-  return (val) =>
-    regexPassword.value.test(val) ||
-    'A senha deve conter letras maiúsculas e minúsculas, números e caracteres especiais';
+async function validate() {
+  let result: boolean | string | undefined;
+  if (props.required && !props.modelValue) result = props.errorTextRequired ? 'Obrigatório' : false;
+  else if (
+    props.validPassword &&
+    !/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{8,70}$/.test(
+      props.modelValue,
+    )
+  )
+    result = props.errorTextValidPassord
+      ? 'Use 8–70 caracteres, letras maiúsculas e minúsculas, números e símbolos (@#$!%*?&).'
+      : false;
+  else result = await props.customRules?.(props.modelValue);
+  invalid.value = result === false || typeof result === 'string';
+  error.value = typeof result === 'string' ? result : '';
+  return !invalid.value;
 }
 async function hasErrors() {
-  if (inputPasswordRef.value) {
-    await inputPasswordRef.value.validate();
-    return inputPasswordRef.value.hasError;
-  }
-  return false;
+  return !(await validate());
 }
 async function resetValidation() {
-  await nextTick();
-  inputPasswordRef.value?.resetValidation();
+  invalid.value = false;
+  error.value = '';
 }
+defineExpose({ hasErrors, resetValidation, validate });
 </script>

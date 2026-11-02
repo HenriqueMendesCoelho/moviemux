@@ -1,10 +1,10 @@
-import axios from 'axios';
+import axios from 'src/core/http';
 
 import type User from 'src/core/domain/user/User';
 
 import StringUtils from 'src/core/utils/StringUtils';
 
-const BASE_URL = import.meta.env.VUE_APP_KB_CINE_API;
+const BASE_URL = '';
 const API_USER = `${BASE_URL}/user`;
 const API_USER_PUBLIC = `${BASE_URL}/public/user`;
 const API_USER_RESTRICTED = `${BASE_URL}/restricted/user`;

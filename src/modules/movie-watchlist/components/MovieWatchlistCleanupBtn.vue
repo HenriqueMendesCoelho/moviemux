@@ -1,160 +1,114 @@
 <template>
-  <div>
-    <div v-if="tmdbIds?.length">
-      <q-btn @click="showNotifyMovie(false)" icon="playlist_remove" size="md" round />
-      <BaseTooltip>Remover filmes já estão cadastrados no ranking do cineminha</BaseTooltip>
-    </div>
-    <BaseConfirmDialog ref="confirmDialogRef" @ok="deteleMoviesFromWishlist" />
+  <div v-if="tmdbIds.length && isOwner" class="mm-cleanup">
+    <p>{{ tmdbIds.length }} filme(s) desta lista já estão no ranking.</p>
+    <button class="mm-button" type="button" :disabled="disabled || busy" @click="confirmCleanup">
+      Remover filmes já cadastrados</button
+    ><BaseConfirmDialog :key="confirmationKey" ref="confirmDialogRef" @ok="remove" />
   </div>
 </template>
-
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
-import { useQuasar } from 'quasar';
-
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useUserStore } from 'src/core/stores/UserStore';
-
 import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
-
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
-import BaseTooltip from 'src/core/components/BaseTooltip.vue';
-
 import MovieWatchlistService from '../services/MovieWatchlistService';
-import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
-import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
-
-interface Props {
+const props = defineProps<{
   wishlist?: WatchlistType;
-}
-const props = defineProps<Props>();
-
-const emit = defineEmits<{
-  (e: 'update:wishlist', value: WatchlistType): void;
+  disabled?: boolean;
+  removeRated: (ids: number[]) => Promise<boolean>;
 }>();
-
-const $q = useQuasar();
 const userStore = useUserStore();
-const user = userStore.user;
-const isOwner = computed(() => user.id === props.wishlist?.user.id);
+const isOwner = computed(
+  () => userStore.user.isLoged && userStore.user.id === props.wishlist?.user.id,
+);
 const tmdbIds = ref<number[]>([]);
-
+const busy = ref(false);
 const confirmDialogRef = ref<InstanceType<typeof BaseConfirmDialog>>();
-
-onMounted(async () => {
-  if (props.wishlist?.id) {
-    await showNotifyMovie();
-  }
-});
-
+const confirmationKey = computed(() => `${props.wishlist?.id}:${userStore.user.id}`);
+let generation = 0;
+let disposed = false;
+let confirmed: { id: string; account: string; ids: number[] } | undefined;
+watch(() => props.wishlist, loadRated, { immediate: true });
 watch(
-  () => props.wishlist,
-  async () => {
-    if (props.wishlist?.id) {
-      await showNotifyMovie();
-    }
+  () => userStore.user.id,
+  () => {
+    confirmed = undefined;
+    void loadRated();
   },
 );
-
-async function searchMoviesRated() {
-  if (!props.wishlist?.id) {
-    return;
-  }
-
+onBeforeUnmount(() => {
+  disposed = true;
+  generation++;
+});
+async function loadRated() {
+  const version = ++generation;
+  const id = props.wishlist?.id;
+  const account = userStore.user.id;
+  tmdbIds.value = [];
+  if (!id || !isOwner.value) return;
   try {
-    const res: { movie_tmdb_ids: number[] } =
-      await MovieWatchlistService.searchWatchlistMoviesRated(props.wishlist.id);
-    tmdbIds.value = [...res.movie_tmdb_ids];
-
-    return !!tmdbIds.value?.length;
+    const result = await MovieWatchlistService.searchWatchlistMoviesRated(id);
+    if (
+      !disposed &&
+      version === generation &&
+      account === userStore.user.id &&
+      id === props.wishlist?.id
+    )
+      tmdbIds.value = result.movie_tmdb_ids.filter((value) =>
+        props.wishlist?.movies_wishlists.some((movie) => movie.tmdb_id === value),
+      );
   } catch {
-    return false;
+    /* Cleanup is optional; keep other list actions available. */
   }
 }
-
-async function showNotifyMovie(showNotify = true) {
-  if (!isOwner.value || !(await searchMoviesRated())) {
-    return;
-  }
-  if (!showNotify) {
-    showDialogConfirm();
-    return;
-  }
-  $q.notify({
-    type: 'warning',
-    message:
-      'Existem filmes nessa lista que já estão cadastrados no ranking do cineminha. Deseja removê-los?',
-    multiLine: false,
-    position: 'top',
-    timeout: 15000,
-    progress: true,
-    icon: 'announcement',
-    actions: [
-      {
-        icon: 'check',
-        color: 'black',
-        handler: () => showDialogConfirm(),
-      },
-      {
-        icon: 'close',
-        color: 'black',
-      },
-    ],
-  });
-}
-function showDialogConfirm() {
-  const names = getMoviesNames();
+function confirmCleanup() {
+  if (!props.wishlist || !isOwner.value || props.disabled || busy.value) return;
+  const ids = [...tmdbIds.value];
+  const names = props.wishlist.movies_wishlists
+    .filter((movie) => ids.includes(movie.tmdb_id))
+    .map((movie) => movie.title || movie.title_english);
+  confirmed = { id: props.wishlist.id, account: userStore.user.id, ids };
   confirmDialogRef.value?.show({
-    message: `Tem certeza que deseja remover ${names?.length > 1 ? 'os filmes' : 'o filme'} '${names.join(
-      ', ',
-    )}' dessa lista? Caso remova não há como desfazer a ação.`,
+    title: 'Remover filmes já cadastrados?',
+    message: `Remover ${names.join(', ')} desta lista?`,
     focus: 'cancel',
-    title: 'Quer mesmo remover?',
-    ok: 'Sim',
+    ok: 'Remover',
   });
 }
-function getMoviesNames() {
-  if (!props.wishlist?.movies_wishlists?.length) {
-    return [];
-  }
-  const movies = getMoviesRated();
-  const names = movies?.map((mw) => mw?.title || mw.title_english);
-
-  return names;
-}
-function getMoviesRated() {
-  if (!props.wishlist) {
-    return [];
-  }
-  const wishlist = { ...props.wishlist };
-  return wishlist?.movies_wishlists?.length
-    ? wishlist.movies_wishlists.filter((m) => tmdbIds.value.includes(m.tmdb_id))
-    : [];
-}
-async function deteleMoviesFromWishlist() {
-  if (!props.wishlist) {
+async function remove() {
+  const target = confirmed;
+  confirmed = undefined;
+  if (
+    !target ||
+    !isOwner.value ||
+    props.disabled ||
+    busy.value ||
+    target.id !== props.wishlist?.id ||
+    target.account !== userStore.user.id
+  )
     return;
-  }
-
-  const wishlist = { ...props.wishlist };
-  wishlist.movies_wishlists = wishlist.movies_wishlists.filter(
-    (m) => !tmdbIds.value.includes(m.tmdb_id),
-  );
-  const res = await updateWishlist(wishlist);
-  if (!res) {
-    return;
-  }
-  await searchMoviesRated();
-  showSuccess('Filmes removidos da lista');
-  emit('update:wishlist', res);
-}
-async function updateWishlist(wishlist: WatchlistType) {
+  busy.value = true;
   try {
-    showLoading();
-    return await MovieWatchlistService.updateWatchlist(wishlist);
-  } catch {
-    showError('Erro ao salvar lista de filmes');
+    await props.removeRated(target.ids);
   } finally {
-    hideLoading();
+    if (!disposed) busy.value = false;
   }
 }
 </script>
+<style scoped>
+.mm-cleanup {
+  padding: 14px 18px;
+  background: var(--grey-dark2);
+  border: 1px solid var(--grey-mid2);
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.mm-cleanup p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+</style>

@@ -1,12 +1,19 @@
-<template v-if="convertedUrl">
-  <div class="q-mx-lg">
+<template>
+  <div v-if="convertedUrl" class="mm-trailer">
     <iframe
       :width="width"
       height="315"
       :src="convertedUrl"
       title="YouTube video player"
       frameborder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allow="
+        accelerometer;
+        autoplay;
+        clipboard-write;
+        encrypted-media;
+        gyroscope;
+        picture-in-picture;
+      "
       allowfullscreen
     ></iframe>
   </div>
@@ -39,6 +46,29 @@ function getUrlConverted(url: string) {
     : split[0]
       ? split[0].split(/[^0-9a-z_-]/i)[0]
       : '';
-  return param ? `https://www.youtube.com/embed/${param}` : undefined;
+  return param ? `https://www.youtube-nocookie.com/embed/${param}` : undefined;
 }
 </script>
+
+<style scoped>
+.mm-trailer {
+  aspect-ratio: 16/9;
+}
+.mm-trailer iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 16px;
+}
+</style>
+<style scoped>
+.mm-trailer {
+  aspect-ratio: 16/9;
+}
+.mm-trailer iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 16px;
+}
+</style>

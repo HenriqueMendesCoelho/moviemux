@@ -1,40 +1,12 @@
-import { Dialog } from 'quasar';
-
+// Compatibility helper for callers outside the movie module. The movie view uses an accessible inline form.
 export type dialogMovieNote = { onOk: (data: string | undefined) => void; onCancel?: () => void };
 export function dialogMovieNote({ onOk, onCancel }: dialogMovieNote) {
-  Dialog.create({
-    dark: true,
-    message: 'Insira uma nota de 0 a 10',
-    persistent: false,
-    color: 'kb-primary',
-    class: 'bg-grey-mid',
-    prompt: {
-      model: '',
-      type: 'number',
-      isValid: (val) => parseInt(val) >= 0 && parseInt(val) <= 10,
-      min: '0',
-      max: '10',
-      step: '1',
-    },
-    ok: {
-      label: 'Cadastrar',
-      flat: true,
-    },
-    cancel: {
-      label: 'Cancelar',
-      flat: true,
-    },
-    seamless: false,
-    focus: 'ok',
-  })
-    .onOk((data: string | undefined) => {
-      onOk(data);
-    })
-    .onCancel(() => {
-      if (!onCancel) {
-        return;
-      }
-
-      onCancel();
-    });
+  if (typeof window === 'undefined') return;
+  const value = window.prompt('Insira uma nota inteira de 0 a 10');
+  if (value === null) {
+    onCancel?.();
+    return;
+  }
+  const note = Number(value);
+  if (value.trim() && Number.isInteger(note) && note >= 0 && note <= 10) onOk(String(note));
 }

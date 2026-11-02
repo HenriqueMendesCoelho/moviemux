@@ -1,418 +1,434 @@
 <template>
   <BaseContainerMain>
-    <div class="row full-width justify-center">
-      <MovieWatchlistPageTitle :watchlist="watchlist" />
-      <BaseHorizontalSeparator class="q-mb-xl" />
-      <div class="col-12 scroll">
-        <BaseSearchToolbar
-          v-model:input-search="searchText"
-          @search="firstSearch()"
-          @refresh="resetSearch()"
-          @input-search-focus="
-            ($event: boolean) => {
-              if (!$event) selectedIndexMenu = undefined;
-              menuIsFocused = $event;
-            }
-          "
-          @keydown-enter:input-search="searchFromIndexMenu"
-          @keydown-up:input-search="moveSelection(-1)"
-          @keydown-down:input-search="moveSelection(1)"
-          @keydown-esc:input-search="selectedIndexMenu = undefined"
-          :show-select="false"
-          :separeted-input-event="true"
+    <router-link class="mm-back-link" :to="{ name: 'movie-watchlist-list' }"
+      >← Minhas listas</router-link
+    >
+    <MovieWatchlistPageTitle
+      :key="viewKey"
+      :watchlist="watchlist"
+      :disabled="mutationBlocked"
+      :rename="renameWatchlist"
+    />
+    <form class="mm-filter-bar" @submit.prevent="applySearch">
+      <label class="mm-search-field"
+        >Buscar nesta lista<input
+          v-model="searchText"
+          :disabled="allowDrag || loading || saving"
+          list="watchlist-titles"
+          placeholder="Título em português ou inglês"
+          @input="applySearch" /><datalist id="watchlist-titles">
+          <option
+            v-for="movie in watchlist?.movies_wishlists"
+            :key="movie.tmdb_id"
+            :value="movie.title || movie.title_english"
+          /></datalist></label
+      ><button
+        class="mm-button"
+        type="button"
+        @click="
+          searchText = '';
+          applySearch();
+        "
+      >
+        Limpar
+      </button>
+      <template v-if="isOwner"
+        ><label class="mm-checkbox"
+          ><input
+            type="checkbox"
+            :checked="watchlist?.shareable"
+            :disabled="mutationBlocked"
+            @change="onShareToggle"
+          />Lista pública</label
+        ><button
+          v-if="!allowDrag"
+          class="mm-button"
+          type="button"
+          :disabled="mutationBlocked"
+          @click="startReorder"
         >
-          <template #prepend>
-            <div>
-              <q-btn icon="arrow_back_ios" flat round @click="backToWatchlists()" />
-              <BaseTooltip :delay="500">Voltar para minhas listas</BaseTooltip>
-            </div>
-          </template>
-          <template #append v-if="watchlist?.user.id === userId">
-            <MovieWatchlistCleanupBtn :wishlist="watchlist" @update:wishlist="watchlist = $event" />
-            <div>
-              <q-toggle
-                :model-value="shareable"
-                @update:model-value="changeShareable"
-                size="xl"
-                color="kb-primary"
-                checked-icon="public"
-                unchecked-icon="public_off"
-              />
-              <BaseTooltip :delay="500">{{
-                shareable ? 'Lista Pública' : 'Lista Privada'
-              }}</BaseTooltip>
-            </div>
-            <div class="mobile-hide">
-              <div>
-                <q-btn @click="allowDrag = true" icon="reorder" :disable="allowDrag" flat round />
-                <BaseTooltip v-if="!allowDrag" :delay="500">Reordernar lista</BaseTooltip>
-              </div>
-            </div>
-          </template>
-          <template #input-search>
-            <q-menu
-              class="bg-grey-mid text-white"
-              fit
-              no-focus
-              no-refocus
-              no-parent-event
-              v-model="showMenu"
-            >
-              <q-list dense>
-                <q-item
-                  ref="itensMenuRef"
-                  active-class="text-kb-primary bg-grey-mid2"
-                  v-for="(movie, index) in moviesWhenTyping"
-                  :key="movie.tmdb_id"
-                  :active="selectedIndexMenu === index"
-                  bordered
-                  clickable
-                >
-                  <q-item-section
-                    @click="searchFromMenu(movie.title)"
-                    v-close-popup
-                    class="q-pl-sm"
-                    >{{
-                      movie.title || movie.title_english || 'Erro ao carregar título'
-                    }}</q-item-section
-                  >
-                </q-item>
-                <q-separator
-                  v-if="moviesWhenTyping?.length ? moviesWhenTyping?.length > 1 : false"
-                />
-              </q-list>
-            </q-menu>
-          </template>
-        </BaseSearchToolbar>
-      </div>
-      <div class="row justify-center q-mt-lg">
-        <div
-          class="row justify-center"
-          :class="isDesktop ? 'q-col-gutter-xl' : 'q-col-gutter-xs'"
-          v-if="moviesFiltered?.length"
-        >
-          <transition-group type="transition" name="flip-list">
-            <div
-              class="col-auto"
-              v-for="(movie, index) in moviesFiltered"
-              :key="movie.tmdb_id"
-              :draggable="allowDrag"
-              @dragstart="dragStart(index)"
-              @dragover.prevent
-              @drop="drop(index)"
-              :style="{ opacity: draggedItemIndex === index ? '0.5' : '1' }"
-            >
-              <MovieWatchlistImageCard
-                :movie="movie"
-                :wishlists="otherWishlists"
-                :show-remove-item="watchlist?.user.id === userId"
-                :animate="!allowDrag"
-                @open="openDialogSummary(movie.tmdb_id)"
-                @remove-movie="openConfirmDialogRemoveMovie(movie)"
-                @copy-url="copyMovieUrl(movie.tmdb_id)"
-                :style="allowDrag && 'cursor: all-scroll'"
-              />
-            </div>
-          </transition-group>
-          <BaseFloatingActionBtn class="desktop-only" />
-        </div>
-        <div class="row justify-center" v-else>
-          <div class="text-h3 text-white">Ainda não há filmes nessa lista...</div>
-        </div>
-      </div>
-      <BaseConfirmDialog ref="confirmDialogRef" @ok="deleteMovieFromWatchlist()" />
-      <BaseDialogFormMovieSummary v-model="showDialogMovieSummary" :movie-id="movieIdDialog" />
+          Reordenar
+        </button></template
+      >
+    </form>
+    <MovieWatchlistCleanupBtn
+      v-if="isOwner"
+      :key="viewKey"
+      :wishlist="watchlist"
+      :disabled="mutationBlocked"
+      :remove-rated="removeRated"
+    />
+    <div v-if="allowDrag" class="mm-reorder-toolbar" role="status">
+      <p>Arraste os filmes ou use as setas para reordenar.</p>
+      <button class="mm-button mm-button-primary" :disabled="saving" @click="saveReorder">
+        Salvar ordem</button
+      ><button class="mm-button" :disabled="saving" @click="cancelReorder">Cancelar</button>
     </div>
+    <p v-if="loading" role="status">Carregando lista…</p>
+    <p v-if="error" class="mm-error" role="alert">
+      {{ error }} <button class="mm-button" @click="loadWatchlist">Tentar novamente</button>
+    </p>
+    <div class="mm-poster-grid">
+      <article
+        v-for="(movie, index) in filteredMovies"
+        :key="movie.tmdb_id"
+        :draggable="allowDrag && !saving"
+        @dragstart="draggedIndex = index"
+        @dragover.prevent
+        @drop="drop(index)"
+        @dragend="draggedIndex = null"
+        :class="{ 'mm-dragging': draggedIndex === index }"
+      >
+        <MovieWatchlistImageCard
+          :movie="movie"
+          :wishlists="otherWatchlists"
+          :show-remove-item="isOwner"
+          :disabled="loading || saving || allowDrag"
+          :animate="!allowDrag"
+          @open="openSummary(movie.tmdb_id)"
+          @remove-movie="confirmRemove(movie)"
+          @copy-url="copyMovieUrl(movie.tmdb_id)"
+        />
+        <div v-if="allowDrag" class="mm-actions">
+          <button
+            class="mm-button"
+            :disabled="saving || index === 0"
+            @click="move(index, index - 1)"
+            :aria-label="`Mover ${movie.title} para antes`"
+          >
+            ←</button
+          ><button
+            class="mm-button"
+            :disabled="saving || index === filteredMovies.length - 1"
+            @click="move(index, index + 1)"
+            :aria-label="`Mover ${movie.title} para depois`"
+          >
+            →
+          </button>
+        </div>
+      </article>
+    </div>
+    <p v-if="!loading && !error && !filteredMovies.length" class="mm-empty">
+      {{
+        searchText
+          ? 'Nenhum filme corresponde à busca.'
+          : 'Ainda não há filmes nesta lista. Descubra algo para sua próxima sessão.'
+      }}
+    </p>
+    <BaseFloatingActionBtn />
+    <BaseConfirmDialog :key="viewKey" ref="confirmDialogRef" @ok="removeMovie" />
+    <BaseDialogFormMovieSummary v-model="showSummary" :movie-id="summaryId" />
   </BaseContainerMain>
 </template>
-
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { copyToClipboard, QItem, useQuasar } from 'quasar';
-
-import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
-import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
-import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
-import BaseSearchToolbar from 'src/core/components/BaseSearchToolbar.vue';
-import BaseDialogFormMovieSummary from 'src/core/components/BaseDialogFormMovieSummary.vue';
+import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import {
+  copyWatchlistMovies,
+  moveWatchlistMovie,
+  isCurrentWatchlistOperation,
+} from '../utils/WatchlistDraft';
 import BaseFloatingActionBtn from 'src/core/components/BaseFloatingActionBtn.vue';
-import BaseTooltip from 'src/core/components/BaseTooltip.vue';
-
+import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
+import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
+import BaseDialogFormMovieSummary from 'src/core/components/BaseDialogFormMovieSummary.vue';
+import MovieWatchlistPageTitle from '../components/MovieWatchlistPageTitle.vue';
+import MovieWatchlistCleanupBtn from '../components/MovieWatchlistCleanupBtn.vue';
+import MovieWatchlistImageCard from '../components/MovieWatchlistImageCard.vue';
+import MovieWatchlistService from '../services/MovieWatchlistService';
+import { useMovieWatchlistStore } from '../stores/MovieWatchlistStore';
 import { useUserStore } from 'src/core/stores/UserStore';
 import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
-import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
-import { confirmReorder, notificationReorder } from '../utils/MovieWatchlistNotificationUtils';
-import { useMovieWatchlistStore } from '../stores/MovieWatchlistStore';
-import MovieWatchlistService from '../services/MovieWatchlistService';
-
-import MovieWatchlistImageCard from '../components/MovieWatchlistImageCard.vue';
-import MovieWatchlistCleanupBtn from '../components/MovieWatchlistCleanupBtn.vue';
-import MovieWatchlistPageTitle from '../components/MovieWatchlistPageTitle.vue';
-
-const $q = useQuasar();
-const isDesktop = $q.platform.is.desktop;
-const router = useRouter();
 const route = useRoute();
-
-type ArrayElement<ArrayType extends readonly unknown[]> =
-  ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
-
-const idPathParam = computed(() => route.params.id?.toString() || '');
 const userStore = useUserStore();
-const userId = userStore.user.id;
-const searchText = ref('');
-const menuIsFocused = ref(false);
+const store = useMovieWatchlistStore();
 const watchlist = ref<WatchlistType>();
-const moviesFiltered = ref<WatchlistType['movies_wishlists']>();
-const moviesWhenTyping = ref<WatchlistType['movies_wishlists']>();
-const shareable = ref(false);
-const showDialogMovieSummary = ref(false);
-const movieIdDialog = ref<number>();
-const movieIdToDelete = ref<number>();
-const otherWishlists = ref<WatchlistType[]>([]);
-const confirmDialogRef = ref<InstanceType<typeof BaseConfirmDialog>>();
-const showMenu = computed<boolean>(() => {
-  return !!searchText.value && menuIsFocused.value && !!moviesWhenTyping.value?.length;
-});
+const searchText = ref('');
+const loading = ref(false);
+const saving = ref(false);
+const error = ref('');
 const allowDrag = ref(false);
-const draggedItemIndex = ref<number | null>(null);
-const selectedIndexMenu = ref<number | undefined>(undefined);
-const itensMenuRef = ref<InstanceType<typeof QItem>[]>();
-const watchlistStore = useMovieWatchlistStore();
-
-onMounted(async () => {
-  if (idPathParam.value) {
-    await searchWatchlistById();
-  }
-  initializeVars();
-});
-
-watch(
-  () => searchText.value,
-  () => {
-    moviesWhenTyping.value = filterMovies();
-  },
+const reorderDraft = ref<WatchlistType['movies_wishlists']>([]);
+const draggedIndex = ref<number | null>(null);
+const summaryId = ref<number>();
+const showSummary = ref(false);
+const removeTarget = ref<{ listId: string; movieId: number; accountId: string }>();
+const confirmDialogRef = ref<InstanceType<typeof BaseConfirmDialog>>();
+const viewKey = computed(() => `${String(route.params.id || '')}:${userStore.user.id}`);
+const isOwner = computed(
+  () =>
+    !!watchlist.value &&
+    userStore.user.isLoged &&
+    watchlist.value.user.id === userStore.user.id &&
+    watchlist.value.id === String(route.params.id || ''),
 );
-watch(
-  () => watchlist?.value,
-  () => {
-    if (!watchlist?.value) {
-      return;
-    }
-    moviesFiltered.value = watchlist.value?.movies_wishlists;
-    shareable.value = watchlist.value?.shareable || false;
-  },
+const mutationBlocked = computed(
+  () => loading.value || saving.value || allowDrag.value || !isOwner.value,
 );
-watch(
-  () => allowDrag.value,
-  (val) => {
-    if (!val) {
-      return;
-    }
-    notificationReorder();
-    confirmReorder({
-      done() {
-        reorderWatchlistAndUpdate().catch(() => void 0);
-      },
-      cancel() {
-        allowDrag.value = false;
-        searchWatchlistById().catch(() => void 0);
-      },
-    });
-  },
+const otherWatchlists = computed(() =>
+  store.watchlists.filter(
+    (list) => list.id !== watchlist.value?.id && list.user.id === userStore.user.id,
+  ),
 );
-
-function firstSearch() {
-  searchMoviesAction();
-}
-function resetSearch() {
-  searchText.value = '';
-  searchMoviesAction();
-}
-function searchMoviesAction() {
-  moviesFiltered.value = filterMovies();
-}
-function filterMovies() {
-  if (!searchText.value) {
-    return watchlist.value?.movies_wishlists;
-  }
-
-  return watchlist.value?.movies_wishlists?.filter(
-    (m) => m.title?.includes(searchText.value) || m.title_english.includes(searchText.value),
+const filteredMovies = computed(() => {
+  if (allowDrag.value) return reorderDraft.value;
+  const query = searchText.value.trim().toLocaleLowerCase();
+  return (watchlist.value?.movies_wishlists || []).filter(
+    (movie) =>
+      !query ||
+      (movie.title || '').toLocaleLowerCase().includes(query) ||
+      (movie.title_english || '').toLocaleLowerCase().includes(query),
   );
-}
-function searchFromMenu(title?: string) {
-  searchText.value = title || '';
-  searchMoviesAction();
-}
-function initializeVars() {
-  otherWishlists.value = watchlistStore.watchlists.filter((w) => w.id !== watchlist.value?.id);
-  moviesFiltered.value = watchlist.value?.movies_wishlists;
-  shareable.value = watchlist.value?.shareable || false;
-}
-async function searchWatchlistById() {
-  if (!idPathParam.value) {
+});
+let loadVersion = 0;
+let disposed = false;
+onMounted(loadWatchlist);
+watch(viewKey, loadWatchlist);
+onBeforeUnmount(() => {
+  disposed = true;
+  loadVersion++;
+});
+async function loadWatchlist() {
+  const version = ++loadVersion;
+  const id = String(route.params.id || '');
+  const accountId = userStore.user.id;
+  loading.value = true;
+  error.value = '';
+  allowDrag.value = false;
+  saving.value = false;
+  watchlist.value = undefined;
+  reorderDraft.value = [];
+  removeTarget.value = undefined;
+  showSummary.value = false;
+  searchText.value = '';
+  const current = () =>
+    !disposed &&
+    version === loadVersion &&
+    userStore.user.id === accountId &&
+    String(route.params.id || '') === id;
+  if (!userStore.user.isLoged || !id) {
+    loading.value = false;
     return;
   }
-  if (!watchlistStore.watchlists.length) {
-    await watchlistStore.getWatchlists();
-  }
-
-  const list = watchlistStore.watchlists.find((w) => w.id === idPathParam.value);
-  if (list) {
-    watchlist.value = {
-      ...list,
-      movies_wishlists: list.movies_wishlists?.length ? [...list.movies_wishlists] : [],
-    };
-    return;
-  }
-
   try {
-    showLoading();
-    const res = await MovieWatchlistService.searchWatchlistById(idPathParam.value);
-
-    if (!res) {
-      showError('Lista não existe ou não é pública');
-      await router.push('/home');
-    }
-
-    watchlist.value = res;
-    moviesFiltered.value = res?.movies_wishlists;
+    await store.getWatchlists();
+    if (!current()) return;
+    const result = await MovieWatchlistService.searchWatchlistById(id);
+    if (current()) setWatchlist(result);
   } catch {
-    showError('Erro ao carregar lista de filmes');
-    await router.push('/home');
+    if (current())
+      error.value = 'Não foi possível carregar a lista. Ela pode não existir ou ser privada.';
   } finally {
-    hideLoading();
+    if (current()) loading.value = false;
   }
 }
-async function changeShareable(val: boolean) {
-  if (!watchlist.value) {
-    return;
-  }
-
-  shareable.value = val;
-  watchlist.value.shareable = val;
-  await updateWatchlist(watchlist.value);
+function setWatchlist(value: WatchlistType) {
+  if (disposed || value.id !== String(route.params.id || '')) return;
+  watchlist.value = { ...value, movies_wishlists: [...(value.movies_wishlists || [])] };
+  const index = store.watchlists.findIndex((list) => list.id === value.id);
+  if (index !== -1) store.watchlists[index] = value;
 }
-function openConfirmDialogRemoveMovie(movie: ArrayElement<WatchlistType['movies_wishlists']>) {
-  movieIdToDelete.value = movie.tmdb_id;
+function applySearch() {
+  /* Filtering is derived from the current query. */
+}
+async function persist(value: WatchlistType, reorder = false): Promise<boolean> {
+  if (
+    !isOwner.value ||
+    loading.value ||
+    saving.value ||
+    value.id !== watchlist.value?.id ||
+    (allowDrag.value && !reorder)
+  )
+    return false;
+  const id = value.id;
+  const accountId = userStore.user.id;
+  const version = loadVersion;
+  const session = userStore.user;
+  const scope = { listId: id, accountId, generation: version };
+  const current = () =>
+    !disposed &&
+    session === userStore.user &&
+    isCurrentWatchlistOperation(scope, {
+      listId: String(route.params.id || ''),
+      accountId: userStore.user.id,
+      generation: loadVersion,
+    }) &&
+    isOwner.value;
+  const payload = {
+    ...value,
+    movies_wishlists: copyWatchlistMovies(value.movies_wishlists),
+  };
+  saving.value = true;
+  try {
+    const result = await MovieWatchlistService.updateWatchlist(payload);
+    if (!current()) return false;
+    setWatchlist(result);
+    return true;
+  } catch {
+    if (current()) showError('Erro ao salvar lista de filmes');
+    return false;
+  } finally {
+    if (current()) saving.value = false;
+  }
+}
+async function renameWatchlist(name: string) {
+  if (mutationBlocked.value || !watchlist.value) return false;
+  const saved = await persist({ ...watchlist.value, name });
+  if (saved) showSuccess('Nome atualizado');
+  return saved;
+}
+async function removeRated(ids: number[]) {
+  if (mutationBlocked.value || !watchlist.value) return false;
+  const saved = await persist({
+    ...watchlist.value,
+    movies_wishlists: watchlist.value.movies_wishlists.filter(
+      (movie) => !ids.includes(movie.tmdb_id),
+    ),
+  });
+  if (saved) showSuccess('Filmes removidos da lista');
+  return saved;
+}
+async function onShareToggle(event: Event) {
+  const input = event.target as HTMLInputElement;
+  await changeShareable(input.checked);
+  if (!disposed) input.checked = watchlist.value?.shareable || false;
+}
+async function changeShareable(value: boolean) {
+  if (!mutationBlocked.value && watchlist.value)
+    await persist({ ...watchlist.value, shareable: value });
+}
+function openSummary(id: number) {
+  if (loading.value) return;
+  summaryId.value = id;
+  showSummary.value = true;
+}
+function confirmRemove(movie: WatchlistType['movies_wishlists'][number]) {
+  if (mutationBlocked.value || !watchlist.value) return;
+  removeTarget.value = {
+    listId: watchlist.value.id,
+    movieId: movie.tmdb_id,
+    accountId: userStore.user.id,
+  };
   confirmDialogRef.value?.show({
-    message: `Tem certeza que deseja remover '${movie.title || movie.title_english}' dessa lista? Caso remova não há como desfazer a ação.`,
+    title: 'Remover filme?',
+    message: `Remover “${movie.title || movie.title_english}” desta lista?`,
     focus: 'cancel',
-    title: 'Quer mesmo remover?',
-    ok: 'Sim',
+    ok: 'Remover',
   });
 }
-async function deleteMovieFromWatchlist() {
-  if (!watchlist.value) {
+async function removeMovie() {
+  const target = removeTarget.value;
+  removeTarget.value = undefined;
+  if (
+    mutationBlocked.value ||
+    !watchlist.value ||
+    !target ||
+    target.listId !== watchlist.value.id ||
+    target.accountId !== userStore.user.id
+  )
     return;
-  }
-
-  watchlist.value.movies_wishlists = watchlist.value?.movies_wishlists.filter(
-    (m) => m.tmdb_id !== movieIdToDelete.value,
-  );
-  const res = await updateWatchlist(watchlist.value);
-  if (!res) {
-    return;
-  }
-  watchlist.value = res;
-  moviesFiltered.value = res.movies_wishlists;
-  showSuccess('Filme deletado da lista');
+  const saved = await persist({
+    ...watchlist.value,
+    movies_wishlists: watchlist.value.movies_wishlists.filter(
+      (movie) => movie.tmdb_id !== target.movieId,
+    ),
+  });
+  if (saved) showSuccess('Filme removido da lista');
 }
-async function updateWatchlist(wishlist: WatchlistType) {
+async function copyMovieUrl(id: number) {
   try {
-    showLoading();
-    return await MovieWatchlistService.updateWatchlist(wishlist);
+    await navigator.clipboard.writeText(`${window.location.origin}/movie/discover?movie=${id}`);
+    showSuccess('URL copiada');
   } catch {
-    showError('Erro ao salvar lista de filmes');
-  } finally {
-    hideLoading();
+    showError('Erro ao copiar URL');
   }
 }
-function openDialogSummary(tmdbId: number) {
-  console.log(tmdbId);
-  if (!tmdbId) {
+function startReorder() {
+  if (mutationBlocked.value || !watchlist.value) return;
+  searchText.value = '';
+  reorderDraft.value = copyWatchlistMovies(watchlist.value.movies_wishlists);
+  allowDrag.value = true;
+}
+function move(from: number, to: number) {
+  if (
+    !allowDrag.value ||
+    saving.value ||
+    !isOwner.value ||
+    to < 0 ||
+    to >= reorderDraft.value.length
+  )
     return;
-  }
-  movieIdDialog.value = tmdbId;
-  showDialogMovieSummary.value = true;
-}
-function copyMovieUrl(id: number) {
-  if (!id) {
-    return;
-  }
-
-  copyToClipboard(`${window.location.origin}/movie/discover?movie=${id}`)
-    .then(() => showSuccess('URL copiada'))
-    .catch(() => showError('Erro ao copiar URL'));
-}
-function dragStart(index: number) {
-  draggedItemIndex.value = index;
+  reorderDraft.value = moveWatchlistMovie(reorderDraft.value, from, to);
 }
 function drop(index: number) {
-  if (
-    !moviesFiltered.value ||
-    draggedItemIndex.value === null ||
-    draggedItemIndex.value === undefined
-  ) {
-    return;
-  }
-
-  const draggedItem = moviesFiltered.value[draggedItemIndex.value];
-  if (!draggedItem) {
-    return;
-  }
-
-  moviesFiltered.value.splice(draggedItemIndex.value, 1);
-  moviesFiltered.value.splice(index, 0, draggedItem);
-  draggedItemIndex.value = null;
+  if (draggedIndex.value !== null) move(draggedIndex.value, index);
+  draggedIndex.value = null;
 }
-async function reorderWatchlistAndUpdate() {
+async function saveReorder() {
+  if (!watchlist.value || !allowDrag.value || !isOwner.value) return;
+  if (await persist({ ...watchlist.value, movies_wishlists: reorderDraft.value }, true)) {
+    allowDrag.value = false;
+    reorderDraft.value = [];
+    showSuccess('Lista reordenada');
+  }
+}
+function cancelReorder() {
+  if (saving.value) return;
   allowDrag.value = false;
-  if (!watchlist.value) {
-    return;
-  }
-  const res = await updateWatchlist(watchlist.value);
-  if (!res) {
-    return;
-  }
-  watchlist.value = res;
-  moviesFiltered.value = res.movies_wishlists;
-  showSuccess('Lista reordenada');
-}
-function moveSelection(step: number) {
-  const newIndex = (selectedIndexMenu.value ?? -1) + step;
-  const lenght = moviesWhenTyping.value?.length || 0;
-  if (newIndex >= 0 && newIndex < lenght) {
-    selectedIndexMenu.value = newIndex;
-  }
-  if (itensMenuRef.value?.length && selectedIndexMenu.value) {
-    itensMenuRef.value[selectedIndexMenu.value]?.$el.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest',
-    });
-  }
-}
-function searchFromIndexMenu() {
-  if (
-    selectedIndexMenu.value === undefined ||
-    !moviesWhenTyping.value?.length ||
-    selectedIndexMenu.value < 0 ||
-    selectedIndexMenu.value >= moviesWhenTyping.value.length
-  ) {
-    firstSearch();
-    return;
-  }
-
-  const selectedMovie = moviesWhenTyping.value[selectedIndexMenu.value];
-  if (selectedMovie) {
-    searchFromMenu(selectedMovie.title);
-  }
-}
-
-async function backToWatchlists() {
-  await router.push({ name: 'movie-watchlist-list' });
+  reorderDraft.value = [];
+  draggedIndex.value = null;
 }
 </script>
+
+<style scoped>
+.mm-poster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 28px 20px;
+  margin-top: 24px;
+}
+.mm-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 16px;
+  margin: 24px 0;
+}
+.mm-search-field {
+  display: grid;
+  gap: 8px;
+  flex: 1;
+}
+.mm-checkbox {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.mm-checkbox input {
+  width: auto;
+}
+.mm-reorder-toolbar {
+  padding: 16px;
+  border: 1px solid var(--primary);
+  border-radius: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.mm-dragging {
+  opacity: 0.5;
+}
+.mm-back-link {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: var(--primary);
+}
+@media (max-width: 600px) {
+  .mm-poster-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 12px;
+  }
+}
+</style>

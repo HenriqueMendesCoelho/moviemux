@@ -1,11 +1,11 @@
-import axios from 'axios';
+import axios from 'src/core/http';
 import { jwtDecode } from 'jwt-decode';
 import { defineStore } from 'pinia';
-import { Cookies } from 'quasar';
+import { useCookie } from '#app';
 
 import type { tokenPayload } from 'src/core/types/token/TokenType';
 
-const BASE_URL = import.meta.env.VUE_APP_KB_CINE_API;
+const BASE_URL = '';
 
 export const useUserStore = defineStore('UserStore', {
   state: () => {
@@ -43,7 +43,12 @@ export const useUserStore = defineStore('UserStore', {
       const responsePayload = res.data;
       const token = responsePayload.access_token;
 
-      Cookies.set('auth-kb', token, { expires: new Date(responsePayload.expires), secure: true });
+      useCookie('auth-kb', {
+        expires: new Date(responsePayload.expires),
+        secure: import.meta.client && location.protocol === 'https:',
+        sameSite: 'lax',
+        path: '/',
+      }).value = token;
       this.user.isLoged = true;
       this.showDialogLogin = false;
       this.decodeToken(token);
@@ -51,12 +56,27 @@ export const useUserStore = defineStore('UserStore', {
     async refreshToken(): Promise<void> {
       await axios.post(`${BASE_URL}/refresh-token`);
     },
+    logout() {
+      useCookie('auth-kb', { path: '/' }).value = null;
+      this.$reset();
+    },
     decodeToken(token: string) {
       if (!token) {
+        this.user.isLoged = false;
         return;
       }
 
-      const tokenPayload: tokenPayload = jwtDecode(token);
+      let tokenPayload: tokenPayload;
+      try {
+        tokenPayload = jwtDecode<tokenPayload>(token);
+      } catch {
+        this.$reset();
+        return;
+      }
+      if (!Array.isArray(tokenPayload.roles) || typeof tokenPayload.exp !== 'number') {
+        this.$reset();
+        return;
+      }
 
       this.user.id = tokenPayload.id;
       this.user.name = tokenPayload.name;

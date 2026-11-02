@@ -1,42 +1,36 @@
 <template>
-  <div class="div-lastfilms q-pa-md" v-if="movies?.length">
-    <div class="div-title">
-      <q-btn
-        :class="`icon-animate ${!isVisibleLastFilms && 'last-films-toggle'}`"
-        icon="expand_less"
-        color="white"
-        round
-        flat
-        @click="isVisibleLastFilms = !isVisibleLastFilms"
-      />
-      <div class="text-title-responsive-2">Últimos Filmes</div>
-      <div style="flex: 1 1 0"></div>
-      <q-btn icon="refresh" color="white" round flat @click="loadLastMovies()" :loading="loading" />
-    </div>
-    <div class="row justify-center q-mt-md">
-      <q-slide-transition>
-        <div
-          class="col-auto row no-wrap scroll q-col-gutter-lg justify-center-md q-px-xs"
-          v-show="isVisibleLastFilms"
+  <section class="mm-section" v-if="movies.length || loading || loadError">
+    <header class="mm-section-header">
+      <div>
+        <span class="mm-eyebrow">Adicionados recentemente</span>
+        <h2>Últimas sessões</h2>
+      </div>
+      <div class="mm-actions">
+        <button
+          class="mm-button"
+          :aria-expanded="isVisibleLastFilms"
+          @click="isVisibleLastFilms = !isVisibleLastFilms"
         >
-          <div v-for="(movie, index) of movies" :key="index">
-            <MovieHomeCardImageLastMovies
-              class="col-auto"
-              :id="movie.id"
-              :title="movie.portuguese_title"
-              :url="movie.url_image"
-              :footer="true"
-            />
-          </div>
-        </div>
-      </q-slide-transition>
+          {{ isVisibleLastFilms ? 'Recolher' : 'Expandir' }}</button
+        ><button class="mm-button" :disabled="loading" @click="loadLastMovies">Atualizar</button>
+      </div>
+    </header>
+    <p v-if="loadError" role="alert">{{ loadError }}</p>
+    <div v-show="isVisibleLastFilms" class="mm-recent-strip">
+      <MovieHomeCardImageLastMovies
+        v-for="movie in movies"
+        :key="movie.id"
+        :id="movie.id"
+        :title="movie.portuguese_title"
+        :url="movie.url_image"
+      />
     </div>
-  </div>
+  </section>
 </template>
 
 <script lang="ts" setup>
-import { onActivated, onMounted, ref, watch } from 'vue';
-import { useQuasar, Cookies } from 'quasar';
+import { onActivated, onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import { useUserStore } from 'src/core/stores/UserStore';
 
 import type Movie from 'src/core/domain/movie/movie';
 
@@ -47,89 +41,107 @@ import { socketAllMovies, stateSocketAllMovies } from 'src/boot/socket';
 
 import { showError } from 'src/core/utils/NotificationUtils';
 
-const $q = useQuasar();
-const isDesktop = $q.platform.is.desktop;
-
+const userStore = useUserStore();
 const isVisibleLastFilms = ref(true);
 const movies = ref<Movie[]>([]);
 const loading = ref(false);
-
+const loadError = ref('');
+let disposed = false;
+let generation = 0;
+let pendingRefresh = false;
 onMounted(async () => {
   await loadLastMovies();
-
+  if (disposed || !userStore.user.isLoged) return;
   if (!stateSocketAllMovies.connected) {
-    stateSocketAllMovies.token = Cookies.get('auth-kb');
+    stateSocketAllMovies.token = decodeURIComponent(
+      document.cookie
+        .split('; ')
+        .find((item) => item.startsWith('auth-kb='))
+        ?.slice(8) || '',
+    );
     socketAllMovies.connect();
   }
 });
-
-onActivated(async () => {
-  if (stateSocketAllMovies.connected && stateSocketAllMovies.hasToExecuteUpdate) {
-    await loadLastMoviesOnSocketEvent();
-  }
+onBeforeUnmount(() => {
+  disposed = true;
+  generation++;
+  pendingRefresh = false;
 });
-
+onActivated(() => {
+  if (stateSocketAllMovies.hasToExecuteUpdate) void loadLastMovies();
+});
 watch(
-  () => stateSocketAllMovies.updateEvents,
-  async () => {
-    await loadLastMoviesOnSocketEvent();
+  () => stateSocketAllMovies.updateEvents.length,
+  () => {
+    if (stateSocketAllMovies.hasToExecuteUpdate) void loadLastMovies();
   },
-  { deep: true },
 );
-
-async function loadLastMovies() {
-  try {
-    loading.value = true;
-  } catch {
-    showError('Erro ao executar, tente novamente mais tarde.');
-  } finally {
+watch(
+  () => userStore.user.id,
+  () => {
+    generation++;
+    movies.value = [];
     loading.value = false;
+    pendingRefresh = false;
+    if (userStore.user.isLoged) void loadLastMovies();
+  },
+);
+async function loadLastMovies() {
+  if (disposed || !userStore.user.isLoged) return;
+  if (loading.value) {
+    pendingRefresh = true;
+    return;
   }
-  const res = await MovieService.listMoviesPageable({
-    page: 1,
-    size: isDesktop ? 10 : 3,
-    sort: 'createdAt,desc',
-  });
-  movies.value = res.content;
-}
-async function loadLastMoviesOnSocketEvent() {
-  await loadLastMovies();
-  stateSocketAllMovies.hasToExecuteUpdate = false;
-}
-</script>
-
-<style lang="scss" scoped>
-.div-lastfilms {
-  transition: 0.2s ease-out;
-
-  max-height: 480px;
-
-  color: var(--light-grey2);
-  border-radius: 10px;
-  background-color: var(--grey-mid);
-  box-shadow: 0 5px 30px var(--shadow);
-
-  .last-films-toggle {
-    transform: rotate(-180deg);
-  }
-
-  .div-title {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-
-    max-width: 100%;
-
-    border-radius: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-
-    .icon-animate {
-      transition: 0.2s ease-out;
-
-      &:hover {
-        color: var(--primary);
+  const version = generation;
+  const account = userStore.user.id;
+  const session = userStore.user;
+  const current = () =>
+    !disposed &&
+    generation === version &&
+    account === userStore.user.id &&
+    session === userStore.user &&
+    userStore.user.isLoged;
+  loading.value = true;
+  loadError.value = '';
+  pendingRefresh = false;
+  try {
+    const res = await MovieService.listMoviesPageable({
+      page: 1,
+      size: 10,
+      sort: 'createdAt,desc',
+    });
+    if (!current()) return;
+    movies.value = res.content;
+    if (!pendingRefresh) stateSocketAllMovies.hasToExecuteUpdate = false;
+  } catch {
+    if (current()) {
+      loadError.value = 'Não foi possível atualizar os últimos filmes.';
+      showError('Erro ao carregar últimos filmes. Tente novamente.');
+    }
+  } finally {
+    if (current()) {
+      loading.value = false;
+      if (pendingRefresh) {
+        pendingRefresh = false;
+        void loadLastMovies();
       }
     }
   }
+}
+</script>
+
+<style scoped>
+.mm-recent-strip {
+  display: flex;
+  overflow-x: auto;
+  gap: 20px;
+  padding: 12px 0 24px;
+  scroll-snap-type: x proximity;
+}
+.mm-recent-strip > * {
+  scroll-snap-align: start;
+}
+.mm-section {
+  margin-bottom: 40px;
 }
 </style>

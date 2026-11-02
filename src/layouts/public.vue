@@ -1,0 +1,3 @@
+<template>
+  <main class="mm-public"><slot /></main>
+</template>

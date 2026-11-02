@@ -1,5 +1,8 @@
-<template>
-  <div style="border-left: solid 1px rgba(189, 195, 199, 0.15)"></div>
-</template>
-
-<script setup lang="ts"></script>
+<template><span class="mm-vertical-separator" aria-hidden="true" /></template>
+<style scoped>
+.mm-vertical-separator {
+  border-left: 1px solid var(--grey-mid);
+  align-self: stretch;
+  margin-inline: 12px;
+}
+</style>

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 
-import Movie from 'src/core/domain/movie/movie';
+import type Movie from 'src/core/domain/movie/movie';
 import { useUserStore } from 'src/core/stores/UserStore';
 import type { MovieNoteType } from 'src/core/types/movie/MovieType';
 
@@ -8,7 +8,7 @@ export const useMovieStore = defineStore('MovieStore2', {
   state: () => {
     return {
       moviePage: {
-        selectedMovie: new Movie(),
+        selectedMovie: {} as Movie,
         genres: [] as Array<{ id: number; name: string; tmdb_id: number }>,
         showImportMovieDialog: false,
       },
@@ -22,7 +22,7 @@ export const useMovieStore = defineStore('MovieStore2', {
   },
   actions: {
     resetSelectedMovie() {
-      this.moviePage.selectedMovie = new Movie();
+      this.moviePage.selectedMovie = {} as Movie;
     },
     selectedMovieHasAnyFieldFilled() {
       let result = false;

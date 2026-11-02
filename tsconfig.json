@@ -1,6 +1,1 @@
-{
-  "extends": "./.quasar/tsconfig.json",
-  "compilerOptions": {
-    "exactOptionalPropertyTypes": false
-  }
-}
+{"extends":"./.nuxt/tsconfig.json", "compilerOptions":{"exactOptionalPropertyTypes":false}}

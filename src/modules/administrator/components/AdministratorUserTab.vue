@@ -1,182 +1,107 @@
 <template>
-  <div class="row justify-center q-gutter-y-md">
-    <h5>Gerenciamento do usuário</h5>
-    <BaseHorizontalSeparator />
-    <div class="col-md-10 col-xs-12 row q-mt-md">
-      <BaseTextInput class="col-md-10 col-xs-6 q-pr-sm" :label="'E-mail usuário alvo'" v-model="email" :required="false" :dense="true" />
-      <q-btn-dropdown
-        icon="settings"
-        class="col-md-2 col-xs-6 q-pl-sm"
-        color="kb-primary"
-        label="Ações"
-        content-style="background-color: var(--grey-mid2); color: var(--light-grey2)"
-      >
-        <q-list>
-          <q-item clickable v-close-popup @click="searchUser()">
-            <q-item-section>
-              <q-item-label>Buscar usuário</q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <q-item clickable v-close-popup @click="promoteUser">
-            <q-item-section>
-              <q-item-label>Promover Usuário</q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <q-item clickable v-close-popup @click="demoteUser">
-            <q-item-section>
-              <q-item-label>Rebaixar usuário</q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <q-item clickable v-close-popup @click="blockUser">
-            <q-item-section>
-              <q-item-label>Bloquear usuário</q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <q-item clickable v-close-popup @click="deleteUser">
-            <q-item-section>
-              <q-item-label>Deletar usuário</q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-list>
-      </q-btn-dropdown>
-    </div>
-    <div class="col-md-10 col-xs-12 q-pt-xl">
-      <BaseUserInfoPanel v-model="user" :allReadOnly="true" :showAdmInfo="true" />
-    </div>
-  </div>
+  <section class="mm-form" :aria-busy="busy">
+    <h2>Gerenciar usuário</h2>
+    <form class="mm-actions" @submit.prevent="searchUser">
+      <label class="mm-field"
+        >E-mail do usuário<input
+          v-model.trim="email"
+          type="email"
+          :disabled="busy"
+          required /></label
+      ><button class="mm-btn mm-btn-primary" :disabled="busy">
+        {{ busy ? 'Aguarde…' : 'Buscar usuário' }}
+      </button>
+    </form>
+    <p v-if="error" role="alert" class="mm-error">{{ error }}</p>
+    <template v-if="user.id"
+      ><BaseUserInfoPanel v-model="user" :all-read-only="true" :show-adm-info="true" />
+      <div class="mm-actions">
+        <button class="mm-btn" :disabled="busy || isMyself" @click="changeRole('promote')">
+          Promover</button
+        ><button class="mm-btn" :disabled="busy || isMyself" @click="changeRole('demote')">
+          Rebaixar</button
+        ><button
+          class="mm-btn mm-btn-danger"
+          :disabled="busy || isMyself"
+          @click="changeRole('block')"
+        >
+          Bloquear</button
+        ><button
+          class="mm-btn mm-btn-danger"
+          :disabled="busy || isMyself"
+          @click="changeRole('delete')"
+        >
+          Excluir
+        </button>
+      </div>
+      <p v-if="isMyself" class="mm-muted">
+        Você não pode alterar as permissões do próprio usuário.
+      </p></template
+    >
+  </section>
 </template>
-
-<script lang="ts" setup>
-import { computed, ref } from 'vue';
-
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue';
 import User from 'src/core/domain/user/User';
-
 import BaseUserInfoPanel from 'src/core/components/BaseUserInfoPanel.vue';
-import BaseTextInput from 'src/core/components/BaseTextInput.vue';
-import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
-
 import UserService from 'src/core/services/UserService';
 import { useUserStore } from 'src/core/stores/UserStore';
-import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
-import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
-
-const storeUser = useUserStore();
-
+import { showSuccess } from 'src/core/utils/NotificationUtils';
+const store = useUserStore();
 const email = ref('');
 const user = ref(new User());
-
-const userStore = computed(() => storeUser.user);
-
-async function searchUser(showSuccessMessage = true) {
-  if (!email.value) {
-    showError('É necessário preencher o e-mail do usuario alvo');
-    return;
-  }
-
+const busy = ref(false);
+const error = ref('');
+const isMyself = computed(() => user.value.id === store.user.id);
+watch(email, () => {
+  user.value = new User();
+  error.value = '';
+});
+async function searchUser() {
+  if (busy.value || !email.value) return;
+  busy.value = true;
+  error.value = '';
   try {
-    showLoading();
-    const res = await UserService.getUserAdm(email.value);
-    user.value = res;
-    if (showSuccessMessage) {
-      showSuccess('Usuario encontrado com sucesso');
+    const requestedEmail = email.value;
+    const result = await UserService.getUserAdm(requestedEmail);
+    if (email.value === requestedEmail) user.value = result;
+  } catch {
+    error.value = 'Não foi possível encontrar este usuário.';
+    user.value = new User();
+  } finally {
+    busy.value = false;
+  }
+}
+async function changeRole(action: 'promote' | 'demote' | 'block' | 'delete') {
+  if (busy.value || !user.value.id || isMyself.value) return;
+  const labels = { promote: 'Promover', demote: 'Rebaixar', block: 'Bloquear', delete: 'Excluir' };
+  if (!window.confirm(`${labels[action]} o usuário ${user.value.name} (${user.value.email})?`))
+    return;
+  const targetId = user.value.id;
+  const targetEmail = email.value;
+  const actorId = store.user.id;
+  const isCurrentTarget = () =>
+    user.value.id === targetId && email.value === targetEmail && store.user.id === actorId;
+  busy.value = true;
+  error.value = '';
+  try {
+    if (action === 'delete') {
+      await UserService.deleteUser(targetId);
+      if (isCurrentTarget()) user.value = new User();
+    } else {
+      const methods = {
+        promote: UserService.promoteUser,
+        demote: UserService.demoteUser,
+        block: UserService.blockUser,
+      };
+      const updated = await methods[action](targetId);
+      if (isCurrentTarget()) user.value = updated;
     }
+    showSuccess('Usuário atualizado.');
   } catch {
-    showError('Erro ao buscar usuario');
+    error.value = 'Não foi possível executar a ação.';
   } finally {
-    hideLoading();
+    busy.value = false;
   }
-}
-
-async function promoteUser() {
-  if (!(await isUserLoaded()) || isUserMyself()) {
-    return;
-  }
-  try {
-    showLoading();
-    const res = await UserService.promoteUser(user.value.id);
-    user.value = res;
-    showSuccess('Usuario promovido');
-  } catch {
-    showError('Erro ao promover usuario');
-  } finally {
-    hideLoading();
-  }
-}
-
-async function demoteUser() {
-  if (!(await isUserLoaded()) || isUserMyself()) {
-    return;
-  }
-  try {
-    showLoading();
-    const res = await UserService.demoteUser(user.value.id);
-    user.value = res;
-    showSuccess('Usuario rebaixado');
-  } catch {
-    showError('Erro ao rebaixar usuario');
-  } finally {
-    hideLoading();
-  }
-}
-
-async function blockUser() {
-  if (!(await isUserLoaded()) || isUserMyself()) {
-    return;
-  }
-  try {
-    showLoading();
-    const res = await UserService.blockUser(user.value.id);
-    user.value = res;
-    showSuccess('Usuario bloqueado');
-  } catch {
-    showError('Erro ao bloqueado usuario');
-  } finally {
-    hideLoading();
-  }
-}
-
-async function deleteUser() {
-  if (!(await isUserLoaded()) || isUserMyself()) {
-    return;
-  }
-  try {
-    showLoading();
-    const res = await UserService.deleteUser(user.value.id);
-    user.value = res;
-    showSuccess('Usuario deletado');
-  } catch {
-    showError('Erro ao deletar usuario');
-  } finally {
-    hideLoading();
-  }
-}
-
-async function isUserLoaded() {
-  if (!email.value) {
-    showError('É necessário preencher o e-mail do usuario alvo');
-    return false;
-  }
-  if (!user.value.id) {
-    await searchUser(false);
-  }
-
-  return !!user.value.id;
-}
-
-function isUserMyself() {
-  if (!user.value.id) {
-    return false;
-  }
-
-  if (user.value.id === userStore.value.id) {
-    showError('Você não pode executar uma ação no seu próprio usuario');
-    return true;
-  }
-
-  return false;
 }
 </script>

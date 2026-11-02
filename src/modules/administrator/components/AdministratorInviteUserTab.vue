@@ -1,135 +1,147 @@
 <template>
-  <div class="row justify-center">
-    <h5>Gerenciamento de convites</h5>
-    <BaseHorizontalSeparator />
-    <div class="col-md-10 q-mt-md">
-      <div class="row">
-        <div class="col-md-2 col-xs-6">
-          <q-btn
-            style="width: 100%; height: 100%"
-            color="info"
-            text-color="white"
-            label="Gerar convite"
-            @click="createInvite"
-          />
-        </div>
-        <div class="q-pl-md col-md-5 col-xs-6">
-          <BaseTextInput
-            :label="'Convite gerado'"
-            v-model="invite"
-            :required="false"
-            :readonly="true"
-            :dense="true"
-          />
-        </div>
-        <div class="col-12 q-mt-md">
-          <BaseTableCopyDelete
-            :title="'Lista de convites'"
-            :columns="columns"
-            :edit="false"
-            :rows="invites"
-            @copy="actionCopy"
-            @delete="deleteInvite"
-            :loading="loading"
-          />
-        </div>
-      </div>
+  <section class="mm-form" :aria-busy="busy">
+    <h2>Convide novas histórias.</h2>
+    <p class="mm-muted">Gere um código para permitir a criação de uma conta.</p>
+    <div class="mm-actions">
+      <button class="mm-btn mm-btn-primary" :disabled="busy" @click="createInvite">
+        Gerar convite</button
+      ><button class="mm-btn" :disabled="busy" @click="loadInvites">Atualizar</button>
     </div>
-  </div>
+    <label v-if="invite" class="mm-field"
+      >Último convite gerado<input
+        :value="invite"
+        readonly
+        @focus="($event.target as HTMLInputElement).select()"
+    /></label>
+    <p v-if="error" class="mm-error" role="alert">{{ error }}</p>
+    <div class="mm-table-wrap">
+      <table class="mm-table">
+        <caption class="mm-sr-only">
+          Convites disponíveis
+        </caption>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="row in pagedRows" :key="row.code">
+            <td class="mm-invite-code">{{ row.code }}</td>
+            <td>
+              <div class="mm-actions">
+                <button class="mm-btn" :disabled="busy" @click="copy(row.code)">Copiar</button
+                ><button
+                  class="mm-btn mm-btn-danger"
+                  :disabled="busy"
+                  @click="deleteInvite(row.code)"
+                >
+                  Excluir
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <nav class="mm-actions mm-pagination" aria-label="Paginação">
+      <button class="mm-btn" :disabled="page <= 1" @click="page--">Anterior</button>
+      <span role="status"
+        >Página {{ page }} de {{ pageCount }} · {{ invites.length }} registros</span
+      >
+      <button class="mm-btn" :disabled="page >= pageCount" @click="page++">Próxima</button>
+    </nav>
+    <p v-if="!busy && !invites.length" class="mm-muted">Nenhum convite disponível.</p>
+  </section>
 </template>
-
-<script lang="ts" setup>
-import { onMounted, ref } from 'vue';
-import { copyToClipboard } from 'quasar';
-
-import type { QTableProps } from 'quasar';
-
-import BaseTextInput from 'src/core/components/BaseTextInput.vue';
-import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
-import BaseTableCopyDelete from 'src/core/components/BaseTableCopyDelete.vue';
-
+<script setup lang="ts">
+import { computed, onMounted, ref, watch } from 'vue';
 import UserService from 'src/core/services/UserService';
-import { showSuccess, showError } from 'src/core/utils/NotificationUtils';
-
-const columns: QTableProps['columns'] = [
-  {
-    name: 'invite',
-    label: 'Codigo do convite',
-    field: 'code',
-    align: 'left',
-  },
-  {
-    name: 'actions',
-    label: '',
-    field: '',
-    align: 'center',
-  },
-];
-const invite = ref('');
+import { showSuccess } from 'src/core/utils/NotificationUtils';
 const invites = ref<{ code: string }[]>([]);
-const loading = ref(false);
-
-onMounted(async () => {
-  await loadInvites();
+const invite = ref('');
+const busy = ref(false);
+const error = ref('');
+const page = ref(1);
+const pageSize = 20;
+const pageCount = computed(() => Math.max(1, Math.ceil(invites.value.length / pageSize)));
+const pagedRows = computed(() =>
+  invites.value.slice((page.value - 1) * pageSize, page.value * pageSize),
+);
+watch(pageCount, (count) => {
+  page.value = Math.min(page.value, count);
 });
-
-async function createInvite() {
-  try {
-    loading.value = true;
-    const res = await UserService.createUserInvite();
-    invite.value = res.code;
-    await loadInvites();
-    showSuccess('Convite criado');
-  } catch {
-    showError('Erro ao criar convite');
-  } finally {
-    loading.value = false;
-  }
-}
-
+onMounted(loadInvites);
 async function loadInvites() {
+  if (busy.value) return;
+  busy.value = true;
+  error.value = '';
   try {
-    loading.value = true;
-    const res = await UserService.listUserInvites();
-    invites.value = res;
+    invites.value = await UserService.listUserInvites();
   } catch {
-    showError('Erro ao listar convites');
+    error.value = 'Não foi possível carregar os convites.';
   } finally {
-    loading.value = false;
+    busy.value = false;
   }
 }
-
-async function deleteInvite(invite: { code: string }) {
+async function createInvite() {
+  if (busy.value) return;
+  busy.value = true;
+  error.value = '';
   try {
-    loading.value = true;
-    await UserService.deleteUserInvite(invite.code);
-    removeInviteFromDate(invite.code);
-    showSuccess('Convite deletado');
+    const result = await UserService.createUserInvite();
+    invite.value = result.code;
+    // Creation is already successful even if refreshing the list fails.
+    if (!invites.value.some((item) => item.code === result.code))
+      invites.value = [result, ...invites.value];
+    showSuccess('Convite criado.');
+    try {
+      invites.value = await UserService.listUserInvites();
+    } catch {
+      error.value =
+        'Convite criado. Não foi possível atualizar a lista; o código acima pode ser utilizado.';
+    }
   } catch {
-    showError('Erro ao listar convites');
+    error.value = 'Não foi possível criar o convite.';
   } finally {
-    loading.value = false;
+    busy.value = false;
   }
 }
-
-async function actionCopy(invite: { code: string }) {
-  if (!invite) {
+async function deleteInvite(code: string) {
+  if (busy.value || !window.confirm('Excluir este convite? Ele não poderá mais ser utilizado.'))
     return;
+  busy.value = true;
+  error.value = '';
+  try {
+    await UserService.deleteUserInvite(code);
+    invites.value = invites.value.filter((item) => item.code !== code);
+    if (invite.value === code) invite.value = '';
+    showSuccess('Convite excluído.');
+  } catch {
+    error.value = 'Não foi possível excluir o convite.';
+  } finally {
+    busy.value = false;
   }
-  await copyToClipboard(invite.code);
-  showSuccess('Convite copiado');
 }
-
-function removeInviteFromDate(code: string) {
-  if (!invites.value?.length) {
-    return;
-  }
-  const invite = invites.value?.find((i) => i.code === code) as {
-    code: string;
-  };
-  const index = invites.value?.indexOf(invite);
-  if (typeof index === 'number') {
-    invites.value?.splice(index, 1);
+async function copy(code: string) {
+  try {
+    await navigator.clipboard.writeText(code);
+    showSuccess('Convite copiado.');
+  } catch {
+    error.value = 'O navegador bloqueou a cópia. Selecione e copie o código manualmente.';
   }
 }
 </script>
+<style scoped>
+.mm-table-wrap {
+  max-height: 36rem;
+  overflow: auto;
+}
+.mm-pagination {
+  flex-wrap: wrap;
+}
+.mm-invite-code {
+  overflow-wrap: anywhere;
+  max-width: 35rem;
+}
+</style>

@@ -1,54 +1,36 @@
 <template>
-  <BaseHorizontalSeparator v-if="moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer" />
-  <div
-    class="row movie-trailers justify-center"
-    v-if="moviePage.selectedMovie.portuguese_url_trailer || moviePage.selectedMovie.english_url_trailer"
-  >
-    <div class="column items-center" v-if="moviePage.selectedMovie.portuguese_url_trailer">
-      <h6>Trailer Dublado</h6>
-      <MovieYoutubeTrailerIframe :width="props.width" :url="moviePage.selectedMovie.portuguese_url_trailer" />
+  <section v-if="movie.portuguese_url_trailer || movie.english_url_trailer" class="mm-trailers">
+    <h2>Trailers</h2>
+    <div class="mm-trailers-grid">
+      <div v-if="movie.portuguese_url_trailer">
+        <h3>Dublado</h3>
+        <MovieYoutubeTrailerIframe :url="movie.portuguese_url_trailer" :width="width" />
+      </div>
+      <div v-if="movie.english_url_trailer">
+        <h3>Legendado</h3>
+        <MovieYoutubeTrailerIframe :url="movie.english_url_trailer" :width="width" />
+      </div>
     </div>
-    <BaseVerticalSeparator
-      v-if="moviePage.selectedMovie.portuguese_url_trailer && moviePage.selectedMovie.english_url_trailer && isDesktop"
-    />
-    <div class="column items-center" v-if="moviePage.selectedMovie.english_url_trailer">
-      <h6>Trailer Legendado</h6>
-      <MovieYoutubeTrailerIframe :width="props.width" :url="moviePage.selectedMovie.english_url_trailer" />
-    </div>
-  </div>
+  </section>
 </template>
-
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useQuasar } from 'quasar';
-
-import { useMovieStore } from '../stores/MovieStore';
-
+import { useMovieContext } from '../composables/useMovieContext';
 import MovieYoutubeTrailerIframe from './MovieYoutubeTrailerIframe.vue';
-import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
-import BaseVerticalSeparator from 'src/core/components/BaseVerticalSeparator.vue';
-
-const props = withDefaults(
-  defineProps<{
-    width?: string;
-  }>(),
-  {
-    width: '560',
-  }
-);
-const $q = useQuasar();
-const isDesktop = $q.platform.is.desktop;
-
-const movieStore = useMovieStore();
-
-const moviePage = computed(() => movieStore.moviePage);
+defineProps<{ width?: string }>();
+const movie = useMovieContext();
 </script>
-
-<style lang="scss" scoped>
-.movie-trailers {
-  @media (max-width: 768px) {
-    max-width: 100%;
-    overflow: hidden;
-  }
+<style scoped>
+.mm-trailers {
+  margin-top: 3rem;
+}
+.mm-trailers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 1.5rem;
+}
+.mm-trailers h3 {
+  font-size: 0.9rem;
+  margin: 1rem 0;
+  opacity: 0.7;
 }
 </style>

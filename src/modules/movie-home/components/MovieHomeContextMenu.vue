@@ -1,47 +1,27 @@
 <template>
-  <BaseContextMenu>
-    <q-list style="min-width: 100px">
-      <q-item clickable @click="copyMovie(props.movieId)" v-close-popup>
-        <span class="material-icons" style="font-size: 25pt"> link </span>
-        <q-item-section class="q-pl-sm">Copiar URL</q-item-section>
-      </q-item>
-      <q-item clickable @click="openNewMovieTab(props.movieId)" v-close-popup>
-        <span class="material-icons" style="font-size: 25pt"> open_in_new </span>
-        <q-item-section class="q-pl-sm">Abrir em nova guia</q-item-section>
-      </q-item>
-      <q-item clickable @click="deleteMovie()" v-close-popup v-if="deleteEnable">
-        <span class="material-icons" style="font-size: 25pt"> delete </span>
-        <q-item-section class="q-pl-sm">Excluir</q-item-section>
-      </q-item>
-    </q-list>
-  </BaseContextMenu>
+  <BaseContextMenu
+    ><div class="mm-menu">
+      <button type="button" @click.prevent="copyMovie(movieId)">Copiar URL</button
+      ><router-link
+        :to="{ name: 'movie', params: { id: movieId } }"
+        target="_blank"
+        rel="noopener noreferrer"
+        >Abrir em nova guia</router-link
+      >
+    </div></BaseContextMenu
+  >
 </template>
-
-<script lang="ts" setup>
-import { copyToClipboard } from 'quasar';
-
+<script setup lang="ts">
 import BaseContextMenu from 'src/core/components/BaseContextMenu.vue';
-
-interface Props {
-  movieId: string;
-  deleteEnable?: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  deleteEnable: false,
-});
-
-async function copyMovie(id?: string) {
-  const url = `${window.location.origin}/movie/${id}`;
-  await copyToClipboard(url);
-  return url ? url : '';
-}
-async function openNewMovieTab(id?: string) {
-  const url: string = await copyMovie(id);
-  const w = window.open(url);
-  if (w) w.focus();
-}
-function deleteMovie() {
-  throw Error('Not Implemented Yet');
+import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
+defineProps<{ movieId: string; deleteEnable?: boolean }>();
+async function copyMovie(id: string) {
+  if (!id) return;
+  try {
+    await navigator.clipboard.writeText(`${window.location.origin}/movie/${id}`);
+    showSuccess('Link copiado');
+  } catch {
+    showError('Não foi possível copiar o link');
+  }
 }
 </script>

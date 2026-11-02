@@ -1,5 +1,70 @@
 # Movie Mux - Movie Rating Portal
 
+## Frontend development (Nuxt)
+
+The frontend uses **Nuxt 4**, **Vue 3**, **TypeScript**, **Pinia** and a custom responsive design system. Domain modules remain in `src/modules`; `src/pages` only adapts existing module views to Nuxt routes. The original MovieMux logo and `#00f6ff` primary color are preserved in both themes.
+
+### Requirements
+
+- Node **26.13.0** (`.node-version` / `.nvmrc`)
+- pnpm **12.16.1** (`packageManager`)
+
+TypeScript **6.0.3** is the newest compatible compiler for the current Vue type checker and typescript-eslint. TypeScript 7.0.2 was tested but is not supported by those tools: vue-tsc cannot resolve its compiler API and typescript-eslint explicitly rejects it. Checks are retained rather than disabled.
+
+### Run
+
+```sh
+npm install --global pnpm@12.16.1
+pnpm install --frozen-lockfile
+cp .env.example .env.local
+pnpm dev --dotenv .env.local
+```
+
+Configure these **public endpoint URLs**, never secrets:
+
+- `NUXT_PUBLIC_API_URL`: gateway base including `/api` (for example `http://localhost:8080/api`). Direct monolith access instead requires its `/api/monolith` context path.
+- `NUXT_PUBLIC_SOCKET_URL`: separate Socket.IO service origin (default local transport `http://localhost:3334`; `/ws` path remains unchanged).
+- `NUXT_PUBLIC_TMDB_IMAGE_BASE`: image base, normally `https://image.tmdb.org/t/p`.
+
+The gateway and Socket.IO service are separate endpoints: the gateway does not forward `/ws`. Prefer a same-origin reverse proxy for browser deployment. The currently inspected gateway CORS configuration omits `PATCH`; cross-origin profile/password/review/watchlist mutations require the gateway owner to allow that method, or same-origin routing. This frontend retains the backend’s existing PATCH contracts.
+
+Legacy build-time `CINE_BACKEND_URL`, `CINE_BACKEND_SOCKET_URL` and `TMDB_IMAGE_BASE` values remain fallbacks. Prefer `NUXT_PUBLIC_*` variables for runtime deployment configuration. Authentication and authorization must still be enforced by the backend; decoded client JWT roles only control frontend navigation.
+
+### Local same-origin backend testing
+
+For a gateway running locally on port 18081, enable the opt-in development proxy:
+
+```sh
+NUXT_PUBLIC_API_URL=/api MOVIEMUX_DEV_API_ORIGIN=http://127.0.0.1:18081 pnpm dev --host 127.0.0.1
+```
+
+Set `NUXT_PUBLIC_API_URL=/api` explicitly (or unset any absolute runtime override); Nuxt runtime environment values otherwise override configuration defaults. The browser calls the frontend’s `/api` on the same origin; Nitro forwards to the local gateway while retaining `/api`, Authorization, request bodies and HTTP methods including PATCH. Only loopback HTTP origins are allowed; do not put secrets in the target. This setting applies only to the development server, not production builds or deployments. The gateway must point to the local monolith (for example port 18080, context `/api/monolith`); Socket.IO remains a separate configured local service.
+
+The proxy can be checked without external services using `node tests/dev-proxy-smoke.ts` (local echo upstream only).
+
+### Verify and build
+
+```sh
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm build
+pnpm test:ssr
+node .output/server/index.mjs
+```
+
+`test:ssr` runs the production build against isolated fictional fixtures and checks redirects, malformed tokens, concurrent session isolation, routes and PWA assets. Component/unit tests use mocks. Neither replaces acceptance against the real backend.
+
+For a local interactive preview without a backend, see [QA fixture instructions](scripts/qa/README.md). Fixture tokens are not real credentials and that server must never be deployed.
+
+### Deployment
+
+The Dockerfile builds a Nitro server and runs as non-root. Supply endpoint variables at runtime; expose port 3000. The runtime entrypoint changed from Quasar's `dist/ssr/index.js` to **`.output/server/index.mjs`**. No backend contracts or database changes are needed.
+
+PWA support preserves the app's original icons and standalone presentation. Only public frontend assets and the explicit offline notice are precached; authenticated API data is not cached. Updates are offered through an in-app prompt.
+
+---
+
 ## Introduction:
 
 This is a personal project aimed at creating a comprehensive movie rating portal. Whether you're a movie buff or simply looking for a way to discover new films.

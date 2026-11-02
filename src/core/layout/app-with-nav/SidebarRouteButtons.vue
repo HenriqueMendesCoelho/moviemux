@@ -1,92 +1,51 @@
-<template>
-  <div v-for="(route, index) in routes" :key="route.text" :class="`${index === 0 && 'q-mt-sm'}`">
-    <router-link
-      v-if="(userStore.isAdmin && route.isAdm) || !route.isAdm"
-      :to="route.to"
-      class="button"
-      :class="`${route.badge && 'relative-position'}`"
-    >
-      <q-badge v-if="route.badge" class="q-mr-sm" :label="route.badge" :color="route.badgeColor || 'kb-primary'" rounded floating />
-      <span class="material-icons">{{ route.icon }}</span>
-      <span class="text" v-if="props.showTextsSideBar">{{ route.text }}</span>
-      <BaseTooltip class="text-uppercase" anchor="top right" :offset="[35, 0]" v-if="!isSideBarExpanded" :delay="500">{{
-        route.text
-      }}</BaseTooltip>
-    </router-link>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useStyleStore } from 'src/core/stores/StyleStore';
-import { useUserStore } from 'src/core/stores/UserStore';
-
-import BaseTooltip from 'src/core/components/BaseTooltip.vue';
-
-type RouteType = {
-  to: {
-    name: string;
-  };
-  icon: string;
-  text: string;
-  isAdm: boolean;
-  badge?: string;
-  badgeColor?: string;
-}[];
-
-const props = defineProps<{
-  showTextsSideBar: boolean;
-}>();
-
-const userStore = useUserStore();
-const styleStore = useStyleStore();
-const isSideBarExpanded = computed(() => styleStore.layoutSettings.isSideBarExpanded);
-const routes: RouteType = [
+import { useUserStore } from '~/core/stores/UserStore';
+defineProps<{ showTextsSideBar?: boolean }>();
+const user = useUserStore();
+const links = [
   {
-    to: { name: 'home' },
-    icon: 'home',
-    text: 'Home',
-    isAdm: false,
+    name: 'home',
+    label: 'Minha coleção',
+    path: 'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',
   },
   {
-    to: { name: 'adm' },
-    icon: 'admin_panel_settings',
-    text: 'Painel ADM',
-    isAdm: true,
+    name: 'movie-discover',
+    label: 'Descobrir',
+    path: 'M21 21l-5-5 M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0',
   },
   {
-    to: { name: 'profile' },
-    icon: 'person',
-    text: 'Perfil',
-    isAdm: false,
+    name: 'movie-watchlist-list',
+    label: 'Listas de filmes',
+    path: 'M8 5h13 M8 12h13 M8 19h13 M3 5h.01 M3 12h.01 M3 19h.01',
   },
+  { name: 'movie-charts', label: 'Estatísticas', path: 'M4 20V10 M10 20V4 M16 20v-7 M22 20V7' },
+  { name: 'add', label: 'Adicionar filme', path: 'M12 5v14 M5 12h14' },
   {
-    to: { name: 'add' },
-    icon: 'add',
-    text: 'Adicionar Filme',
-    isAdm: false,
-  },
-  {
-    to: { name: 'movie-charts' },
-    icon: 'dashboard',
-    text: 'Dashboard',
-    isAdm: false,
-  },
-  {
-    to: { name: 'movie-discover' },
-    icon: 'search',
-    text: 'Descobrir Filmes',
-    isAdm: false,
-  },
-  {
-    to: { name: 'movie-watchlist-list' },
-    icon: 'list',
-    text: 'Lista de Filmes',
-    isAdm: false,
+    name: 'adm',
+    label: 'Administração',
+    path: 'M12 3l9 4v6c0 5-9 9-9 9S3 18 3 13V7z M9 12l2 2 4-4',
+    admin: true,
   },
 ];
 </script>
-
-<style lang="scss" scoped>
-@import './scss/sidebar.scss';
-</style>
+<template>
+  <nav aria-label="Navegação principal">
+    <template v-for="link in links" :key="link.name"
+      ><NuxtLink v-if="!link.admin || user.isAdmin" :to="{ name: link.name }" class="mm-nav-link"
+        ><svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path :d="link.path" /></svg
+        >{{ link.label }}</NuxtLink
+      ></template
+    >
+  </nav>
+</template>

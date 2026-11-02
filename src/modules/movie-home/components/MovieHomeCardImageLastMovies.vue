@@ -1,16 +1,13 @@
 <template>
-  <div class="row justify-center items-center">
-    <router-link :to="{ name: 'movie', params: { id: id } }" class="container-img" style="border-radius: 50px">
-      <BaseCardImage class="card" :src="url" height="90%" :width="getWidth()" :animate="false"></BaseCardImage>
-      <figcaption class="ellipsis" :style="`max-width: ${getWidth()};`">{{ props.title }}</figcaption>
-      <MovieHomeContextMenu :movie-id="id || ''" />
-    </router-link>
-  </div>
+  <article class="mm-recent-card mm-poster-card">
+    <router-link :to="{ name: 'movie', params: { id } }"
+      ><BaseCardImage :src="url" :animate="false" />
+      <h3>{{ title }}</h3></router-link
+    ><MovieHomeContextMenu :movie-id="id || ''" />
+  </article>
 </template>
 
 <script lang="ts" setup>
-import { useQuasar } from 'quasar';
-
 import MovieHomeContextMenu from './MovieHomeContextMenu.vue';
 import BaseCardImage from 'src/core/components/BaseCardImage.vue';
 
@@ -20,28 +17,26 @@ interface Props {
   title: string | undefined;
 }
 
-const props = defineProps<Props>();
-const $q = useQuasar();
-const isMobile = $q.platform.is.mobile;
-
-function getWidth() {
-  if (isMobile) {
-    return '75px';
-  }
-
-  return '200px';
-}
+defineProps<Props>();
 </script>
 
-<style lang="scss" scoped>
-.container-img {
-  text-decoration: none;
-  color: var(--light-grey2);
+<style scoped>
+.mm-recent-card {
+  width: 150px;
+  flex-shrink: 0;
 }
-
-.card {
-  &:hover {
-    transform: scale(1.02);
+.mm-recent-card a {
+  text-decoration: none;
+  color: inherit;
+}
+.mm-recent-card h3 {
+  font-size: 0.9rem;
+  margin-top: 10px;
+  line-height: 1.4;
+}
+@media (max-width: 600px) {
+  .mm-recent-card {
+    width: 120px;
   }
 }
 </style>

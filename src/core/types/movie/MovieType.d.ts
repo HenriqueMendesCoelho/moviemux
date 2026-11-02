@@ -46,9 +46,11 @@ export type MovieResultResponseTmdb = {
 };
 
 export type MovieNoteType = {
-  note: number;
-  createdAt: Date;
-  updatedAt: Date;
+  note?: number | null;
+  created_at?: string;
+  updated_at?: string;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
   user: UserMovieNoteType;
 };
 
@@ -98,7 +100,7 @@ export type MoviePageableType = {
     sorted: boolean;
     unsorted: boolean;
   };
-  number_of_elements: boolean;
+  number_of_elements: number;
   first: boolean;
   empty: boolean;
 };

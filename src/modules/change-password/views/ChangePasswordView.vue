@@ -1,160 +1,106 @@
 <template>
-  <div class="full-height">
-    <div class="row">
-      <div class="col-12">
-        <q-toolbar class="bg-grey-dark2 text-white row">
-          <q-icon name="menu" class="q-mr-sm" size="sm" />
-          <q-btn to="/" round flat>
-            <q-avatar>
-              <img src="../../../assets/logo.webp" />
-            </q-avatar>
-          </q-btn>
-
-          <q-toolbar-title>Movie Mux</q-toolbar-title>
-        </q-toolbar>
+  <main class="mm-reset-page">
+    <router-link to="/" class="mm-brand">MOVIEMUX</router-link>
+    <form class="mm-card mm-form" @submit.prevent="redefinePassword">
+      <header>
+        <p class="mm-eyebrow">RECUPERAR ACESSO</p>
+        <h1>Uma nova senha.</h1>
+      </header>
+      <label class="mm-field"
+        >E-mail<input v-model.trim="email" type="email" autocomplete="email" required
+      /></label>
+      <BasePasswordInput
+        label="Nova senha"
+        v-model="password"
+        required
+        autocomplete="new-password"
+        minlength="8"
+        maxlength="70"
+      />
+      <p class="mm-muted">
+        Use 8 a 70 caracteres, maiúsculas, minúsculas, números e um símbolo (@ # $ ! % * ? &).
+      </p>
+      <BasePasswordInput
+        label="Confirme a nova senha"
+        v-model="confirmation"
+        required
+        autocomplete="new-password"
+      />
+      <p v-if="error" role="alert" class="mm-error">{{ error }}</p>
+      <div class="mm-actions">
+        <button class="mm-btn mm-btn-primary" :disabled="busy">
+          {{ busy ? 'Salvando…' : 'Salvar nova senha' }}</button
+        ><button class="mm-btn" type="button" :disabled="busy" @click="clear">Limpar</button
+        ><router-link to="/" class="mm-link">Voltar ao início</router-link>
       </div>
-    </div>
-    <div class="row justify-center" style="margin-top: 10rem">
-      <div
-        class="col-md-5 col-xs-12 row justify-center q-pa-xl background-container text-white"
-        :class="isMobile ? 'q-col-gutter-xs' : 'q-col-gutter-lg'"
-      >
-        <BasePageTitle class="col-auto" icon="password" title="Trocar Senha" />
-        <div class="col-12">
-          <BaseHorizontalSeparator />
-        </div>
-        <div class="col-12">
-          <q-input
-            ref="inputEmailRef"
-            name="username"
-            label="E-mail"
-            v-model="email"
-            color="kb-primary"
-            bg-color="grey-mid"
-            :type="'email'"
-            :rules="[(val) => !!val]"
-          >
-            <template v-slot:append>
-              <q-icon name="mail" />
-            </template>
-          </q-input>
-        </div>
-        <div class="col-12">
-          <BasePasswordInput
-            ref="inputPasswordRef"
-            label="Nova Senha"
-            v-model="newPassword"
-            valid-password
-            required
-            hint="Mínimo 8 caracteres e máximo 70"
-          />
-        </div>
-        <div class="col-12">
-          <BasePasswordInput
-            ref="inputConfirmPasswordRef"
-            label="Confirme a Nova Senha"
-            v-model="confirmNewPassword"
-            required
-            :custom-rules="
-              () =>
-                newPassword === confirmNewPassword ||
-                'Deve ser igual a senha preenchida anteriormente'
-            "
-          />
-        </div>
-        <div class="col-auto">
-          <q-btn label="Confirmar" icon="check" color="positive" @click="redefinePassword()" />
-        </div>
-        <div class="col-auto">
-          <q-btn label="Cancelar" icon="close" color="red" @click="cancel()" />
-        </div>
-      </div>
-    </div>
-  </div>
+    </form>
+  </main>
 </template>
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useQuasar } from 'quasar';
-import type { QInput } from 'quasar';
-
-import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
-import BasePageTitle from 'src/core/components/BasePageTitle.vue';
 import BasePasswordInput from 'src/core/components/BasePasswordInput.vue';
-
+import { useRoute, useRouter } from 'vue-router';
 import UserService from 'src/core/services/UserService';
-import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
-import { showError } from 'src/core/utils/NotificationUtils';
-
-const $q = useQuasar();
-const isMobile = $q.platform.is.mobile;
-
+import { showSuccess } from 'src/core/utils/NotificationUtils';
 const route = useRoute();
 const router = useRouter();
-
+const key = computed(() => route.params.key?.toString() || '');
 const email = ref('');
-const newPassword = ref('');
-const confirmNewPassword = ref('');
-const inputEmailRef = ref<InstanceType<typeof QInput>>();
-const inputPasswordRef = ref<{
-  hasErrors: () => Promise<boolean>;
-  resetValidation: () => void;
-}>();
-const inputConfirmPasswordRef = ref<{
-  hasErrors: () => Promise<boolean>;
-  resetValidation: () => void;
-}>();
-
-const keyPathParam = computed(() => route.params?.key?.toString());
-
+const password = ref('');
+const confirmation = ref('');
+const busy = ref(false);
+const error = ref('');
 onMounted(async () => {
-  if (!keyPathParam.value || keyPathParam.value?.length !== 200) {
-    await router.push('/login');
-  }
+  if (key.value.length !== 200) await router.replace('/login');
 });
-
+function clear() {
+  email.value = '';
+  password.value = '';
+  confirmation.value = '';
+  error.value = '';
+}
 async function redefinePassword() {
-  if (await hasErrors()) {
-    console.error('has errors');
+  if (busy.value) return;
+  error.value = '';
+  if (
+    !/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{8,70}$/.test(password.value)
+  ) {
+    error.value = 'A senha precisa seguir todos os requisitos indicados.';
     return;
   }
-
+  if (password.value !== confirmation.value) {
+    error.value = 'As senhas precisam ser iguais.';
+    return;
+  }
+  busy.value = true;
   try {
-    showLoading();
-    await UserService.redefinePasswordByKey(keyPathParam.value || '', {
+    await UserService.redefinePasswordByKey(key.value, {
       email: email.value,
-      password: newPassword.value,
+      password: password.value,
     });
+    showSuccess('Senha alterada. Entre com sua nova senha.');
     await router.push('/');
   } catch {
-    showError('Erro ao executar ação, tente novamente mais tarde.');
+    error.value =
+      'Não foi possível redefinir a senha. Confira o link de recuperação ou solicite outro.';
   } finally {
-    hideLoading();
+    busy.value = false;
   }
-  return;
-}
-function cancel() {
-  email.value = '';
-  newPassword.value = '';
-  confirmNewPassword.value = '';
-}
-async function hasErrors() {
-  const emailValid = await inputEmailRef.value?.validate();
-  let errors = !emailValid;
-  if (inputPasswordRef.value) {
-    errors = (await inputPasswordRef.value.hasErrors()) || errors;
-  }
-  if (inputConfirmPasswordRef.value) {
-    errors = (await inputConfirmPasswordRef.value.hasErrors()) || errors;
-  }
-  return errors;
 }
 </script>
-<style lang="scss">
-.background-container {
-  border-radius: 15px;
-  background-color: var(--grey-dark2);
-  color: white;
-  box-shadow: 0 5px 10px var(--shadow);
+<style scoped>
+.mm-reset-page {
+  width: min(100% - 2rem, 640px);
+  margin: 4rem auto;
+}
+.mm-brand {
+  display: block;
+  margin-bottom: 2rem;
+  letter-spacing: 0.2em;
+  font-weight: 900;
+  color: inherit;
+}
+.mm-card {
+  padding: 2rem;
 }
 </style>

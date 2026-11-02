@@ -1,119 +1,54 @@
 <template>
-  <div class="row justify-center full-height">
-    <div class="text-h3 title">Recuperar conta</div>
-    <BaseHorizontalSeparator />
-    <div class="col-10">
-      <q-input
-        ref="inputEmailRef"
-        label="E-mail"
-        v-model="email"
-        color="kb-primary"
-        bg-color="grey-mid"
-        :type="'email'"
-        hint="Insira seu e-mail para seguir com a recuperação"
-        :rules="[(val) => !!val, (val) => regexEmail.test(val) || 'E-mail inválido']"
-      >
-        <template v-slot:append>
-          <q-icon name="mail" />
-        </template>
-      </q-input>
-    </div>
-    <div class="col-10 q-mt-xl q-mb-xs">
-      <button class="btn-underline text-white" @click="changeTab('login')">Volta para login</button>
-    </div>
-    <div class="col-10">
-      <div class="col-12 row justify-center">
-        <q-btn
-          class="btn-login"
-          label="Enviar E-mail"
-          color="kb-primary"
-          text-color="black"
-          style="width: 100%"
-          @click="sendEmail()"
-        />
-      </div>
-    </div>
-    <div class="col-12 row justify-center">
-      <div class="row" v-if="props.createAccount">
-        <p class="text-white">
-          Não tem conta ?
-          <button class="btn-underline" @click="changeTab('create')">Criar Conta</button>
-        </p>
-      </div>
-    </div>
-  </div>
+  <form class="mm-form" @submit.prevent="sendEmail">
+    <header>
+      <p class="mm-eyebrow">RECUPERAR ACESSO</p>
+      <h2>Vamos te trazer de volta.</h2>
+      <p class="mm-muted">Informe seu e-mail para receber as instruções de recuperação.</p>
+    </header>
+    <label class="mm-field"
+      >E-mail<input v-model.trim="email" type="email" autocomplete="email" required
+    /></label>
+    <p v-if="error" role="alert" class="mm-error">{{ error }}</p>
+    <button class="mm-btn mm-btn-primary" :disabled="busy">
+      {{ busy ? 'Enviando…' : 'Enviar instruções' }}
+    </button>
+    <button type="button" class="mm-link" :disabled="busy" @click="emit('changeTab', 'login')">
+      Voltar para entrar
+    </button>
+    <button
+      v-if="createAccount"
+      type="button"
+      class="mm-link"
+      :disabled="busy"
+      @click="emit('changeTab', 'create')"
+    >
+      Criar uma conta
+    </button>
+  </form>
 </template>
-<script lang="ts" setup>
+<script setup lang="ts">
 import { ref } from 'vue';
-
-import type { QInput } from 'quasar';
-
-import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
-
 import UserService from 'src/core/services/UserService';
-import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
-
-interface Props {
-  createAccount: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  createAccount: true,
-});
-
-const emit = defineEmits<{
-  (e: 'changeTab', value: string): void;
-  (e: 'loading', value: boolean): void;
-}>();
-
-const inputEmailRef = ref<InstanceType<typeof QInput>>();
+import { showSuccess } from 'src/core/utils/NotificationUtils';
+withDefaults(defineProps<{ createAccount?: boolean }>(), { createAccount: true });
+const emit = defineEmits<{ changeTab: [value: string]; loading: [value: boolean] }>();
 const email = ref('');
-const regexEmail = ref(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
-
-function changeTab(tab: string) {
-  emit('changeTab', tab);
-}
-async function hasErrors() {
-  let hasErrors = false;
-  if (inputEmailRef.value) {
-    await inputEmailRef.value.validate();
-    hasErrors = inputEmailRef.value.hasError;
-  }
-  return hasErrors;
-}
+const busy = ref(false);
+const error = ref('');
 async function sendEmail() {
-  if (await hasErrors()) {
-    return;
-  }
-
+  if (busy.value) return;
+  busy.value = true;
+  error.value = '';
+  emit('loading', true);
   try {
-    emit('loading', true);
     await UserService.createRedefinePassowordKey(email.value);
-    showSuccess('E-mail enviado.');
+    showSuccess('Instruções de recuperação enviadas.');
     emit('changeTab', 'login');
   } catch {
-    showError('Erro ao executar ação, tente novamente mais tarde.');
+    error.value = 'Não foi possível enviar as instruções. Tente novamente.';
   } finally {
+    busy.value = false;
     emit('loading', false);
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.title {
-  color: var(--primary);
-}
-.btn-underline {
-  color: var(--primary);
-  text-decoration: underline;
-}
-
-.btn-login {
-  font-weight: 600;
-  &:hover {
-    background-color: var(--light-blue);
-    box-shadow: 0 10px 30px -20px var(--light-blue);
-    transition: 0.2s ease-out;
-  }
-}
-</style>

@@ -5,10 +5,10 @@ import type {
   MovieSummaryTypeKit,
   MovieWatchProvider,
 } from 'src/core/types/movie/MovieType';
-import axios from 'axios';
+import axios from 'src/core/http';
 import StringUtils from 'src/core/utils/StringUtils';
 
-const BASE_URL = import.meta.env.VUE_APP_KB_CINE_API;
+const BASE_URL = '';
 const API_KIT = `${BASE_URL}/movie/tmdb`;
 const API_KIT_PUBLIC = `${BASE_URL}/public/movie/tmdb`;
 
@@ -87,7 +87,7 @@ export default {
   },
 };
 
-// eslint-disable-next-line
+
 function getStringParams(params: any) {
   return new URLSearchParams(params).toString();
 }

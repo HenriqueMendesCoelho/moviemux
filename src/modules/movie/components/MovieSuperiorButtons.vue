@@ -1,122 +1,200 @@
 <template>
-  <div class="row" :class="isDesktop ? 'q-col-gutter-md' : 'q-col-gutter-sm'">
-    <div class="col-auto">
-      <q-btn color="grey-mid2" text-color="white" round icon="refresh" @click="loadMovie()" />
-    </div>
-    <div class="col-auto" v-if="props.showEditBtn">
-      <q-btn color="primary" text-color="white" label="Editar" icon="edit" @click="goToEditPage" />
-    </div>
-    <div class="col-auto" v-if="userStore.isAdmin && showDeleteBtn">
-      <q-btn color="red" text-color="white" label="Deletar" icon="delete" @click="deleteMovie" />
-    </div>
-
-    <div class="col-auto">
-      <div class="row justify-end">
-        <div class="col-auto">
-          <q-btn
-            v-if="props.showImportBtn"
-            @click="moviePage.showImportMovieDialog = !moviePage.showImportMovieDialog"
-            color="primary"
-            text-color="white"
-            label="Importar do TMDB"
-            :disable="movieStore.selectedMovieHasAnyFieldFilled()"
-            icon="download"
-          />
-        </div>
-      </div>
-    </div>
-  </div>
+  <nav class="mm-movie-actions" aria-label="Ações do filme">
+    <router-link class="mm-button" to="/home">← Coleção</router-link>
+    <button
+      v-if="showRefreshBtn"
+      type="button"
+      class="mm-button"
+      :disabled="disabled || refreshing || deleting"
+      @click="requestRefresh"
+    >
+      Atualizar
+    </button>
+    <button
+      v-if="showEditBtn && canEdit"
+      type="button"
+      class="mm-button"
+      :disabled="disabled || deleting"
+      @click="goToEditPage"
+    >
+      Editar filme
+    </button>
+    <button
+      v-if="userStore.isAdmin && showDeleteBtn"
+      type="button"
+      class="mm-button mm-danger"
+      :disabled="disabled || deleting"
+      @click="confirmDelete"
+    >
+      Excluir filme
+    </button>
+    <button
+      v-if="showImportBtn"
+      type="button"
+      class="mm-button mm-button-primary"
+      :disabled="disabled"
+      @click="emit('import')"
+    >
+      Importar do TMDB
+    </button>
+  </nav>
+  <BaseConfirmDialog ref="deleteDialog" @ok="deleteMovie" /><BaseConfirmDialog
+    ref="refreshDialog"
+    @ok="refreshConfirmed"
+  />
 </template>
-
 <script setup lang="ts">
-import { computed, toRaw, watch } from 'vue';
+import { computed, watch, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useQuasar } from 'quasar';
-
-import { useMovieStore } from '../stores/MovieStore';
+import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import { useUserStore } from 'src/core/stores/UserStore';
-
+import { useMovieContext } from '../composables/useMovieContext';
+import { useMovieRequests } from '../composables/useMovieRequests';
 import { stateSocketMovie } from 'src/boot/socket';
-
 import MovieService from '../services/MovieService';
 import { showError, showSuccess, showWarning } from 'src/core/utils/NotificationUtils';
-
-const props = withDefaults(
-  defineProps<{
-    showImportBtn?: boolean;
-    showEditBtn?: boolean;
-    showRefreshBtn?: boolean;
-    showDeleteBtn?: boolean;
-  }>(),
-  {
-    showImportBtn: false,
-    showEditBtn: false,
-    showRefreshBtn: false,
-    showDeleteBtn: false,
-  },
+const props = defineProps<{
+  showImportBtn?: boolean;
+  showEditBtn?: boolean;
+  showRefreshBtn?: boolean;
+  showDeleteBtn?: boolean;
+  confirmRefresh?: boolean;
+  disabled?: boolean;
+}>();
+const emit = defineEmits<{ import: []; refresh: [] }>();
+const movie = useMovieContext(),
+  userStore = useUserStore(),
+  route = useRoute(),
+  router = useRouter(),
+  requests = useMovieRequests();
+const canEdit = computed(
+  () => userStore.user.isLoged && (userStore.isAdmin || movie.value.user_id === userStore.user.id),
 );
-
-const $q = useQuasar();
-const isDesktop = $q.platform.is.desktop;
-const movieStore = useMovieStore();
-const userStore = useUserStore();
-const route = useRoute();
-const router = useRouter();
-
-const moviePage = computed(() => movieStore.moviePage);
-const user = computed(() => userStore.user);
-const routeIDPath = computed(() => route.params.id);
-
+const deleteDialog = ref<InstanceType<typeof BaseConfirmDialog>>(),
+  refreshDialog = ref<InstanceType<typeof BaseConfirmDialog>>();
+const deleting = ref(false),
+  refreshing = ref(false);
+let deletionTarget = '',
+  deletionCurrent = () => false,
+  refreshCurrent = () => false;
+watch(
+  requests.context,
+  () => {
+    deletionTarget = '';
+    deleting.value = false;
+    refreshing.value = false;
+  },
+  { flush: 'sync' },
+);
 watch(
   () => stateSocketMovie.updateMovie,
-  async (val) => {
-    const lastEvent = toRaw(val)[val.length - 1];
-    const movieSelected = moviePage.value.selectedMovie;
-    if (lastEvent?.movie !== movieSelected.id) {
+  (events) => {
+    const last = events.at(-1);
+    if (!userStore.user.isLoged || last?.movie !== movie.value.id) return;
+    if (props.confirmRefresh) {
+      showWarning(
+        'Este filme foi atualizado. Use Atualizar para carregar os novos dados e descartar sua edição.',
+      );
       return;
     }
-    await loadMovie(false);
+    void loadMovie(false);
   },
   { deep: true },
 );
-
 watch(
   () => stateSocketMovie.deletedMovie,
-  async (val) => {
-    const lastEvent = toRaw(val)[val.length - 1];
-    if (user.value.id === lastEvent?.emmitedByUserId) {
+  (events) => {
+    const last = events.at(-1);
+    if (
+      !last ||
+      !userStore.user.isLoged ||
+      last.movie !== movie.value.id ||
+      last.emmitedByUserId === userStore.user.id
+    )
       return;
-    }
-
-    await router.push('/home');
-    showWarning('Oops! Parece que o filme que você estava vendo foi deletado.', 10000);
+    void router.push('/home');
+    showWarning('O filme que você estava vendo foi excluído.', 10000);
   },
   { deep: true },
 );
-async function loadMovie(showDialog = true) {
-  if (routeIDPath.value) {
-    try {
-      const res = await MovieService.getMovie(routeIDPath.value.toString());
-      moviePage.value.selectedMovie = res;
-      if (showDialog) showSuccess('Pagina atualizada com sucesso');
-    } catch {
-      showError('Erro ao buscar filme');
-    }
+function requestRefresh() {
+  if (props.disabled || refreshing.value) return;
+  refreshCurrent = requests.begin('refresh-confirm');
+  if (props.confirmRefresh)
+    refreshDialog.value?.show({
+      title: 'Recarregar filme',
+      message: 'Descartar as alterações não salvas e carregar os dados atuais?',
+      focus: 'cancel',
+      ok: 'Recarregar',
+    });
+  else void loadMovie();
+}
+function refreshConfirmed() {
+  if (refreshCurrent() && !props.disabled && canEdit.value) emit('refresh');
+}
+async function loadMovie(notify = true) {
+  const target = movie.value.id;
+  if (!target || target !== route.params.id || !userStore.user.isLoged) return;
+  const current = requests.begin('refresh');
+  refreshing.value = true;
+  try {
+    const result = await MovieService.getMovie(target);
+    if (!current()) return;
+    movie.value = result;
+    if (notify) showSuccess('Filme atualizado.');
+  } catch {
+    if (current()) showError('Não foi possível atualizar o filme.');
+  } finally {
+    if (current()) refreshing.value = false;
   }
 }
+function confirmDelete() {
+  if (props.disabled || !userStore.isAdmin || !userStore.user.isLoged || !movie.value.id) return;
+  deletionTarget = movie.value.id;
+  deletionCurrent = requests.begin('delete-confirm');
+  deleteDialog.value?.show({
+    title: 'Excluir filme',
+    message: `Excluir “${movie.value.portuguese_title || movie.value.original_title}” e suas avaliações?`,
+    focus: 'cancel',
+    ok: 'Excluir',
+  });
+}
 async function deleteMovie() {
-  if (!moviePage.value.selectedMovie.id) {
+  if (
+    deleting.value ||
+    props.disabled ||
+    !deletionCurrent() ||
+    !userStore.isAdmin ||
+    !userStore.user.isLoged ||
+    deletionTarget !== movie.value.id
+  )
     return;
-  }
+  const target = deletionTarget,
+    current = requests.begin('delete');
+  deleting.value = true;
   try {
-    await MovieService.deleteMovie(moviePage.value.selectedMovie.id);
-    showSuccess('Filme deletado');
+    await MovieService.deleteMovie(target);
+    if (!current()) return;
+    showSuccess('Filme excluído.');
     await router.push('/home');
   } catch {
-    showError('Erro ao deletar filme');
+    if (current()) showError('Não foi possível excluir o filme.');
+  } finally {
+    if (current()) deleting.value = false;
   }
 }
 async function goToEditPage() {
-  await router.push({ name: 'movie-edit', params: { id: moviePage.value.selectedMovie.id } });
+  if (canEdit.value) await router.push({ name: 'movie-edit', params: { id: movie.value.id } });
 }
 </script>
+<style scoped>
+.mm-movie-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+.mm-danger {
+  color: var(--mm-danger, #b91c45);
+}
+</style>

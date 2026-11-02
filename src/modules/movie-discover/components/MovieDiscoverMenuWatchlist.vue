@@ -1,56 +1,54 @@
 <template>
-  <q-menu anchor="top end" self="top start" class="bg-grey-dark2">
-    <q-list>
-      <q-item
-        v-for="list in watchlists"
-        :key="list.name"
-        clickable
-        :disable="disableList(list)"
-        @click="emit('addMovie', list.id)"
-      >
-        <q-item-section v-close-popup class="q-pl-sm">{{ list.name }}</q-item-section>
-        <BaseTooltip
-          v-if="disableList(list) && list.movies_wishlists?.length >= MAX_WISHLIST_MOVIES"
-          :delay="500"
-          >Essa lista está cheia</BaseTooltip
-        >
-        <BaseTooltip v-else-if="disableList(list)" :delay="500"
-          >Filme já adicionado nessa lista</BaseTooltip
-        >
-      </q-item>
-    </q-list>
-  </q-menu>
+  <div class="mm-watchlist-menu">
+    <p v-if="!watchlists?.length">Crie uma lista para salvar este filme.</p>
+    <button
+      v-for="list in watchlists"
+      :key="list.id"
+      type="button"
+      class="mm-button"
+      :disabled="disableList(list)"
+      :title="
+        list.movies_wishlists?.length >= 100
+          ? 'Esta lista está cheia'
+          : disableList(list)
+            ? 'Filme já adicionado'
+            : ''
+      "
+      @click="emit('addMovie', list.id)"
+    >
+      {{ list.name }} <span v-if="disableList(list)">✓</span>
+    </button>
+  </div>
 </template>
-
 <script setup lang="ts">
+import { useUserStore } from 'src/core/stores/UserStore';
 import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 import type { MovieResultResponseTmdb } from 'src/core/types/movie/MovieType';
-
-import BaseTooltip from 'src/core/components/BaseTooltip.vue';
-
-const MAX_WISHLIST_MOVIES = 100;
-
-type ArrayElement<ArrayType extends readonly unknown[]> =
-  ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 const props = defineProps<{
-  movie: ArrayElement<MovieResultResponseTmdb['results']> | number;
+  movie: MovieResultResponseTmdb['results'][number] | number;
   watchlists: WatchlistType[];
+  disabled?: boolean;
 }>();
-const emit = defineEmits<{
-  (e: 'addMovie', value: string): void;
-}>();
-
+const user = useUserStore();
+const emit = defineEmits<{ addMovie: [id: string] }>();
 function disableList(list: WatchlistType) {
+  const id = typeof props.movie === 'number' ? props.movie : props.movie.id;
   return (
-    list.movies_wishlists?.some((m) => m.tmdb_id === getMovieId()) ||
-    list.movies_wishlists?.length >= MAX_WISHLIST_MOVIES
+    props.disabled ||
+    !user.user.isLoged ||
+    list.user.id !== user.user.id ||
+    list.movies_wishlists?.some((movie) => movie.tmdb_id === id) ||
+    list.movies_wishlists?.length >= 100
   );
 }
-function getMovieId() {
-  if (typeof props.movie === 'object') {
-    return props.movie.id;
-  }
-
-  return props.movie;
-}
 </script>
+<style scoped>
+.mm-watchlist-menu {
+  display: flex;
+  gap: 0.5rem;
+  flex-direction: column;
+}
+.mm-watchlist-menu button {
+  text-align: left;
+}
+</style>

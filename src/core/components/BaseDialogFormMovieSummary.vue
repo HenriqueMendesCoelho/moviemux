@@ -1,116 +1,66 @@
 <template>
-  <q-dialog @beforeShow="loadMovie" @hide="onHide()" v-model="visible" :maximized="maximizedToggle">
-    <q-card class="bg-grey-dark2 dialog-container" :style="conditionalCardStyle()">
-      <q-bar class="bg-grey-dark2 q-mt-xs">
-        <q-space />
-        <slot name="prepend:bar" />
-        <q-btn round dense flat icon="link" color="white" size="md" @click="copyMovie()">
-          <BaseTooltip :delay="400">Copiar URL</BaseTooltip>
-        </q-btn>
-        <q-btn
-          round
-          dense
-          flat
-          icon="minimize"
-          color="white"
-          size="md"
-          @click="maximizedToggle = false"
-          :disable="!maximizedToggle"
-        >
-          <BaseTooltip :delay="400" v-if="maximizedToggle">Minimizar</BaseTooltip>
-        </q-btn>
-        <q-btn
-          round
-          dense
-          flat
-          icon="crop_square"
-          color="white"
-          size="md"
-          @click="maximizedToggle = true"
-          :disable="maximizedToggle"
-        >
-          <BaseTooltip :delay="400" v-if="!maximizedToggle">Maximizar</BaseTooltip>
-        </q-btn>
-        <q-btn round dense flat icon="close" color="white" size="md" v-close-popup>
-          <BaseTooltip :delay="400">Fechar</BaseTooltip>
-        </q-btn>
-      </q-bar>
-
-      <q-card-section>
-        <BaseFormMovieSummary
-          @error="visible = false"
-          ref="formMovieSummaryRef"
-          :movieId="movieId || 0"
-        />
-      </q-card-section>
-      <q-card-section class="row"></q-card-section>
-    </q-card>
-  </q-dialog>
+  <BaseModal
+    v-model="visible"
+    title="Detalhes do filme"
+    wide
+    :class="{ 'mm-summary-maximized': maximized }"
+    @hide="onHide"
+    ><template #header
+      ><slot name="prepend:bar" /><button
+        type="button"
+        class="mm-button mm-button-ghost"
+        @click="copyMovie"
+      >
+        Copiar URL</button
+      ><button
+        type="button"
+        class="mm-button mm-button-ghost"
+        :aria-pressed="maximized"
+        @click="maximized = !maximized"
+      >
+        {{ maximized ? 'Restaurar' : 'Maximizar' }}
+      </button></template
+    ><BaseFormMovieSummary
+      v-if="visible && movieId"
+      :key="movieId"
+      ref="summary"
+      :movie-id="movieId"
+  /></BaseModal>
 </template>
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { copyToClipboard } from 'quasar';
-
-import BaseFormMovieSummary from 'src/core/components/BaseFormMovieSummary.vue';
-import BaseTooltip from 'src/core/components/BaseTooltip.vue';
-
-import { showSuccess } from 'src/core/utils/NotificationUtils';
-
+import { computed, ref } from 'vue';
+import BaseModal from './BaseModal.vue';
+import BaseFormMovieSummary from './BaseFormMovieSummary.vue';
+import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 const props = defineProps<{ modelValue: boolean; movieId?: number }>();
-
-const visible = ref(false);
-const formMovieSummaryRef = ref<{ getMovie: () => Promise<void> }>();
-const maximizedToggle = ref(false);
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: boolean): void;
-  (e: 'hide', value: void): void;
-}>();
-
-watch(
-  () => props.modelValue,
-  (val: boolean) => {
-    visible.value = val;
-  },
-);
-watch(
-  () => visible.value,
-  (val: boolean) => {
-    emit('update:modelValue', val);
-  },
-);
-
-async function loadMovie() {
-  await formMovieSummaryRef.value?.getMovie();
-}
+const emit = defineEmits<{ 'update:modelValue': [value: boolean]; hide: [] }>();
+const visible = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value),
+});
+const maximized = ref(false),
+  summary = ref<{ getMovie: () => Promise<void> }>();
 function onHide() {
-  maximizedToggle.value = false;
+  maximized.value = false;
   emit('hide');
 }
-function conditionalCardStyle() {
-  return !maximizedToggle.value
-    ? 'border-radius: 15px; border: var(--grey-mid) solid 5px;'
-    : 'border-radius: 0px; border: none;';
-}
 async function copyMovie() {
-  if (!props?.movieId) {
-    return;
+  if (!props.movieId) return;
+  try {
+    await navigator.clipboard.writeText(
+      `${window.location.origin}/movie/discover?movie=${props.movieId}`,
+    );
+    showSuccess('URL copiada');
+  } catch {
+    showError('Não foi possível copiar a URL.');
   }
-
-  const url = `${window.location.origin}/movie/discover?movie=${props?.movieId}`;
-  await copyToClipboard(url);
-  showSuccess('URL copiada');
-  return url ? url : '';
 }
+defineExpose({ loadMovie: () => summary.value?.getMovie() });
 </script>
-<style lang="scss" scoped>
-.dialog-container {
-  background-color: var(--grey-dark2);
-
-  min-width: 80vw;
-
-  @media only screen and (max-width: $breakpoint-md-min) {
-    min-width: 100svw;
-  }
+<style scoped>
+.mm-summary-maximized {
+  width: calc(100vw - 16px) !important;
+  max-height: calc(100dvh - 16px) !important;
+  height: calc(100dvh - 16px);
 }
 </style>

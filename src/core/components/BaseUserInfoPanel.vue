@@ -1,176 +1,111 @@
 <template>
-  <div class="row justify-center">
-    <div class="row col-md-8 col-xs-12">
-      <div class="col-md-11 col-xs-9">
-        <BaseTextInput :label="'Nome'" v-model="user.name" :readonly="allReadOnly" />
-      </div>
-      <div class="col">
-        <q-toggle
-          v-model="user.preferences.notify"
-          size="xl"
-          color="kb-primary"
-          checked-icon="notifications"
-          unchecked-icon="notifications_off"
-          :disable="allReadOnly"
-        />
-        <BaseTooltip anchor="bottom middle" :delay="500" style="font-size: 10pt">Notificações por e-mail</BaseTooltip>
-      </div>
+  <div class="mm-user-info">
+    <div class="mm-form-grid">
+      <BaseTextInput
+        label="Nome"
+        :model-value="modelValue.name"
+        :readonly="allReadOnly"
+        @update:model-value="update('name', $event)"
+      /><BaseTextInput
+        label="E-mail"
+        type="email"
+        :model-value="modelValue.email"
+        :readonly="allReadOnly"
+        @update:model-value="update('email', $event)"
+      /><label class="mm-checkbox"
+        ><input
+          type="checkbox"
+          :checked="modelValue.preferences?.notify"
+          :disabled="allReadOnly"
+          @change="notifications"
+        />Notificações por e-mail</label
+      >
     </div>
-    <div class="col-md-8 col-xs-12 q-mt-md">
-      <div class="row q-col-gutter-md">
-        <BaseTextInput class="col" :label="'Email'" v-model="user.email" :readonly="allReadOnly" />
-        <q-input
-          :model-value="user.statistics?.consecutive_failed_login_attempts"
-          v-if="showAdmInfo"
-          class="col-md-6 col-xs-12"
-          square
-          filled
-          standout="text-info"
-          color="info"
-          label="Quantidade de tentativas de login"
-          :readonly="true"
-          type="number"
-        />
+    <dl class="mm-user-stats">
+      <div>
+        <dt>Perfil de acesso</dt>
+        <dd>{{ modelValue.roles?.join(', ') }}</dd>
       </div>
-    </div>
-    <div class="col-md-8 col-xs-12 q-mt-md">
-      <div class="row q-col-gutter-md">
-        <div class="col-md col-xs-12">
-          <q-input
-            :model-value="user.roles?.join(', ')"
-            square
-            filled
-            standout="text-info"
-            color="info"
-            label="Perfil de Acesso"
-            :readonly="true"
-          />
-        </div>
-        <div class="col-md col-xs-12">
-          <q-input
-            :model-value="DateUtils.toLocaleString(user.created_at)"
-            square
-            filled
-            standout="text-info"
-            color="info"
-            label="Data criação da conta"
-            :readonly="true"
-          />
-        </div>
-        <div class="col-md col-xs-12" v-if="showAdmInfo">
-          <q-input
-            :model-value="DateUtils.toLocaleString(user.statistics.last_login_at)"
-            square
-            filled
-            standout="text-info"
-            color="info"
-            label="Data Último Login"
-            :readonly="true"
-          />
-        </div>
+      <div>
+        <dt>Conta criada em</dt>
+        <dd>{{ DateUtils.toLocaleString(modelValue.created_at) }}</dd>
       </div>
-    </div>
-    <div class="col-md-8 col-xs-12 q-mt-md">
-      <div class="row q-col-gutter-md">
-        <div class="col-md col-xs-6">
-          <q-input
-            :model-value="user.statistics.registered_movies"
-            square
-            filled
-            standout="text-info"
-            color="info"
-            label="Filmes cadastrados"
-            :readonly="true"
-          />
-        </div>
-        <div class="col-md col-xs-6">
-          <q-input
-            :model-value="user.statistics?.ratings_given"
-            square
-            filled
-            standout="text-info"
-            color="info"
-            label="Notas cadastrados"
-            :readonly="true"
-          />
-        </div>
-        <div class="col-md col-xs-6">
-          <q-input
-            :model-value="displayTimeToText()"
-            square
-            filled
-            standout="text-info"
-            color="info"
-            label="Tempo de Exibição"
-            :readonly="true"
-          />
-        </div>
-        <div class="col-md col-xs-6">
-          <q-input
-            :model-value="user.statistics.average_rating_movies?.toFixed(2)"
-            square
-            filled
-            standout="text-info"
-            color="info"
-            label="Nota Média"
-            :readonly="true"
-          />
-        </div>
+      <div v-if="showAdmInfo">
+        <dt>Último login</dt>
+        <dd>{{ DateUtils.toLocaleString(modelValue.statistics?.last_login_at) }}</dd>
       </div>
-    </div>
+      <div v-if="showAdmInfo">
+        <dt>Tentativas de login com falha</dt>
+        <dd>{{ modelValue.statistics?.consecutive_failed_login_attempts }}</dd>
+      </div>
+      <div>
+        <dt>Filmes cadastrados</dt>
+        <dd>{{ modelValue.statistics?.registered_movies }}</dd>
+      </div>
+      <div>
+        <dt>Avaliações</dt>
+        <dd>{{ modelValue.statistics?.ratings_given }}</dd>
+      </div>
+      <div>
+        <dt>Tempo de exibição</dt>
+        <dd>{{ StringUtils.runtimeToText(modelValue.statistics?.display_time) }}</dd>
+      </div>
+      <div>
+        <dt>Nota média</dt>
+        <dd>{{ modelValue.statistics?.average_rating_movies?.toFixed(2) }}</dd>
+      </div>
+    </dl>
   </div>
 </template>
-
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
-
-import User from 'src/core/domain/user/User';
-
-import BaseTextInput from 'src/core/components/BaseTextInput.vue';
-import BaseTooltip from 'src/core/components/BaseTooltip.vue';
-
-import StringUtils from 'src/core/utils/StringUtils';
+import type User from 'src/core/domain/user/User';
+import BaseTextInput from './BaseTextInput.vue';
 import DateUtils from 'src/core/utils/DateUtils';
-
-interface Props {
-  modelValue: User;
-  allReadOnly?: boolean;
-  showAdmInfo?: boolean;
+import StringUtils from 'src/core/utils/StringUtils';
+const props = withDefaults(
+  defineProps<{ modelValue: User; allReadOnly?: boolean; showAdmInfo?: boolean }>(),
+  { allReadOnly: false, showAdmInfo: false },
+);
+const emit = defineEmits<{ 'update:modelValue': [value: User] }>();
+function update(field: 'name' | 'email', value: string) {
+  emit('update:modelValue', { ...props.modelValue, [field]: value });
 }
-
-const props = withDefaults(defineProps<Props>(), {
-  allReadOnly: false,
-  showAdmInfo: false,
-});
-
-const user = ref(new User());
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: User): void;
-}>();
-
-onMounted(() => {
-  if (props.modelValue) {
-    user.value = props.modelValue;
-  }
-});
-
-watch(
-  () => props.modelValue,
-  (val) => {
-    user.value = val;
-  }
-);
-
-watch(
-  () => user.value,
-  (val) => {
-    emit('update:modelValue', val);
-  }
-);
-
-function displayTimeToText() {
-  return StringUtils.runtimeToText(user.value?.statistics?.display_time);
+function notifications(event: Event) {
+  emit('update:modelValue', {
+    ...props.modelValue,
+    preferences: {
+      ...props.modelValue.preferences,
+      notify: (event.target as HTMLInputElement).checked,
+    },
+  });
 }
 </script>
-src/core/utils/StringUtils
+<style scoped>
+.mm-form-grid,
+.mm-user-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+.mm-user-stats {
+  margin-top: 28px;
+}
+.mm-user-stats > div {
+  padding: 18px;
+  border-radius: 14px;
+  background: var(--grey-mid);
+}
+.mm-user-stats dt {
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+.mm-user-stats dd {
+  font-size: 1.15rem;
+  margin: 8px 0 0;
+}
+.mm-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+</style>

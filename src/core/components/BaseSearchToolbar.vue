@@ -1,146 +1,124 @@
 <template>
-  <q-toolbar class="bg-grey-mid text-white row toolbar">
-    <q-icon name="menu" size="sm" v-if="isSlotPrependEmpty()" />
-    <slot name="prepend"></slot>
-    <q-separator class="q-mx-md" vertical inset />
-    <q-input
-      ref="inputSearchRef"
-      class="col q-mr-sm"
-      label="Digite"
-      v-model="searchText"
-      color="kb-primary"
-      maxlength="150"
-      @keydown.enter="onSearchAndRemoveFocus"
-      @keydown.up.prevent="emit('keydown-up:inputSearch')"
-      @keydown.down.prevent="emit('keydown-down:inputSearch')"
-      @keydown.esc.prevent="emit('keydown-esc:inputSearch')"
-      @update:model-value="emit('inputSearchFocus', true)"
-      @blur="emit('inputSearchFocus', false)"
-      @clear="onSearchAndRemoveFocus"
-      clearable
-      borderless
+  <div class="mm-search-toolbar">
+    <slot name="prepend" />
+    <div class="mm-search-field">
+      <label class="mm-sr-only" :for="searchId">Buscar filmes</label
+      ><input
+        :id="searchId"
+        ref="input"
+        type="search"
+        maxlength="150"
+        placeholder="Buscar filmes…"
+        :value="inputSearch"
+        @input="changed"
+        @focus="emit('inputSearchFocus', true)"
+        @blur="emit('inputSearchFocus', false)"
+        @keydown.enter.prevent="search"
+        @keydown.up.prevent="emit('keydown-up:inputSearch')"
+        @keydown.down.prevent="emit('keydown-down:inputSearch')"
+        @keydown.esc.prevent="emit('keydown-esc:inputSearch')"
+      /><slot name="input-search" />
+    </div>
+    <button type="button" class="mm-button mm-button-primary" @click="emit('search')">Buscar</button
+    ><label v-if="showSelect" class="mm-field"
+      ><span class="mm-sr-only">{{ selectOrderLabel }}</span
+      ><select :value="currentOrder" @change="orderChanged">
+        <option value="">{{ selectOrderLabel }}</option>
+        <option v-for="(option, index) in orderOptions" :key="index" :value="value(option)">
+          {{ label(option) }}
+        </option>
+      </select></label
+    ><slot name="append" /><button
+      type="button"
+      class="mm-button mm-button-ghost"
+      aria-label="Atualizar resultados"
+      @click="emit('refresh')"
     >
-      <slot name="input-search"></slot>
-    </q-input>
-    <q-btn icon="search" flat round @click="emit('search')" />
-    <q-separator class="q-mx-md" vertical inset v-if="showSelect || !isSlotAppendEmpty()" />
-    <q-select
-      v-if="showSelect"
-      :class="isSlotAppendEmpty() ? 'col-3' : 'col-2'"
-      borderless
-      :options="orderOptions"
-      v-model="orderOption"
-      :label="props.selectOrderLabel"
-      standout="text-kb-primary"
-      color="kb-primary"
-      popup-content-class="bg-grey-dark2"
-      clearable
-      option-label="label"
-      option-value="value"
-      options-dense
-      emit-value
-      map-options
-    >
-      <template v-slot:option="{ itemProps, opt }">
-        <q-item v-bind="itemProps">
-          <q-item-section>
-            <q-item-label>{{ opt.label }}</q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <q-badge v-if="opt?.badgeLabel" :label="opt?.badgeLabel" :color="opt?.badgeColor || 'kb-primary'" rounded />
-          </q-item-section>
-        </q-item>
-      </template>
-    </q-select>
-    <slot name="append"></slot>
-    <q-separator class="q-mx-md" vertical inset />
-    <q-btn @click="emit('refresh')" icon="refresh" flat round />
-  </q-toolbar>
+      ↻
+    </button>
+  </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref, useSlots, watch, nextTick } from 'vue';
-import { QInput } from 'quasar';
-
-interface Props {
-  orderOptions?: Array<string | object>;
-  inputSearch: string;
-  selectOrder?: string | undefined | { label: string; value: string };
-  selectOrderLabel?: string;
-  showSelect?: boolean;
-  separetedInputEvent?: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  selectOrderLabel: 'Ordenar',
-  showSelect: true,
-  separetedInputEvent: false,
-});
-
+import { computed, ref, useId, nextTick } from 'vue';
+const props = withDefaults(
+  defineProps<{
+    orderOptions?: Array<string | object>;
+    inputSearch: string;
+    selectOrder?: string | { label: string; value: string };
+    selectOrderLabel?: string;
+    showSelect?: boolean;
+    separetedInputEvent?: boolean;
+  }>(),
+  { selectOrderLabel: 'Ordenar', showSelect: true, separetedInputEvent: false },
+);
 const emit = defineEmits<{
-  (e: 'update:inputSearch', value: string): void;
-  (e: 'inputSearchFocus', value: boolean): void;
-  (e: 'update:selectOrder', value: string | undefined | { label: string; value: string }): void;
-  (e: 'search', value: void): void;
-  (e: 'refresh', value: void): void;
-  (e: 'keydown-enter:inputSearch', value: void): void;
-  (e: 'keydown-up:inputSearch', value: void): void;
-  (e: 'keydown-down:inputSearch', value: void): void;
-  (e: 'keydown-esc:inputSearch', value: void): void;
+  'update:inputSearch': [value: string];
+  inputSearchFocus: [value: boolean];
+  'update:selectOrder': [value: string | undefined | { label: string; value: string }];
+  search: [];
+  refresh: [];
+  'keydown-enter:inputSearch': [];
+  'keydown-up:inputSearch': [];
+  'keydown-down:inputSearch': [];
+  'keydown-esc:inputSearch': [];
 }>();
-const slots = useSlots();
-
-const inputSearchRef = ref<InstanceType<typeof QInput>>();
-const searchText = ref('');
-const orderOption = ref<string | undefined | { label: string; value: string }>('');
-
-onMounted(() => {
-  orderOption.value = props.selectOrder;
-});
-
-watch(searchText, (val: string) => {
-  emit('update:inputSearch', val);
-});
-watch(
-  () => props.inputSearch,
-  (val: string) => {
-    searchText.value = val;
-  }
+const input = ref<HTMLInputElement>();
+const searchId = useId();
+const currentOrder = computed(() =>
+  typeof props.selectOrder === 'object' ? props.selectOrder.value : props.selectOrder || '',
 );
-
-watch(
-  () => orderOption.value,
-  (val: string | undefined | { label: string; value: string }) => {
-    emit('update:selectOrder', val);
-    emit('search');
-  }
-);
-watch(
-  () => props.selectOrder,
-  (val: string | undefined | { label: string; value: string }) => {
-    orderOption.value = val;
-  }
-);
-
-function isSlotPrependEmpty() {
-  return !slots.prepend || slots.prepend().length === 0;
+function value(option: string | object) {
+  return typeof option === 'string' ? option : String((option as { value?: unknown }).value ?? '');
 }
-function isSlotAppendEmpty() {
-  return !slots.append || slots.append().length === 0;
+function label(option: string | object) {
+  return typeof option === 'string' ? option : String((option as { label?: unknown }).label ?? '');
 }
-async function onSearchAndRemoveFocus() {
-  await nextTick();
-  if (props.separetedInputEvent) {
-    emit('keydown-enter:inputSearch');
-  } else {
-    emit('search');
+async function changed(event: Event) {
+  const value = (event.target as HTMLInputElement).value;
+  const cleared = Boolean(props.inputSearch) && !value;
+  emit('update:inputSearch', value);
+  emit('inputSearchFocus', true);
+  if (cleared) {
+    await nextTick();
+    search();
   }
-  inputSearchRef.value?.blur();
+}
+function orderChanged(event: Event) {
+  emit('update:selectOrder', (event.target as HTMLSelectElement).value || undefined);
+  emit('search');
+}
+function search() {
+  if (props.separetedInputEvent) emit('keydown-enter:inputSearch');
+  else emit('search');
+  input.value?.blur();
 }
 </script>
-
-<style lang="scss" scoped>
-.toolbar {
-  border-radius: 15px;
-  min-width: 700px;
+<style scoped>
+.mm-search-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--grey-mid);
+  border-radius: 18px;
+  background: var(--grey-dark2);
+  flex-wrap: wrap;
+}
+.mm-search-field {
+  flex: 1;
+  min-width: 180px;
+  position: relative;
+}
+.mm-search-field input {
+  width: 100%;
+}
+.mm-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 </style>

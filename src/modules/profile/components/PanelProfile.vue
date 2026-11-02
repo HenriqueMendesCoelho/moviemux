@@ -1,66 +1,62 @@
 <template>
-  <div class="row justify-center" :class="isMobile ? 'q-pt-xs' : 'q-pt-md'">
-    <div class="text-responsive-2">Dados pessoais</div>
-    <BaseHorizontalSeparator />
-    <BaseUserInfoPanel class="col-12 q-mt-md" v-model="user" />
-    <div class="row justify-center full-width q-col-gutter-md">
-      <div class="col-12" />
-      <div class="col-md-2 col-sm-4">
-        <q-btn style="width: 100%" color="positive" text-color="white" label="Salvar" @click="updateProfile" />
-      </div>
-      <div class="col-md-2 col-sm-4">
-        <q-btn style="width: 100%" color="red" text-color="white" label="Cancelar" @click="loadUser" />
-      </div>
+  <form class="mm-form" :aria-busy="busy" @submit.prevent="updateProfile">
+    <h2>Dados pessoais</h2>
+    <p class="mm-muted">Atualize seu nome, e-mail e preferências de notificação.</p>
+    <p v-if="error" class="mm-error" role="alert">{{ error }}</p>
+    <BaseUserInfoPanel v-if="loaded" v-model="user" />
+    <p v-else-if="busy" role="status">Carregando seu perfil…</p>
+    <div class="mm-actions">
+      <button class="mm-btn mm-btn-primary" :disabled="busy || !loaded">
+        {{ busy ? 'Aguarde…' : 'Salvar alterações' }}</button
+      ><button type="button" class="mm-btn" :disabled="busy" @click="loadUser">
+        {{ loaded ? 'Descartar alterações' : 'Tentar novamente' }}
+      </button>
     </div>
-  </div>
+  </form>
 </template>
-
-<script lang="ts" setup>
+<script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useQuasar } from 'quasar';
-
 import User from 'src/core/domain/user/User';
-
-import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
 import BaseUserInfoPanel from 'src/core/components/BaseUserInfoPanel.vue';
-
 import UserService from 'src/core/services/UserService';
-import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
-import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
-
-const $q = useQuasar();
+import { showSuccess } from 'src/core/utils/NotificationUtils';
 const user = ref(new User());
-
-const isMobile = $q.platform.is.mobile;
-
-onMounted(async () => {
-  await loadUser();
-});
-
+const busy = ref(false);
+const error = ref('');
+const loaded = ref(false);
+onMounted(loadUser);
 async function loadUser() {
-  const res = await UserService.getUser();
-  user.value = res;
+  if (busy.value) return;
+  busy.value = true;
+  error.value = '';
+  try {
+    user.value = await UserService.getUser();
+    loaded.value = true;
+  } catch {
+    error.value = 'Não foi possível carregar seu perfil.';
+  } finally {
+    busy.value = false;
+  }
 }
-
 async function updateProfile() {
-  if (!user.value.name || !user.value.email) {
-    showError('Todos os campos devem estar preenchidos');
+  if (busy.value || !loaded.value) return;
+  if (!user.value.name.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.value.email)) {
+    error.value = 'Preencha seu nome e um e-mail válido.';
     return;
   }
-
+  busy.value = true;
+  error.value = '';
   try {
-    showLoading();
-    const res = await UserService.updateUserProfile({
+    user.value = await UserService.updateUserProfile({
       name: user.value.name,
       email: user.value.email,
       notify: user.value.preferences.notify,
     });
-    user.value = res;
-    showSuccess('Perfil atualizado com sucesso');
+    showSuccess('Perfil atualizado.');
   } catch {
-    showError('Erro ao atualizar perfil');
+    error.value = 'Não foi possível atualizar seu perfil.';
   } finally {
-    hideLoading();
+    busy.value = false;
   }
 }
 </script>

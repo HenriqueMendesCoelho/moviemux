@@ -1,97 +1,52 @@
 <template>
-  <BaseCardImage
-    :class="`${selected && 'img-movie-selected'}`"
-    :src="getUrl()"
-    @click="emit('open')"
-    :animate="!selected && props.animate"
-  >
-    <div class="absolute-bottom hover-show-img text-center desktop-only" v-if="!selected">
-      {{ props.movie?.title }}<br />
-      {{ DateUtils.toLocaleDateStringLong(props.movie.release_date) }}
-    </div>
-    <div class="absolute-top-left" style="background: none" v-if="isInAnyWishlist()">
-      <div v-if="showRemoveItem">
-        <q-icon name="sym_o_data_alert" color="white" size="md" />
-        <BaseTooltip :delay="1000">Filme presente em múltiplas listas</BaseTooltip>
-      </div>
-      <div v-else>
-        <q-icon name="playlist_add_check" color="white" size="md" />
-        <BaseTooltip :delay="1000">Já está em uma lista</BaseTooltip>
-      </div>
-    </div>
-    <q-btn
-      class="absolute all-pointer-events cursor-pointer"
-      icon="more_horiz"
-      color="grey-mid2"
-      style="top: 8px; right: 8px"
-      :size="isDesktop ? 'sm' : 'xs'"
-      round
-      @click.stop
-      v-if="showRemoveItem || _wishlists?.length"
-    >
-      <q-menu
-        class="bg-grey-dark2"
-        @before-show="selected = true"
-        @before-hide="selected = false"
+  <article class="mm-poster-card">
+    <button class="mm-poster-link" type="button" @click="emit('open')">
+      <BaseCardImage :src="getUrl()" :animate="animate"
+        ><span v-if="isInAnyWishlist()" class="mm-badge">{{
+          showRemoveItem ? 'Em outras listas' : 'Já na sua lista'
+        }}</span></BaseCardImage
       >
-        <q-list>
-          <q-item v-if="showRemoveItem" @click="emit('removeMovie')" clickable v-close-popup>
-            <q-item-section side>
-              <q-icon name="playlist_remove" color="white" />
-            </q-item-section>
-            <q-item-section class="q-pl-sm">Remover da lista</q-item-section>
-          </q-item>
-
-          <q-separator />
-          <q-item clickable v-if="_wishlists?.length">
-            <q-item-section side>
-              <q-icon name="playlist_add" color="white" />
-            </q-item-section>
-            <q-item-section class="q-pl-sm">Adicionar a outra Lista</q-item-section>
-            <q-item-section side>
-              <q-icon name="keyboard_arrow_right" color="white" />
-            </q-item-section>
-            <q-menu anchor="top end" self="top start" class="bg-grey-dark2">
-              <q-list>
-                <q-item
-                  v-for="list in _wishlists"
-                  :key="list.name"
-                  clickable
-                  :disable="disableList(list)"
-                  @click="addMovieToWishlist(list.id, props.movie?.tmdb_id)"
-                >
-                  <q-item-section v-close-popup class="q-pl-sm">{{ list.name }}</q-item-section>
-                  <BaseTooltip v-if="disableList(list)" :delay="500"
-                    >Filme já adicionado nessa lista</BaseTooltip
-                  >
-                </q-item>
-              </q-list>
-            </q-menu>
-          </q-item>
-        </q-list>
-      </q-menu>
-    </q-btn>
-    <MovieWatchlistImageContextMenu @copy-url="emit('copy-url')" />
-    <q-inner-loading
-      :showing="loading"
-      label="Aguarde..."
-      color="kb-primary"
-      label-class="text-white"
-    />
-  </BaseCardImage>
+      <h3>{{ movie.title || movie.title_english }}</h3>
+      <p>{{ DateUtils.toLocaleDateStringLong(movie.release_date) }}</p>
+    </button>
+    <details class="mm-card-actions" @click.stop>
+      <summary>Ações do filme</summary>
+      <div class="mm-menu">
+        <button
+          v-if="showRemoveItem"
+          type="button"
+          :disabled="loading || disabled"
+          @click="emit('removeMovie')"
+        >
+          Remover desta lista</button
+        ><button type="button" @click="emit('copy-url')">Copiar link</button>
+        <p v-if="_wishlists.length">Adicionar a outra lista</p>
+        <button
+          v-for="list in _wishlists"
+          :key="list.id"
+          :disabled="loading || disabled || store.pendingMembership[list.id] || disableList(list)"
+          @click="addMovieToWishlist(list.id, movie.tmdb_id)"
+        >
+          {{ list.name }}{{ disableList(list) ? ' ✓' : '' }}
+        </button>
+      </div>
+    </details>
+    <p v-if="loading" role="status">Salvando…</p>
+  </article>
 </template>
+
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
-import { useQuasar } from 'quasar';
+import { computed, onBeforeUnmount, ref } from 'vue';
+import { useRuntimeConfig } from '#imports';
+import { useMovieWatchlistStore } from '../stores/MovieWatchlistStore';
+import { useUserStore } from 'src/core/stores/UserStore';
 
 import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 
 import BaseCardImage from 'src/core/components/BaseCardImage.vue';
-import BaseTooltip from 'src/core/components/BaseTooltip.vue';
-import MovieWatchlistImageContextMenu from './MovieWatchlistImageContextMenu.vue';
 
 import DateUtils from 'src/core/utils/DateUtils';
-import MovieWatchlistService from '../services/MovieWatchlistService';
+
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
 
 type ArrayElement<ArrayType extends readonly unknown[]> =
@@ -101,6 +56,7 @@ const props = defineProps<{
   wishlists: WatchlistType[];
   showRemoveItem: boolean;
   animate: boolean;
+  disabled?: boolean;
 }>();
 
 interface Emits {
@@ -110,68 +66,110 @@ interface Emits {
 }
 const emit = defineEmits<Emits>();
 
-const $q = useQuasar();
-const isDesktop = $q.platform.is.desktop;
-
-const selected = ref(false);
 const loading = ref(false);
-const _wishlists = ref<WatchlistType[]>([]);
-
-onMounted(() => {
-  setWishlists();
-});
-
-watch(
-  () => props.wishlists,
-  () => {
-    setWishlists();
-  },
+const store = useMovieWatchlistStore();
+const imageBase = String(useRuntimeConfig().public.tmdbImageBase).replace(/\/$/, '');
+const user = useUserStore();
+const _wishlists = computed(() =>
+  props.wishlists
+    .filter((list) => list.user.id === user.user.id)
+    .map((list) => store.watchlists.find((item) => item.id === list.id) || list),
 );
-
+let disposed = false;
+onBeforeUnmount(() => {
+  disposed = true;
+});
 function getUrl() {
-  return `https://image.tmdb.org/t/p/w500${props.movie?.url_image}`;
+  const path = props.movie?.url_image;
+  return path ? `${imageBase}/w500${path.startsWith('/') ? '' : '/'}${path}` : '';
 }
 function disableList(list: WatchlistType) {
-  return list.movies_wishlists?.some((m) => m.tmdb_id === props.movie.tmdb_id);
+  return list.movies_wishlists?.some((movie) => movie.tmdb_id === props.movie.tmdb_id);
 }
 async function addMovieToWishlist(wishlistId: string, tmdbId: number) {
+  if (loading.value || props.disabled || !user.user.isLoged) return;
+  const target = _wishlists.value.find((list) => list.id === wishlistId);
+  if (!target || target.user.id !== user.user.id || disableList(target)) return;
+  const account = user.user.id;
+  const session = user.user;
+  loading.value = true;
   try {
-    loading.value = true;
-    const res = await MovieWatchlistService.addMovieToWatchlist(wishlistId, tmdbId);
-    mergeResult(wishlistId, res);
-    showSuccess('Filme adicionado a lista com sucesso');
+    const added = await store.addMovie(wishlistId, tmdbId);
+    if (
+      !added ||
+      disposed ||
+      account !== user.user.id ||
+      session !== user.user ||
+      !user.user.isLoged
+    )
+      return;
+    showSuccess('Filme adicionado à lista com sucesso');
   } catch {
-    console.log('error');
-    showError('Erro ao adicionar filme na lista');
+    if (!disposed && account === user.user.id && session === user.user)
+      showError('Erro ao adicionar filme na lista');
   } finally {
-    loading.value = false;
+    if (!disposed) loading.value = false;
   }
-}
-function mergeResult(wishlistId: string, newWishlist: WatchlistType) {
-  const wishlist = _wishlists.value.find((w) => w.id === wishlistId);
-
-  if (!wishlist) {
-    return;
-  }
-
-  const index = _wishlists.value.indexOf(wishlist);
-  _wishlists.value[index] = newWishlist;
 }
 function isInAnyWishlist() {
-  return _wishlists.value?.some((w) =>
-    w.movies_wishlists?.some((m) => m.tmdb_id === props.movie.tmdb_id),
+  return _wishlists.value.some((list) =>
+    list.movies_wishlists?.some((movie) => movie.tmdb_id === props.movie.tmdb_id),
   );
-}
-function setWishlists() {
-  if (props.wishlists?.length) {
-    _wishlists.value = [...props.wishlists];
-  }
 }
 </script>
 
-<style lang="scss" scoped>
-.img-movie-selected {
-  opacity: 0.7;
-  filter: blur(2px);
+<style scoped>
+.mm-poster-card {
+  min-width: 0;
+  position: relative;
+}
+.mm-poster-link {
+  display: block;
+  text-align: left;
+  width: 100%;
+  color: inherit;
+  padding: 0;
+}
+.mm-poster-link h3 {
+  font-size: 1rem;
+  margin: 12px 0 5px;
+  line-height: 1.4;
+}
+.mm-poster-link p {
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+.mm-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #111c;
+  color: #fff;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+}
+.mm-card-actions {
+  font-size: 0.8rem;
+  margin-top: 12px;
+}
+.mm-card-actions summary {
+  cursor: pointer;
+}
+.mm-menu {
+  display: grid;
+  padding: 10px;
+  background: var(--grey-dark2);
+  border: 1px solid var(--grey-mid2);
+  border-radius: 10px;
+  gap: 4px;
+}
+.mm-menu button {
+  color: inherit;
+  padding: 8px;
+  text-align: left;
+}
+.mm-menu button:disabled {
+  opacity: 0.4;
 }
 </style>

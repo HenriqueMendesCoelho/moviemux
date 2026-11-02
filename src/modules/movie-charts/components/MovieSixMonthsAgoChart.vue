@@ -1,111 +1,38 @@
 <template>
   <apex-chart
-    v-if="showChart"
-    :height="height"
-    :width="width"
+    v-if="chartsData"
+    height="380"
+    width="100%"
     type="bar"
     :options="chartOptions"
     :series="series"
   />
+  <p v-else class="mm-empty">As estatísticas aparecerão aqui.</p>
 </template>
-
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
-import { useQuasar } from 'quasar';
-
+import { computed, useId } from 'vue';
+import type { ApexOptions } from 'apexcharts';
 import type { MovieStatistics } from 'src/core/types/statistics/Statistics';
-
-const props = defineProps<{
-  chartsData?: MovieStatistics;
-}>();
-
-const $q = useQuasar();
-const isDesktop = $q.platform.is.desktop;
-const chartTitle = ref(
-  isDesktop
-    ? 'Quantidade de Filmes Assistidos nos Últimos 6 Meses'
-    : 'Qtd de Filmes nos Últimos 6 Meses',
-);
-const chartFontSize = ref(isDesktop ? '20px' : '15px');
-const height = isDesktop ? 'auto' : '300px';
-const width = isDesktop ? '600px' : '100%';
-
-const chartOptions = ref({
-  chart: {
-    id: 'movies-six-months-ago',
-    foreColor: '#fff',
-    toolbar: {
-      show: false,
-    },
-  },
-  xaxis: {
-    categories: [] as string[],
-  },
-  tooltip: {
-    enabled: false,
-  },
+import { useStyleStore } from 'src/core/stores/StyleStore';
+const props = defineProps<{ chartsData?: MovieStatistics }>();
+const style = useStyleStore();
+const id = `movie-monthly-${useId()}`;
+const foreground = computed(() => (style.layoutSettings.darkMode ? '#e5edf5' : '#203247'));
+const chartOptions = computed<ApexOptions>(() => ({
+  chart: { id, foreColor: foreground.value, background: 'transparent', toolbar: { show: false } },
+  colors: ['#00f6ff'],
+  theme: { mode: style.layoutSettings.darkMode ? 'dark' : 'light' },
+  grid: { borderColor: style.layoutSettings.darkMode ? '#343c4c' : '#d5e1e8' },
+  plotOptions: { bar: { borderRadius: 5, columnWidth: '45%' } },
+  xaxis: { categories: Object.keys(props.chartsData?.movies_six_months_ago || {}) },
+  tooltip: { enabled: true, theme: style.layoutSettings.darkMode ? 'dark' : 'light' },
   title: {
-    text: chartTitle.value,
+    text: 'Filmes nos últimos 6 meses',
     align: 'center',
-    margin: 10,
-    offsetX: 0,
-    offsetY: 0,
-    floating: false,
-    style: {
-      fontSize: chartFontSize.value,
-      fontWeight: '300',
-      color: '#fff',
-    },
+    style: { fontSize: '16px', fontWeight: 500, color: foreground.value },
   },
-});
-const series = ref<
-  {
-    name: string;
-    data: number[];
-  }[]
->([]);
-
-const showChart = ref(false);
-
-onMounted(() => {
-  if (!props.chartsData) {
-    return;
-  }
-
-  setCategories();
-  setData();
-  showChart.value = true;
-});
-
-watch(
-  () => props.chartsData,
-  () => {
-    setCategories();
-    setData();
-    showChart.value = true;
-  },
-);
-
-function setCategories() {
-  if (!props.chartsData?.movies_six_months_ago) {
-    return;
-  }
-
-  const moviesSixMonthsAgo = Object.keys(props.chartsData?.movies_six_months_ago);
-
-  chartOptions.value.xaxis.categories = moviesSixMonthsAgo;
-}
-function setData() {
-  const moviesSixMonthsAgo = props.chartsData?.movies_six_months_ago;
-  if (!moviesSixMonthsAgo) {
-    return;
-  }
-
-  const values = Object.values(moviesSixMonthsAgo);
-
-  series.value.push({
-    name: 'Mês',
-    data: values,
-  });
-}
+}));
+const series = computed(() => [
+  { name: 'Filmes', data: Object.values(props.chartsData?.movies_six_months_ago || {}) },
+]);
 </script>

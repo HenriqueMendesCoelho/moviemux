@@ -1,191 +1,167 @@
 <template>
-  <div class="row items-center justify-center full-height bg-login-animated">
-    <div class="col-md-6 col-xs-12">
-      <div class="row justify-center">
-        <h1 class="text-white desktop-only text-h2">Bem-vindo ao Movie Mux!</h1>
-        <BaseHorizontalSeparator class="q-my-md desktop-only" style="opacity: 60%" />
-        <img
-          class="left-img-login col-md-auto col-xs-6"
-          src="../../../assets/logo.webp"
-          alt="logo"
-          draggable="false"
-          @click="tab = 'login'"
-        />
-        <div class="col-12" />
-        <p class="q-mt-xl desktop-only" style="font-size: smaller; color: white">
-          Powered by Kronus Platform
-        </p>
+  <main class="mm-welcome">
+    <section class="mm-welcome-story">
+      <router-link to="/" class="mm-brand" aria-label="Movie Mux, início"
+        ><img src="../../../assets/logo.webp" alt="Movie Mux" width="120" height="120"
+      /></router-link>
+      <p class="mm-eyebrow">PARA QUEM VIVE CINEMA</p>
+      <h1>Grandes histórias.<br /><span>Seu olhar.</span></h1>
+      <p>Descubra seu próximo filme favorito, organize sua lista e compartilhe cada descoberta.</p>
+      <div class="mm-welcome-tags">
+        <span>Descubra</span><span>Avalie</span><span>Compartilhe</span>
       </div>
-    </div>
-    <div class="col-md-6 col-xs-12 row justify-center">
-      <LoginForm class="col-xs-12 col-md-8 col-xl-7 col-xxl-5 q-pa-xs" v-model="tab" />
-    </div>
-    <div
-      class="absolute-bottom cursor-pointer desktop-only"
-      @click="openURL('https://www.themoviedb.org/?language=pt-BR')"
-    >
-      <div class="row justify-center">
-        <div class="col-auto">
-          <img src="../../../assets/tmdb-logo-long.svg" style="height: 20px" />
-        </div>
-        <div class="col-12"></div>
-        <div class="col-auto">
-          <p class="q-mt-xs" style="font-size: smaller; color: white">
-            This product uses the TMDB API but is not endorsed or certified by TMDB.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
+      <small>Powered by Kronus Platform</small>
+    </section>
+    <section class="mm-welcome-form"><LoginForm v-model="tab" /></section>
+    <footer class="mm-welcome-footer">
+      <a href="https://www.themoviedb.org/?language=pt-BR" target="_blank" rel="noopener noreferrer"
+        ><img src="../../../assets/tmdb-logo-long.svg" alt="The Movie Database" /></a
+      ><span>This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
+    </footer>
+  </main>
 </template>
-
-<script lang="ts" setup>
+<script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { openURL, useMeta } from 'quasar';
-
+import { useAsyncData, useHead, useRoute, useRouter, useRuntimeConfig } from '#imports';
 import { useUserStore } from 'src/core/stores/UserStore';
-import { useMetaTagsStore } from 'src/core/stores/MetaTagsStore';
-
+import KitService from 'src/core/services/KitService';
+import { safeReturnPath } from '../utils/AccountUtils';
 import LoginForm from '../components/LoginForm.vue';
-import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
-
-const userStore = useUserStore();
-const router = useRouter();
-const user = computed(() => userStore.user);
-
 const tab = ref('login');
-
-const metaTagsStore = useMetaTagsStore();
-const movieInfo = metaTagsStore.info;
-if (Object.keys(movieInfo)?.length) {
-  const title = `Movie Mux - Descobrir - ${metaTagsStore.info.title}`;
-  const imgUrl = getImageUrl(metaTagsStore.info.url_image);
-
-  useMeta({
-    title: title,
-    meta: {
-      title: { name: 'title', content: title },
-      description: { name: 'description', content: metaTagsStore.info.description },
-
-      ogTitle: { property: 'og:title', content: title },
-      ogDescription: { property: 'og:description', content: metaTagsStore.info.description },
-      ogImage: { property: 'og:image', content: imgUrl },
-
-      twitterTitle: { property: 'twitter:title', content: title },
-      twitterDescription: {
-        property: 'twitter:description',
-        content: metaTagsStore.info.description,
-      },
-      twitterImage: { property: 'twitter:image', content: imgUrl },
-    },
-  });
-} else {
-  const defaultTitle = 'Movie Mux';
-  const defaultDescription =
-    'Descubra o melhor do cinema, classificações e informações sobre filmes.';
-  const defaultImage =
-    'https://img.moviemux.com/04VfS86K-_pAcjgaBHKzinmNiUp0gSD3VyuP0wjm/moviemux/MovieMux.webp';
-
-  useMeta({
-    title: defaultTitle,
-    meta: {
-      title: { name: 'title', content: defaultTitle },
-      description: { name: 'description', content: defaultDescription },
-
-      ogTitle: { property: 'og:title', content: defaultTitle },
-      ogDescription: { property: 'og:description', content: defaultDescription },
-      ogImage: { property: 'og:image', content: defaultImage },
-
-      twitterTitle: { property: 'twitter:title', content: defaultTitle },
-      twitterDescription: { property: 'twitter:description', content: defaultDescription },
-      twitterImage: { property: 'twitter:image', content: defaultImage },
-    },
-  });
-}
-
-defineOptions({
-  async preFetch({ currentRoute }) {
-    const userStore = useUserStore();
-    userStore.$reset();
-    const metaStore = useMetaTagsStore();
-    const movieId = Number(currentRoute.query.from?.toString().split('discover?movie=')[1]);
-    if (!movieId) {
-      return;
+const route = useRoute();
+const router = useRouter();
+const store = useUserStore();
+const config = useRuntimeConfig();
+const sharedMovieId = computed(() => {
+  const from = typeof route.query.from === 'string' ? route.query.from : '';
+  return Number(from.match(/discover\?movie=(\d+)/)?.[1]) || 0;
+});
+const { data: movie } = await useAsyncData(
+  `login-share-${sharedMovieId.value}`,
+  async () => {
+    if (!sharedMovieId.value) return null;
+    try {
+      return await KitService.info({ tmdb_id: sharedMovieId.value });
+    } catch {
+      return null;
     }
-
-    return await metaStore.getMovieInfo(movieId);
   },
+  { watch: [sharedMovieId] },
+);
+useHead(() => {
+  const title = movie.value?.title ? `Movie Mux - Descobrir - ${movie.value.title}` : 'Movie Mux';
+  const description =
+    movie.value?.description ||
+    'Descubra o melhor do cinema, classificações e informações sobre filmes.';
+  const image = movie.value?.url_image
+    ? `${String(config.public.tmdbImageBase).replace(/\/$/, '')}/w342${movie.value.url_image}`
+    : 'https://img.moviemux.com/04VfS86K-_pAcjgaBHKzinmNiUp0gSD3VyuP0wjm/moviemux/MovieMux.webp';
+  return {
+    title,
+    meta: [
+      { name: 'description', content: description },
+      { property: 'og:title', content: title },
+      { property: 'og:description', content: description },
+      { property: 'og:image', content: image },
+      { name: 'twitter:title', content: title },
+      { name: 'twitter:description', content: description },
+      { name: 'twitter:image', content: image },
+    ],
+  };
 });
-
 onMounted(async () => {
-  if (user.value.isLoged) {
-    await router.push('/home');
-  }
+  if (store.user.isLoged) await router.replace(safeReturnPath(route.query.from));
 });
-
-function getImageUrl(path?: string, size = 'w342') {
-  if (!path) {
-    return;
-  }
-  return `${import.meta.env.VUE_APP_TMDB_IMAGE_BASE}/${size}${path}`;
-}
 </script>
-
-<style lang="scss" scoped>
-.left-img-login {
-  border-radius: 50%;
-
-  cursor: pointer;
-
-  &:hover {
-    box-shadow: 0px 0px 30px -12px var(--primary);
-    transition: 0.2s ease-in-out;
-  }
-}
-.col-xxl-5 {
-  @media (min-width: 2560px) {
-    flex: 0 0 41.66667%;
-    max-width: 41.66667%;
-  }
-}
-
-.bg-login-animated {
-  width: 100%;
-  height: 100vh;
-  height: 100dvh;
-  display: flex;
+<style scoped>
+.mm-welcome {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 3rem;
   align-items: center;
+  padding: clamp(1.5rem, 6vw, 7rem);
+  background:
+    radial-gradient(
+      ellipse at 15% 20%,
+      color-mix(in srgb, var(--mm-accent, #00f6ff) 14%, transparent),
+      transparent 55%
+    ),
+    var(--mm-bg);
+}
+.mm-brand {
+  display: inline-block;
+  letter-spacing: 0.2em;
+  font-weight: 900;
+  font-size: 1.4rem;
+  margin-bottom: 4rem;
+  color: inherit;
+  text-decoration: none;
+}
+.mm-brand img {
+  display: block;
+  width: clamp(90px, 10vw, 120px);
+  height: auto;
+  border-radius: 50%;
+  box-shadow: 0 12px 36px color-mix(in srgb, var(--mm-accent, #00f6ff) 15%, transparent);
+}
+.mm-welcome-story h1 {
+  font-size: clamp(2.5rem, 5vw, 5.8rem);
+  line-height: 1.04;
+  letter-spacing: -0.055em;
+  margin: 1.2rem 0;
+}
+.mm-welcome-story h1 span {
+  color: var(--mm-accent-text, #00f6ff);
+}
+.mm-welcome-story > p {
+  max-width: 32rem;
+  line-height: 1.8;
+}
+.mm-welcome-story small {
+  color: var(--mm-muted);
+}
+.mm-welcome-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin: 2rem 0 4rem;
+}
+.mm-welcome-tags span {
+  border: 1px solid var(--mm-border);
+  padding: 0.6rem 1rem;
+  border-radius: 2rem;
+}
+.mm-welcome-form {
+  display: flex;
   justify-content: center;
-  background-size: 300% 300%;
-  background-image: linear-gradient(
-    -45deg,
-    var(--grey-dark) 0%,
-    var(--grey-dark) 25%,
-    var(--grey-dark) 51%,
-    var(--dark-alt) 100%
-  );
-  -webkit-animation: AnimateBG 20s ease infinite;
-  animation: AnimateBG 20s ease infinite;
 }
-
-@-webkit-keyframes AnimateBG {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
+.mm-welcome-footer {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 0.7rem;
+  color: var(--mm-muted);
 }
-
-@keyframes AnimateBG {
-  0%,
-  100% {
-    background-position: 0% 50%;
+.mm-welcome-footer img {
+  width: 90px;
+}
+@media (max-width: 800px) {
+  .mm-welcome {
+    grid-template-columns: 1fr;
+    gap: 2rem;
   }
-  50% {
-    background-position: 100% 50%;
+  .mm-brand {
+    margin-bottom: 2rem;
+  }
+  .mm-welcome-story small,
+  .mm-welcome-tags {
+    display: none;
+  }
+  .mm-welcome-story h1 {
+    font-size: 3rem;
   }
 }
 </style>

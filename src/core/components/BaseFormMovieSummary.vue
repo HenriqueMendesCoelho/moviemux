@@ -1,245 +1,130 @@
 <template>
-  <div class="row justify-center text-white" :class="!isMobile && 'q-mx-md'">
-    <div class="col-md-4 col-xs-12 q-px-lg text-center justify-center row">
-      <q-img
-        class="col-12"
-        style="border-radius: 20px; max-height: 100% !important"
-        :src="movie.url_image"
-        :draggable="false"
-        :width="getImgWidth()"
-        :height="getImgHeight()"
-        v-if="movie?.url_image"
-      />
-      <q-skeleton v-else :width="getImgWidth()" :height="getImgHeight()" animation="fade" bordered />
-    </div>
-
-    <div class="col-md-8 col-xs-12">
-      <div class="row" :class="!isScreenLtLg ? 'q-col-gutter-y-lg' : 'q-col-gutter-y-md'">
-        <div class="col-12 text-title-responsive-2">Informações</div>
-        <div class="col-12 row q-col-gutter-sm">
-          <BaseTextInput
-            ref="inputTextPortugueseTitleRef"
-            class="col-md col-xs-12"
-            :label="'Título PT-BR'"
-            v-model="movie.portuguese_title"
-            readonly
-            required
-            :dense="screenHeight <= 1080"
-          />
-          <BaseTextInput
-            v-if="showEnglishTitle()"
-            ref="inputTextEnglishTitleRef"
-            class="col-md col-xs-12"
-            :label="'Título Inglês'"
-            v-model="movie.english_title"
-            readonly
-            :dense="screenHeight <= 1080"
-          />
-          <BaseTextInput
-            ref="inputTextOriginalTitleRef"
-            class="col-md col-xs-12"
-            :label="'Título Original'"
-            v-model="movie.original_title"
-            readonly
-            :dense="screenHeight <= 1080"
-          />
+  <section :aria-busy="loading">
+    <p v-if="loading" role="status">Carregando informações do filme…</p>
+    <p v-if="error" role="alert" class="mm-error">{{ error }}</p>
+    <div v-if="movie && !loading" class="mm-movie-summary">
+      <div>
+        <img
+          v-if="movie.url_image"
+          class="mm-summary-poster"
+          :src="movie.url_image"
+          :alt="`Pôster de ${movie.portuguese_title}`"
+        />
+        <div v-else class="mm-empty">Pôster indisponível</div>
+        <BaseBtnDialogCast :movie-id="movieId" />
+      </div>
+      <div>
+        <p class="mm-eyebrow">INFORMAÇÕES DO FILME</p>
+        <h2>{{ movie.portuguese_title || movie.original_title }}</h2>
+        <p class="mm-muted">
+          {{ movie.original_title
+          }}<template v-if="movie.english_title && movie.english_title !== movie.original_title">
+            · {{ movie.english_title }}</template
+          >
+        </p>
+        <p class="mm-summary-meta">
+          {{ StringUtils.runtimeToText(movie.runtime) }} · {{ releaseDate }} · {{ movie.director }}
+        </p>
+        <div class="mm-genre-list">
+          <span v-for="genre in movie.genres" :key="genre.name" class="mm-chip">{{
+            genre.name
+          }}</span>
         </div>
-        <div class="col-12 row q-col-gutter-sm">
-          <BaseTextInput
-            ref="inputTextDirectorRef"
-            class="col-md-8 col-xs-12"
-            :label="'Diretor'"
-            v-model="movie.director"
-            readonly
-            required
-            :dense="screenHeight <= 1080"
-          />
-          <BaseTextInput
-            class="col-md-2 col-xs-6"
-            :label="'Tempo de duração'"
-            :modelValue="runtimeToText()"
-            readonly
-            :dense="screenHeight <= 1080"
-          />
-          <BaseTextInput
-            ref="inputTextReleaseDateRef"
-            class="col-md-2 col-xs-6"
-            :label="'Ano de lançamento'"
-            :modelValue="movie.release_date ? new Date(movie.release_date).toLocaleDateString() : ''"
-            readonly
-            :mask="'##/##/####'"
-            required
-            :dense="screenHeight <= 1080"
-          />
+        <h3>Sinopse</h3>
+        <p class="mm-synopsis">{{ movie.description || 'Sinopse não disponível.' }}</p>
+        <div class="mm-actions">
+          <a
+            v-if="movie.tmdb_id"
+            :href="`https://www.themoviedb.org/movie/${movie.tmdb_id}`"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="mm-button mm-button-ghost"
+            >TMDB {{ movie.tmdb_id }} ↗</a
+          ><a
+            v-if="movie.imdb_id"
+            :href="`https://www.imdb.com/title/${movie.imdb_id}`"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="mm-button mm-button-ghost"
+            >IMDb {{ movie.imdb_id }} ↗</a
+          >
         </div>
-        <div class="col-12 row q-col-gutter-x-sm">
-          <q-input
-            ref="qInputDescriptionRef"
-            class="col-md-7 col-xs-12"
-            standout="text-info"
-            color="info"
-            outlined
-            v-model="movie.description"
-            input-style="resize: none;"
-            :rows="screenHeight > 1080 ? '9' : '7'"
-            label="Descrição - Sinopse"
-            bg-color="grey-mid2"
-            type="textarea"
-            readonly
-            :dense="screenHeight <= 1080"
+        <BaseMovieWatchProviders :tmdb-id="movieId" />
+        <section
+          v-if="movie.portuguese_url_trailer || movie.english_url_trailer"
+          class="mm-trailers"
+        >
+          <h3>Trailers</h3>
+          <iframe
+            v-if="movie.portuguese_url_trailer"
+            :src="trailer(movie.portuguese_url_trailer)"
+            title="Trailer em português"
+            allow="
+              accelerometer;
+              autoplay;
+              clipboard-write;
+              encrypted-media;
+              gyroscope;
+              picture-in-picture;
+            "
+            allowfullscreen
+          /><iframe
+            v-if="movie.english_url_trailer"
+            :src="trailer(movie.english_url_trailer)"
+            title="Trailer em inglês"
+            allow="
+              accelerometer;
+              autoplay;
+              clipboard-write;
+              encrypted-media;
+              gyroscope;
+              picture-in-picture;
+            "
+            allowfullscreen
           />
-          <div class="col-md-5 col-xs-12 row" :class="isMobile && 'q-col-gutter-y-sm q-mt-md'">
-            <q-select
-              ref="qSelectGenresRef"
-              class="col-12"
-              outlined
-              v-model="movie.genres"
-              label="Generos"
-              standout="text-info"
-              color="info"
-              bg-color="grey-mid2"
-              :multiple="true"
-              popup-content-class="bg-grey-dark2"
-              option-label="name"
-              readonly
-              :dense="screenHeight <= 1080"
-              use-chips
-              ><template v-slot:selected-item="scope">
-                <q-chip dense :tabindex="scope.tabindex" color="grey-dark2" class="q-ma-none">
-                  {{ scope.opt.name }}
-                </q-chip>
-              </template>
-            </q-select>
-            <BaseTextInput
-              ref="inputTextTmdbIdRef"
-              class="col-12"
-              :label="'Tmdb ID'"
-              :modelValue="`${movie.tmdb_id}`"
-              @update:modelValue="movie.tmdb_id = parseInt($event)"
-              type="number"
-              readonly
-              :dense="screenHeight <= 1080"
-              :icon="'open_in_new'"
-              iconTooltip="Abrir TMDB"
-              icon-cursor="pointer"
-              @iconClick="openTmdbInNewTab"
-            />
-            <BaseTextInput
-              class="col-12"
-              :label="'Imdb ID'"
-              v-model="movie.imdb_id"
-              readonly
-              :dense="screenHeight <= 1080"
-              :icon="'open_in_new'"
-              iconTooltip="Abrir IMDB"
-              icon-cursor="pointer"
-              @iconClick="openImdbInNewTab"
-            />
-          </div>
-        </div>
-
-        <div class="col-12 row q-col-gutter-sm">
-          <div class="col-12 text-title-responsive-2" v-if="movie?.portuguese_url_trailer || movie?.english_url_trailer">Trailers</div>
-          <q-video
-            class="col-md col-xs-12"
-            :src="getUrl(movie.portuguese_url_trailer)"
-            style="height: 300px"
-            v-if="movie?.portuguese_url_trailer"
-          />
-          <q-video
-            class="col-md col-xs-12"
-            :src="getUrl(movie.english_url_trailer)"
-            style="height: 300px"
-            v-if="movie?.english_url_trailer"
-          />
-        </div>
-
-        <div class="col-12 row q-col-gutter-md">
-          <div class="col-auto" v-if="movieId">
-            <BaseDialogCast :movie-id="movieId" />
-          </div>
-          <div class="col row justify-end" v-if="movieId">
-            <BaseMovieWatchProviders class="col-auto" :tmdb-id="movieId" />
-          </div>
-        </div>
+        </section>
       </div>
     </div>
-  </div>
+  </section>
 </template>
-
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { useQuasar } from 'quasar';
-
+import { useRuntimeConfig } from '#imports';
+const imageBase = String(useRuntimeConfig().public.tmdbImageBase).replace(/\/$/, '');
+import { computed, onMounted, ref, watch } from 'vue';
 import Movie from 'src/core/domain/movie/movie';
-
-import BaseTextInput from 'src/core/components/BaseTextInput.vue';
-import BaseMovieWatchProviders from 'src/core/components/BaseMovieWatchProviders.vue';
-import BaseDialogCast from 'src/core/components/BaseBtnDialogCast.vue';
-
 import KitService from 'src/core/services/KitService';
 import MovieService from 'src/modules/movie/services/MovieService';
 import StringUtils from 'src/core/utils/StringUtils';
-import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
-import { showError } from 'src/core/utils/NotificationUtils';
-
-const $q = useQuasar();
-const isMobile = $q.platform.is.mobile;
-const screenHeight = $q.screen.height;
-const isScreenLtLg = computed(() => $q.screen.lt.lg);
-
-const movie = ref(new Movie());
-
+import BaseBtnDialogCast from './BaseBtnDialogCast.vue';
+import BaseMovieWatchProviders from './BaseMovieWatchProviders.vue';
 const props = defineProps<{ movieId: number }>();
-const emit = defineEmits<{
-  (e: 'error', value: void): void;
-}>();
-
-onMounted(async () => {
-  if (props.movieId) {
-    await getMovie();
-  }
-});
-
-function runtimeToText() {
-  return StringUtils.runtimeToText(movie.value.runtime);
-}
-function showEnglishTitle() {
-  return movie.value.original_title !== movie.value.english_title;
-}
-function openTmdbInNewTab() {
-  if (!movie.value.tmdb_id) {
-    return;
-  }
-  openNewWindow(`https://www.themoviedb.org/movie/${movie.value.tmdb_id}`);
-}
-function openImdbInNewTab() {
-  if (!movie.value.imdb_id) {
-    return;
-  }
-  openNewWindow(`https://www.imdb.com/title/${movie.value.imdb_id}`);
-}
-function openNewWindow(url: string) {
-  const w = window.open(url);
-  if (w) {
-    w.focus();
-  }
-}
-async function getGenres(genres?: Array<string>): Promise<Array<{ id: number; name: string; tmdb_id: number }>> {
-  if (!genres?.length) {
-    return [];
-  }
-  const allGenres = await MovieService.getMoviesGenres();
-
-  return allGenres.filter((g) => genres.some((gR) => g.name === gR));
-}
+const emit = defineEmits<{ error: [] }>();
+const movie = ref<Movie>(),
+  loading = ref(false),
+  error = ref('');
+let request = 0;
+const releaseDate = computed(() =>
+  movie.value?.release_date
+    ? new Date(movie.value.release_date).toLocaleDateString('pt-BR')
+    : 'Data não informada',
+);
 async function getMovie() {
-  if (!props.movieId) {
-    return;
-  }
-  showLoading();
+  if (!props.movieId) return;
+  const id = ++request;
+  loading.value = true;
+  error.value = '';
   try {
     const res = await KitService.summary({ tmdb_id: props.movieId });
+    let genres: Movie['genres'] = [];
+    if (res.genres?.length) {
+      try {
+        const all = await MovieService.getMoviesGenres();
+        genres = all.filter((g) => res.genres.includes(g.name));
+      } catch {
+        genres = res.genres.map((name, index) => ({ id: index, name, tmdb_id: 0 }));
+      }
+    }
+    if (id !== request) return;
     movie.value = new Movie(
       '',
       res.tmdb_id,
@@ -248,51 +133,90 @@ async function getMovie() {
       res.english_title,
       res.original_title,
       res.director,
-      getImageUrl(res.url_image_portuguese || res.url_image_english, 'w500'),
+      image(res.url_image_portuguese || res.url_image_english),
       res.portuguese_url_trailer,
       res.english_url_trailer,
       res.description,
-      await getGenres(res.genres),
-      new Date(res.release_date || new Date()),
-      res.runtime
+      genres,
+      res.release_date ? new Date(res.release_date) : undefined,
+      res.runtime,
     );
   } catch {
-    showError('Erro ao carregar filme');
-    emit('error');
+    if (id === request) {
+      error.value = 'Não foi possível carregar o filme.';
+      emit('error');
+    }
   } finally {
-    hideLoading();
+    if (id === request) loading.value = false;
   }
 }
-
-function getImageUrl(path?: string, size = 'w342') {
-  if (!path) {
-    return;
-  }
-  return `${import.meta.env.VUE_APP_TMDB_IMAGE_BASE}/${size}${path}`;
+function image(path?: string) {
+  return path ? `${imageBase}/w500${path}` : undefined;
 }
-function getUrl(key: string) {
-  return key ? `https://www.youtube.com/embed/${key}` : '';
+function trailer(value: string) {
+  const key = /^[\w-]{11}$/.test(value)
+    ? value
+    : value.match(/(?:youtu\.be\/|[?&]v=|embed\/)([\w-]{11})/)?.[1];
+  return key ? `https://www.youtube-nocookie.com/embed/${key}` : '';
 }
-function getImgWidth() {
-  if (isMobile) {
-    return '200px';
-  }
-  if (screenHeight <= 1050) {
-    return '350px';
-  }
-
-  return '500px';
-}
-function getImgHeight() {
-  if (isMobile) {
-    return '350px';
-  }
-
-  if (screenHeight <= 1050) {
-    return '450px';
-  }
-
-  return '750px';
-}
+onMounted(getMovie);
+watch(() => props.movieId, getMovie);
+defineExpose({ getMovie });
 </script>
-src/core/utils/StringUtils
+<style scoped>
+.mm-movie-summary {
+  display: grid;
+  grid-template-columns: minmax(180px, 280px) 1fr;
+  gap: 32px;
+}
+.mm-summary-poster {
+  width: 100%;
+  border-radius: 18px;
+  margin-bottom: 16px;
+}
+.mm-movie-summary h2 {
+  font-size: clamp(1.7rem, 4vw, 2.8rem);
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  margin: 12px 0;
+}
+.mm-summary-meta {
+  margin: 20px 0;
+  opacity: 0.7;
+}
+.mm-genre-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mm-chip {
+  padding: 6px 10px;
+  border: 1px solid var(--grey-mid);
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+.mm-synopsis {
+  line-height: 1.7;
+  opacity: 0.8;
+}
+.mm-trailers iframe {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border: 0;
+  border-radius: 14px;
+  margin-top: 12px;
+}
+.mm-movie-summary h3 {
+  margin: 24px 0 12px;
+}
+@media (max-width: 650px) {
+  .mm-movie-summary {
+    grid-template-columns: 1fr;
+  }
+  .mm-summary-poster {
+    max-width: 220px;
+    display: block;
+    margin-inline: auto;
+  }
+}
+</style>

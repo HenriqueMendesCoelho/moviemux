@@ -1,5 +1,7 @@
-<template>
-  <div id="separator" style="width: 100%"></div>
-</template>
-
-<script setup lang="ts"></script>
+<template><div class="mm-spacer" aria-hidden="true" /></template>
+<style scoped>
+.mm-spacer {
+  width: 100%;
+  height: 16px;
+}
+</style>

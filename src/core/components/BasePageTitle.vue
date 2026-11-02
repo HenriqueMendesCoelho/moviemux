@@ -1,27 +1,31 @@
 <template>
-  <div class="row justify-center q-pt-lg q-px-lg page-title">
-    <div class="text-title-responsive text-white q-mb-lg">
-      {{ props.title }} <slot name="title"></slot>
-    </div>
+  <header class="mm-page-title">
     <div>
-      <q-icon class="q-ml-md" :name="props.icon" color="white" size="xl" />
-      <slot name="after-icon"></slot>
+      <p class="mm-eyebrow">MOVIE MUX</p>
+      <h1>{{ title }} <slot name="title" /></h1>
     </div>
-  </div>
+    <div><slot name="after-icon" /></div>
+  </header>
 </template>
 <script setup lang="ts">
-interface Props {
-  title: string;
-  icon: string;
-}
-
-const props = defineProps<Props>();
+defineProps<{ title: string; icon?: string }>();
 </script>
-<style lang="scss" scoped>
-.page-title {
-  background-color: var(--grey-mid);
-  border-radius: 15px;
-  border: 3px solid var(--grey-mid2);
-  box-shadow: 0 5px 20px var(--shadow);
+<style scoped>
+.mm-page-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+.mm-page-title h1 {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  letter-spacing: -0.05em;
+  margin: 6px 0;
+}
+.mm-eyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--primary);
 }
 </style>

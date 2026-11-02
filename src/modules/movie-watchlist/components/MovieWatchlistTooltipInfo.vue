@@ -1,60 +1,52 @@
 <template>
-  <BaseTooltip
-    class="q-pa-none q-ma-none"
-    :delay="1200"
-    :hide-delay="300"
-    style="border-radius: 15px"
-  >
-    <q-list bordered style="border-radius: 15px">
-      <q-item>
-        <q-item-section side>
-          <q-icon color="white" name="fa-solid fa-crown" />
-        </q-item-section>
-        <q-item-section>Cadastrado por:</q-item-section>
-        <q-item-section side class="text-white">{{ props.watchlist?.user.name }}</q-item-section>
-      </q-item>
-      <q-separator />
-      <q-item>
-        <q-item-section side>
-          <q-icon color="white" name="fa-solid fa-film" />
-        </q-item-section>
-        <q-item-section>Qtd. Filmes:</q-item-section>
-        <q-item-section side class="text-white"
-          >{{ watchlist?.movies_wishlists?.length || 0 }}/100</q-item-section
-        >
-      </q-item>
-      <q-separator />
-      <q-item>
-        <q-item-section side>
-          <q-icon color="white" name="event" />
-        </q-item-section>
-        <q-item-section>Criada em:</q-item-section>
-        <q-item-section side class="text-white">{{
-          DateUtils.toLocaleString(watchlist?.created_at)
-        }}</q-item-section>
-      </q-item>
-      <q-separator />
-      <q-item>
-        <q-item-section side>
-          <q-icon color="white" name="event" />
-        </q-item-section>
-        <q-item-section>Atualizada em:</q-item-section>
-        <q-item-section side class="text-white">{{
-          DateUtils.toLocaleString(watchlist?.updated_at)
-        }}</q-item-section>
-      </q-item>
-    </q-list>
-  </BaseTooltip>
+  <details class="mm-list-info">
+    <summary>Sobre esta lista</summary>
+    <dl>
+      <dt>Criada por</dt>
+      <dd>{{ watchlist.user.name }}</dd>
+      <dt>Filmes</dt>
+      <dd>{{ watchlist.movies_wishlists?.length || 0 }}/100</dd>
+      <dt>Criação</dt>
+      <dd>{{ DateUtils.toLocaleString(watchlist.created_at) }}</dd>
+      <dt>Atualização</dt>
+      <dd>{{ DateUtils.toLocaleString(watchlist.updated_at) }}</dd>
+    </dl>
+  </details>
 </template>
+
 <script setup lang="ts">
 import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
-
-import BaseTooltip from 'src/core/components/BaseTooltip.vue';
 
 import DateUtils from 'src/core/utils/DateUtils';
 
 interface Props {
   watchlist: WatchlistType;
 }
-const props = defineProps<Props>();
+defineProps<Props>();
 </script>
+
+<style scoped>
+.mm-list-info {
+  font-size: 0.85rem;
+  max-width: 360px;
+}
+.mm-list-info summary {
+  cursor: pointer;
+  color: var(--primary);
+}
+dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--grey-dark2);
+  border-radius: 12px;
+}
+dt {
+  opacity: 0.6;
+}
+dd {
+  margin: 0;
+}
+</style>

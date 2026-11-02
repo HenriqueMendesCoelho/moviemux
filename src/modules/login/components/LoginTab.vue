@@ -1,161 +1,80 @@
 <template>
-  <div class="row justify-center full-height" style="overflow-y: hidden">
-    <h2 class="text-h3 title">Login</h2>
-    <BaseHorizontalSeparator />
-    <div class="col-10 justify-center">
-      <q-input
-        ref="inputEmailRef"
-        name="username"
-        label="E-mail"
-        v-model="email"
-        color="kb-primary"
-        bg-color="grey-mid"
-        :type="'email'"
-        :rules="[(val) => !!val]"
-      >
-        <template v-slot:append>
-          <q-icon name="mail" />
-        </template>
-      </q-input>
-    </div>
-    <div class="col-10 justify-center q-mt-md">
-      <BasePasswordInput
-        ref="inputPasswordRef"
-        @keyup.enter="login()"
-        v-model="password"
-        required
-        :error-text-required="false"
-      />
-      <button class="btn-underline q-mt-md" @click="changeTab('forgot')">
-        Esqueceu sua senha ?
+  <form class="mm-form" @submit.prevent="login">
+    <header>
+      <p class="mm-eyebrow">SUA PRÓXIMA SESSÃO COMEÇA AQUI</p>
+      <h2>Bom ter você de volta.</h2>
+      <p class="mm-muted">Entre para descobrir, avaliar e compartilhar filmes.</p>
+    </header>
+    <label class="mm-field"
+      >E-mail<input v-model.trim="email" type="email" autocomplete="username" required
+    /></label>
+    <label class="mm-field"
+      >Senha
+      <div class="mm-input-action">
+        <input
+          v-model="password"
+          :type="showPassword ? 'text' : 'password'"
+          autocomplete="current-password"
+          required
+        /><button
+          type="button"
+          class="mm-link"
+          :aria-pressed="showPassword"
+          @click="showPassword = !showPassword"
+        >
+          {{ showPassword ? 'Ocultar' : 'Mostrar' }}
+        </button>
+      </div></label
+    >
+    <button type="button" class="mm-link" :disabled="busy" @click="emit('changeTab', 'forgot')">
+      Esqueci minha senha
+    </button>
+    <p v-if="error" role="alert" class="mm-error">{{ error }}</p>
+    <button class="mm-btn mm-btn-primary" :disabled="busy">
+      {{ busy ? 'Entrando…' : 'Entrar no Movie Mux' }}
+    </button>
+    <p v-if="createAccount" class="mm-muted">
+      Recebeu um convite?
+      <button type="button" class="mm-link" :disabled="busy" @click="emit('changeTab', 'create')">
+        Criar minha conta
       </button>
-    </div>
-    <div class="col-10 q-mt-xl">
-      <q-btn
-        ref="btnLoginRef"
-        class="btn-login"
-        label="entrar"
-        @click="login()"
-        color="kb-primary"
-        text-color="black"
-        style="width: 100%"
-      />
-    </div>
-    <div class="col-10 q-mt-xl">
-      <div class="g-signin2" data-onsuccess="onSignIn"></div>
-    </div>
-    <div class="col-12 row justify-center q-mt-md">
-      <div class="row" v-if="props.createAccount">
-        <p style="color: white">
-          Não tem conta ?
-          <button class="btn-underline" @click="changeTab('create')">Criar agora</button>
-        </p>
-      </div>
-    </div>
-  </div>
+    </p>
+  </form>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-
-import type { QInput } from 'quasar';
-
+import { safeReturnPath } from '../utils/AccountUtils';
 import { useUserStore } from 'src/core/stores/UserStore';
-
-import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
-import BasePasswordInput from 'src/core/components/BasePasswordInput.vue';
-import { showError } from 'src/core/utils/NotificationUtils';
-
-type btnFocusRefType = {
-  $el: {
-    focus: () => void;
-  };
-};
-
-interface Props {
-  createAccount: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  createAccount: true,
-});
-
-const emit = defineEmits<{
-  (e: 'changeTab', value: string): void;
-  (e: 'loading', value: boolean): void;
-}>();
-
+withDefaults(defineProps<{ createAccount?: boolean }>(), { createAccount: true });
+const emit = defineEmits<{ changeTab: [value: string]; loading: [value: boolean] }>();
 const route = useRoute();
 const router = useRouter();
-
-const inputEmailRef = ref<InstanceType<typeof QInput>>();
-const inputPasswordRef = ref<InstanceType<typeof BasePasswordInput>>();
-const btnLoginRef = ref<btnFocusRefType>();
-
-const userStore = useUserStore();
-
+const store = useUserStore();
 const email = ref('');
 const password = ref('');
-
-onMounted(() => {
-  btnLoginRef.value?.$el.focus();
-});
-
-function changeTab(tab: string) {
-  emit('changeTab', tab);
-}
+const showPassword = ref(false);
+const busy = ref(false);
+const error = ref('');
 async function login() {
-  if (await hasErrors()) {
-    return;
-  }
-
+  if (busy.value) return;
+  busy.value = true;
+  error.value = '';
+  emit('loading', true);
   try {
-    emit('loading', true);
-    await userStore.login({ email: email.value, password: password.value });
-    if (route.name === 'login') {
-      if (route.query.from) {
-        await router.push(route.query.from.toString());
-        return;
-      }
-
-      await router.push('/home');
+    await store.login({ email: email.value, password: password.value });
+    if (route.name === 'login' || route.path === '/') {
+      await router.push(safeReturnPath(route.query.from));
     } else {
+      // Rebuild request-scoped data, socket authentication and route permissions.
+      // This preserves the original session-reauthentication behavior.
       window.location.reload();
     }
   } catch {
-    showError('Error ao fazer login, tente novamente mais tarde!');
+    error.value = 'Não foi possível entrar. Confira suas credenciais e tente novamente.';
   } finally {
+    busy.value = false;
     emit('loading', false);
   }
 }
-async function hasErrors() {
-  let hasErrors = false;
-  if (inputEmailRef.value) {
-    await inputEmailRef.value.validate();
-    hasErrors = inputEmailRef.value.hasError;
-  }
-  if (inputPasswordRef.value) {
-    hasErrors = await inputPasswordRef.value.hasErrors();
-  }
-  return hasErrors;
-}
 </script>
-
-<style lang="scss" scoped>
-.title {
-  color: var(--primary);
-}
-.btn-underline {
-  color: var(--primary);
-  text-decoration: underline;
-}
-
-.btn-login {
-  font-weight: 600;
-  &:hover {
-    background-color: var(--light-blue);
-    box-shadow: 0 10px 30px -20px var(--light-blue);
-    transition: 0.2s ease-out;
-  }
-}
-</style>

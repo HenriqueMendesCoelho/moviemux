@@ -1,72 +1,77 @@
 <template>
   <BaseContainerMain>
-    <div>
-      <MovieSuperiorButtons :show-edit-btn="showEditBtn()" show-refresh-btn />
-      <BaseHorizontalSeparator />
+    <p v-if="loading" role="status">Carregando filme…</p>
+    <div v-else-if="error" role="alert" class="mm-empty">
+      <p>{{ error }}</p>
+      <button class="mm-button" @click="loadMovie">Tentar novamente</button>
     </div>
-    <div>
-      <MovieForm ref="formMovieRef" readonly />
-      <MovieTableNotes :movie-id="movieId" />
-      <MovieVideoEmbedded :width="isMobile ? '100%' : '560px'" />
-    </div>
+    <template v-else-if="ready && movie.id === movieId"
+      ><MovieSuperiorButtons :show-edit-btn="canEdit" show-refresh-btn /><MovieForm
+        readonly /><MovieTableNotes :movie-id="movieId" /><MovieVideoEmbedded width="100%"
+    /></template>
   </BaseContainerMain>
 </template>
-
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useMeta, useQuasar } from 'quasar';
-
+import { computed, ref, watch, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { useHead } from '#imports';
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
-import BaseHorizontalSeparator from 'src/core/components/BaseHorizontalSeparator.vue';
-
 import MovieSuperiorButtons from '../components/MovieSuperiorButtons.vue';
 import MovieForm from '../components/MovieForm.vue';
 import MovieTableNotes from '../components/MovieTableNotes.vue';
 import MovieVideoEmbedded from '../components/MovieVideoEmbedded.vue';
-
 import { useMovieStore } from '../stores/MovieStore';
 import { useUserStore } from 'src/core/stores/UserStore';
-
+import { useMovieRequests } from '../composables/useMovieRequests';
 import MovieService from '../services/MovieService';
-import { showError } from 'src/core/utils/NotificationUtils';
-
-const route = useRoute();
-const router = useRouter();
-const $q = useQuasar();
-const user = computed(() => useUserStore().user);
-
-const isMobile = $q.platform.is.mobile;
-const movieId = ref(route.params.id?.toString() || '');
-const moviePage = computed(() => useMovieStore().moviePage);
-
-onMounted(async () => {
-  if (movieId.value === moviePage.value.selectedMovie.id) {
-    return;
-  }
-  await loadMovie();
+const route = useRoute(),
+  store = useMovieStore(),
+  user = useUserStore(),
+  requests = useMovieRequests();
+const movieId = computed(() => route.params.id?.toString() || ''),
+  movie = computed(() => store.moviePage.selectedMovie);
+const loading = ref(true),
+  ready = ref(false),
+  error = ref('');
+const canEdit = computed(
+  () => user.user.isLoged && (user.isAdmin || user.user.id === movie.value.user_id),
+);
+let mounted = false;
+useHead(() => ({
+  title: `Movie Mux - ${ready.value ? movie.value.portuguese_title || 'Filme' : 'Filme'}`,
+}));
+onMounted(() => {
+  mounted = true;
+  void loadMovie();
 });
-
+watch(
+  requests.context,
+  () => {
+    ready.value = false;
+    error.value = '';
+    if (mounted && route.name === 'movie') void loadMovie();
+  },
+  { flush: 'sync' },
+);
 async function loadMovie() {
-  if (!movieId.value) {
+  ready.value = false;
+  error.value = '';
+  if (!movieId.value || !user.user.isLoged) {
+    loading.value = false;
     return;
   }
+  const current = requests.begin('load'),
+    id = movieId.value;
+  loading.value = true;
   try {
-    const res = await MovieService.getMovie(movieId.value);
-    moviePage.value.selectedMovie = res;
-    setDocumentTitle();
+    const result = await MovieService.getMovie(id);
+    if (!current()) return;
+    store.moviePage.selectedMovie = result;
+    ready.value = true;
   } catch {
-    showError('Erro ao buscar filme. Tente novamente mais tarde.');
-    await router.push('/home');
+    if (current()) error.value = 'Não foi possível carregar o filme.';
+  } finally {
+    if (current()) loading.value = false;
   }
-}
-function setDocumentTitle() {
-  useMeta({
-    title: `Movie Mux - ${moviePage.value.selectedMovie.portuguese_title}`,
-  });
-}
-
-function showEditBtn() {
-  return useUserStore().isAdmin || user.value.id === moviePage.value.selectedMovie.user_id;
 }
 </script>

@@ -39,3 +39,6 @@ teste*
 .claude
 CLAUDE.md
 AGENTS.md
+.nuxt
+.output
+.pnpm-store

@@ -1,13 +1,19 @@
-import { Loading } from 'quasar';
-
+let pending = 0;
+function update(message = '') {
+  if (import.meta.client)
+    window.dispatchEvent(
+      new CustomEvent('moviemux:loading', { detail: { active: pending > 0, message } }),
+    );
+}
 export function showLoading() {
-  Loading.show();
+  pending++;
+  update();
 }
 export function hideLoading() {
-  Loading.hide();
+  pending = Math.max(0, pending - 1);
+  update();
 }
 export function showLoadingWithMessage(message: string) {
-  Loading.show({
-    message: message,
-  });
+  pending++;
+  update(message);
 }

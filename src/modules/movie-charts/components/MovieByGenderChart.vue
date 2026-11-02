@@ -1,97 +1,36 @@
 <template>
   <apex-chart
-    v-if="showChart"
-    :height="isDesktop ? '' : '400px'"
-    :width="isDesktop ? '600px' : '100%'"
+    v-if="chartsData"
+    height="380"
+    width="100%"
     type="donut"
     :options="chartOptions"
     :series="series"
   />
+  <p v-else class="mm-empty">As estatísticas aparecerão aqui.</p>
 </template>
-
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
-import { useQuasar } from 'quasar';
-
+import { computed, useId } from 'vue';
+import type { ApexOptions } from 'apexcharts';
 import type { MovieStatistics } from 'src/core/types/statistics/Statistics';
-
-const props = defineProps<{
-  chartsData?: MovieStatistics;
-}>();
-
-const $q = useQuasar();
-const isDesktop = $q.platform.is.desktop;
-const chartFontSize = ref(isDesktop ? '20px' : '15px');
-
-const chartOptions = ref({
-  chart: {
-    id: 'movies-six-months-ago',
-    foreColor: '#fff',
-    toolbar: {
-      show: false,
-    },
-  },
-  labels: [] as string[],
-  tooltip: {
-    enabled: true,
-  },
-  legend: {
-    position: 'bottom', // Position the legend at the bottom
-  },
+import { useStyleStore } from 'src/core/stores/StyleStore';
+const props = defineProps<{ chartsData?: MovieStatistics }>();
+const style = useStyleStore();
+const id = `movie-genres-${useId()}`;
+const foreground = computed(() => (style.layoutSettings.darkMode ? '#e5edf5' : '#203247'));
+const chartOptions = computed<ApexOptions>(() => ({
+  chart: { id, foreColor: foreground.value, background: 'transparent', toolbar: { show: false } },
+  colors: ['#00f6ff', '#02848b', '#58b4bc', '#73d1d6', '#a3e6e9', '#315f70'],
+  labels: Object.keys(props.chartsData?.movies_by_gender || {}),
+  theme: { mode: style.layoutSettings.darkMode ? 'dark' : 'light' },
+  stroke: { colors: [style.layoutSettings.darkMode ? '#1f2531' : '#ffffff'], width: 3 },
+  tooltip: { enabled: true, theme: style.layoutSettings.darkMode ? 'dark' : 'light' },
+  legend: { position: 'bottom' },
   title: {
-    text: 'Distribuição de Gêneros dos Filmes',
+    text: 'Distribuição de gêneros',
     align: 'center',
-    margin: 10,
-    offsetX: 0,
-    offsetY: 0,
-    floating: false,
-    style: {
-      fontSize: chartFontSize.value,
-      fontWeight: '300',
-      color: '#fff',
-    },
+    style: { fontSize: '16px', fontWeight: 500, color: foreground.value },
   },
-});
-const series = ref<number[]>([]);
-
-const showChart = ref(false);
-
-onMounted(() => {
-  if (!props.chartsData) {
-    return;
-  }
-
-  setLabels();
-  setData();
-  showChart.value = true;
-});
-
-watch(
-  () => props.chartsData,
-  () => {
-    setLabels();
-    setData();
-    showChart.value = true;
-  },
-);
-
-function setLabels() {
-  if (!props.chartsData?.movies_by_gender) {
-    return;
-  }
-
-  const moviesByGender = Object.keys(props.chartsData?.movies_by_gender);
-
-  chartOptions.value.labels = moviesByGender;
-}
-function setData() {
-  const moviesByGender = props.chartsData?.movies_by_gender;
-  if (!moviesByGender) {
-    return;
-  }
-
-  const values = Object.values(moviesByGender);
-
-  series.value.push(...values);
-}
+}));
+const series = computed(() => Object.values(props.chartsData?.movies_by_gender || {}));
 </script>

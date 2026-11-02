@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios from 'src/core/http';
 
-const BASE_URL = import.meta.env.VUE_APP_KB_CINE_API;
+const BASE_URL = '';
 const API_DISCORD = `${BASE_URL}/restricted/discord`;
 
 export default {

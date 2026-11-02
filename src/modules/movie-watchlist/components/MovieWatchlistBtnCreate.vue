@@ -1,74 +1,92 @@
 <template>
-  <div class="col-auto">
-    <q-btn icon="add" color="white" size="md" flat round @click="dialog()" />
-    <BaseTooltip :delay="500">Criar lista</BaseTooltip>
+  <div>
+    <button class="mm-button mm-button-primary" type="button" @click="openDialog">
+      + Criar lista
+    </button>
+    <BaseModal v-model="visible" title="Nova lista de filmes">
+      <form @submit.prevent="createWishlist">
+        <label
+          >Nome<input
+            v-model="name"
+            required
+            minlength="3"
+            maxlength="30"
+            autofocus
+            placeholder="Ex.: Filmes para o fim de semana"
+        /></label>
+        <p>Use entre 3 e 30 caracteres.</p>
+        <div class="mm-actions">
+          <button class="mm-button" type="button" @click="visible = false">Cancelar</button
+          ><button class="mm-button mm-button-primary" :disabled="busy || name.trim().length < 3">
+            {{ busy ? 'Criando…' : 'Criar lista' }}
+          </button>
+        </div>
+      </form>
+    </BaseModal>
   </div>
 </template>
-
 <script setup lang="ts">
-import { useQuasar } from 'quasar';
+import { onBeforeUnmount, ref, watch } from 'vue';
+import { useUserStore } from 'src/core/stores/UserStore';
+import BaseModal from 'src/core/components/BaseModal.vue';
 import axios from 'axios';
-
-import BaseTooltip from 'src/core/components/BaseTooltip.vue';
-
 import MovieWatchlistService from '../services/MovieWatchlistService';
-import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
-
-const $q = useQuasar();
-
-const emit = defineEmits<{
-  (e: 'ok', value: void): void;
-}>();
-
-function dialog() {
-  $q.dialog({
-    message: 'Insira o nome da lista (Mínimo 3 caracteres e máximo de 30)',
-    persistent: false,
-    color: 'kb-primary',
-    class: 'bg-grey-mid',
-    prompt: {
-      model: '',
-      type: 'text',
-      isValid: (val) => !!val && val.length >= 3 && val.length <= 30,
-    },
-    ok: {
-      label: 'Cadastrar',
-      flat: true,
-    },
-    cancel: {
-      label: 'Cancelar',
-      flat: true,
-    },
-    seamless: false,
-    focus: 'ok',
-  }).onOk((data: string | undefined) => {
-    createWishlist(data).catch(() => void 0);
-  });
+const emit = defineEmits<{ (e: 'ok'): void }>();
+const user = useUserStore();
+let disposed = false;
+let generation = 0;
+onBeforeUnmount(() => {
+  disposed = true;
+  generation++;
+});
+const visible = ref(false);
+const name = ref('');
+const busy = ref(false);
+watch(
+  () => user.user.id,
+  () => {
+    generation++;
+    visible.value = false;
+    busy.value = false;
+  },
+);
+function openDialog() {
+  if (busy.value || !user.user.isLoged) return;
+  name.value = '';
+  visible.value = true;
 }
-async function createWishlist(name?: string) {
-  if (!name) {
+async function createWishlist() {
+  if (
+    !user.user.isLoged ||
+    busy.value ||
+    name.value.trim().length < 3 ||
+    name.value.trim().length > 30
+  )
     return;
-  }
+  const version = generation;
+  const session = user.user;
+  const current = () =>
+    !disposed && version === generation && session === user.user && user.user.isLoged;
+  busy.value = true;
   try {
-    showLoading();
-    await MovieWatchlistService.createWatchlist(name);
-    showSuccess('Lista de filmes criada com sucesso');
+    await MovieWatchlistService.createWatchlist(name.value.trim());
+    if (!current()) return;
+    showSuccess('Lista criada com sucesso');
+    visible.value = false;
     emit('ok');
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      if (error.response?.data?.message === 'User has reached wishlits limit') {
-        showError('Você atingiu o limite de 10 listas que podem ser criadas');
-      }
-
-      if (error.response?.data?.message.includes('Wishlist already created with the name')) {
-        showError('Já existe uma lista criada com o nome ' + name);
-      }
-    } else {
-      showError('Erro ao criar lista');
-    }
+  } catch (error) {
+    if (!current()) return;
+    const message = axios.isAxiosError(error) ? String(error.response?.data?.message || '') : '';
+    showError(
+      message.includes('wishlits limit')
+        ? 'Você atingiu o limite de 10 listas'
+        : message.includes('Wishlist already created with the name')
+          ? 'Já existe uma lista com esse nome'
+          : 'Erro ao criar lista',
+    );
   } finally {
-    hideLoading();
+    if (current()) busy.value = false;
   }
 }
 </script>

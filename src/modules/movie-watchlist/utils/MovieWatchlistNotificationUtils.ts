@@ -1,51 +1,11 @@
-import { Notify } from 'quasar';
-
-function notificationReorder() {
-  Notify.create({
-    icon: 'announcement',
-    color: 'grey-mid',
-    message: 'Reordene sua lista! Arraste e solte as imagens para organizá-las como desejar',
-    position: 'top',
-    progress: true,
-    timeout: 8000,
-    actions: [
-      {
-        icon: 'close',
-        color: 'white',
-      },
-    ],
-  });
+import { showInfo } from 'src/core/utils/NotificationUtils';
+export function notificationReorder() {
+  showInfo('Arraste os filmes ou use as setas para reordenar. Salve ou cancele na barra da lista.');
 }
-
-type ConfirmReorderCallbacks = {
-  done: () => void;
-  cancel: () => void;
-};
-
-function confirmReorder(callback: ConfirmReorderCallbacks) {
-  Notify.create({
-    color: 'grey-mid',
-    message: 'Deseja salvar a ordenação?',
-    position: 'bottom',
-    timeout: 0,
-    multiLine: false,
-    actions: [
-      {
-        icon: 'done',
-        color: 'white',
-        handler() {
-          callback.done();
-        },
-      },
-      {
-        icon: 'close',
-        color: 'white',
-        handler() {
-          callback.cancel();
-        },
-      },
-    ],
-  });
+type ConfirmReorderCallbacks = { done: () => void; cancel: () => void };
+/** Legacy callback entry point; the watchlist view now renders persistent Save/Cancel controls. */
+export function confirmReorder(callback: ConfirmReorderCallbacks) {
+  if (typeof window !== 'undefined' && window.confirm('Deseja salvar a ordenação?'))
+    callback.done();
+  else callback.cancel();
 }
-
-export { notificationReorder, confirmReorder };

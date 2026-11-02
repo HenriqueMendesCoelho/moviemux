@@ -1,24 +1,27 @@
 <template>
-  <div class="absolute-bottom-right" style="position: fixed; bottom: 5vh; right: 5vh">
-    <q-fab color="kb-primary" icon="keyboard_arrow_up" direction="up">
-      <slot name="before-top"></slot>
-      <q-fab-action
-        color="grey-mid2"
-        @click="scrollToTop"
-        icon="keyboard_arrow_up"
-        :external-label="true"
-        label="IR PARA O TOPO"
-        label-class="bg-grey-mid2"
-        label-position="left"
-      />
-      <slot name="after-top"></slot>
-    </q-fab>
-  </div>
+  <aside class="mm-floating-actions">
+    <slot name="before-top" /><button
+      type="button"
+      class="mm-button mm-button-primary"
+      aria-label="Ir para o topo"
+      @click="scrollToTop"
+    >
+      ↑</button
+    ><slot name="after-top" />
+  </aside>
 </template>
-
-<script lang="ts" setup>
+<script setup lang="ts">
 import { useStyleStore } from 'src/core/stores/StyleStore';
-
 const styleStore = useStyleStore();
 const scrollToTop = () => styleStore.scrollToContainer(0, 0, 'smooth');
 </script>
+<style scoped>
+.mm-floating-actions {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  gap: 8px;
+  z-index: 20;
+}
+</style>

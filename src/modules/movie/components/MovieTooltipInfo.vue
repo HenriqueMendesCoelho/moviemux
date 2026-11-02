@@ -1,66 +1,24 @@
 <template>
-  <BaseTooltip
-    class="q-pa-none q-ma-none"
-    :delay="1200"
-    :hide-delay="300"
-    style="border-radius: 15px"
-  >
-    <q-list bordered style="border-radius: 15px; min-width: 15vw" :dense="dense()">
-      <q-item>
-        <q-item-section avatar>
-          <q-icon color="white" name="fa-solid fa-crown" />
-        </q-item-section>
-        <q-item-section>Cadastrado por:</q-item-section>
-        <q-item-section>{{ movie.user_name || 'Usuário desconhecido' }}</q-item-section>
-      </q-item>
-      <q-separator />
-      <q-item>
-        <q-item-section avatar>
-          <q-icon color="white" name="event" />
-        </q-item-section>
-        <q-item-section>Criado em:</q-item-section>
-        <q-item-section>{{ getCreatedAt() }}</q-item-section>
-      </q-item>
-      <q-separator />
-      <q-item>
-        <q-item-section avatar>
-          <q-icon color="white" name="event" />
-        </q-item-section>
-        <q-item-section>Atualizado em:</q-item-section>
-        <q-item-section>{{ getUpdatedAt() }}</q-item-section>
-      </q-item>
-    </q-list>
-  </BaseTooltip>
+  <details class="mm-movie-info">
+    <summary>Sobre este cadastro</summary>
+    <p>Cadastrado por {{ movie.user_name || 'Usuário desconhecido' }}</p>
+    <p>Criado em {{ movie.created_at ? DateUtils.toLocaleString(movie.created_at) : '—' }}</p>
+    <p>Atualizado em {{ movie.updated_at ? DateUtils.toLocaleString(movie.updated_at) : '—' }}</p>
+  </details>
 </template>
-<script lang="ts" setup>
-import { computed } from 'vue';
-import { useQuasar } from 'quasar';
-
-import BaseTooltip from 'src/core/components/BaseTooltip.vue';
-
-import { useMovieStore } from '../stores/MovieStore';
-
+<script setup lang="ts">
+import { useMovieContext } from '../composables/useMovieContext';
 import DateUtils from 'src/core/utils/DateUtils';
-
-const $q = useQuasar();
-const movieStore = useMovieStore();
-const movie = computed(() => movieStore.moviePage.selectedMovie);
-
-function getCreatedAt() {
-  if (!movie.value.created_at) {
-    return 'Erro ao carregar';
-  }
-
-  return DateUtils.toLocaleString(movie.value.created_at);
-}
-function getUpdatedAt() {
-  if (!movie.value.updated_at) {
-    return 'Erro ao carregar';
-  }
-
-  return DateUtils.toLocaleString(movie.value.updated_at);
-}
-function dense() {
-  return $q.screen.height <= 1050;
-}
+const movie = useMovieContext();
 </script>
+<style scoped>
+.mm-movie-info {
+  font-size: 0.8rem;
+  line-height: 1.7;
+  margin: 1rem 0;
+  opacity: 0.75;
+}
+.mm-movie-info summary {
+  cursor: pointer;
+}
+</style>

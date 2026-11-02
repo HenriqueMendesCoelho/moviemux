@@ -1,69 +1,36 @@
 <template>
-  <q-card bordered flat class="bg-grey-mid cursor-pointer" @click="emit('clickOnCard')">
-    <q-list>
-      <q-item>
-        <q-item-section side>
-          <q-icon name="list" color="white" />
-        </q-item-section>
-        <q-item-section>
-          <q-item-label class="text-subtitle1">{{ wishlist.name }}</q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-btn icon="link" color="white" size="md" flat round @click.prevent.stop="emit('copy-url')" />
-        </q-item-section>
-        <q-item-section side>
-          <q-btn icon="delete" color="white" size="md" flat round @click.prevent.stop="emit('delete')" />
-        </q-item-section>
-      </q-item>
-      <q-separator />
-      <q-item>
-        <q-item-section side>
-          <q-icon name="public" color="white" />
-        </q-item-section>
-        <q-item-section>
-          <q-item-label>Pública</q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-item-label>{{ wishlist.shareable ? 'Sim' : 'Não' }}</q-item-label>
-        </q-item-section>
-      </q-item>
-      <q-item>
-        <q-item-section side>
-          <q-icon name="fa-solid fa-film" color="white" />
-        </q-item-section>
-        <q-item-section>
-          <q-item-label>Qtd. Filmes</q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-item-label>{{ wishlist.movies_wishlists?.length ? wishlist.movies_wishlists?.length : 0 }}/100</q-item-label>
-        </q-item-section>
-      </q-item>
-      <q-item>
-        <q-item-section side>
-          <q-icon name="event" color="white" />
-        </q-item-section>
-        <q-item-section>
-          <q-item-label>Criada em</q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-item-label>{{ DateUtils.toLocaleString(props.wishlist.created_at) }}</q-item-label>
-        </q-item-section>
-      </q-item>
-      <q-item>
-        <q-item-section side>
-          <q-icon name="event" color="white" />
-        </q-item-section>
-        <q-item-section>
-          <q-item-label>Última atualização</q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-item-label>{{ DateUtils.toLocaleString(props.wishlist.updated_at) }}</q-item-label>
-        </q-item-section>
-      </q-item>
-    </q-list>
-    <MovieWatchlistCardContextMenu @delete="emit('delete')" @copy-url="emit('copy-url')" />
-  </q-card>
+  <article class="mm-list-card" @click="emit('clickOnCard')">
+    <header>
+      <h3>
+        <router-link :to="{ name: 'movie-watchlist-id', params: { id: wishlist.id } }">{{
+          wishlist.name
+        }}</router-link>
+      </h3>
+      <span class="mm-badge">{{ wishlist.shareable ? 'Pública' : 'Privada' }}</span>
+    </header>
+    <strong>{{ wishlist.movies_wishlists?.length || 0 }}<small> / 100 filmes</small></strong>
+    <p>Criada em {{ DateUtils.toLocaleString(wishlist.created_at) }}</p>
+    <p>Atualizada em {{ DateUtils.toLocaleString(wishlist.updated_at) }}</p>
+    <div class="mm-actions">
+      <button type="button" class="mm-button" @click.prevent.stop="emit('copy-url')">
+        Copiar link</button
+      ><button
+        type="button"
+        class="mm-button mm-button-danger"
+        :disabled="disabled"
+        @click.prevent.stop="emit('delete')"
+      >
+        Excluir
+      </button>
+    </div>
+    <MovieWatchlistCardContextMenu
+      v-if="!disabled"
+      @delete="emit('delete')"
+      @copy-url="emit('copy-url')"
+    />
+  </article>
 </template>
+
 <script setup lang="ts">
 import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 
@@ -73,6 +40,7 @@ import MovieWatchlistCardContextMenu from './MovieWatchlistCardContextMenu.vue';
 
 interface Props {
   wishlist: WatchlistType;
+  disabled?: boolean;
 }
 
 const emit = defineEmits<{
@@ -81,5 +49,48 @@ const emit = defineEmits<{
   (e: 'copy-url', value: void): void;
 }>();
 
-const props = defineProps<Props>();
+defineProps<Props>();
 </script>
+
+<style scoped>
+.mm-list-card {
+  height: 100%;
+  padding: 24px;
+  border: 1px solid var(--grey-mid2);
+  border-radius: 18px;
+  background: var(--grey-dark2);
+  transition:
+    transform 0.2s,
+    border-color 0.2s;
+}
+.mm-list-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary);
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+h3 {
+  font-size: 1.1rem;
+}
+strong {
+  display: block;
+  font-size: 2rem;
+  margin-bottom: 18px;
+}
+small {
+  font-size: 0.9rem;
+  opacity: 0.55;
+}
+p {
+  font-size: 0.8rem;
+  opacity: 0.6;
+  line-height: 1.8;
+}
+.mm-actions {
+  margin-top: 20px;
+}
+</style>

@@ -1,52 +1,37 @@
 <template>
-  <q-chip square :color="getChipColor()[0]" text-color="white" :icon-right="getChipColor()[1]">
-    {{ getNoteAverage().toFixed(1) }}
-  </q-chip>
+  <span class="mm-rating" :class="tone" :aria-label="`Nota média ${average.toFixed(1)}`"
+    >★ {{ average.toFixed(1) }}</span
+  >
 </template>
 <script setup lang="ts">
+import { computed } from 'vue';
 import type Movie from 'src/core/domain/movie/movie';
-
-const props = defineProps<{
-  movie: Movie;
-}>();
-
-function getNoteAverage() {
-  if (!props.movie?.notes?.length) {
-    return 0;
-  }
-  let sum = 0;
-  let count = 0;
-  for (const note of props.movie.notes) {
-    sum += note.note;
-    count++;
-  }
-  const average = sum / count;
-  return average;
-}
-
-function getChipColor() {
-  const averageNote = getNoteAverage();
-
-  if (averageNote === null || averageNote === undefined) {
-    return ['grey', 'sym_o_star', 'white'];
-  }
-
-  if (averageNote <= 5) {
-    return ['negative', 'sym_o_star'];
-  }
-
-  if (averageNote > 5 && averageNote <= 7) {
-    return ['orange', 'star_half'];
-  }
-
-  if (averageNote > 7 && averageNote <= 9.5) {
-    return ['positive', 'star'];
-  }
-
-  if (averageNote > 9.5) {
-    return ['kb-primary', 'hotel_class'];
-  }
-
-  return ['grey', 'sym_o_star'];
-}
+const props = defineProps<{ movie: Movie }>();
+const average = computed(() => {
+  const ratings = (props.movie.notes || [])
+    .map((note) => note.note)
+    .filter((note): note is number => typeof note === 'number' && Number.isFinite(note));
+  return ratings.length ? ratings.reduce((sum, note) => sum + note, 0) / ratings.length : 0;
+});
+const tone = computed(() =>
+  average.value > 7 ? 'mm-rating-good' : average.value > 5 ? 'mm-rating-medium' : 'mm-rating-low',
+);
 </script>
+<style scoped>
+.mm-rating {
+  display: inline-flex;
+  gap: 6px;
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: #282d39;
+  color: #ffc66d;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.mm-rating-good {
+  color: #86efac;
+}
+.mm-rating-low {
+  color: #fca5a5;
+}
+</style>
