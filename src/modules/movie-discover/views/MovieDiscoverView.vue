@@ -1,5 +1,5 @@
 <template>
-  <BaseContainerMain>
+  <BaseContainerMain class="mm-browse-scope">
     <header class="mm-discover-header">
       <p class="mm-eyebrow">Catálogo TMDB</p>
       <h1>Descobrir filmes<span>.</span></h1>

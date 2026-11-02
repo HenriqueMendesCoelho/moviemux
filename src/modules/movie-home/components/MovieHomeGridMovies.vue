@@ -1,5 +1,5 @@
 <template>
-  <section class="mm-section">
+  <section class="mm-section mm-browse-scope">
     <header class="mm-section-header">
       <div>
         <span class="mm-eyebrow">Seu cinema, sua comunidade</span>
