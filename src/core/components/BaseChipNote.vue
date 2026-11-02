@@ -6,6 +6,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type Movie from 'src/core/domain/movie/movie';
+import { ratingTone } from 'src/core/utils/RatingUtils';
 const props = defineProps<{ movie: Movie }>();
 const average = computed(() => {
   const ratings = (props.movie.notes || [])
@@ -13,9 +14,7 @@ const average = computed(() => {
     .filter((note): note is number => typeof note === 'number' && Number.isFinite(note));
   return ratings.length ? ratings.reduce((sum, note) => sum + note, 0) / ratings.length : 0;
 });
-const tone = computed(() =>
-  average.value > 7 ? 'mm-rating-good' : average.value > 5 ? 'mm-rating-medium' : 'mm-rating-low',
-);
+const tone = computed(() => `mm-rating-${ratingTone(average.value)}`);
 </script>
 <style scoped>
 .mm-rating {
@@ -27,6 +26,9 @@ const tone = computed(() =>
   color: #ffc66d;
   font-weight: 700;
   font-size: 0.85rem;
+}
+.mm-rating-perfect {
+  color: #00f6ff;
 }
 .mm-rating-good {
   color: #86efac;

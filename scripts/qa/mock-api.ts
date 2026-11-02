@@ -91,6 +91,12 @@ for (const movie of movies) {
     });
   }
 }
+// Optional visible badge examples for local QA; never changes the default fixture.
+if (process.env.QA_SCORE_BADGES === 'true') {
+  for (const [index, score] of [10, 9, 0].entries()) {
+    for (const note of movies[index]!.notes) note.note = score;
+  }
+}
 const user = {
   id: 'qa-user',
   name: 'Conta de demonstração',
