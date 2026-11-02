@@ -42,7 +42,37 @@ watch(tab, async () => {
 <style scoped>
 .mm-auth-card {
   width: 100%;
-  max-width: 480px;
-  padding: clamp(1.5rem, 4vw, 2.75rem);
+  max-width: 440px;
+  padding: clamp(1.25rem, 2.5vw, 2rem);
+}
+.mm-auth-card :deep(.mm-form) {
+  gap: 0.9rem;
+}
+.mm-auth-card :deep(.mm-form > header) {
+  margin-bottom: 0.35rem;
+}
+.mm-auth-card :deep(.mm-form > header h2) {
+  font-size: clamp(1.35rem, 2vw, 1.65rem);
+  margin: 0.5rem 0;
+}
+.mm-auth-card :deep(.mm-form > header p) {
+  margin: 0.5rem 0;
+  line-height: 1.55;
+}
+.mm-auth-card :deep(.mm-form > header .mm-eyebrow) {
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+}
+.mm-auth-card :deep(.mm-field) {
+  gap: 0.45rem;
+}
+.mm-auth-card :deep(.mm-form > .mm-muted) {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+.mm-auth-card :deep(.mm-form > .mm-link) {
+  justify-self: start;
+  min-height: 36px;
 }
 </style>
