@@ -47,13 +47,21 @@ function page(ids: string[], totalPages = 1): MoviePageableType {
     total_elements: ids.length,
   } as MoviePageableType;
 }
-async function grid() {
+async function grid(attached = false) {
   const wrapper = shallowMount(MovieHomeGridMovies, {
+    ...(attached ? { attachTo: document.body } : {}),
     global: { stubs: { RouterLink: { template: '<a><slot /></a>' } } },
   });
   wrappers.push(wrapper);
   await flushPromises();
   return wrapper;
+}
+async function selectOrder(wrapper: VueWrapper, value: string) {
+  const select = wrapper.findComponent({ name: 'BaseSelect' });
+  select.vm.$emit('update:modelValue', value);
+  await nextTick();
+  select.vm.$emit('change', value);
+  await nextTick();
 }
 async function latest() {
   const wrapper = shallowMount(MovieHomeLastMovies);
@@ -147,8 +155,8 @@ test('search and sort latest request wins and restarts pagination at page one', 
   mocks.listMoviesPageable.mockImplementation(({ sort }) =>
     sort === 'portugueseTitle,asc' ? older.promise : newer.promise,
   );
-  await wrapper.find('select').setValue('portugueseTitle,asc');
-  await wrapper.find('select').setValue('portugueseTitle,desc');
+  await selectOrder(wrapper, 'portugueseTitle,asc');
+  await selectOrder(wrapper, 'portugueseTitle,desc');
   newer.resolve(page(['new-result'], 2));
   await flushPromises();
   older.resolve(page(['stale-result'], 8));
@@ -433,4 +441,61 @@ test('retained home keeps loaded pages and filters while offscreen observer is p
   expect((wrapper.get('#library-search').element as HTMLInputElement).value).toBe('draft filter');
   expect(cards(wrapper)).toEqual(['retained']);
   expect(mocks.listMoviesPageable).toHaveBeenCalledTimes(calls);
+});
+
+test('clear search is accessible, restores input focus and preserves sort and genres', async () => {
+  const wrapper = await grid(true);
+  expect(wrapper.find('button[aria-label="Limpar busca"]').exists()).toBe(false);
+  await selectOrder(wrapper, 'portugueseTitle,desc');
+  const genres = wrapper.findComponent({ name: 'BaseMultiSelect' });
+  genres.vm.$emit('update:modelValue', [7]);
+  await nextTick();
+  await wrapper.get('#library-search').setValue('old title');
+  const clear = wrapper.get('button[aria-label="Limpar busca"]');
+  expect(clear.attributes('type')).toBe('button');
+  (clear.element as HTMLButtonElement).focus();
+  mocks.listMoviesPageable.mockClear();
+  await clear.trigger('click');
+  expect(document.activeElement).toBe(wrapper.get('#library-search').element);
+  expect((wrapper.get('#library-search').element as HTMLInputElement).value).toBe('');
+  expect(wrapper.find('button[aria-label="Limpar busca"]').exists()).toBe(false);
+  expect(mocks.listMoviesPageable).toHaveBeenCalledExactlyOnceWith({
+    title: '',
+    sort: 'portugueseTitle,desc',
+    withGenres: '7',
+    page: 1,
+    size: 30,
+  });
+  await vi.advanceTimersByTimeAsync(300);
+  expect(mocks.listMoviesPageable).toHaveBeenCalledTimes(1);
+  expect(genres.props('modelValue')).toEqual([7]);
+});
+
+test('clear search invalidates pending suggestions and filtered results without stale revival', async () => {
+  const wrapper = await grid();
+  const suggestion = deferred<MoviePageableType>();
+  const filtered = deferred<MoviePageableType>();
+  mocks.listMoviesPageable.mockImplementation(({ title, size }) =>
+    size === 8
+      ? suggestion.promise
+      : title
+        ? filtered.promise
+        : Promise.resolve(page(['unfiltered'], 2)),
+  );
+  const input = wrapper.get('#library-search');
+  await input.trigger('focus');
+  await input.setValue('old');
+  await vi.advanceTimersByTimeAsync(250);
+  await wrapper.get('form').trigger('submit');
+  await wrapper.get('button[aria-label="Limpar busca"]').trigger('click');
+  await flushPromises();
+  expect(cards(wrapper)).toEqual(['unfiltered']);
+  suggestion.resolve(page(['stale suggestion']));
+  filtered.resolve(page(['stale filtered']));
+  await flushPromises();
+  await input.trigger('focus');
+  expect(cards(wrapper)).toEqual(['unfiltered']);
+  expect(wrapper.find('[role="listbox"]').exists()).toBe(false);
+  await input.setValue('new');
+  expect(wrapper.find('[role="listbox"]').exists()).toBe(false);
 });

@@ -5,9 +5,12 @@
       <h1>Descobrir filmes<span>.</span></h1>
       <p>Encontre sua próxima sessão.</p>
     </header>
-    <form class="mm-discover-toolbar" @submit.prevent="submitSearch">
+    <form
+      class="mm-discover-toolbar mm-browse-toolbar mm-browse-toolbar-discover"
+      @submit.prevent="submitSearch"
+    >
       <div class="mm-autocomplete" @focusout="onSearchFocusOut">
-        <label class="mm-sr-only" for="discover-search">Pesquisar filme</label
+        <label class="mm-toolbar-label" for="discover-search">Buscar no catálogo</label
         ><input
           id="discover-search"
           v-model="searchText"
@@ -48,15 +51,19 @@
           </li>
         </ul>
       </div>
-      <label class="mm-sort"
-        >Mostrar<select v-model="sort" @change="applySort">
-          <option value="popular">Populares</option>
-          <option value="playingNow">Nos cinemas</option>
-          <option value="topRated">Melhores avaliações</option>
-          <option value="voteAverageAsc">Menores avaliações</option>
-          <option value="upcoming">Em breve</option>
-        </select></label
-      >
+      <BaseSelect
+        v-model="sort"
+        class="mm-sort"
+        label="Mostrar"
+        :options="[
+          { value: 'popular', label: 'Populares' },
+          { value: 'playingNow', label: 'Nos cinemas' },
+          { value: 'topRated', label: 'Melhores avaliações' },
+          { value: 'voteAverageAsc', label: 'Menores avaliações' },
+          { value: 'upcoming', label: 'Em breve' },
+        ]"
+        @change="applySort"
+      />
       <label class="mm-discover-year"
         >Ano
         <input
@@ -149,6 +156,8 @@ import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { MovieResultResponseTmdb } from 'src/core/types/movie/MovieType';
 import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
+import 'src/core/ui/filter-toolbar.css';
+import BaseSelect from 'src/core/components/BaseSelect.vue';
 import BaseMultiSelect from 'src/core/components/BaseMultiSelect.vue';
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import BaseDialogFormMovieSummary from 'src/core/components/BaseDialogFormMovieSummary.vue';
@@ -482,23 +491,11 @@ async function addMovieToWatchlist(id: string, movieId: number) {
   font-size: 0.9rem;
   margin: 0;
 }
-.mm-discover-toolbar {
-  display: grid;
-  grid-template-columns: minmax(180px, 1.6fr) minmax(165px, 1fr) 135px minmax(180px, 1fr) auto auto;
-  align-items: end;
-  gap: 0.75rem;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-  background: var(--mm-surface);
-  border: 1px solid var(--mm-border);
-  border-radius: 16px;
-}
 .mm-autocomplete {
   position: relative;
   min-width: 0;
 }
 .mm-autocomplete input,
-.mm-sort select,
 .mm-discover-year input {
   width: 100%;
   min-width: 0;
@@ -514,7 +511,6 @@ async function addMovieToWatchlist(id: string, movieId: number) {
 .mm-autocomplete input {
   padding-inline: 0.8rem;
 }
-.mm-sort,
 .mm-discover-year {
   display: flex;
   min-width: 0;
@@ -621,41 +617,9 @@ async function addMovieToWatchlist(id: string, movieId: number) {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
 }
-@media (max-width: 1200px) {
-  .mm-discover-toolbar {
-    grid-template-columns: minmax(160px, 1fr) minmax(160px, 1fr) 135px auto;
-  }
-  .mm-autocomplete {
-    grid-column: span 2;
-  }
-  .mm-sort {
-    grid-column: 3 / span 2;
-  }
-  .mm-discover-toolbar :deep(.mm-multiselect) {
-    grid-column: 2;
-  }
-}
 @media (max-width: 700px) {
   .mm-discover-header {
     padding-bottom: 1rem;
-  }
-  .mm-discover-toolbar {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 0.75rem;
-    padding: 0.8rem;
-    margin-bottom: 1.25rem;
-  }
-  .mm-autocomplete {
-    grid-column: 1 / -1;
-  }
-  .mm-sort {
-    grid-column: 1;
-  }
-  .mm-discover-year {
-    grid-column: 2;
-  }
-  .mm-discover-toolbar :deep(.mm-multiselect) {
-    grid-column: 1 / -1;
   }
   .mm-discover-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

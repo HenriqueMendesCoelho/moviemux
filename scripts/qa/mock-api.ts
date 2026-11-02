@@ -10,6 +10,7 @@ const ratingCount = Math.max(
   1,
   Math.min(50, Number(process.env.QA_RATING_COUNT) || (fixtureCount > 8 ? 2 : 1)),
 );
+const searchDelay = Math.max(0, Math.min(5000, Number(process.env.QA_SEARCH_DELAY_MS) || 0));
 const genres = [
   { id: 1, name: 'Ficção científica', tmdb_id: 878 },
   { id: 2, name: 'Drama', tmdb_id: 18 },
@@ -327,6 +328,7 @@ const server = createServer(async (req, res) => {
       data = m;
     } else {
       const query = (url.searchParams.get('title') || '').toLowerCase();
+      if (query && searchDelay) await new Promise((resolve) => setTimeout(resolve, searchDelay));
       const found = movies.filter((m) => m.portuguese_title.toLowerCase().includes(query));
       const pageNumber = Math.max(1, Number(url.searchParams.get('page')) || 1);
       const pageSize = Math.max(1, Math.min(120, Number(url.searchParams.get('size')) || 30));

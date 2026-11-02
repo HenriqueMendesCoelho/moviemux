@@ -1,0 +1,82 @@
+/* Shared collection/discovery control anatomy; theme tokens remain authoritative. */
+.mm-browse-toolbar {
+  display: grid;
+  align-items: end;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin: 1rem 0 1.5rem;
+  background: var(--mm-surface);
+  border: 1px solid var(--mm-border);
+  border-radius: 16px;
+}
+.mm-browse-toolbar-home {
+  grid-template-columns: minmax(12rem, 28rem) minmax(11rem, 16rem) minmax(10rem, 16rem) max-content;
+}
+.mm-browse-toolbar-discover {
+  grid-template-columns:
+    minmax(12rem, 28rem) minmax(10rem, 16rem) 8.5rem minmax(10rem, 16rem)
+    max-content max-content;
+}
+.mm-browse-toolbar > * {
+  min-width: 0;
+}
+.mm-browse-toolbar .mm-toolbar-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--mm-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.mm-browse-toolbar > .mm-clear-filters,
+.mm-browse-toolbar > .mm-discover-clear {
+  justify-self: end;
+}
+@media (max-width: 1280px) {
+  .mm-browse-toolbar-discover {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 8.5rem max-content;
+  }
+  .mm-browse-toolbar-discover .mm-autocomplete {
+    grid-column: 1 / span 2;
+  }
+  .mm-browse-toolbar-discover .mm-sort {
+    grid-column: 3 / span 2;
+  }
+  .mm-browse-toolbar-discover .mm-discover-year {
+    grid-column: 1;
+  }
+  .mm-browse-toolbar-discover .mm-multiselect {
+    grid-column: 2;
+  }
+}
+@media (max-width: 1000px) {
+  .mm-browse-toolbar-home {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .mm-browse-toolbar-home .mm-search-field {
+    grid-column: 1 / -1;
+  }
+  .mm-browse-toolbar-home .mm-clear-filters {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 700px) {
+  .mm-browse-toolbar {
+    padding: 0.8rem;
+    margin: 1rem 0 1.25rem;
+  }
+  .mm-browse-toolbar-discover {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .mm-browse-toolbar-discover .mm-autocomplete {
+    grid-column: 1 / -1;
+  }
+  .mm-browse-toolbar-discover .mm-sort {
+    grid-column: 1;
+  }
+  .mm-browse-toolbar-discover .mm-discover-year {
+    grid-column: 2;
+  }
+  .mm-browse-toolbar-discover .mm-multiselect {
+    grid-column: 1 / -1;
+  }
+}

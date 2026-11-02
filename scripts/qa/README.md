@@ -12,4 +12,6 @@ This explicit challenge bypass is restricted to loopback fixture origins. It doe
 
 ## Interaction fixtures
 
-Optional server-only fixture settings: `QA_API_PORT` (default 3001), `QA_MOVIE_COUNT` (8–120, default 8), `QA_RATING_COUNT` (1–50, default 1 or 2 for an expanded catalogue), `QA_SUMMARY_DELAY_MS` and `QA_CREDITS_DELAY_MS` (0–5000, default 0). For long-scroll, pagination and loading-state checks, use 65 films, 15 ratings and 1500 ms delays. Cast fixtures include absent and failed portraits as well as a populated roster. Restarting resets all fictional edits. These settings are not frontend deployment environment variables.
+Optional server-only fixture settings: `QA_API_PORT` (default 3001), `QA_MOVIE_COUNT` (8–120, default 8), `QA_RATING_COUNT` (1–50, default 1 or 2 for an expanded catalogue), `QA_SUMMARY_DELAY_MS`, `QA_CREDITS_DELAY_MS` and `QA_SEARCH_DELAY_MS` (0–5000, default 0). For long-scroll, pagination and loading-state checks, use 65 films, 15 ratings and 1500 ms delays. Cast fixtures include absent and failed portraits as well as a populated roster. Restarting resets all fictional edits. These settings are not frontend deployment environment variables.
+
+`QA_SEARCH_DELAY_MS` delays only nonempty collection-title queries, so clearing can return immediately while the old search is still pending. This supports deterministic stale-response checks without production traffic.

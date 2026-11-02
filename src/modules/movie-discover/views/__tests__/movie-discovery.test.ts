@@ -231,3 +231,19 @@ test('preview receives external rating only for its matching selected result and
   await flushPromises();
   expect(summary.props('externalRating')).toBeUndefined();
 });
+
+test('themed Mostrar selector preserves the chosen category contract with one request', async () => {
+  const wrapper = await create();
+  const select = wrapper.findComponent({ name: 'BaseSelect' });
+  expect(select.props('label')).toBe('Mostrar');
+  expect(select.props('options')).toHaveLength(5);
+  expect(wrapper.find('select').exists()).toBe(false);
+  mocks.getMoviesDiscover.mockClear();
+  select.vm.$emit('update:modelValue', 'voteAverageAsc');
+  await flushPromises();
+  select.vm.$emit('change', 'voteAverageAsc');
+  await flushPromises();
+  expect(mocks.getMoviesDiscover).toHaveBeenCalledExactlyOnceWith('vote_average.asc', 1);
+  expect(select.props('modelValue')).toBe('voteAverageAsc');
+  expect(displayed(wrapper)).toEqual([4]);
+});

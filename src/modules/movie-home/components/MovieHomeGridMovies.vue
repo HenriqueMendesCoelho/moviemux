@@ -8,11 +8,16 @@
         </h2>
       </div>
     </header>
-    <form class="mm-filter-bar" @submit.prevent="searchFromIndexMenu">
+    <form
+      class="mm-filter-bar mm-browse-toolbar mm-browse-toolbar-home"
+      @submit.prevent="searchFromIndexMenu"
+    >
       <div class="mm-search-field">
         <label for="library-search">Buscar na coleção</label
         ><input
           id="library-search"
+          ref="searchInput"
+          :class="{ 'mm-search-has-value': searchText.length > 0 }"
           v-model="searchText"
           placeholder="Título do filme…"
           autocomplete="off"
@@ -25,6 +30,16 @@
           @keydown.up.prevent="moveSelection(-1)"
           @keydown.esc="menuIsFocused = false"
         />
+        <button
+          v-if="searchText.length > 0"
+          type="button"
+          class="mm-search-clear"
+          aria-label="Limpar busca"
+          title="Limpar busca"
+          @click="clearSearch"
+        >
+          <BaseIcon name="close" />
+        </button>
         <button
           class="mm-search-submit"
           aria-label="Buscar na coleção"
@@ -51,14 +66,12 @@
           </li>
         </ul>
       </div>
-      <label
-        >Ordenar<select v-model="orderOption" @change="search">
-          <option value="">Padrão</option>
-          <option v-for="option in orderOptions" :key="option.value" :value="option.value">
-            {{ option.label }}
-          </option>
-        </select></label
-      >
+      <BaseSelect
+        v-model="orderOption"
+        label="Ordenar"
+        :options="[{ value: '', label: 'Padrão' }, ...orderOptions]"
+        @change="search"
+      />
       <BaseMultiSelect
         v-model="genresSelected"
         label="Gêneros"
@@ -104,6 +117,8 @@ import {
 } from 'vue';
 import type Movie from 'src/core/domain/movie/movie';
 import MovieService from 'src/modules/movie/services/MovieService';
+import 'src/core/ui/filter-toolbar.css';
+import BaseSelect from 'src/core/components/BaseSelect.vue';
 import BaseMultiSelect from 'src/core/components/BaseMultiSelect.vue';
 import { stateSocketAllMovies } from 'src/boot/socket';
 import BaseIcon from 'src/core/components/BaseIcon.vue';
@@ -115,6 +130,7 @@ const movies = ref<Movie[]>([]);
 const moviesWhenTyping = ref<Movie[]>([]);
 const totalNumberOfMovies = ref(0);
 const searchText = ref('');
+const searchInput = ref<HTMLInputElement>();
 const orderOption = ref('');
 const genresSelected = ref<number[]>([]);
 const genresOptions = ref<{ id: number; name: string; tmdb_id: number }[]>([]);
@@ -356,6 +372,16 @@ async function loadMore() {
     }
   }
 }
+function clearSearch() {
+  clearTimeout(searchTimer);
+  suggestionVersion++;
+  moviesWhenTyping.value = [];
+  selectedIndexMenu.value = -1;
+  menuIsFocused.value = false;
+  searchText.value = '';
+  void search();
+  searchInput.value?.focus();
+}
 async function refreshSearch() {
   searchText.value = '';
   orderOption.value = '';
@@ -394,8 +420,7 @@ async function searchFromIndexMenu() {
 }
 .mm-search-field {
   position: relative;
-  flex: 1;
-  min-width: 180px;
+  min-width: 0;
 }
 .mm-suggestions {
   position: absolute;
@@ -420,23 +445,6 @@ async function searchFromIndexMenu() {
 .mm-selected {
   background: var(--grey-mid);
 }
-.mm-filter-bar {
-  display: flex;
-  align-items: end;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin: 24px 0;
-}
-.mm-filter-bar > label {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  min-width: 0;
-  gap: 8px;
-}
-.mm-filter-bar select {
-  width: 100%;
-  min-width: 0;
-}
 .mm-load-more {
   text-align: center;
   padding: 24px;
@@ -450,18 +458,29 @@ async function searchFromIndexMenu() {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px 12px;
   }
-  .mm-filter-bar > label {
-    flex: 1;
-    min-width: 130px;
-  }
 }
 .mm-search-field input {
   width: 100%;
-  padding-right: 48px;
+  min-height: 44px;
+  border: 1px solid var(--mm-border);
+  border-radius: 10px;
+  padding: 0.65rem 48px 0.65rem 0.8rem;
+  background: var(--mm-surface);
+  color: var(--mm-text);
+  font: inherit;
+  font-size: 0.85rem;
 }
 .mm-search-field > label {
-  margin-bottom: 8px;
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--mm-muted);
 }
+.mm-search-field input.mm-search-has-value {
+  padding-right: 92px;
+}
+.mm-search-clear,
 .mm-search-submit {
   position: absolute;
   right: 1px;
@@ -476,6 +495,11 @@ async function searchFromIndexMenu() {
   color: var(--mm-text);
   cursor: pointer;
 }
+.mm-search-clear {
+  right: 45px;
+  color: var(--mm-muted);
+}
+.mm-search-clear:hover,
 .mm-search-submit:hover {
   background: var(--grey-mid);
 }
@@ -484,36 +508,9 @@ async function searchFromIndexMenu() {
   border: 0;
   background: transparent;
   color: var(--mm-muted);
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  white-space: nowrap;
+  font-size: 0.8rem;
   cursor: pointer;
   padding: 8px;
-}
-@media (max-width: 600px) {
-  .mm-filter-bar {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 12px;
-    margin: 16px 0 24px;
-  }
-  .mm-search-field {
-    grid-column: 1 / -1;
-    min-width: 0;
-  }
-  .mm-filter-bar > label {
-    min-width: 0;
-  }
-  .mm-genre-picker {
-    min-width: 0;
-  }
-  .mm-genre-options {
-    left: auto;
-    right: 0;
-  }
-  .mm-clear-filters {
-    grid-column: 1 / -1;
-    justify-self: end;
-    padding: 0 4px;
-  }
 }
 </style>
