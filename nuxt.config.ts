@@ -60,7 +60,8 @@ export default defineNuxtConfig({
           name: 'description',
           content: 'Seu universo de cinema. Descubra, avalie e organize os próximos filmes.',
         },
-        { name: 'theme-color', content: '#0b0e14' },
+        // One SSR brand accent for link crawlers and browser chrome; dark surfaces stay in CSS.
+        { name: 'theme-color', content: '#00f6ff' },
       ],
       link: [{ rel: 'manifest', href: '/manifest.json' }],
     },

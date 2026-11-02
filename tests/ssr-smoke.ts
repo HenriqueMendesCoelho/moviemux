@@ -30,6 +30,16 @@ const request = (path: string, cookie = '', options: RequestInit = {}) =>
     redirect: 'manual',
     headers: { accept: 'text/html', ...(cookie ? { cookie } : {}), ...options.headers },
   });
+function assertBrandAccent(html: string) {
+  const tags = [...html.matchAll(/<meta\b[^>]*>/gi)].map(([tag]) =>
+    Object.fromEntries(
+      [...tag.matchAll(/([\w:-]+)="([^"]*)"/g)].map((match) => [match[1], match[2]]),
+    ),
+  );
+  const colors = tags.filter((tag) => tag.name === 'theme-color' || tag.property === 'theme-color');
+  assert.equal(colors.length, 1, 'Exactly one SSR accent tag, without conflicting theme overrides');
+  assert.equal(colors[0]?.content, '#00f6ff', 'Crawler accent stays the exact MovieMux primary');
+}
 async function login(name: string) {
   const response = await request('/api/login', '', {
     method: 'POST',
@@ -67,7 +77,14 @@ try {
   assert.ok(ready, 'Production server started');
   const landing = await request('/');
   assert.equal(landing.status, 200, await landing.clone().text());
-  assert.match(await landing.text(), /Grandes histórias/);
+  const landingHtml = await landing.text();
+  assert.match(landingHtml, /Grandes histórias/);
+  assertBrandAccent(landingHtml);
+  for (const theme of ['dark', 'light']) {
+    const shared = await request('/?from=%2Fmovie%2Fdiscover%3Fmovie%3D969681', `theme=${theme}`);
+    assert.equal(shared.status, 200);
+    assertBrandAccent(await shared.text());
+  }
   assert.equal((await request('/home')).status, 302);
   assert.equal((await request('/home', 'moviemux-session=broken')).status, 302);
   const admin = await login('AdminFixture');
@@ -84,6 +101,8 @@ try {
   assert.doesNotMatch(firstHtml, /OtherFixture/);
   assert.match(secondHtml, /OtherFixture/);
   assert.doesNotMatch(secondHtml, /AdminFixture/);
+  assertBrandAccent(firstHtml);
+  assertBrandAccent(secondHtml);
   assert.doesNotMatch(firstHtml + secondHtml, /access_token|qa-fixture-not-a-real-signature/);
   assert.equal((await request('/adm', other.cookie)).status, 403);
   for (const path of [
