@@ -1,4 +1,6 @@
 import axios from 'src/core/http';
+import KitService from 'src/core/services/KitService';
+import { staticMetadata } from 'src/core/query/staticMetadata';
 import StringUtils from 'src/core/utils/StringUtils';
 import type {
   MovieResultResponseTmdb,
@@ -41,8 +43,7 @@ function emptyMoviePage(page: number, size: number): MoviePageableType {
 export default {
   //Movie TMDB
   async getMovieSummary(movieIdTmdb: string): Promise<MovieSummaryTypeKit> {
-    const res = await axios.get(`${API_MOVIE}/tmdb/${movieIdTmdb}/summary`);
-    return res.data;
+    return KitService.summary({ tmdb_id: Number(movieIdTmdb) });
   },
   async getMoviesByName(payload: { query: string }): Promise<MovieResultResponseTmdb> {
     const params = StringUtils.getStringParams(payload);
@@ -92,10 +93,12 @@ export default {
 
   //Genres
   async getMoviesGenres(): Promise<Array<{ id: number; name: string; tmdb_id: number }>> {
-    const res = await axios.get<Array<{ id: number; name: string; tmdb_id: number }>>(
-      `${API_MOVIE}/genres`,
-    );
-    return res.status === 204 ? [] : res.data;
+    const result = await staticMetadata<Array<{
+      id: number;
+      name: string;
+      tmdb_id: number;
+    }> | null>('genres', `${API_MOVIE}/genres`, { language: 'pt-Br' });
+    return result || [];
   },
   async getMoviesGenresWithMovies(): Promise<Array<{ id: number; name: string; tmdb_id: number }>> {
     const res = await axios.get<Array<{ id: number; name: string; tmdb_id: number }>>(

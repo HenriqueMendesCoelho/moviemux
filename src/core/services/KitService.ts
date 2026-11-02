@@ -5,108 +5,91 @@ import type {
   MovieSummaryTypeKit,
   MovieWatchProvider,
 } from 'src/core/types/movie/MovieType';
-import axios from 'src/core/http';
-import StringUtils from 'src/core/utils/StringUtils';
+import { staticMetadata } from 'src/core/query/staticMetadata';
 
-const BASE_URL = '';
-const API_KIT = `${BASE_URL}/movie/tmdb`;
-const API_KIT_PUBLIC = `${BASE_URL}/public/movie/tmdb`;
+const API_KIT = '/movie/tmdb';
+// These are existing monolith defaults, not newly forwarded API parameters.
+const portuguese = { language: 'pt-Br' };
+const brazil = { ...portuguese, region: 'BR' };
+const upstreamDefaults = { language: 'upstream-default', region: 'all-returned-regions' };
+const pageNumber = (page = 1) => Math.max(1, Math.trunc(page) || 1);
+
+function browse(path: string, params: Record<string, string | number>, dimensions = portuguese) {
+  const query = new URLSearchParams(
+    Object.entries(params).map(([key, value]) => [key, String(value)]),
+  );
+  return staticMetadata<MovieResultResponseTmdb>(
+    'browse',
+    `${API_KIT}${path}?${query}`,
+    dimensions,
+  );
+}
+/** Canonicalize only a homogeneous AND/OR genre set; preserve mixed operator semantics. */
+export function normalizeDiscoverGenres(value?: string): string | undefined {
+  if (!value) return undefined;
+  if (!/^\d+(\s*[,|]\s*\d+)*$/.test(value.trim())) return value;
+  const comma = value.includes(',');
+  if (comma && value.includes('|')) return value;
+  return [...new Set(value.split(comma ? ',' : '|').map((item) => Number(item.trim())))]
+    .sort((a, b) => a - b)
+    .join(comma ? ',' : '|');
+}
 
 export default {
-  async summary(payload: { tmdb_id: number }): Promise<MovieSummaryTypeKit> {
-    const res = await axios.get(`${API_KIT}/${payload.tmdb_id}/summary`);
-
-    return res.data;
+  summary(payload: { tmdb_id: number }): Promise<MovieSummaryTypeKit> {
+    return staticMetadata('detail', `${API_KIT}/${payload.tmdb_id}/summary`, upstreamDefaults);
   },
-  async info(payload: { tmdb_id: number }): Promise<MovieInfoTypeKit> {
-    const res = await axios.get(`${API_KIT_PUBLIC}/${payload.tmdb_id}/info`);
-
-    return res.data;
+  info(payload: { tmdb_id: number }): Promise<MovieInfoTypeKit> {
+    return staticMetadata('detail', `/public/movie/tmdb/${payload.tmdb_id}/info`, upstreamDefaults);
   },
-  async searchByName(payload: {
+  searchByName(payload: {
     query: string;
     page?: number;
     language?: 'pt-Br';
   }): Promise<MovieResultResponseTmdb> {
-    payload.page = payload.page || 1;
-    const params = StringUtils.getStringParams(payload);
-    const res = await axios.get(`${API_KIT}?${params}`);
-
-    return res.data;
+    const language = payload.language || 'pt-Br';
+    return browse(
+      '',
+      { query: payload.query.trim(), page: pageNumber(payload.page), language },
+      { language },
+    );
   },
-  async getMoviesPopular(page = 1): Promise<MovieResultResponseTmdb> {
-    const res = await axios.get(`${API_KIT}/popular?page=${page}`);
-
-    return res.data;
+  getMoviesPopular(page = 1): Promise<MovieResultResponseTmdb> {
+    return browse('/popular', { page: pageNumber(page) }, brazil);
   },
-  async getMoviesNowPlaying(page = 1): Promise<MovieResultResponseTmdb> {
-    const res = await axios.get(`${API_KIT}/now-playing?page=${page}`);
-
-    return res.data;
+  getMoviesNowPlaying(page = 1): Promise<MovieResultResponseTmdb> {
+    return browse('/now-playing', { page: pageNumber(page) }, brazil);
   },
-  async getMoviesUpcoming(page = 1): Promise<MovieResultResponseTmdb> {
-    const res = await axios.get(`${API_KIT}/upcoming?page=${page}`);
-
-    return res.data;
+  getMoviesUpcoming(page = 1): Promise<MovieResultResponseTmdb> {
+    return browse('/upcoming', { page: pageNumber(page) }, brazil);
   },
-  async getMoviesTopRated(page = 1): Promise<MovieResultResponseTmdb> {
-    const res = await axios.get(`${API_KIT}/top-rated?page=${page}`);
-
-    return res.data;
+  getMoviesTopRated(page = 1): Promise<MovieResultResponseTmdb> {
+    return browse('/top-rated', { page: pageNumber(page) }, brazil);
   },
-  async getMoviesRecommendations(movieId: number, page = 1): Promise<MovieResultResponseTmdb> {
-    const res = await axios.get(`${API_KIT}/${movieId}/recommendations?page=${page}`);
-
-    return res.data;
+  getMoviesRecommendations(movieId: number, page = 1): Promise<MovieResultResponseTmdb> {
+    return browse(`/${movieId}/recommendations`, { page: pageNumber(page) });
   },
-  async getMoviesSimilar(movieId: number, page = 1): Promise<MovieResultResponseTmdb> {
-    const res = await axios.get(`${API_KIT}/${movieId}/similar?page=${page}`);
-
-    return res.data;
+  getMoviesSimilar(movieId: number, page = 1): Promise<MovieResultResponseTmdb> {
+    return browse(`/${movieId}/similar`, { page: pageNumber(page) });
   },
-  async getMoviesDiscover(
+  getMoviesDiscover(
     sort?: string,
     page = 1,
     year?: number,
     with_genres?: string,
   ): Promise<MovieResultResponseTmdb> {
-    const params = getStringParams(discoverParams(sort, page, year, with_genres));
-    const res = await axios.get(`${API_KIT}/discover?${params}`);
-
-    return res.data;
+    const params: Record<string, string | number> = {};
+    if (sort) params.sort = sort;
+    params.page = pageNumber(page);
+    if (year) params.year = year;
+    const genres = normalizeDiscoverGenres(with_genres);
+    if (genres) params.with_genres = genres;
+    return browse('/discover', params);
   },
-  async getWatchProviders(tmdb_id: number): Promise<MovieWatchProvider> {
-    const res = await axios.get(`${API_KIT}/${tmdb_id}/watch-providers`);
-
-    return res.data;
+  getWatchProviders(tmdb_id: number): Promise<MovieWatchProvider> {
+    return staticMetadata('providers', `${API_KIT}/${tmdb_id}/watch-providers`, upstreamDefaults);
   },
-  async getMovieCredits(tmdb_id: number): Promise<Credits> {
-    const res = await axios.get(`${API_KIT}/${tmdb_id}/credits`);
-
-    return res.data;
+  getMovieCredits(tmdb_id: number): Promise<Credits> {
+    return staticMetadata('detail', `${API_KIT}/${tmdb_id}/credits`, upstreamDefaults);
   },
 };
-
-
-function getStringParams(params: any) {
-  return new URLSearchParams(params).toString();
-}
-
-function discoverParams(sort?: string, page?: number, year?: number, with_genres?: string) {
-  // eslint-disable-next-line
-  let result: any = {};
-  if (sort) {
-    result.sort = sort;
-  }
-  if (page) {
-    result.page = page;
-  }
-  if (year) {
-    result.year = year;
-  }
-  if (with_genres) {
-    result.with_genres = with_genres;
-  }
-
-  return result;
-}

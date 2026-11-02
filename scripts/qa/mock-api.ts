@@ -5,6 +5,8 @@ const origin = `http://127.0.0.1:${port}`;
 const now = new Date().toISOString();
 const fixtureCount = Math.max(8, Math.min(120, Number(process.env.QA_MOVIE_COUNT) || 8));
 const summaryDelay = Math.max(0, Math.min(5000, Number(process.env.QA_SUMMARY_DELAY_MS) || 0));
+const providerDelay = Math.max(0, Math.min(5000, Number(process.env.QA_PROVIDER_DELAY_MS) || 0));
+const staticRequests = new Map<string, number>();
 const creditsDelay = Math.max(0, Math.min(5000, Number(process.env.QA_CREDITS_DELAY_MS) || 0));
 const ratingCount = Math.max(
   1,
@@ -145,6 +147,15 @@ const server = createServer(async (req, res) => {
   }
   const url = new URL(req.url || '/', origin);
   const path = url.pathname;
+  if (path === '/qa/static-metrics' && req.method === 'GET') {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ requests: Object.fromEntries(staticRequests) }));
+    return;
+  }
+  if (req.method === 'GET' && (path.startsWith('/movie/tmdb') || path === '/movie/genres')) {
+    const key = `${path}${url.search}`;
+    staticRequests.set(key, (staticRequests.get(key) || 0) + 1);
+  }
   if (/\/poster\/\d+$/.test(path)) {
     const index = Number(path.split('/').at(-1)) % titles.length;
     const colors = [
@@ -222,9 +233,28 @@ const server = createServer(async (req, res) => {
         profile_path: index % 2 ? '/missing-person.jpg' : null,
       })),
     };
-  } else if (path.includes('/watch-providers'))
-    data = { id: 100, results: { BR: { link: 'https://www.themoviedb.org/', flatrate: [] } } };
-  else if (path.endsWith('/summary')) {
+  } else if (path.includes('/watch-providers')) {
+    if (providerDelay) await new Promise((resolve) => setTimeout(resolve, providerDelay));
+    const provider = (id: number, name: string) => ({
+      provider_id: id,
+      provider_name: name,
+      logo_path: `/poster/${id % 8}`,
+      display_priority: id,
+    });
+    data = {
+      id: 100,
+      results: {
+        BR: {
+          link: 'https://www.themoviedb.org/',
+          flatrate: [provider(1, 'Assinatura fictícia'), provider(2, 'Cinema de demonstração')],
+          rent: [provider(3, 'Locadora fictícia')],
+          buy: [provider(4, 'Compra de demonstração')],
+          free: [provider(5, 'Catálogo gratuito fictício')],
+          ads: [provider(6, 'Canal fictício com anúncios')],
+        },
+      },
+    };
+  } else if (path.endsWith('/summary')) {
     if (summaryDelay) await new Promise((resolve) => setTimeout(resolve, summaryDelay));
     const m = movies.find((m) => path.includes(String(m.tmdb_id))) || movies[0]!;
     data = {

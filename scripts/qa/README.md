@@ -17,3 +17,9 @@ Optional server-only fixture settings: `QA_API_PORT` (default 3001), `QA_MOVIE_C
 `QA_SEARCH_DELAY_MS` delays only nonempty collection-title queries, so clearing can return immediately while the old search is still pending. This supports deterministic stale-response checks without production traffic.
 
 Set `QA_SCORE_BADGES=true` only for local visual checks to give the first three fictional films exact averages of 10, 9 and 0. This makes the cyan perfect-score exception and unchanged existing ranges observable without modifying production data. Default fixtures remain unchanged.
+
+## Progressive metadata and cache checks
+
+`QA_PROVIDER_DELAY_MS` (0–5000, default 0) delays only the fictional provider response. Set a short summary delay and a longer provider delay to verify core details render independently. Availability fixtures explicitly distinguish subscription, rental, purchase, free and ad-supported fictional services; they are not real availability data.
+
+The loopback fixture's read-only `GET /qa/static-metrics` returns in-memory static metadata request counts (paths and fictional search parameters only), supporting cold/repeated-open and deduplication checks. It contains no credentials or login bodies. Restart the fixture to reset counts. This diagnostic endpoint belongs only to the local QA server, not the Nuxt application or production BFF.
