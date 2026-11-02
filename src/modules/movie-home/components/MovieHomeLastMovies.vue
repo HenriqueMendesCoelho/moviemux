@@ -8,7 +8,7 @@
           :aria-expanded="isVisibleLastFilms"
           :aria-label="isVisibleLastFilms ? 'Recolher recentes' : 'Expandir recentes'"
           :title="isVisibleLastFilms ? 'Recolher recentes' : 'Expandir recentes'"
-          @click="isVisibleLastFilms = !isVisibleLastFilms"
+          @click="toggleVisible"
         >
           <BaseIcon :name="isVisibleLastFilms ? 'chevron-up' : 'chevron-down'" />
         </button>
@@ -25,7 +25,10 @@
     </header>
     <p v-if="loadError" role="alert">{{ loadError }}</p>
     <div
-      v-show="isVisibleLastFilms"
+      ref="recentRegion"
+      :inert="!isVisibleLastFilms"
+      :aria-hidden="!isVisibleLastFilms"
+      :style="!isVisibleLastFilms ? { height: '0px', overflow: 'hidden' } : undefined"
       class="mm-recent-strip"
       :class="{ 'mm-recent-expanded': showAllRecent }"
     >
@@ -41,7 +44,7 @@
       v-if="isVisibleLastFilms && movies.length > 4"
       class="mm-recent-more"
       :aria-expanded="showAllRecent"
-      @click="showAllRecent = !showAllRecent"
+      @click="toggleExpanded"
     >
       {{ showAllRecent ? 'Ver menos' : 'Ver mais' }}
     </button>
@@ -49,6 +52,7 @@
 </template>
 
 <script lang="ts" setup>
+import { animateHeightChange } from 'src/core/ui/animateHeightChange';
 import BaseIcon from 'src/core/components/BaseIcon.vue';
 import { onActivated, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { useUserStore } from 'src/core/stores/UserStore';
@@ -63,6 +67,17 @@ import { socketAllMovies, stateSocketAllMovies } from 'src/boot/socket';
 import { showError } from 'src/core/utils/NotificationUtils';
 
 const userStore = useUserStore();
+const recentRegion = ref<HTMLElement>();
+function toggleExpanded() {
+  void animateHeightChange(recentRegion.value, () => {
+    showAllRecent.value = !showAllRecent.value;
+  });
+}
+function toggleVisible() {
+  void animateHeightChange(recentRegion.value, () => {
+    isVisibleLastFilms.value = !isVisibleLastFilms.value;
+  });
+}
 const isVisibleLastFilms = ref(true);
 const showAllRecent = ref(false);
 const movies = ref<Movie[]>([]);
@@ -182,7 +197,7 @@ async function loadLastMovies() {
 }
 .mm-recent-strip {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 24px 16px;
 }
 .mm-recent-strip:not(.mm-recent-expanded) > :nth-child(n + 6) {
@@ -202,6 +217,14 @@ async function loadLastMovies() {
 }
 .mm-section {
   margin-bottom: 32px;
+}
+@media (min-width: 601px) and (max-width: 1200px) {
+  .mm-recent-strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .mm-recent-strip:not(.mm-recent-expanded) > :nth-child(n + 5) {
+    display: none;
+  }
 }
 @media (max-width: 600px) {
   .mm-recent-strip {

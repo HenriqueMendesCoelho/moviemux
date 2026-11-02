@@ -59,29 +59,26 @@
           </option>
         </select></label
       >
-      <details class="mm-genre-picker">
-        <summary>
-          Gêneros
-          <span>{{
-            genresSelected.length ? `${genresSelected.length} selecionados` : 'Todos'
-          }}</span
-          ><span aria-hidden="true">⌄</span>
-        </summary>
-        <div class="mm-genre-options">
-          <label v-for="genre in genresOptions" :key="genre.id"
-            ><input v-model="genresSelected" type="checkbox" :value="genre.id" @change="search" />{{
-              genre.name
-            }}</label
-          >
-          <p v-if="!genresOptions.length" class="mm-muted">Nenhum gênero disponível.</p>
-        </div>
-      </details>
+      <BaseMultiSelect
+        v-model="genresSelected"
+        label="Gêneros"
+        placeholder="Todos os gêneros"
+        :options="genresOptions.map((genre) => ({ value: genre.id, label: genre.name }))"
+        @change="search"
+      />
       <button type="button" class="mm-clear-filters" @click="refreshSearch">Limpar filtros</button>
     </form>
     <p v-if="error" role="alert" class="mm-error">
       {{ error }} <button class="mm-button" @click="search">Tentar novamente</button>
     </p>
-    <div class="mm-poster-grid">
+    <div class="mm-poster-grid" :aria-busy="loading">
+      <template v-if="loading && !movies.length"
+        ><div
+          v-for="index in 8"
+          :key="`skeleton-${index}`"
+          class="mm-poster-skeleton"
+          aria-hidden="true"
+      /></template>
       <MovieHomeCardImageGrid v-for="movie in movies" :key="movie.id" :movie="movie" />
     </div>
     <p v-if="!loading && !error && !movies.length" class="mm-empty">
@@ -95,9 +92,20 @@
   </section>
 </template>
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  onActivated,
+  onDeactivated,
+  nextTick,
+  ref,
+  watch,
+} from 'vue';
 import type Movie from 'src/core/domain/movie/movie';
 import MovieService from 'src/modules/movie/services/MovieService';
+import BaseMultiSelect from 'src/core/components/BaseMultiSelect.vue';
+import { stateSocketAllMovies } from 'src/boot/socket';
 import BaseIcon from 'src/core/components/BaseIcon.vue';
 import MovieHomeCardImageGrid from './MovieHomeCardImageGrid.vue';
 import { useUserStore } from 'src/core/stores/UserStore';
@@ -122,6 +130,82 @@ const showMenu = computed(
 const loadTarget = ref<HTMLElement>();
 let observer: IntersectionObserver | undefined;
 let disposed = false;
+let active = true;
+let initialized = false;
+let catalogDirty = false;
+function observeMore() {
+  observer?.disconnect();
+  if (!active || !initialized || !loadTarget.value || typeof IntersectionObserver === 'undefined')
+    return;
+  observer = new IntersectionObserver(
+    (entries) => {
+      if (active && entries.some((entry) => entry.isIntersecting) && !error.value) void loadMore();
+    },
+    { rootMargin: '200px' },
+  );
+  observer.observe(loadTarget.value);
+}
+onActivated(async () => {
+  active = true;
+  await nextTick();
+  observeMore();
+  if (initialized && catalogDirty) void refreshRetainedPages();
+});
+onDeactivated(() => {
+  active = false;
+  observer?.disconnect();
+  menuIsFocused.value = false;
+  clearTimeout(searchTimer);
+  suggestionVersion++;
+});
+watch(
+  () => stateSocketAllMovies.updateEvents.length,
+  () => {
+    catalogDirty = true;
+    if (active && initialized) void refreshRetainedPages();
+  },
+);
+async function refreshRetainedPages() {
+  if (!active || disposed || loading.value || !userStore.user.isLoged) return;
+  const version = ++requestVersion;
+  const session = userStore.user;
+  const loadedPages = Math.max(1, page.value - 1);
+  loading.value = true;
+  catalogDirty = false;
+  try {
+    const results = [];
+    for (let index = 0; index < loadedPages; index++) {
+      const result = await MovieService.listMoviesPageable({
+        ...appliedFilters,
+        page: index + 1,
+        size: 30,
+      });
+      if (disposed || version !== requestVersion || session !== userStore.user) return;
+      results.push(result);
+      if (index + 1 >= result.total_pages) break;
+    }
+    if (disposed || version !== requestVersion || session !== userStore.user) return;
+    const seen = new Set<string | undefined>();
+    movies.value = results
+      .flatMap((result) => result.content)
+      .filter((movie) => {
+        if (seen.has(movie.id)) return false;
+        seen.add(movie.id);
+        return true;
+      });
+    totalPages.value = results[0]?.total_pages || 0;
+    totalNumberOfMovies.value = results[0]?.total_elements || 0;
+    page.value = Math.min(loadedPages, totalPages.value) + 1;
+  } catch {
+    if (!disposed && version === requestVersion)
+      error.value = 'Não foi possível atualizar a coleção. Seus filmes continuam disponíveis.';
+  } finally {
+    if (!disposed && version === requestVersion) {
+      loading.value = false;
+      if (active && catalogDirty) void refreshRetainedPages();
+    }
+  }
+}
 let requestVersion = 0;
 let appliedFilters: { title: string; sort?: string; withGenres?: string } = { title: '' };
 let suggestionVersion = 0;
@@ -147,13 +231,9 @@ onMounted(async () => {
   if (disposed) return;
   await search();
   if (disposed) return;
-  observer = new IntersectionObserver(
-    (entries) => {
-      if (entries.some((entry) => entry.isIntersecting) && !error.value) void loadMore();
-    },
-    { rootMargin: '200px' },
-  );
-  if (loadTarget.value) observer.observe(loadTarget.value);
+  initialized = true;
+  observeMore();
+  if (catalogDirty) void refreshRetainedPages();
 });
 onUnmounted(() => {
   disposed = true;
@@ -235,7 +315,14 @@ async function search() {
   await loadMore();
 }
 async function loadMore() {
-  if (disposed || !userStore.user.isLoged || loading.value || page.value > totalPages.value) return;
+  if (
+    !active ||
+    disposed ||
+    !userStore.user.isLoged ||
+    loading.value ||
+    page.value > totalPages.value
+  )
+    return;
   const version = requestVersion;
   const session = userStore.user;
   const current = () =>
@@ -263,7 +350,10 @@ async function loadMore() {
   } catch {
     if (current()) error.value = 'Não foi possível carregar os filmes.';
   } finally {
-    if (current()) loading.value = false;
+    if (current()) {
+      loading.value = false;
+      if (active && initialized && catalogDirty) void refreshRetainedPages();
+    }
   }
 }
 async function refreshSearch() {
@@ -292,6 +382,11 @@ async function searchFromIndexMenu() {
 </script>
 
 <style scoped>
+.mm-poster-skeleton {
+  aspect-ratio: 2 / 3;
+  border-radius: 14px;
+  background: var(--mm-raised);
+}
 .mm-poster-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -332,7 +427,7 @@ async function searchFromIndexMenu() {
   flex-wrap: wrap;
   margin: 24px 0;
 }
-.mm-filter-bar label {
+.mm-filter-bar > label {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   min-width: 0;

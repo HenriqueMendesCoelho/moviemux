@@ -656,7 +656,7 @@ function cancelReorder() {
 }
 .mm-reorder-toolbar {
   position: sticky;
-  top: 8px;
+  top: calc(var(--mm-sticky-top, 0px) + 8px);
   z-index: 18;
   box-shadow: 0 4px 16px #0001;
   display: flex;

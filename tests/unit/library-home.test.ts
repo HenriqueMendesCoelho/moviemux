@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { nextTick, reactive } from 'vue';
-import { flushPromises, shallowMount, type VueWrapper } from '@vue/test-utils';
+import { nextTick, reactive, defineComponent, h, KeepAlive, ref } from 'vue';
+import { flushPromises, shallowMount, mount, type VueWrapper } from '@vue/test-utils';
 import MovieHomeGridMovies from '../../src/modules/movie-home/components/MovieHomeGridMovies.vue';
 import MovieHomeLastMovies from '../../src/modules/movie-home/components/MovieHomeLastMovies.vue';
 import type { MoviePageableType } from '../../src/core/types/movie/MovieType';
@@ -406,4 +406,31 @@ test('recent controls have accessible compact labels and expansion keeps all ten
   expect(wrapper.find('button[aria-label="Expandir recentes"]').attributes('aria-expanded')).toBe(
     'false',
   );
+});
+
+test('retained home keeps loaded pages and filters while offscreen observer is paused', async () => {
+  const visible = ref(true);
+  mocks.listMoviesPageable.mockResolvedValue(page(['retained'], 3));
+  const Host = defineComponent({
+    setup: () => () =>
+      h(KeepAlive, null, { default: () => (visible.value ? h(MovieHomeGridMovies) : h('div')) }),
+  });
+  const wrapper = mount(Host, {
+    global: { stubs: { MovieHomeCardImageGrid: true, BaseMultiSelect: true, RouterLink: true } },
+  });
+  wrappers.push(wrapper);
+  await flushPromises();
+  await wrapper.get('#library-search').setValue('draft filter');
+  const calls = mocks.listMoviesPageable.mock.calls.length;
+  visible.value = false;
+  await flushPromises();
+  intersect();
+  await flushPromises();
+  expect(mocks.listMoviesPageable).toHaveBeenCalledTimes(calls);
+  expect(observers.at(-1)?.disconnect).toHaveBeenCalled();
+  visible.value = true;
+  await flushPromises();
+  expect((wrapper.get('#library-search').element as HTMLInputElement).value).toBe('draft filter');
+  expect(cards(wrapper)).toEqual(['retained']);
+  expect(mocks.listMoviesPageable).toHaveBeenCalledTimes(calls);
 });
