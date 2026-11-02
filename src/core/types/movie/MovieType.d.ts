@@ -113,6 +113,8 @@ export type MovieWatchProvider = {
       flatrate?: Provider[];
       rent?: Provider[];
       buy?: Provider[];
+      free?: Provider[];
+      ads?: Provider[];
     };
   };
 };
