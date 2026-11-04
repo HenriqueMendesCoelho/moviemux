@@ -603,7 +603,7 @@ function cancelReorder() {
   color: var(--mm-muted);
 }
 .mm-search-field:focus-within {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--mm-focus-ring);
   outline-offset: 2px;
 }
 .mm-filter-bar .mm-search-field input.mm-search-input {

@@ -176,8 +176,8 @@ function isInAnyWishlist() {
   opacity: 1;
 }
 .mm-poster-link:focus-visible {
-  outline: 2px solid var(--mm-link);
-  outline-offset: 4px;
+  outline: 2px solid var(--mm-focus-ring);
+  outline-offset: 2px;
 }
 .mm-film-caption {
   display: grid;

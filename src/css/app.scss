@@ -22,6 +22,7 @@
   --mm-muted: #939db3;
   --mm-accent: #00f6ff;
   --mm-link: #00f6ff;
+  --mm-focus-ring: #4b9aa8;
   --mm-danger-text: #ff8da3;
   --mm-radius: 18px;
   font-family: 'DM Sans', system-ui, sans-serif;
@@ -38,6 +39,7 @@
   --mm-muted: #677088;
   --mm-accent: #00f6ff;
   --mm-link: #006c78;
+  --mm-focus-ring: #397783;
   --mm-danger-text: #b42347;
   --grey-dark: var(--mm-bg);
   --grey-dark2: var(--mm-surface);
@@ -76,8 +78,14 @@ input:focus-visible,
 textarea:focus-visible,
 select:focus-visible,
 summary:focus-visible {
-  outline: 3px solid var(--mm-link);
-  outline-offset: 4px;
+  outline: 2px solid var(--mm-focus-ring);
+  outline-offset: 2px;
+}
+@media (forced-colors: active) {
+  :root,
+  :root[data-theme='light'] {
+    --mm-focus-ring: Highlight;
+  }
 }
 button {
   color: inherit;

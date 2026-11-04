@@ -262,7 +262,7 @@ defineExpose({ openAt, dismiss });
   border-color: var(--mm-border);
 }
 .mm-context-trigger:focus-visible {
-  outline: 2px solid var(--mm-link);
+  outline: 2px solid var(--mm-focus-ring);
   outline-offset: 2px;
 }
 .mm-context-options {
@@ -324,7 +324,7 @@ defineExpose({ openAt, dismiss });
   outline: none;
 }
 .mm-context-items :deep([role='menuitem']:focus-visible) {
-  outline: 2px solid var(--mm-link);
+  outline: 2px solid var(--mm-focus-ring);
   outline-offset: -2px;
 }
 .mm-context-items :deep(:disabled),
