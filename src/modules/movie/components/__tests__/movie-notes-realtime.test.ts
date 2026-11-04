@@ -49,7 +49,7 @@ const movie = () => mocks.store.moviePage.selectedMovie;
 async function create() {
   const wrapper = shallowMount(MovieTableNotes, {
     props: { movieId: 'a' },
-    global: { stubs: { BaseModal: { template: '<div><slot /></div>' } } },
+    global: { stubs: { BaseDisclosure: false, BaseModal: { template: '<div><slot /></div>' } } },
   });
   wrappers.push(wrapper);
   await flushPromises();
@@ -266,4 +266,21 @@ test('score sorting is explicitly unavailable until reveal and falls back when p
   await flushPromises();
   expect(wrapper.get('option[value="note"]').attributes('disabled')).toBeDefined();
   expect((select.element as HTMLSelectElement).value).toBe('name');
+});
+
+test('opening and closing rating dates never reveals hidden scores or removes own zero', async () => {
+  movie().notes!.push(note('other', 9));
+  const wrapper = await create();
+  const disclosures = wrapper.findAll('.mm-review-dates button');
+  expect(disclosures).toHaveLength(2);
+  for (const trigger of disclosures) {
+    await trigger.trigger('click');
+    expect(trigger.attributes('aria-expanded')).toBe('true');
+    expect(score(wrapper, 'other')).toBe('—');
+    expect(score(wrapper, 'owner')).toBe('0');
+    await trigger.trigger('click');
+    expect(trigger.attributes('aria-expanded')).toBe('false');
+  }
+  expect(score(wrapper, 'other')).toBe('—');
+  expect(score(wrapper, 'owner')).toBe('0');
 });

@@ -128,16 +128,16 @@
                       >Adicionou o filme</span
                     >
                   </div>
-                  <details class="mm-review-dates">
-                    <summary>
+                  <BaseDisclosure class="mm-review-dates">
+                    <template #summary>
                       {{ formatDate(note, 'updated')
                       }}<span class="mm-sr-only"> — detalhes das datas</span>
-                    </summary>
-                    <div>
+                    </template>
+                    <div class="mm-review-date-details">
                       Criada em {{ formatDate(note, 'created') }}<br />Atualizada em
                       {{ formatDate(note, 'updated') }}
                     </div>
-                  </details>
+                  </BaseDisclosure>
                 </div>
               </div>
             </td>
@@ -248,6 +248,7 @@ import {
   cloneMovie,
 } from '../utils/MovieStateUtils';
 import BaseIcon from 'src/core/components/BaseIcon.vue';
+import BaseDisclosure from 'src/core/components/BaseDisclosure.vue';
 import BaseModal from 'src/core/components/BaseModal.vue';
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import MovieService from '../services/MovieService';
@@ -763,11 +764,11 @@ async function updateShowNotes(visible: boolean) {
   color: var(--mm-muted);
   margin-top: 0.25rem;
 }
-.mm-review-dates summary {
+.mm-review-dates :deep(.mm-disclosure-trigger) {
   cursor: pointer;
   width: fit-content;
 }
-.mm-review-dates > div {
+.mm-review-date-details {
   line-height: 1.6;
   padding-top: 0.4rem;
 }

@@ -28,8 +28,8 @@
             </td>
             <td data-label="Perfis">{{ user.roles.join(', ') }}</td>
             <td>
-              <details class="mm-user-dates">
-                <summary>Ver datas</summary>
+              <BaseDisclosure class="mm-user-dates">
+                <template #summary>Ver datas</template>
                 <dl>
                   <dt>Cadastro</dt>
                   <dd>{{ formatDate(user.created_at) }}</dd>
@@ -38,7 +38,7 @@
                   <dt>Último acesso</dt>
                   <dd>{{ formatDate(user.statistics?.last_login_at) }}</dd>
                 </dl>
-              </details>
+              </BaseDisclosure>
             </td>
             <td class="mm-user-row-actions">
               <div class="mm-actions">
@@ -68,6 +68,7 @@
 </template>
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
+import BaseDisclosure from 'src/core/components/BaseDisclosure.vue';
 import type User from 'src/core/domain/user/User';
 import UserService from 'src/core/services/UserService';
 import { useUserStore } from 'src/core/stores/UserStore';
@@ -156,7 +157,7 @@ async function remove(user: User) {
   color: var(--mm-muted);
   margin-top: 5px;
 }
-.mm-user-dates summary {
+.mm-user-dates :deep(.mm-disclosure-trigger) {
   min-height: 44px;
   display: flex;
   align-items: center;
