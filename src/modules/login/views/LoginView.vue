@@ -9,16 +9,20 @@
     <LoginAmbientBackground ref="ambientBackground" />
     <div class="mm-welcome-content">
       <section class="mm-welcome-story">
-        <router-link to="/" class="mm-brand" aria-label="Movie Mux, início"
+        <router-link to="/" class="mm-brand" :aria-label="t('account.homeLink')"
           ><img src="../../../assets/logo.webp" alt="Movie Mux" width="120" height="120"
         /></router-link>
-        <p class="mm-eyebrow">PARA QUEM VIVE CINEMA</p>
-        <h1>Grandes histórias.<br /><span>Seu olhar.</span></h1>
+        <p class="mm-eyebrow">{{ t('account.movieLovers') }}</p>
+        <h1>
+          {{ t('account.greatStories') }}<br /><span>{{ t('account.yourPerspective') }}</span>
+        </h1>
         <p>
-          Descubra seu próximo filme favorito, organize sua lista e compartilhe cada descoberta.
+          {{ t('account.welcomeIntro') }}
         </p>
         <div class="mm-welcome-tags">
-          <span>Descubra</span><span>Avalie</span><span>Compartilhe</span>
+          <span>{{ t('account.discover') }}</span
+          ><span>{{ t('account.rate') }}</span
+          ><span>{{ t('account.share') }}</span>
         </div>
         <small>Powered by Kronus Platform</small>
       </section>
@@ -33,6 +37,8 @@
   </main>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { computed, onMounted, ref } from 'vue';
 import { useAsyncData, useHead, useRoute, useRouter, useRuntimeConfig } from '#imports';
 import { useUserStore } from 'src/core/stores/UserStore';
@@ -66,10 +72,10 @@ const { data: movie } = await useAsyncData(
   { watch: [sharedMovieId] },
 );
 useHead(() => {
-  const title = movie.value?.title ? `Movie Mux - Descobrir - ${movie.value.title}` : 'Movie Mux';
-  const description =
-    movie.value?.description ||
-    'Descubra o melhor do cinema, classificações e informações sobre filmes.';
+  const title = movie.value?.title
+    ? t('account.sharedMovieTitle', { title: movie.value.title })
+    : 'Movie Mux';
+  const description = movie.value?.description || t('account.metaDescription');
   const image = movie.value?.url_image
     ? `${String(config.public.tmdbImageBase).replace(/\/$/, '')}/w342${movie.value.url_image}`
     : 'https://img.moviemux.com/04VfS86K-_pAcjgaBHKzinmNiUp0gSD3VyuP0wjm/moviemux/MovieMux.webp';

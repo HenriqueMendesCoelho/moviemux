@@ -1,25 +1,25 @@
 <template>
   <BaseContainerMain
     ><header class="mm-page-heading">
-      <p class="mm-eyebrow">SEU ESPAÇO</p>
-      <h1>Meu perfil</h1>
-      <p class="mm-muted">Sua identidade, preferências e segurança.</p>
+      <p class="mm-eyebrow">{{ t('account.yourSpace') }}</p>
+      <h1>{{ t('account.myProfile') }}</h1>
+      <p class="mm-muted">{{ t('account.profileSubtitle') }}</p>
     </header>
-    <nav class="mm-tabs" aria-label="Configurações do perfil">
+    <nav class="mm-tabs" :aria-label="t('account.profileSettings')">
       <button
         class="mm-btn"
         :class="{ 'mm-btn-primary': tab === 'myData' }"
         :aria-pressed="tab === 'myData'"
         @click="tab = 'myData'"
       >
-        Meus dados</button
+        {{ t('account.myDetails') }}</button
       ><button
         class="mm-btn"
         :class="{ 'mm-btn-primary': tab === 'security' }"
         :aria-pressed="tab === 'security'"
         @click="tab = 'security'"
       >
-        Segurança
+        {{ t('account.security') }}
       </button>
     </nav>
     <section ref="panel" tabindex="-1" class="mm-card mm-profile-panel">
@@ -28,6 +28,8 @@
   </BaseContainerMain>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { ref, watch, nextTick } from 'vue';
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import PanelProfile from '../components/PanelProfile.vue';

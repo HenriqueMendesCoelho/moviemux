@@ -1,15 +1,12 @@
 <template>
   <section class="mm-form" :aria-busy="busy">
-    <h2>Gerenciar usuário</h2>
+    <h2>{{ t('account.manageUser') }}</h2>
     <form class="mm-actions" @submit.prevent="searchUser">
       <label class="mm-field"
-        >E-mail do usuário<input
-          v-model.trim="email"
-          type="email"
-          :disabled="busy"
-          required /></label
+        >{{ t('account.userEmail')
+        }}<input v-model.trim="email" type="email" :disabled="busy" required /></label
       ><button class="mm-btn mm-btn-primary" :disabled="busy">
-        {{ busy ? 'Aguarde…' : 'Buscar usuário' }}
+        {{ busy ? t('account.wait') : t('account.findUser') }}
       </button>
     </form>
     <p v-if="error" role="alert" class="mm-error">{{ error }}</p>
@@ -17,30 +14,32 @@
       ><BaseUserInfoPanel v-model="user" :all-read-only="true" :show-adm-info="true" />
       <div class="mm-actions">
         <button class="mm-btn" :disabled="busy || isMyself" @click="changeRole('promote')">
-          Promover</button
+          {{ t('account.promote') }}</button
         ><button class="mm-btn" :disabled="busy || isMyself" @click="changeRole('demote')">
-          Rebaixar</button
+          {{ t('account.demote') }}</button
         ><button
           class="mm-btn mm-btn-danger"
           :disabled="busy || isMyself"
           @click="changeRole('block')"
         >
-          Bloquear</button
+          {{ t('account.block') }}</button
         ><button
           class="mm-btn mm-btn-danger"
           :disabled="busy || isMyself"
           @click="changeRole('delete')"
         >
-          Excluir
+          {{ t('account.delete') }}
         </button>
       </div>
       <p v-if="isMyself" class="mm-muted">
-        Você não pode alterar as permissões do próprio usuário.
+        {{ t('account.selfPermission') }}
       </p></template
     >
   </section>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { computed, ref, watch } from 'vue';
 import User from 'src/core/domain/user/User';
 import BaseUserInfoPanel from 'src/core/components/BaseUserInfoPanel.vue';
@@ -51,22 +50,23 @@ const store = useUserStore();
 const email = ref('');
 const user = ref(new User());
 const busy = ref(false);
-const error = ref('');
+const errorMessage = ref<() => string>(() => '');
+const error = computed(() => errorMessage.value());
 const isMyself = computed(() => user.value.id === store.user.id);
 watch(email, () => {
   user.value = new User();
-  error.value = '';
+  errorMessage.value = () => '';
 });
 async function searchUser() {
   if (busy.value || !email.value) return;
   busy.value = true;
-  error.value = '';
+  errorMessage.value = () => '';
   try {
     const requestedEmail = email.value;
     const result = await UserService.getUserAdm(requestedEmail);
     if (email.value === requestedEmail) user.value = result;
   } catch {
-    error.value = 'Não foi possível encontrar este usuário.';
+    errorMessage.value = () => t('account.userNotFound');
     user.value = new User();
   } finally {
     busy.value = false;
@@ -74,8 +74,11 @@ async function searchUser() {
 }
 async function changeRole(action: 'promote' | 'demote' | 'block' | 'delete') {
   if (busy.value || !user.value.id || isMyself.value) return;
-  const labels = { promote: 'Promover', demote: 'Rebaixar', block: 'Bloquear', delete: 'Excluir' };
-  if (!window.confirm(`${labels[action]} o usuário ${user.value.name} (${user.value.email})?`))
+  if (
+    !window.confirm(
+      t(`account.${action}UserConfirm`, { name: user.value.name, email: user.value.email }),
+    )
+  )
     return;
   const targetId = user.value.id;
   const targetEmail = email.value;
@@ -83,7 +86,7 @@ async function changeRole(action: 'promote' | 'demote' | 'block' | 'delete') {
   const isCurrentTarget = () =>
     user.value.id === targetId && email.value === targetEmail && store.user.id === actorId;
   busy.value = true;
-  error.value = '';
+  errorMessage.value = () => '';
   try {
     if (action === 'delete') {
       await UserService.deleteUser(targetId);
@@ -97,9 +100,9 @@ async function changeRole(action: 'promote' | 'demote' | 'block' | 'delete') {
       const updated = await methods[action](targetId);
       if (isCurrentTarget()) user.value = updated;
     }
-    showSuccess('Usuário atualizado.');
+    showSuccess(() => t('account.userUpdated'));
   } catch {
-    error.value = 'Não foi possível executar a ação.';
+    errorMessage.value = () => t('account.actionFailed');
   } finally {
     busy.value = false;
   }

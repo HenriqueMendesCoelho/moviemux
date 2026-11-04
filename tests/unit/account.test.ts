@@ -144,7 +144,9 @@ describe('administrator invitation outcomes', () => {
       .trigger('click');
     await flushPromises();
     expect(mocks.createUserInvite).toHaveBeenCalledTimes(1);
-    expect(mocks.success).toHaveBeenCalledWith('Convite criado.');
+    expect(mocks.success).toHaveBeenCalledWith(expect.any(Function));
+    const message = mocks.success.mock.calls[0]![0] as () => string;
+    expect(message()).toBe('Convite criado.');
     expect(wrapper.get('[role="alert"]').text()).toContain('Convite criado.');
     expect(wrapper.text()).toContain('created-code');
   });

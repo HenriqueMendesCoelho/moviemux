@@ -1,11 +1,11 @@
 <template>
   <section class="mm-tmdb-credits" :aria-labelledby="headingId">
-    <h2 :id="headingId">Créditos</h2>
+    <h2 :id="headingId">{{ t('account.credits') }}</h2>
     <a
       href="https://www.themoviedb.org"
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="The Movie Database (abre em nova aba)"
+      :aria-label="t('account.tmdbLink')"
     >
       <img :src="tmdbLogo" alt="The Movie Database" width="90" height="7" />
     </a>
@@ -13,6 +13,8 @@
   </section>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { useId } from 'vue';
 import tmdbLogo from 'src/assets/tmdb-logo-long.svg';
 const headingId = useId();

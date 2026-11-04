@@ -1,13 +1,16 @@
 <template>
-  <aside v-if="!acknowledged" class="mm-cookie-notice" aria-label="Cookies necessários">
+  <aside v-if="!acknowledged" class="mm-cookie-notice" :aria-label="t('account.necessaryCookies')">
     <p>
-      Usamos cookies necessários para manter sua sessão e proteger o acesso à sua conta. “Entendi”
-      apenas confirma a leitura deste aviso.
+      {{ t('account.cookieNotice') }}
     </p>
-    <button type="button" class="mm-button mm-button-ghost" @click="acknowledge">Entendi</button>
+    <button type="button" class="mm-button mm-button-ghost" @click="acknowledge">
+      {{ t('account.gotIt') }}
+    </button>
   </aside>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { onMounted, ref } from 'vue';
 const storageKey = 'moviemux:necessary-cookie-notice:v1';
 const acknowledged = ref(false);

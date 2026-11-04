@@ -1,5 +1,5 @@
 <template>
-  <BaseLoadingState label="Carregando seu perfil…">
+  <BaseLoadingState :label="t('account.loadingProfile')">
     <div class="mm-profile-loading-fields">
       <div v-for="n in 2" :key="n">
         <BaseSkeleton width="5rem" height="0.7rem" /><BaseSkeleton shape="block" height="44px" />
@@ -14,6 +14,8 @@
   </BaseLoadingState>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import BaseLoadingState from 'src/core/components/BaseLoadingState.vue';
 import BaseSkeleton from 'src/core/components/BaseSkeleton.vue';
 </script>
