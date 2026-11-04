@@ -20,7 +20,8 @@
     "test:session": "node tests/session-security-smoke.ts && node tests/session-cookie-smoke.ts",
     "test:socket": "node tests/bff-socket-smoke.ts",
     "test:turnstile": "node tests/turnstile-security-smoke.ts",
-    "test:health": "node tests/healthcheck-smoke.ts"
+    "test:health": "node tests/healthcheck-smoke.ts",
+    "test:i18n:ssr": "node tests/i18n-ssr-smoke.ts"
   },
   "dependencies": {
     "@nuxtjs/i18n": "10.6.0",
