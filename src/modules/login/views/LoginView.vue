@@ -1,5 +1,12 @@
 <template>
-  <main class="mm-welcome">
+  <main
+    class="mm-welcome"
+    @pointermove="ambientBackground?.onPointerMove($event)"
+    @pointerleave="ambientBackground?.onPointerLeave()"
+    @focusin="ambientBackground?.onFocusIn($event)"
+    @focusout="ambientBackground?.onFocusOut($event)"
+  >
+    <LoginAmbientBackground ref="ambientBackground" />
     <div class="mm-welcome-content">
       <section class="mm-welcome-story">
         <router-link to="/" class="mm-brand" aria-label="Movie Mux, início"
@@ -32,9 +39,11 @@ import { useUserStore } from 'src/core/stores/UserStore';
 import KitService from 'src/core/services/KitService';
 import { safeReturnPath } from '../utils/AccountUtils';
 import LoginForm from '../components/LoginForm.vue';
+import LoginAmbientBackground from '../components/LoginAmbientBackground.vue';
 import NecessaryCookieNotice from '../components/NecessaryCookieNotice.vue';
 import TmdbCredits from '../components/TmdbCredits.vue';
 import SpotlightCard from 'src/core/components/vue-bits/SpotlightCard.vue';
+const ambientBackground = ref<InstanceType<typeof LoginAmbientBackground>>();
 const tab = ref('login');
 const route = useRoute();
 const router = useRouter();
@@ -83,6 +92,8 @@ onMounted(async () => {
 </script>
 <style scoped>
 .mm-welcome {
+  position: relative;
+  isolation: isolate;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -95,6 +106,11 @@ onMounted(async () => {
       transparent 55%
     ),
     var(--mm-bg);
+}
+.mm-welcome-content,
+.mm-welcome-footer {
+  position: relative;
+  z-index: 1;
 }
 .mm-welcome-content {
   display: grid;
