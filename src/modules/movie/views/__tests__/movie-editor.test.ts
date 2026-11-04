@@ -139,7 +139,7 @@ test('initial GET failures cannot surface or redirect after leaving the route', 
   mocks.store.moviePage.selectedMovie = {};
   mocks.getMovie.mockReturnValue(read.promise);
   const wrapper = await create();
-  expect(wrapper.text()).toContain('Carregando');
+  expect(wrapper.findComponent({ name: 'MoviePageSkeleton' }).exists()).toBe(true);
   mocks.route.path = '/profile';
   mocks.route.name = 'profile';
   mocks.route.params = {};
@@ -156,4 +156,55 @@ test('nonowners cannot submit movie edits through the screen', async () => {
   expect(wrapper.text()).toContain('Somente o autor');
   expect(wrapper.findComponent({ name: 'MovieSaveBtnGroup' }).exists()).toBe(false);
   expect(mocks.updateMovie).not.toHaveBeenCalled();
+});
+
+test('initial editor skeleton becomes error, retry skeleton, then editable content', async () => {
+  mocks.store.moviePage.selectedMovie = {};
+  const first = pending<Movie>();
+  mocks.getMovie.mockReturnValue(first.promise);
+  const wrapper = await create();
+  expect(wrapper.findComponent({ name: 'MoviePageSkeleton' }).exists()).toBe(true);
+  first.reject(new Error('offline'));
+  await flushPromises();
+  expect(wrapper.findComponent({ name: 'MoviePageSkeleton' }).exists()).toBe(false);
+  expect(wrapper.find('[role="alert"]').exists()).toBe(true);
+  const retry = pending<Movie>();
+  mocks.getMovie.mockReturnValue(retry.promise);
+  await wrapper.get('[role="alert"] button').trigger('click');
+  expect(wrapper.findComponent({ name: 'MoviePageSkeleton' }).exists()).toBe(true);
+  retry.resolve(record());
+  await flushPromises();
+  expect(wrapper.findComponent({ name: 'MoviePageSkeleton' }).exists()).toBe(false);
+  expect(wrapper.get('input').element.value).toBe('Original');
+});
+
+test('read-only film shows loading anatomy, error and retry without stale content', async () => {
+  const { default: MovieView } = await import('../MovieView.vue');
+  mocks.route.name = 'movie';
+  mocks.route.path = '/movie/a';
+  const first = pending<Movie>();
+  mocks.getMovie.mockReturnValue(first.promise);
+  const wrapper = shallowMount(MovieView, {
+    global: {
+      stubs: {
+        BaseContainerMain: { template: '<main><slot /></main>' },
+        RouterLink: { template: '<a><slot /></a>' },
+      },
+    },
+  });
+  wrappers.push(wrapper);
+  expect(wrapper.findComponent({ name: 'MoviePageSkeleton' }).exists()).toBe(true);
+  expect(wrapper.findComponent({ name: 'MovieForm' }).exists()).toBe(false);
+  expect(wrapper.get('a').text()).toContain('Coleção');
+  first.reject(new Error('offline'));
+  await flushPromises();
+  expect(wrapper.findComponent({ name: 'MoviePageSkeleton' }).exists()).toBe(false);
+  const retry = pending<Movie>();
+  mocks.getMovie.mockReturnValue(retry.promise);
+  await wrapper.get('[role="alert"] button').trigger('click');
+  expect(wrapper.findComponent({ name: 'MoviePageSkeleton' }).exists()).toBe(true);
+  retry.resolve(record());
+  await flushPromises();
+  expect(wrapper.findComponent({ name: 'MoviePageSkeleton' }).exists()).toBe(false);
+  expect(wrapper.findComponent({ name: 'MovieForm' }).exists()).toBe(true);
 });

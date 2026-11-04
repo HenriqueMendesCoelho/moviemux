@@ -1,6 +1,6 @@
 <template>
   <section class="mm-summary-stage" :aria-busy="loading">
-    <p v-if="loading" class="mm-sr-only" role="status">Carregando informações do filme…</p>
+    <p v-if="loading && !movie" class="mm-sr-only" role="status">Carregando informações do filme…</p>
     <div v-if="loading && movie" class="mm-summary-refresh" role="status">
       Atualizando informações…
     </div>

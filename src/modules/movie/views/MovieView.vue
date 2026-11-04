@@ -1,6 +1,11 @@
 <template>
   <BaseContainerMain class="mm-film-detail">
-    <p v-if="loading" role="status">Carregando filme…</p>
+    <template v-if="loading"
+      ><nav class="mm-movie-loading-actions" aria-label="Navegação do filme">
+        <router-link class="mm-button" to="/home">← Coleção</router-link>
+      </nav>
+      <MoviePageSkeleton
+    /></template>
     <div v-else-if="error" role="alert" class="mm-empty">
       <p>{{ error }}</p>
       <button class="mm-button" @click="loadMovie">Tentar novamente</button>
@@ -15,6 +20,7 @@
 import { computed, ref, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useHead } from '#imports';
+import MoviePageSkeleton from '../components/MoviePageSkeleton.vue';
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import MovieSuperiorButtons from '../components/MovieSuperiorButtons.vue';
 import MovieForm from '../components/MovieForm.vue';
@@ -77,6 +83,13 @@ async function loadMovie() {
 </script>
 
 <style scoped>
+.mm-movie-loading-actions {
+  display: flex;
+  align-items: stretch;
+  min-height: 46px;
+  margin-bottom: 2rem;
+}
+
 .mm-film-detail.mm-container {
   max-width: 70rem;
 }

@@ -1,6 +1,11 @@
 <template>
   <BaseContainerMain>
-    <p v-if="loading" role="status">Carregando filme…</p>
+    <template v-if="loading"
+      ><nav class="mm-movie-loading-actions" aria-label="Navegação do filme">
+        <router-link class="mm-button" to="/home">← Coleção</router-link>
+      </nav>
+      <MoviePageSkeleton editing
+    /></template>
     <div v-else-if="error" role="alert" class="mm-empty">
       <p>{{ error }}</p>
       <button class="mm-button" @click="loadMovie(true)">Tentar novamente</button>
@@ -33,6 +38,7 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHead } from '#imports';
+import MoviePageSkeleton from '../components/MoviePageSkeleton.vue';
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import MovieSuperiorButtons from '../components/MovieSuperiorButtons.vue';
@@ -148,3 +154,12 @@ async function cancel() {
   await router.push(`/movie/${id.value}`);
 }
 </script>
+
+<style scoped>
+.mm-movie-loading-actions {
+  display: flex;
+  align-items: stretch;
+  min-height: 46px;
+  margin-bottom: 2rem;
+}
+</style>
