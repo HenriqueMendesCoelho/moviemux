@@ -1,5 +1,5 @@
 <template>
-  <BaseLoadingState :label="detail ? 'Carregando lista…' : 'Carregando listas…'">
+  <BaseLoadingState :label="detail ? t('library.loadingList') : t('library.loadingLists')">
     <template v-if="detail">
       <div class="mm-list-loading-heading">
         <BaseSkeleton width="55%" height="2rem" /><BaseSkeleton width="12rem" /><BaseSkeleton
@@ -32,6 +32,8 @@
   </BaseLoadingState>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import BaseLoadingState from 'src/core/components/BaseLoadingState.vue';
 import BaseSkeleton from 'src/core/components/BaseSkeleton.vue';
 withDefaults(defineProps<{ detail?: boolean }>(), { detail: false });

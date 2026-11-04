@@ -63,7 +63,7 @@ export const useMovieWatchlistStore = defineStore('MovieWatchlistStore', {
         this.watchlists = result;
         return true;
       } catch {
-        if (current()) showError('Erro ao buscar listas de filmes');
+        if (current()) showError('library.loadListsFailed');
         return false;
       }
     },

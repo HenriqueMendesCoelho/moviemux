@@ -1,11 +1,8 @@
 <template>
   <div v-if="tmdbIds.length && isOwner" class="mm-cleanup">
     <p>
-      <strong
-        >{{ tmdbIds.length }}
-        {{ tmdbIds.length === 1 ? 'filme já no ranking' : 'filmes já no ranking' }}.</strong
-      >
-      <span class="mm-cleanup-explanation"> Você pode tirá-los desta lista.</span>
+      <strong>{{ t('library.ratedCount', tmdbIds.length) }}</strong>
+      <span class="mm-cleanup-explanation"> {{ t('library.cleanupHelp') }}</span>
     </p>
     <button
       class="mm-cleanup-action"
@@ -13,11 +10,14 @@
       :disabled="disabled || busy"
       @click="confirmCleanup"
     >
-      Revisar<span class="mm-cleanup-explanation"> e remover</span></button
+      {{ t('library.review')
+      }}<span class="mm-cleanup-explanation"> {{ t('library.andRemove') }}</span></button
     ><BaseConfirmDialog :key="confirmationKey" ref="confirmDialogRef" @ok="remove" />
   </div>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useUserStore } from 'src/core/stores/UserStore';
 import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
@@ -80,10 +80,10 @@ function confirmCleanup() {
     .map((movie) => movie.title || movie.title_english);
   confirmed = { id: props.wishlist.id, account: userStore.user.id, ids };
   confirmDialogRef.value?.show({
-    title: 'Revisar e remover?',
-    message: `Remover ${names.join(', ')} desta lista?`,
+    title: () => t('library.reviewRemove'),
+    message: () => t('library.removeNames', { names: names.join(', ') }),
     focus: 'cancel',
-    ok: 'Remover',
+    ok: () => t('library.remove'),
   });
 }
 async function remove() {

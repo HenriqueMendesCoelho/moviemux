@@ -1,7 +1,7 @@
 <template>
   <BaseContainerMain>
     <router-link class="mm-back-link" :to="{ name: 'movie-watchlist-list' }"
-      ><BaseIcon name="chevron-left" /> Minhas listas</router-link
+      ><BaseIcon name="chevron-left" /> {{ t('library.myLists') }}</router-link
     >
     <template v-if="watchlist"
       ><div class="mm-detail-top">
@@ -18,7 +18,7 @@
               :checked="watchlist?.shareable"
               :disabled="mutationBlocked"
               @change="onShareToggle"
-            /><span>Lista pública</span></label
+            /><span>{{ t('library.publicList') }}</span></label
           >
           <button
             v-if="!allowDrag"
@@ -27,25 +27,25 @@
             :disabled="mutationBlocked || filteredMovies.length < 2"
             @click="startReorder"
           >
-            <BaseIcon name="grip" />Reordenar
+            <BaseIcon name="grip" />{{ t('library.reorder') }}
           </button>
         </div>
       </div>
       <div v-if="allowDrag" class="mm-reorder-intro">
-        <strong>Organize do seu jeito</strong>
-        <p id="reorder-help">Arraste pela alça ou use as setas. Salve para confirmar sua ordem.</p>
+        <strong>{{ t('library.organize') }}</strong>
+        <p id="reorder-help">{{ t('library.reorderHelp') }}</p>
       </div>
       <div v-if="allowDrag" class="mm-reorder-toolbar">
-        <span class="mm-unsaved-label">Ordem não salva</span>
+        <span class="mm-unsaved-label">{{ t('library.unsavedOrder') }}</span>
         <div class="mm-actions">
           <button class="mm-button" :disabled="saving || isSwapping" @click="cancelReorder">
-            Cancelar</button
+            {{ t('library.cancel') }}</button
           ><button
             class="mm-button mm-button-primary"
             :disabled="saving || isSwapping"
             @click="saveReorder"
           >
-            {{ saving ? 'Salvando…' : 'Salvar ordem' }}
+            {{ saving ? t('library.saving') : t('library.saveOrder') }}
           </button>
         </div>
       </div>
@@ -58,14 +58,14 @@
       />
       <form v-if="!allowDrag" class="mm-filter-bar" @submit.prevent="applySearch">
         <label class="mm-search-field"
-          ><BaseIcon name="search" /><span class="mm-sr-only">Buscar nesta lista</span
+          ><BaseIcon name="search" /><span class="mm-sr-only">{{ t('library.searchList') }}</span
           ><input
             ref="searchInput"
             v-model="searchText"
             class="mm-search-input"
             :disabled="loading || saving"
             list="watchlist-titles"
-            placeholder="Buscar nesta lista"
+            :placeholder="t('library.searchList')"
             @input="applySearch" /><datalist id="watchlist-titles">
             <option
               v-for="movie in watchlist?.movies_wishlists"
@@ -77,21 +77,24 @@
           v-if="searchText"
           class="mm-clear-search"
           type="button"
-          aria-label="Limpar busca"
+          :aria-label="t('library.clearSearch')"
           @click="clearSearch"
         >
           <BaseIcon name="close" />
         </button>
-        <span class="mm-result-count"
-          >{{ filteredMovies.length }} {{ filteredMovies.length === 1 ? 'filme' : 'filmes' }}</span
-        >
+        <span class="mm-result-count">{{ t('library.movieCount', filteredMovies.length) }}</span>
       </form> </template
     ><WatchlistLoadingState v-if="loading && !watchlist" detail />
     <p v-if="error" class="mm-error" role="alert">
-      {{ error }} <button class="mm-button" @click="loadWatchlist">Tentar novamente</button>
+      {{ t(error) }}
+      <button class="mm-button" @click="loadWatchlist">{{ t('library.retry') }}</button>
     </p>
     <p v-if="watchlist" class="mm-sr-only" role="status" aria-live="polite">
-      {{ reorderAnnouncement }}
+      {{
+        te(reorderAnnouncement)
+          ? t(reorderAnnouncement, { position: reorderPosition.toLocaleString(locale) })
+          : reorderAnnouncement
+      }}
     </p>
     <div
       ref="posterGrid"
@@ -118,11 +121,11 @@
               data-swapy-handle
               type="button"
               :disabled="saving"
-              :aria-label="`Arrastar ${movie.title || movie.title_english} para reordenar`"
-              title="Arraste para reordenar"
+              :aria-label="t('library.dragNamed', { name: movie.title || movie.title_english })"
+              :title="t('library.dragHelp')"
               @click.stop.prevent
             >
-              <BaseIcon name="grip" /><span>Mover</span>
+              <BaseIcon name="grip" /><span>{{ t('library.move') }}</span>
             </button>
           </div>
           <div data-swapy-no-drag>
@@ -144,29 +147,26 @@
               :disabled="saving || isSwapping || index === 0"
               @click="move(index, index - 1)"
               :data-focus-key="`before-${movie.tmdb_id}`"
-              :aria-label="`Mover ${movie.title || movie.title_english} para antes`"
+              :aria-label="t('library.moveBefore', { name: movie.title || movie.title_english })"
             >
-              <BaseIcon name="chevron-left" /><span>Antes</span>
+              <BaseIcon name="chevron-left" /><span>{{ t('library.before') }}</span>
             </button>
             <button
               class="mm-order-button"
               :disabled="saving || isSwapping || index === filteredMovies.length - 1"
               @click="move(index, index + 1)"
               :data-focus-key="`after-${movie.tmdb_id}`"
-              :aria-label="`Mover ${movie.title || movie.title_english} para depois`"
+              :aria-label="t('library.moveAfter', { name: movie.title || movie.title_english })"
             >
-              <span>Depois</span><BaseIcon name="chevron-right" />
+              <span>{{ t('library.after') }}</span
+              ><BaseIcon name="chevron-right" />
             </button>
           </div>
         </article>
       </div>
     </div>
     <p v-if="watchlist && !loading && !error && !filteredMovies.length" class="mm-empty">
-      {{
-        searchText
-          ? 'Nenhum filme corresponde à busca.'
-          : 'Ainda não há filmes nesta lista. Descubra algo para sua próxima sessão.'
-      }}
+      {{ searchText ? t('library.noSearchResults') : t('library.emptyList') }}
     </p>
     <BaseFloatingActionBtn />
     <BaseConfirmDialog :key="viewKey" ref="confirmDialogRef" @ok="removeMovie" />
@@ -174,6 +174,8 @@
   </BaseContainerMain>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, te, locale } = useI18n();
 import { computed, onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue';
 import type { Swapy } from 'swapy';
 import BaseIcon from 'src/core/components/BaseIcon.vue';
@@ -211,6 +213,7 @@ const reorderDraft = ref<WatchlistType['movies_wishlists']>([]);
 const posterGrid = ref<HTMLElement>();
 const isSwapping = ref(false);
 const reorderAnnouncement = ref('');
+const reorderPosition = ref(0);
 let swapy: Swapy | undefined;
 let swapyGeneration = 0;
 let settleTimer: ReturnType<typeof setTimeout> | undefined;
@@ -250,8 +253,8 @@ async function initializeSwapy() {
     swapy.onSwapEnd((event) => {
       if (generation !== swapyGeneration) return;
       reorderAnnouncement.value = event.hasChanged
-        ? 'Ordem alterada. Salve para confirmar ou cancele para voltar à ordem anterior.'
-        : 'Ordem mantida.';
+        ? 'library.orderChanged'
+        : 'library.orderUnchanged';
       if (!event.hasChanged) {
         isSwapping.value = false;
         return;
@@ -268,8 +271,7 @@ async function initializeSwapy() {
       );
     });
   } catch {
-    reorderAnnouncement.value =
-      'Arraste indisponível neste navegador. Use os botões Antes e Depois para reordenar.';
+    reorderAnnouncement.value = 'library.dragUnavailable';
   }
 }
 watch(
@@ -356,8 +358,7 @@ async function loadWatchlist() {
     const result = await MovieWatchlistService.searchWatchlistById(id);
     if (current()) setWatchlist(result);
   } catch {
-    if (current())
-      error.value = 'Não foi possível carregar a lista. Ela pode não existir ou ser privada.';
+    if (current()) error.value = 'library.loadListFailed';
   } finally {
     if (current()) loading.value = false;
   }
@@ -410,7 +411,7 @@ async function persist(value: WatchlistType, reorder = false): Promise<boolean> 
     setWatchlist(result);
     return true;
   } catch {
-    if (current()) showError('Erro ao salvar lista de filmes');
+    if (current()) showError('library.saveFailed');
     return false;
   } finally {
     if (current()) saving.value = false;
@@ -419,7 +420,7 @@ async function persist(value: WatchlistType, reorder = false): Promise<boolean> 
 async function renameWatchlist(name: string) {
   if (mutationBlocked.value || !watchlist.value) return false;
   const saved = await persist({ ...watchlist.value, name });
-  if (saved) showSuccess('Nome atualizado');
+  if (saved) showSuccess('library.nameUpdated');
   return saved;
 }
 async function removeRated(ids: number[]) {
@@ -430,7 +431,7 @@ async function removeRated(ids: number[]) {
       (movie) => !ids.includes(movie.tmdb_id),
     ),
   });
-  if (saved) showSuccess('Filmes removidos da lista');
+  if (saved) showSuccess('library.moviesRemoved');
   return saved;
 }
 async function onShareToggle(event: Event) {
@@ -455,10 +456,10 @@ function confirmRemove(movie: WatchlistType['movies_wishlists'][number]) {
     accountId: userStore.user.id,
   };
   confirmDialogRef.value?.show({
-    title: 'Remover filme?',
-    message: `Remover “${movie.title || movie.title_english}” desta lista?`,
+    title: () => t('library.removeMovie'),
+    message: () => t('library.removeNamed', { name: movie.title || movie.title_english }),
     focus: 'cancel',
-    ok: 'Remover',
+    ok: () => t('library.remove'),
   });
 }
 async function removeMovie() {
@@ -478,14 +479,14 @@ async function removeMovie() {
       (movie) => movie.tmdb_id !== target.movieId,
     ),
   });
-  if (saved) showSuccess('Filme removido da lista');
+  if (saved) showSuccess('library.movieRemoved');
 }
 async function copyMovieUrl(id: number) {
   try {
     await navigator.clipboard.writeText(`${window.location.origin}/movie/discover?movie=${id}`);
-    showSuccess('URL copiada');
+    showSuccess('library.urlCopied');
   } catch {
-    showError('Erro ao copiar URL');
+    showError('library.copyUrlFailed');
   }
 }
 function startReorder() {
@@ -507,7 +508,8 @@ async function move(from: number, to: number) {
   const focusKey = (document.activeElement as HTMLElement | null)?.dataset.focusKey;
   destroySwapy();
   reorderDraft.value = moveWatchlistMovie(reorderDraft.value, from, to);
-  reorderAnnouncement.value = `Filme movido para a posição ${to + 1}. Salve para confirmar.`;
+  reorderPosition.value = to + 1;
+  reorderAnnouncement.value = 'library.movedPosition';
   await initializeSwapy();
   await nextTick();
   if (focusKey) {
@@ -524,14 +526,14 @@ async function saveReorder() {
   if (await persist({ ...watchlist.value, movies_wishlists: reorderDraft.value }, true)) {
     allowDrag.value = false;
     reorderDraft.value = [];
-    showSuccess('Lista reordenada');
+    showSuccess('library.reordered');
   }
 }
 function cancelReorder() {
   if (saving.value || isSwapping.value) return;
   allowDrag.value = false;
   reorderDraft.value = [];
-  reorderAnnouncement.value = 'Alterações de ordem descartadas.';
+  reorderAnnouncement.value = 'library.orderDiscarded';
 }
 </script>
 

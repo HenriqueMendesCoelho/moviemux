@@ -1,29 +1,30 @@
 <template>
   <header class="mm-list-heading">
     <div class="mm-list-heading-line">
-      <h1>{{ watchlist?.name || 'Lista de filmes' }}</h1>
+      <h1>{{ watchlist?.name || t('library.listTitle') }}</h1>
       <button
         v-if="isOwner"
         class="mm-rename-trigger"
         type="button"
         :disabled="disabled"
         @click="beginEdit"
-        aria-label="Renomear lista"
-        title="Renomear lista"
+        :aria-label="t('library.renameList')"
+        :title="t('library.renameList')"
       >
-        <BaseIcon name="edit" /><span>Renomear</span>
+        <BaseIcon name="edit" /><span>{{ t('library.rename') }}</span>
       </button>
     </div>
     <div class="mm-list-heading-meta">
-      <span>{{ watchlist?.movies_wishlists.length || 0 }} filmes</span
+      <span>{{ t('library.movieCount', watchlist?.movies_wishlists.length || 0) }}</span
       ><span aria-hidden="true">·</span
-      ><span>{{ watchlist?.shareable ? 'Lista pública' : 'Lista privada' }}</span
+      ><span>{{ watchlist?.shareable ? t('library.publicList') : t('library.privateList') }}</span
       ><MovieWatchlistTooltipInfo v-if="watchlist" :watchlist="watchlist" />
     </div>
-    <BaseModal v-model="editing" title="Renomear lista">
+    <BaseModal v-model="editing" :title="t('library.renameList')">
       <form v-if="isOwner" class="mm-form" @submit.prevent="save">
         <label class="mm-field"
-          >Nome da lista<input
+          >{{ t('library.listName')
+          }}<input
             v-model="name"
             required
             minlength="3"
@@ -33,9 +34,9 @@
         /></label>
         <div class="mm-actions">
           <button class="mm-button" type="button" :disabled="saving" @click="editing = false">
-            Cancelar</button
+            {{ t('library.cancel') }}</button
           ><button class="mm-button mm-button-primary" :disabled="disabled || saving">
-            {{ saving ? 'Salvando…' : 'Salvar nome' }}
+            {{ saving ? t('library.saving') : t('library.saveName') }}
           </button>
         </div>
       </form>
@@ -43,6 +44,8 @@
   </header>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 import BaseModal from 'src/core/components/BaseModal.vue';

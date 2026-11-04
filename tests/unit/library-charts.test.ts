@@ -77,8 +77,8 @@ test('genre bars show sorted absolute counts and explain multiple genres', async
   });
   expect(genre.findAll('.mm-genre-label').map((row) => row.text())).toEqual([
     'Drama10',
-    'Action5',
-    'Comedy2',
+    'Ação5',
+    'Comédia2',
   ]);
   expect(genre.text()).toContain('Um filme pode ter mais de um gênero');
   expect(genre.findComponent(ApexChart).exists()).toBe(false);

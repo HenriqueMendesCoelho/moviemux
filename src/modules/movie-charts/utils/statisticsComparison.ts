@@ -39,18 +39,18 @@ export function personalAverages(statistics?: PersonalStatistics) {
   };
 }
 
-export function formatRating(value: number | null): string {
+export function formatRating(value: number | null, locale = 'pt-BR'): string {
   return value === null
     ? '—'
-    : value.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    : value.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 }
 
-export function formatDuration(value: number | null): string {
+export function formatDuration(value: number | null, locale = 'pt-BR'): string {
   if (value === null) return '—';
   const minutes = Math.round(value);
   const hours = Math.floor(minutes / 60);
   const remainder = minutes % 60;
   return hours
-    ? `${hours.toLocaleString('pt-BR')}h${remainder ? ` ${remainder}min` : ''}`
-    : `${minutes}min`;
+    ? `${hours.toLocaleString(locale)}h${remainder ? ` ${remainder.toLocaleString(locale)}min` : ''}`
+    : `${minutes.toLocaleString(locale)}min`;
 }
