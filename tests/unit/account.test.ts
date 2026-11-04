@@ -102,7 +102,7 @@ describe('invitation account creation', () => {
     await passwords[0]!.setValue('Strong123!');
     await passwords[1]!.setValue('Strong123!');
     await wrapper.get('input[autocomplete="off"]').setValue('invite-code');
-    const reveal = wrapper.findAll('button').find((button) => button.text() === 'Mostrar')!;
+    const reveal = wrapper.findAll('button[aria-label="Mostrar senha"]')[0]!;
     await reveal.trigger('click');
     expect(passwords[0]!.attributes('type')).toBe('text');
     await wrapper.get('form').trigger('submit');
