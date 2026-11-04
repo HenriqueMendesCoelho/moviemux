@@ -9,19 +9,28 @@
         :src="movie.url_image"
         :srcset="tmdbPosterSrcset(imageBase, movie.url_image)"
         sizes="(max-width: 750px) 120px, 300px"
-        :alt="movie.portuguese_title || movie.original_title || 'Cartaz do filme'"
+        :alt="movie.portuguese_title || movie.original_title || t('catalog.movie.poster')"
         class="mm-poster"
       />
       <div v-else class="mm-poster mm-poster-empty">
-        Seu próximo filme<br /><span>Importe os detalhes do TMDB ou preencha o formulário.</span>
+        {{ t('catalog.movie.yourNextMovie') }}<br /><span>{{
+          t('catalog.movie.emptyPosterHelp')
+        }}</span>
       </div>
     </aside>
     <div class="mm-movie-content">
       <template v-if="readonly">
         <header class="mm-movie-heading">
           <p class="mm-eyebrow">
-            {{ fullReleaseDate(movie.release_date) }} ·
-            {{ StringUtils.runtimeToText(movie.runtime) }}
+            {{ fullReleaseDate(movie.release_date, locale, t('catalog.movie.unknownDate')) }} ·
+            {{
+              movie.runtime
+                ? t(
+                    movie.runtime % 60 ? 'catalog.movie.runtimeText' : 'catalog.movie.runtimeHours',
+                    { hours: n(Math.floor(movie.runtime / 60)), minutes: n(movie.runtime % 60) },
+                  )
+                : n(0)
+            }}
           </p>
           <h1>{{ movie.portuguese_title || movie.english_title || movie.original_title }}</h1>
           <p class="mm-muted">
@@ -37,11 +46,13 @@
         </div>
         <div class="mm-genre-tags">
           <span v-for="genre in movie.genres" :key="genre.id" class="mm-badge">{{
-            genre.name
+            genreLabel(genre)
           }}</span>
         </div>
         <p class="mm-synopsis">{{ movie.description }}</p>
-        <p><span class="mm-muted">Direção</span> {{ movie.director }}</p>
+        <p>
+          <span class="mm-muted">{{ t('catalog.movie.directing') }}</span> {{ movie.director }}
+        </p>
         <div class="mm-movie-links">
           <a
             v-if="movie.tmdb_id"
@@ -63,64 +74,72 @@
       </template>
       <form v-else ref="formRef" class="mm-form mm-movie-fields" @submit.prevent>
         <header>
-          <p class="mm-eyebrow">Sua coleção, suas histórias</p>
-          <h2>Informações do filme</h2>
+          <p class="mm-eyebrow">{{ t('catalog.movie.yourStories') }}</p>
+          <h2>{{ t('catalog.movie.movieInformation') }}</h2>
           <p class="mm-field-help">
-            Campos com * são obrigatórios. Revise os dados importados antes de salvar.
+            {{ t('catalog.movie.requiredHelp') }}
           </p>
         </header>
-        <label>Título em português *<input v-model="movie.portuguese_title" required /></label>
         <label
-          >Título em inglês {{ movie.original_title !== movie.english_title ? '*' : '(opcional)'
+          >{{ t('catalog.movie.portugueseTitle') }}<input v-model="movie.portuguese_title" required
+        /></label>
+        <label
+          >{{ t('catalog.movie.englishTitle') }}
+          {{ movie.original_title !== movie.english_title ? '*' : t('catalog.movie.optional')
           }}<input
             v-model="movie.english_title"
             :required="movie.original_title !== movie.english_title"
         /></label>
-        <label>Título original (opcional)<input v-model="movie.original_title" /></label>
-        <label>Diretor *<input v-model="movie.director" required /></label>
         <label
-          >Duração em minutos *<input
-            v-model.number="movie.runtime"
-            type="number"
-            min="0"
-            max="999"
-            required
+          >{{ t('catalog.movie.originalTitle') }}<input v-model="movie.original_title"
         /></label>
-        <label>Data de lançamento *<input v-model="releaseDate" type="date" required /></label>
+        <label>{{ t('catalog.movie.director') }}<input v-model="movie.director" required /></label>
+        <label
+          >{{ t('catalog.movie.runtime')
+          }}<input v-model.number="movie.runtime" type="number" min="0" max="999" required
+        /></label>
+        <label
+          >{{ t('catalog.movie.releaseDate') }}<input v-model="releaseDate" type="date" required
+        /></label>
         <label class="mm-span-full"
-          >Sinopse *<textarea v-model="movie.description" rows="5" required />
+          >{{ t('catalog.movie.synopsis')
+          }}<textarea v-model="movie.description" rows="5" required />
         </label>
         <div class="mm-span-full">
           <BaseMultiSelect
             v-model="genreIds"
-            :options="moviePage.genres.map((genre) => ({ value: genre.id, label: genre.name }))"
-            label="Gêneros *"
-            placeholder="Selecione os gêneros"
+            :options="
+              moviePage.genres.map((genre) => ({ value: genre.id, label: genreLabel(genre) }))
+            "
+            :label="t('catalog.movie.genres')"
+            :placeholder="t('catalog.movie.selectGenres')"
             :loading="loadingGenres"
-            :error="genresError"
+            :error="genresError ? t(genresError) : ''"
             @retry="loadGenres"
           />
           <p v-if="validation && !genreIds.length" role="alert" class="mm-error">
-            Escolha ao menos um gênero.
+            {{ t('catalog.movie.chooseGenre') }}
           </p>
         </div>
-        <label>TMDB ID (preenchido na importação)<input :value="movie.tmdb_id" readonly /></label>
-        <label>IMDb ID (opcional)<input v-model="movie.imdb_id" /></label>
+        <label>{{ t('catalog.movie.tmdbId') }}<input :value="movie.tmdb_id" readonly /></label>
+        <label>{{ t('catalog.movie.imdbId') }}<input v-model="movie.imdb_id" /></label>
         <label class="mm-span-full"
-          >URL do cartaz *<input v-model="movie.url_image" required
+          >{{ t('catalog.movie.posterUrl') }}<input v-model="movie.url_image" required
         /></label>
         <p class="mm-span-full mm-field-help">
-          Trailers: informe ao menos um link do YouTube ou código do vídeo, dublado ou legendado.
+          {{ t('catalog.movie.trailerHelp') }}
         </p>
         <label
-          >Trailer dublado<input
+          >{{ t('catalog.movie.dubbedTrailer')
+          }}<input
             :value="movie.portuguese_url_trailer"
             @change="
               movie.portuguese_url_trailer = videoKey(($event.target as HTMLInputElement).value)
             "
         /></label>
         <label
-          >Trailer legendado<input
+          >{{ t('catalog.movie.subtitledTrailer')
+          }}<input
             :value="movie.english_url_trailer"
             @change="
               movie.english_url_trailer = videoKey(($event.target as HTMLInputElement).value)
@@ -131,7 +150,7 @@
           role="alert"
           class="mm-span-full"
         >
-          Adicione ao menos um trailer.
+          {{ t('catalog.movie.chooseTrailer') }}
         </p>
       </form>
       <div v-if="!readonly" class="mm-movie-metadata">
@@ -149,6 +168,8 @@
   </section>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, locale, n, te } = useI18n();
 import { useMovieContext } from '../composables/useMovieContext';
 import { useMovieRequests } from '../composables/useMovieRequests';
 import { dateOnly, fullReleaseDate, tmdbPosterSrcset } from '../utils/MovieStateUtils';
@@ -165,10 +186,16 @@ import MovieTooltipInfo from './MovieTooltipInfo.vue';
 import { useMovieStore } from '../stores/MovieStore';
 import { useUserStore } from 'src/core/stores/UserStore';
 import MovieService from '../services/MovieService';
-import StringUtils from 'src/core/utils/StringUtils';
 import { showError } from 'src/core/utils/NotificationUtils';
 defineProps<{ readonly?: boolean }>();
 const moviePage = computed(() => useMovieStore().moviePage);
+function genreLabel(genre: { id: number; name: string; tmdb_id?: number }) {
+  const tmdbId =
+    genre.tmdb_id ?? moviePage.value.genres.find((item) => item.id === genre.id)?.tmdb_id;
+  const key = `catalog.genre.${tmdbId}`;
+  return tmdbId && te(key) ? t(key) : genre.name;
+}
+
 const movie = useMovieContext();
 const requests = useMovieRequests();
 const genresError = ref('');
@@ -197,8 +224,8 @@ async function loadGenres() {
     if (current()) moviePage.value.genres = genres;
   } catch {
     if (current()) {
-      genresError.value = 'Não foi possível carregar os gêneros.';
-      showError(genresError.value);
+      genresError.value = 'catalog.movie.genresError';
+      showError(() => t('catalog.movie.genresError'));
     }
   } finally {
     if (current()) loadingGenres.value = false;

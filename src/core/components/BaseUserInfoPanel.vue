@@ -2,12 +2,12 @@
   <div class="mm-user-info">
     <div class="mm-form-grid">
       <BaseTextInput
-        label="Nome"
+        :label="t('components.name')"
         :model-value="modelValue.name"
         :readonly="allReadOnly"
         @update:model-value="update('name', $event)"
       /><BaseTextInput
-        label="E-mail"
+        :label="t('components.email')"
         type="email"
         :model-value="modelValue.email"
         :readonly="allReadOnly"
@@ -20,45 +20,56 @@
         :checked="modelValue.preferences?.notify"
         :disabled="allReadOnly"
         @change="notifications"
-      />Notificações por e-mail</label
+      />{{ t('components.emailNotifications') }}</label
     >
     <dl class="mm-user-stats">
       <div>
-        <dt>Perfil de acesso</dt>
+        <dt>{{ t('components.accessRole') }}</dt>
         <dd>{{ modelValue.roles?.join(', ') }}</dd>
       </div>
       <div>
-        <dt>Conta criada em</dt>
-        <dd>{{ DateUtils.toLocaleString(modelValue.created_at) }}</dd>
+        <dt>{{ t('components.accountCreated') }}</dt>
+        <dd>{{ DateUtils.toLocaleString(modelValue.created_at, locale) }}</dd>
       </div>
       <div v-if="showAdmInfo">
-        <dt>Último login</dt>
-        <dd>{{ DateUtils.toLocaleString(modelValue.statistics?.last_login_at) }}</dd>
+        <dt>{{ t('components.lastLogin') }}</dt>
+        <dd>{{ DateUtils.toLocaleString(modelValue.statistics?.last_login_at, locale) }}</dd>
       </div>
       <div v-if="showAdmInfo">
-        <dt>Tentativas de login com falha</dt>
-        <dd>{{ modelValue.statistics?.consecutive_failed_login_attempts }}</dd>
+        <dt>{{ t('components.failedLogins') }}</dt>
+        <dd>
+          {{ modelValue.statistics?.consecutive_failed_login_attempts?.toLocaleString(locale) }}
+        </dd>
       </div>
       <div>
-        <dt>Filmes cadastrados</dt>
-        <dd>{{ modelValue.statistics?.registered_movies }}</dd>
+        <dt>{{ t('components.registeredMovies') }}</dt>
+        <dd>{{ modelValue.statistics?.registered_movies?.toLocaleString(locale) }}</dd>
       </div>
       <div>
-        <dt>Avaliações</dt>
-        <dd>{{ modelValue.statistics?.ratings_given }}</dd>
+        <dt>{{ t('components.ratings') }}</dt>
+        <dd>{{ modelValue.statistics?.ratings_given?.toLocaleString(locale) }}</dd>
       </div>
       <div>
-        <dt>Tempo de exibição</dt>
-        <dd>{{ StringUtils.runtimeToText(modelValue.statistics?.display_time) }}</dd>
+        <dt>{{ t('components.watchTime') }}</dt>
+        <dd>{{ StringUtils.runtimeToText(modelValue.statistics?.display_time, locale) }}</dd>
       </div>
       <div>
-        <dt>Nota média</dt>
-        <dd>{{ modelValue.statistics?.average_rating_movies?.toFixed(2) }}</dd>
+        <dt>{{ t('components.averageRating') }}</dt>
+        <dd>
+          {{
+            modelValue.statistics?.average_rating_movies?.toLocaleString(locale, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })
+          }}
+        </dd>
       </div>
     </dl>
   </div>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, locale } = useI18n();
 import type User from 'src/core/domain/user/User';
 import BaseTextInput from './BaseTextInput.vue';
 import DateUtils from 'src/core/utils/DateUtils';

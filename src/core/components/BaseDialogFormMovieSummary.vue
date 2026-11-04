@@ -2,7 +2,7 @@
   <BaseModal
     v-model="visible"
     class="mm-summary-dialog"
-    title="Detalhes do filme"
+    :title="t('components.movieDetails')"
     wide
     :class="{ 'mm-summary-maximized': maximized }"
     @hide="onHide"
@@ -12,14 +12,14 @@
         class="mm-button mm-button-ghost"
         @click="copyMovie"
       >
-        Copiar URL</button
+        {{ t('components.copyUrl') }}</button
       ><button
         type="button"
         class="mm-button mm-button-ghost"
         :aria-pressed="maximized"
         @click="maximized = !maximized"
       >
-        {{ maximized ? 'Restaurar' : 'Maximizar' }}
+        {{ maximized ? t('components.restore') : t('components.maximize') }}
       </button></template
     ><BaseFormMovieSummary
       v-if="visible && movieId"
@@ -30,6 +30,8 @@
   /></BaseModal>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { computed, ref } from 'vue';
 import BaseModal from './BaseModal.vue';
 import BaseFormMovieSummary from './BaseFormMovieSummary.vue';
@@ -56,9 +58,9 @@ async function copyMovie() {
     await navigator.clipboard.writeText(
       `${window.location.origin}/movie/discover?movie=${props.movieId}`,
     );
-    showSuccess('URL copiada');
+    showSuccess(() => t('components.urlCopied'));
   } catch {
-    showError('Não foi possível copiar a URL.');
+    showError(() => t('components.copyUrlError'));
   }
 }
 defineExpose({ loadMovie: () => summary.value?.getMovie() });

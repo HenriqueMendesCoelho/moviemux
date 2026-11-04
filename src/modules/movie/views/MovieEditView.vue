@@ -1,17 +1,17 @@
 <template>
   <BaseContainerMain>
     <template v-if="loading"
-      ><nav class="mm-movie-loading-actions" aria-label="Navegação do filme">
-        <router-link class="mm-button" to="/home">← Coleção</router-link>
+      ><nav class="mm-movie-loading-actions" :aria-label="t('catalog.movie.movieNavigation')">
+        <router-link class="mm-button" to="/home">{{ t('catalog.movie.collection') }}</router-link>
       </nav>
       <MoviePageSkeleton editing
     /></template>
     <div v-else-if="error" role="alert" class="mm-empty">
-      <p>{{ error }}</p>
-      <button class="mm-button" @click="loadMovie(true)">Tentar novamente</button>
+      <p>{{ t(error) }}</p>
+      <button class="mm-button" @click="loadMovie(true)">{{ t('catalog.movie.retry') }}</button>
     </div>
     <p v-else-if="ready && !canEdit" role="alert">
-      Somente o autor ou um administrador pode editar este filme.
+      {{ t('catalog.movie.editPermission') }}
     </p>
     <template v-else-if="ready">
       <MovieSuperiorButtons
@@ -29,12 +29,14 @@
         :disable-save="saving || !hasMovieFields(draft)"
         :disable-cancel="saving"
       />
-      <p v-if="saving" role="status">Salvando alterações…</p>
+      <p v-if="saving" role="status">{{ t('catalog.movie.savingChanges') }}</p>
       <BaseConfirmDialog ref="confirmDialogRef" @ok="cancel" />
     </template>
   </BaseContainerMain>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHead } from '#imports';
@@ -72,7 +74,11 @@ const confirmDialogRef = ref<InstanceType<typeof BaseConfirmDialog>>(),
   formMovieRef = ref<InstanceType<typeof MovieForm>>();
 let mounted = false;
 useHead(() => ({
-  title: `Movie Mux - Editando ${ready.value ? draft.value.portuguese_title || 'filme' : 'filme'}`,
+  title: t('catalog.movie.editingTitle', {
+    title: ready.value
+      ? draft.value.portuguese_title || t('catalog.movie.movie')
+      : t('catalog.movie.movie'),
+  }),
 }));
 onMounted(() => {
   mounted = true;
@@ -109,17 +115,17 @@ async function loadMovie(force = false) {
     draft.value = cloneMovie(movie);
     ready.value = true;
   } catch {
-    if (current()) error.value = 'Não foi possível carregar o filme.';
+    if (current()) error.value = 'catalog.movie.loadError';
   } finally {
     if (current()) loading.value = false;
   }
 }
 function showConfirmDialogCancel() {
   confirmDialogRef.value?.show({
-    message: 'Descartar as alterações não salvas?',
-    title: 'Cancelar edição',
+    message: () => t('catalog.movie.discardChanges'),
+    title: () => t('catalog.movie.cancelEditing'),
     focus: 'cancel',
-    ok: 'Descartar',
+    ok: () => t('catalog.movie.discard'),
   });
 }
 async function save() {
@@ -138,10 +144,10 @@ async function save() {
     });
     if (!current()) return;
     store.moviePage.selectedMovie = cloneMovie(result);
-    showSuccess('Filme salvo com sucesso.');
+    showSuccess(() => t('catalog.movie.movieSaved'));
     await router.push(`/movie/${target}`);
   } catch {
-    if (current()) showError('Erro ao salvar filme.');
+    if (current()) showError(() => t('catalog.movie.saveError'));
   } finally {
     if (current()) saving.value = false;
   }

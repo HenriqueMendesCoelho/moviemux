@@ -1,18 +1,20 @@
 <template>
   <details class="mm-discord-actions">
-    <summary>Mensagem no Discord</summary>
+    <summary>{{ t('catalog.movie.discordTitle') }}</summary>
     <div class="mm-discord-action-buttons">
       <button type="button" class="mm-button" :disabled="busy" @click="showConfirmDialog('send')">
-        Enviar mensagem
+        {{ t('catalog.movie.sendMessage') }}
       </button>
       <button type="button" class="mm-button" :disabled="busy" @click="showConfirmDialog('update')">
-        Atualizar mensagem
+        {{ t('catalog.movie.updateMessage') }}
       </button>
     </div>
   </details>
   <BaseConfirmDialog ref="confirmDialogRef" @ok="sendOrUpdateDiscordMessage($event)" />
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { ref } from 'vue';
 import { useUserStore } from 'src/core/stores/UserStore';
 import { useMovieContext } from '../composables/useMovieContext';
@@ -31,13 +33,21 @@ function showConfirmDialog(action: string) {
   if (busy.value || !user.isAdmin || !user.user.isLoged || !movie.value.id) return;
   target = movie.value.id;
   confirmed = requests.begin('confirm');
-  const verb = action === 'send' ? 'enviar' : 'atualizar';
   confirmDialogRef.value?.show({
-    title: 'Mensagem no Discord',
-    message: `Deseja ${verb} a mensagem de “${movie.value.portuguese_title || movie.value.english_title}”?`,
+    title: () => t('catalog.movie.discordTitle'),
+    message: () =>
+      t(
+        action === 'send'
+          ? 'catalog.movie.discordSendConfirm'
+          : 'catalog.movie.discordUpdateConfirm',
+        {
+          title:
+            movie.value.portuguese_title || movie.value.english_title || t('catalog.movie.movie'),
+        },
+      ),
     focus: 'cancel',
-    ok: 'Sim',
-    cancel: 'Não',
+    ok: () => t('catalog.movie.yes'),
+    cancel: () => t('catalog.movie.no'),
     event: action,
   });
 }
@@ -58,9 +68,12 @@ async function sendOrUpdateDiscordMessage(action: string | void) {
   try {
     if (action === 'send') await DiscordService.sendDiscordMessage(id);
     else await DiscordService.updateDiscordMessage(id);
-    if (current()) showSuccess(action === 'send' ? 'Mensagem enviada.' : 'Mensagem atualizada.');
+    if (current())
+      showSuccess(() =>
+        action === 'send' ? t('catalog.movie.messageSent') : t('catalog.movie.messageUpdated'),
+      );
   } catch {
-    if (current()) showError('Não foi possível atualizar a mensagem no Discord.');
+    if (current()) showError(() => t('catalog.movie.discordError'));
   } finally {
     if (current()) busy.value = false;
   }

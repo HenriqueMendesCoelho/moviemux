@@ -2,19 +2,21 @@
   <BaseContextMenu
     ><div class="mm-list-options">
       <button type="button" :disabled="disabled" @click.prevent="emit('copy-url')">
-        <BaseIcon name="share" />Copiar link</button
+        <BaseIcon name="share" />{{ t('library.copyLink') }}</button
       ><button
         class="mm-delete-list"
         type="button"
         :disabled="disabled"
         @click.prevent="emit('delete')"
       >
-        <BaseIcon name="close" />Excluir lista
+        <BaseIcon name="close" />{{ t('library.deleteList') }}
       </button>
     </div></BaseContextMenu
   >
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import BaseContextMenu from 'src/core/components/BaseContextMenu.vue';
 import BaseIcon from 'src/core/components/BaseIcon.vue';
 defineProps<{ disabled?: boolean }>();

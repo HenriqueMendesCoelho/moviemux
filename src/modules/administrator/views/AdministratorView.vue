@@ -1,11 +1,11 @@
 <template>
   <BaseContainerMain
     ><header class="mm-page-heading">
-      <p class="mm-eyebrow">CONTROLE DA COMUNIDADE</p>
-      <h1>Administração</h1>
-      <p class="mm-muted">Pessoas, permissões e convites em um só lugar.</p>
+      <p class="mm-eyebrow">{{ t('account.communityControl') }}</p>
+      <h1>{{ t('account.administration') }}</h1>
+      <p class="mm-muted">{{ t('account.adminIntro') }}</p>
     </header>
-    <nav class="mm-tabs" aria-label="Administração">
+    <nav class="mm-tabs" :aria-label="t('account.administration')">
       <button
         v-for="item in tabs"
         :key="item.id"
@@ -25,17 +25,19 @@
   </BaseContainerMain>
 </template>
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue';
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
+import { computed, ref, watch, nextTick } from 'vue';
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import AdministratorUserTab from '../components/AdministratorUserTab.vue';
 import AdministratorListUserTab from '../components/AdministratorListUserTab.vue';
 import AdministratorInviteUserTab from '../components/AdministratorInviteUserTab.vue';
 const tab = ref('users');
-const tabs = [
-  { id: 'users', label: 'Gerenciar usuário' },
-  { id: 'listUsers', label: 'Todos os usuários' },
-  { id: 'invite', label: 'Convites' },
-];
+const tabs = computed(() => [
+  { id: 'users', label: t('account.manageUser') },
+  { id: 'listUsers', label: t('account.allUsers') },
+  { id: 'invite', label: t('account.invitations') },
+]);
 const panel = ref<HTMLElement>();
 watch(tab, async () => {
   await nextTick();

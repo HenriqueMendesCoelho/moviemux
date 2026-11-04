@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
+import LanguageSelector from '~/core/i18n/LanguageSelector.vue';
 import BaseIcon from '~/core/components/BaseIcon.vue';
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { useUserStore } from '~/core/stores/UserStore';
@@ -93,14 +96,19 @@ async function logout() {
     close();
     await navigateTo('/');
   } catch {
-    showError('Não foi possível sair. Verifique sua conexão e tente novamente.');
+    showError(() => t('shell.logoutFailed'));
   } finally {
     loggingOut.value = false;
   }
 }
 </script>
 <template>
-  <button v-if="mobileOpen" class="mm-sidebar-backdrop" aria-label="Fechar menu" @click="close" />
+  <button
+    v-if="mobileOpen"
+    class="mm-sidebar-backdrop"
+    :aria-label="t('shell.menuClose')"
+    @click="close"
+  />
   <aside
     id="primary-sidebar"
     ref="panel"
@@ -110,7 +118,7 @@ async function logout() {
     :aria-hidden="mobile && !mobileOpen ? true : undefined"
     :role="mobileOpen ? 'dialog' : undefined"
     :aria-modal="mobileOpen ? true : undefined"
-    aria-label="Navegação principal"
+    :aria-label="t('shell.navigation')"
     tabindex="-1"
     @keydown="keydown"
   >
@@ -118,32 +126,34 @@ async function logout() {
       v-if="mobile"
       class="mm-sidebar-close mm-button mm-button-ghost"
       type="button"
-      aria-label="Fechar menu de navegação"
+      :aria-label="t('shell.navClose')"
       @click="close"
     >
-      <BaseIcon name="close" /> Fechar
+      <BaseIcon name="close" /> {{ t('shell.close') }}
     </button>
     <NuxtLink to="/home" class="mm-brand"
       ><img :src="logo" alt="" class="mm-original-logo" /><span
-        >Movie<span class="mm-accent">Mux</span><small>SEU UNIVERSO DE CINEMA</small></span
+        >Movie<span class="mm-accent">Mux</span><small>{{ t('shell.brandTagline') }}</small></span
       ></NuxtLink
     >
-    <p class="mm-nav-caption">BIBLIOTECA PESSOAL</p>
+    <p class="mm-nav-caption">{{ t('shell.library') }}</p>
     <SidebarRouteButtons :show-texts-side-bar="true" />
     <div class="mm-sidebar-bottom">
+      <LanguageSelector />
       <button v-if="pwa?.state.available" type="button" class="mm-nav-link" @click="install">
-        <BaseIcon name="download" /> Instalar aplicativo
+        <BaseIcon name="download" /> {{ t('shell.install') }}
       </button>
       <button class="mm-nav-link" @click="style.darkThemeToggle()">
         <BaseIcon name="theme" />
-        {{ style.layoutSettings.darkMode ? 'Modo claro' : 'Modo escuro' }}</button
+        {{ style.layoutSettings.darkMode ? t('shell.lightMode') : t('shell.darkMode') }}</button
       ><NuxtLink to="/profile" class="mm-user"
         ><span class="mm-avatar">{{ user.user.name?.slice(0, 1) || 'M' }}</span
         ><span
-          >{{ user.user.name || 'Meu perfil' }}<small>Seu espaço de cinema</small></span
+          >{{ user.user.name || t('shell.profile')
+          }}<small>{{ t('shell.profileTagline') }}</small></span
         ></NuxtLink
       ><button class="mm-text-button" :disabled="loggingOut" @click="logout">
-        Sair da conta <BaseIcon name="arrow" />
+        {{ t('shell.logout') }} <BaseIcon name="arrow" />
       </button>
     </div>
   </aside>

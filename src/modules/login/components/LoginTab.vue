@@ -1,36 +1,39 @@
 <template>
   <form class="mm-form" @submit.prevent="login">
     <header>
-      <p class="mm-eyebrow">SUA PRÓXIMA SESSÃO COMEÇA AQUI</p>
-      <h2>Bom ter você de volta.</h2>
-      <p class="mm-muted">Entre para descobrir, avaliar e compartilhar filmes.</p>
+      <p class="mm-eyebrow">{{ t('account.loginEyebrow') }}</p>
+      <h2>{{ t('account.welcomeBack') }}</h2>
+      <p class="mm-muted">{{ t('account.loginIntro') }}</p>
     </header>
     <label class="mm-field"
-      >E-mail<input v-model.trim="email" type="email" autocomplete="username" required
+      >{{ t('account.email')
+      }}<input v-model.trim="email" type="email" autocomplete="username" required
     /></label>
     <BasePasswordInput v-model="password" autocomplete="current-password" required />
     <button type="button" class="mm-link" :disabled="busy" @click="emit('changeTab', 'forgot')">
-      Esqueci minha senha
+      {{ t('account.forgotPassword') }}
     </button>
     <TurnstileChallenge ref="widget" v-model="token" action="login" />
     <p v-if="error" role="alert" class="mm-error">{{ error }}</p>
     <button class="mm-btn mm-btn-primary" :disabled="busy || !ready">
-      {{ busy ? 'Entrando…' : 'Entrar no Movie Mux' }}
+      {{ busy ? t('account.signingIn') : t('account.signIn') }}
     </button>
     <p v-if="createAccount" class="mm-muted">
-      Recebeu um convite?
+      {{ t('account.receivedInvite') }}
       <button type="button" class="mm-link" :disabled="busy" @click="emit('changeTab', 'create')">
-        Criar minha conta
+        {{ t('account.createMyAccount') }}
       </button>
     </p>
   </form>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import BasePasswordInput from 'src/core/components/BasePasswordInput.vue';
 import TurnstileChallenge from 'src/core/components/TurnstileChallenge.vue';
 import { useTurnstileForm } from 'src/core/turnstile/useTurnstileForm';
 import { verificationFailureMessage } from 'src/core/turnstile/errors';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { safeReturnPath } from '../utils/AccountUtils';
 import { useUserStore } from 'src/core/stores/UserStore';
@@ -43,11 +46,12 @@ const email = ref('');
 const password = ref('');
 const busy = ref(false);
 const { token, widget, ready, reset: resetChallenge } = useTurnstileForm();
-const error = ref('');
+const errorMessage = ref<() => string>(() => '');
+const error = computed(() => errorMessage.value());
 async function login() {
   if (busy.value || !ready.value) return;
   busy.value = true;
-  error.value = '';
+  errorMessage.value = () => '';
   emit('loading', true);
   try {
     await store.login({
@@ -63,9 +67,7 @@ async function login() {
       window.location.reload();
     }
   } catch (err) {
-    error.value =
-      verificationFailureMessage(err) ??
-      'Não foi possível entrar. Confira suas credenciais e tente novamente.';
+    errorMessage.value = () => verificationFailureMessage(err, t) ?? t('account.loginFailed');
   } finally {
     resetChallenge();
     busy.value = false;

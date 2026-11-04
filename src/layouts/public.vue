@@ -1,3 +1,6 @@
+<script setup lang="ts">
+import PublicLayout from '~/core/layout/public/PublicLayout.vue';
+</script>
 <template>
-  <main class="mm-public"><slot /></main>
+  <PublicLayout><slot /></PublicLayout>
 </template>

@@ -1,9 +1,24 @@
 <template>
-  <span class="mm-rating" :class="tone" :aria-label="`Nota média ${average.toFixed(1)}`"
-    >★ {{ average.toFixed(1) }}</span
+  <span
+    class="mm-rating"
+    :class="tone"
+    :aria-label="
+      t('components.ratingLabel', {
+        rating: average.toLocaleString(locale, {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1,
+        }),
+      })
+    "
+    >★
+    {{
+      average.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+    }}</span
   >
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, locale } = useI18n();
 import { computed } from 'vue';
 import type Movie from 'src/core/domain/movie/movie';
 import { ratingTone } from 'src/core/utils/RatingUtils';

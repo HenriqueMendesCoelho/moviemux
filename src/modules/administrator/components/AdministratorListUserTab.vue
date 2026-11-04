@@ -1,23 +1,29 @@
 <template>
   <section class="mm-form" :aria-busy="busy">
-    <h2>Todos os usuários</h2>
+    <h2>{{ t('account.allUsers') }}</h2>
     <div class="mm-actions">
       <label class="mm-field"
-        >Filtrar<input v-model.trim="filter" type="search" placeholder="Nome ou e-mail" /></label
-      ><button class="mm-btn" :disabled="busy" @click="load">Atualizar</button>
+        >{{ t('account.filter')
+        }}<input
+          v-model.trim="filter"
+          type="search"
+          :placeholder="t('account.nameOrEmail')" /></label
+      ><button class="mm-btn" :disabled="busy" @click="load">{{ t('account.refresh') }}</button>
     </div>
     <p v-if="error" role="alert" class="mm-error">{{ error }}</p>
     <div class="mm-table-wrap">
       <table class="mm-table">
         <caption class="mm-sr-only">
-          Usuários cadastrados
+          {{
+            t('account.registeredUsers')
+          }}
         </caption>
         <thead>
           <tr>
-            <th>Pessoa</th>
-            <th>Perfis</th>
-            <th>Atividade</th>
-            <th>Ações</th>
+            <th>{{ t('account.person') }}</th>
+            <th>{{ t('account.roles') }}</th>
+            <th>{{ t('account.activity') }}</th>
+            <th>{{ t('account.actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -26,29 +32,30 @@
               <strong>{{ user.name }}</strong
               ><span>{{ user.email }}</span>
             </td>
-            <td data-label="Perfis">{{ user.roles.join(', ') }}</td>
+            <td :data-label="t('account.roles')">{{ user.roles.join(', ') }}</td>
             <td>
               <BaseDisclosure class="mm-user-dates">
-                <template #summary>Ver datas</template>
+                <template #summary>{{ t('account.viewDates') }}</template>
                 <dl>
-                  <dt>Cadastro</dt>
+                  <dt>{{ t('account.registration') }}</dt>
                   <dd>{{ formatDate(user.created_at) }}</dd>
-                  <dt>Atualização</dt>
+                  <dt>{{ t('account.updated') }}</dt>
                   <dd>{{ formatDate(user.updated_at) }}</dd>
-                  <dt>Último acesso</dt>
+                  <dt>{{ t('account.lastLogin') }}</dt>
                   <dd>{{ formatDate(user.statistics?.last_login_at) }}</dd>
                 </dl>
               </BaseDisclosure>
             </td>
             <td class="mm-user-row-actions">
               <div class="mm-actions">
-                <button class="mm-btn" @click="copy(user.email)">Copiar e-mail</button
+                <button class="mm-btn" @click="copy(user.email)">
+                  {{ t('account.copyEmail') }}</button
                 ><button
                   class="mm-btn mm-btn-danger"
                   :disabled="busy || user.id === store.user.id"
                   @click="remove(user)"
                 >
-                  Excluir
+                  {{ t('account.delete') }}
                 </button>
               </div>
             </td>
@@ -56,17 +63,27 @@
         </tbody>
       </table>
     </div>
-    <nav class="mm-actions mm-pagination" aria-label="Paginação">
-      <button class="mm-btn" :disabled="page <= 1" @click="page--">Anterior</button>
-      <span role="status"
-        >Página {{ page }} de {{ pageCount }} · {{ visibleUsers.length }} registros</span
-      >
-      <button class="mm-btn" :disabled="page >= pageCount" @click="page++">Próxima</button>
+    <nav class="mm-actions mm-pagination" :aria-label="t('account.pagination')">
+      <button class="mm-btn" :disabled="page <= 1" @click="page--">
+        {{ t('account.previous') }}
+      </button>
+      <span role="status">{{
+        t(
+          'account.pageSummary',
+          { page, pages: pageCount, count: visibleUsers.length },
+          visibleUsers.length,
+        )
+      }}</span>
+      <button class="mm-btn" :disabled="page >= pageCount" @click="page++">
+        {{ t('account.next') }}
+      </button>
     </nav>
-    <p v-if="!busy && !visibleUsers.length" class="mm-muted">Nenhum usuário encontrado.</p>
+    <p v-if="!busy && !visibleUsers.length" class="mm-muted">{{ t('account.noUsers') }}</p>
   </section>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, locale } = useI18n();
 import { computed, onMounted, ref, watch } from 'vue';
 import BaseDisclosure from 'src/core/components/BaseDisclosure.vue';
 import type User from 'src/core/domain/user/User';
@@ -75,7 +92,8 @@ import { useUserStore } from 'src/core/stores/UserStore';
 import { showSuccess } from 'src/core/utils/NotificationUtils';
 const users = ref<User[]>([]);
 const busy = ref(false);
-const error = ref('');
+const errorMessage = ref<() => string>(() => '');
+const error = computed(() => errorMessage.value());
 const filter = ref('');
 const store = useUserStore();
 const visibleUsers = computed(() =>
@@ -97,16 +115,16 @@ watch(filter, () => {
 });
 onMounted(load);
 function formatDate(value?: Date | string) {
-  return value ? new Date(value).toLocaleString('pt-BR') : 'Não registrado';
+  return value ? new Date(value).toLocaleString(locale.value) : t('account.notRecorded');
 }
 async function load() {
   if (busy.value) return;
   busy.value = true;
-  error.value = '';
+  errorMessage.value = () => '';
   try {
     users.value = await UserService.listUsersAdm();
   } catch {
-    error.value = 'Não foi possível carregar os usuários.';
+    errorMessage.value = () => t('account.usersLoadFailed');
   } finally {
     busy.value = false;
   }
@@ -114,26 +132,26 @@ async function load() {
 async function copy(email: string) {
   try {
     await navigator.clipboard.writeText(email);
-    showSuccess('E-mail copiado.');
+    showSuccess(() => t('account.emailCopied'));
   } catch {
-    error.value = 'Não foi possível copiar. Selecione o e-mail manualmente.';
+    errorMessage.value = () => t('account.copyEmailFailed');
   }
 }
 async function remove(user: User) {
   if (
     busy.value ||
     user.id === store.user.id ||
-    !window.confirm(`Excluir o usuário ${user.name} (${user.email})?`)
+    !window.confirm(t('account.deleteUserConfirm', { name: user.name, email: user.email }))
   )
     return;
   busy.value = true;
-  error.value = '';
+  errorMessage.value = () => '';
   try {
     await UserService.deleteUser(user.id);
     users.value = users.value.filter((item) => item.id !== user.id);
-    showSuccess('Usuário excluído.');
+    showSuccess(() => t('account.userDeleted'));
   } catch {
-    error.value = 'Não foi possível excluir o usuário.';
+    errorMessage.value = () => t('account.userDeleteFailed');
   } finally {
     busy.value = false;
   }

@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, locale } = useI18n();
+useHead(() => ({
+  htmlAttrs: { lang: locale.value === 'en' ? 'en' : 'pt-BR' },
+  meta: [{ name: 'description', content: t('shell.description') }],
+}));
 import { useUserStore } from './core/stores/UserStore';
 import AppFeedback from './core/layout/AppFeedback.vue';
 import { useStyleStore } from './core/stores/StyleStore';

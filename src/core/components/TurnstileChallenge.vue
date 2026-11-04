@@ -1,14 +1,16 @@
 <template>
   <div v-if="enabled" class="mm-verification" :aria-busy="loading">
     <div ref="container" class="mm-verification-widget" />
-    <p v-if="message" class="mm-muted" role="status" aria-live="polite">{{ message }}</p>
+    <p v-if="message" class="mm-muted" role="status" aria-live="polite">{{ t(message) }}</p>
     <button v-if="failed" class="mm-link" type="button" @click="retry">
-      Tentar verificação novamente
+      {{ t('shell.verificationRetry') }}
     </button>
-    <noscript>Ative o JavaScript para concluir a verificação de segurança.</noscript>
+    <noscript>{{ t('shell.verificationNoScript') }}</noscript>
   </div>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, locale } = useI18n();
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { useRuntimeConfig } from '#imports';
 import { useStyleStore } from 'src/core/stores/StyleStore';
@@ -21,7 +23,7 @@ const style = enabled ? useStyleStore() : undefined;
 const container = ref<HTMLElement | null>(null);
 const loading = ref(true);
 const failed = ref(false);
-const message = ref('Preparando verificação de segurança…');
+const message = ref('shell.verificationPreparing');
 let api: TurnstileApi | undefined;
 let widgetId: string | undefined;
 let generation = 0;
@@ -38,13 +40,13 @@ function expired() {
   token.value = '';
   loading.value = false;
   failed.value = true;
-  message.value = 'A verificação expirou. Verifique novamente para continuar.';
+  message.value = 'shell.verificationExpired';
 }
 function error() {
   token.value = '';
   loading.value = false;
   failed.value = true;
-  message.value = 'Não foi possível verificar. Confira sua conexão e tente novamente.';
+  message.value = 'shell.verificationFailed';
 }
 async function render() {
   if (!enabled || !mounted) return;
@@ -52,7 +54,7 @@ async function render() {
   const current = generation;
   loading.value = true;
   failed.value = false;
-  message.value = 'Preparando verificação de segurança…';
+  message.value = 'shell.verificationPreparing';
   try {
     api = await loadTurnstile();
     if (!mounted || current !== generation || !container.value) return;
@@ -66,14 +68,14 @@ async function render() {
         container.value.clientWidth > 0 && container.value.clientWidth < 300
           ? 'compact'
           : 'flexible',
-      language: 'pt-br',
+      language: locale.value === 'en' ? 'en' : 'pt-br',
       'response-field': false,
       callback: (value) => {
         if (!active()) return;
         token.value = value;
         loading.value = false;
         failed.value = false;
-        message.value = 'Verificação concluída.';
+        message.value = 'shell.verificationComplete';
       },
       'expired-callback': () => {
         if (active()) expired();
@@ -86,8 +88,7 @@ async function render() {
       },
     });
     loading.value = false;
-    if (!token.value && !failed.value)
-      message.value = 'Conclua a verificação de segurança para continuar.';
+    if (!token.value && !failed.value) message.value = 'shell.verificationRequired';
   } catch {
     if (mounted && current === generation) error();
   }
@@ -107,6 +108,9 @@ function reset() {
   }
   void render();
 }
+watch(locale, () => {
+  if (mounted && !token.value) void render();
+});
 function retry() {
   void render();
 }

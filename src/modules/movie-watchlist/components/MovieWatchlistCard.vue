@@ -3,7 +3,7 @@
     <router-link
       class="mm-list-preview"
       :to="destination"
-      :aria-label="`Abrir lista ${wishlist.name}`"
+      :aria-label="t('library.openNamedList', { name: wishlist.name })"
       @click="emit('clickOnCard')"
     >
       <img
@@ -17,7 +17,7 @@
         draggable="false"
       />
       <span v-if="!previewMovies.length" class="mm-list-placeholder"
-        ><BaseIcon name="plus" />Sua próxima seleção começa aqui</span
+        ><BaseIcon name="plus" />{{ t('library.nextSelection') }}</span
       >
     </router-link>
     <div class="mm-list-body">
@@ -27,8 +27,9 @@
             <router-link :to="destination">{{ wishlist.name }}</router-link>
           </h2>
           <p>
-            {{ wishlist.movies_wishlists?.length || 0 }} filmes <span aria-hidden="true">·</span>
-            {{ wishlist.shareable ? 'Pública' : 'Privada' }}
+            {{ t('library.movieCount', wishlist.movies_wishlists?.length || 0) }}
+            <span aria-hidden="true">·</span>
+            {{ wishlist.shareable ? t('library.public') : t('library.private') }}
           </p>
         </div>
         <MovieWatchlistCardContextMenu
@@ -38,16 +39,21 @@
         />
       </div>
       <div class="mm-list-footer">
-        <span :title="`Criada em ${DateUtils.toLocaleString(wishlist.created_at)}`"
-          >Atualizada {{ updatedDate }}</span
+        <span
+          :title="
+            t('library.createdOn', { date: DateUtils.toLocaleString(wishlist.created_at, locale) })
+          "
+          >{{ t('library.updatedOn', { date: updatedDate }) }}</span
         ><router-link :to="destination" class="mm-list-enter"
-          >Abrir lista <BaseIcon name="chevron-right"
+          >{{ t('library.openList') }} <BaseIcon name="chevron-right"
         /></router-link>
       </div>
     </div>
   </article>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, locale } = useI18n();
 import { computed } from 'vue';
 import { useRuntimeConfig } from '#imports';
 import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
@@ -68,8 +74,8 @@ const previewMovies = computed(() =>
 const updatedDate = computed(() => {
   const date = new Date(props.wishlist.updated_at);
   return Number.isNaN(date.getTime())
-    ? 'recentemente'
-    : date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+    ? t('library.recently')
+    : date.toLocaleDateString(locale.value, { day: '2-digit', month: 'short' });
 });
 function poster(path: string) {
   return tmdbImageUrl(imageBase, path, 'w342');

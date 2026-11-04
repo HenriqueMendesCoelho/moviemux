@@ -2,11 +2,13 @@
   <BaseContainerMain
     ><header class="mm-library-heading">
       <div>
-        <span class="mm-eyebrow">BIBLIOTECA</span>
-        <h1>Minhas listas</h1>
+        <span class="mm-eyebrow">{{ t('library.library') }}</span>
+        <h1>{{ t('library.myLists') }}</h1>
         <p>
-          Organize o que você quer assistir.
-          <span v-if="!loading || watchlists.length">{{ watchlists.length }}/10 listas</span>
+          {{ t('library.organizeWatch') }}
+          <span v-if="!loading || watchlists.length">{{
+            t('library.listCount', { count: watchlists.length })
+          }}</span>
         </p>
       </div>
       <MovieWatchlistBtnCreate @ok="reload" />
@@ -23,11 +25,11 @@
     </div>
     <WatchlistLoadingState v-else-if="loading" />
     <p v-else-if="loadError" role="alert">
-      Não foi possível carregar suas listas.
-      <button class="mm-button" @click="reload">Tentar novamente</button>
+      {{ t('library.loadListsFailed') }}
+      <button class="mm-button" @click="reload">{{ t('library.retry') }}</button>
     </p>
     <p v-else class="mm-empty">
-      Você ainda não criou uma lista. Reúna os filmes que quer assistir.
+      {{ t('library.emptyLibrary') }}
     </p>
     <BaseConfirmDialog
       :key="userStore.user.id"
@@ -38,6 +40,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { useUserStore } from 'src/core/stores/UserStore';
 const copyToClipboard = (text: string) => navigator.clipboard.writeText(text);
@@ -108,9 +112,9 @@ async function copyWatchlistUrl(id?: string) {
   const url = `${window.location.origin}/movie/watchlist/${id}`;
   try {
     await copyToClipboard(url);
-    showSuccess('Link copiado');
+    showSuccess('library.linkCopied');
   } catch {
-    showError('Não foi possível copiar o link');
+    showError('library.copyLinkFailed');
   }
   return url ? url : '';
 }
@@ -119,10 +123,10 @@ function openDialogConfirm(watchlist: WatchlistType) {
   deleteAccount = userStore.user.id;
   watchlistIdToDelete.value = watchlist.id;
   confirmDialogRef.value?.show({
-    message: `Tem certeza que deseja deletar '${watchlist.name}'? Caso delete não há como desfazer a ação.`,
+    message: () => t('library.deleteNamed', { name: watchlist.name }),
     focus: 'cancel',
-    title: 'Quer mesmo deletar?',
-    ok: 'Sim',
+    title: () => t('library.confirmDelete'),
+    ok: () => t('library.yes'),
   });
 }
 async function deleteWatchlist() {
@@ -144,9 +148,9 @@ async function deleteWatchlist() {
     await MovieWatchlistService.deleteWatchlist(id);
     if (disposed || account !== userStore.user.id) return;
     watchlistStore.watchlists = watchlistStore.watchlists.filter((list) => list.id !== id);
-    showSuccess('Lista deletada com sucesso');
+    showSuccess('library.deleted');
   } catch {
-    if (!disposed && account === userStore.user.id) showError('Erro ao excluir a lista');
+    if (!disposed && account === userStore.user.id) showError('library.deleteFailed');
   } finally {
     hideLoading();
     if (!disposed) deleting.value = false;

@@ -4,7 +4,7 @@
       :width="width"
       height="315"
       :src="convertedUrl"
-      title="YouTube video player"
+      :title="t('catalog.movie.youtubePlayer')"
       frameborder="0"
       allow="
         accelerometer;
@@ -20,6 +20,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { computed } from 'vue';
 
 interface Props {

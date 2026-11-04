@@ -1,11 +1,11 @@
 <template>
   <div class="mm-personal-statistics">
     <header>
-      <h2>Você e o MovieMux</h2>
-      <p class="mm-comparison-caption">Seu histórico e os números do site · todo o período</p>
+      <h2>{{ t('library.personalTitle') }}</h2>
+      <p class="mm-comparison-caption">{{ t('library.personalCaption') }}</p>
     </header>
     <p v-if="error" class="mm-comparison-error" role="alert">{{ error }}</p>
-    <BaseLoadingState v-if="!statistics && loading" label="Carregando suas estatísticas…">
+    <BaseLoadingState v-if="!statistics && loading" :label="t('library.loadingPersonal')">
       <div class="mm-personal-placeholder">
         <BaseSkeleton height="5rem" shape="block" />
         <BaseSkeleton height="5rem" shape="block" />
@@ -13,13 +13,13 @@
       </div>
     </BaseLoadingState>
     <template v-else-if="statistics">
-      <section class="mm-comparison-section" aria-label="Comparação das notas médias">
-        <h3>Nota média</h3>
+      <section class="mm-comparison-section" :aria-label="t('library.ratingsComparison')">
+        <h3>{{ t('library.averageRating') }}</h3>
         <div class="mm-comparison-pair">
           <div class="mm-comparison-value mm-comparison-value-personal">
-            <span>Você</span>
+            <span>{{ t('library.you') }}</span>
             <strong
-              >{{ formatRating(averages.rating)
+              >{{ formatRating(averages.rating, locale)
               }}<small v-if="averages.rating !== null"> / 10</small></strong
             >
             <span class="mm-comparison-track" aria-hidden="true">
@@ -29,53 +29,56 @@
           <div class="mm-comparison-value">
             <span>MovieMux</span>
             <strong
-              >{{ formatRating(siteRating) }}<small v-if="siteRating !== null"> / 10</small></strong
+              >{{ formatRating(siteRating, locale)
+              }}<small v-if="siteRating !== null"> / 10</small></strong
             >
             <span class="mm-comparison-track" aria-hidden="true">
               <span :style="{ width: `${(siteRating ?? 0) * 10}%` }" />
             </span>
           </div>
         </div>
-        <p class="mm-comparison-caption">Suas avaliações × todas as avaliações do site.</p>
+        <p class="mm-comparison-caption">{{ t('library.ratingCaption') }}</p>
         <p v-if="statistics.ratings_given === 0" class="mm-comparison-caption">
-          Avalie um filme para começar sua comparação.
+          {{ t('library.startRating') }}
         </p>
         <p v-if="siteRating === 0" class="mm-comparison-caption">
-          O site informa zero tanto para média zero quanto para ausência de avaliações.
+          {{ t('library.zeroRatingHelp') }}
         </p>
       </section>
-      <section class="mm-comparison-section" aria-label="Comparação da duração média">
-        <h3>Duração média dos filmes</h3>
+      <section class="mm-comparison-section" :aria-label="t('library.durationComparison')">
+        <h3>{{ t('library.averageDuration') }}</h3>
         <div class="mm-comparison-pair">
           <div class="mm-comparison-value mm-comparison-value-personal">
-            <span>Você</span>
-            <strong>{{ formatDuration(averages.runtime) }}</strong>
+            <span>{{ t('library.you') }}</span>
+            <strong>{{ formatDuration(averages.runtime, locale) }}</strong>
           </div>
           <div class="mm-comparison-value">
             <span>MovieMux</span>
-            <strong>{{ formatDuration(siteRuntime) }}</strong>
+            <strong>{{ formatDuration(siteRuntime, locale) }}</strong>
           </div>
         </div>
-        <p class="mm-comparison-caption">Filmes que você avaliou × todos os filmes do catálogo.</p>
+        <p class="mm-comparison-caption">{{ t('library.durationCaption') }}</p>
       </section>
       <dl class="mm-personal-totals">
         <div>
-          <dt>Avaliações suas</dt>
+          <dt>{{ t('library.yourRatings') }}</dt>
           <dd>{{ formatCount(statistics.ratings_given) }}</dd>
         </div>
         <div>
-          <dt>Filmes adicionados por você</dt>
+          <dt>{{ t('library.yourMovies') }}</dt>
           <dd>{{ formatCount(statistics.registered_movies) }}</dd>
         </div>
         <div>
-          <dt>Tempo dos filmes que avaliou</dt>
-          <dd>{{ formatDuration(statistics.display_time) }}</dd>
+          <dt>{{ t('library.yourRuntime') }}</dt>
+          <dd>{{ formatDuration(statistics.display_time, locale) }}</dd>
         </div>
       </dl>
     </template>
   </div>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, locale } = useI18n();
 import { computed } from 'vue';
 import BaseLoadingState from 'src/core/components/BaseLoadingState.vue';
 import BaseSkeleton from 'src/core/components/BaseSkeleton.vue';
@@ -104,7 +107,7 @@ const siteRuntime = computed(() =>
     : null,
 );
 function formatCount(value: number | null) {
-  return value === null ? '—' : value.toLocaleString('pt-BR');
+  return value === null ? '—' : value.toLocaleString(locale.value);
 }
 </script>
 <style scoped>

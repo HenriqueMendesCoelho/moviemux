@@ -1,20 +1,22 @@
 <template>
   <details ref="disclosure" class="mm-list-info" @toggle="syncListeners">
-    <summary ref="trigger">Sobre esta lista</summary>
+    <summary ref="trigger">{{ t('library.aboutList') }}</summary>
     <dl>
-      <dt>Criada por</dt>
+      <dt>{{ t('library.createdBy') }}</dt>
       <dd>{{ watchlist.user.name }}</dd>
-      <dt>Filmes</dt>
+      <dt>{{ t('library.movies') }}</dt>
       <dd>{{ watchlist.movies_wishlists?.length || 0 }}/100</dd>
-      <dt>Criação</dt>
-      <dd>{{ DateUtils.toLocaleString(watchlist.created_at) }}</dd>
-      <dt>Atualização</dt>
-      <dd>{{ DateUtils.toLocaleString(watchlist.updated_at) }}</dd>
+      <dt>{{ t('library.creation') }}</dt>
+      <dd>{{ DateUtils.toLocaleString(watchlist.created_at, locale) }}</dd>
+      <dt>{{ t('library.update') }}</dt>
+      <dd>{{ DateUtils.toLocaleString(watchlist.updated_at, locale) }}</dd>
     </dl>
   </details>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, locale } = useI18n();
 import { onBeforeUnmount, ref } from 'vue';
 import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 

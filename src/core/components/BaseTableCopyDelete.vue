@@ -42,24 +42,26 @@
                 <button
                   type="button"
                   class="mm-button mm-button-ghost"
-                  aria-label="Copiar"
+                  :aria-label="t('components.copy')"
                   @click="emit('copy', row)"
                 >
-                  Copiar</button
+                  {{ t('components.copy') }}</button
                 ><button
                   type="button"
                   class="mm-button mm-button-danger"
-                  aria-label="Excluir"
+                  :aria-label="t('components.delete')"
                   @click="emit('delete', row)"
                 >
-                  Excluir
+                  {{ t('components.delete') }}
                 </button>
               </div>
               <template v-else>{{ cell(row, column) }}</template>
             </td>
           </tr>
           <tr v-if="!rows.length">
-            <td :colspan="columns?.length || 1" class="mm-empty">Nenhum resultado encontrado.</td>
+            <td :colspan="columns?.length || 1" class="mm-empty">
+              {{ t('components.noResults') }}
+            </td>
           </tr>
         </tbody>
       </table>
@@ -67,7 +69,9 @@
   </section>
 </template>
 <script setup lang="ts" generic="T extends object">
+import { useI18n } from 'vue-i18n';
 import { computed, ref } from 'vue';
+const { t, locale } = useI18n();
 type Column = {
   name: string;
   label: string;
@@ -124,7 +128,7 @@ const sortedRows = computed(() => {
             ? 1
             : typeof av === 'number' && typeof bv === 'number'
               ? av - bv
-              : String(av).localeCompare(String(bv), 'pt-BR', {
+              : String(av).localeCompare(String(bv), locale.value, {
                   numeric: true,
                   sensitivity: 'base',
                 });

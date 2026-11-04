@@ -2,28 +2,31 @@
   <BaseContainerMain>
     <header class="mm-dashboard-heading">
       <div>
-        <h1>Estatísticas</h1>
-        <p class="mm-dashboard-caption">O catálogo do MovieMux e a sua história com os filmes.</p>
+        <h1>{{ t('library.statistics') }}</h1>
+        <p class="mm-dashboard-caption">{{ t('library.dashboardCaption') }}</p>
       </div>
       <button class="mm-button" :disabled="loading" @click="getChartsData">
-        {{ loading ? 'Atualizando…' : 'Atualizar' }}
+        {{ loading ? t('library.refreshing') : t('library.refresh') }}
       </button>
     </header>
-    <p v-if="error" role="alert">{{ error }}</p>
-    <p v-if="catalogPending" class="mm-sr-only" role="status">Carregando estatísticas do site…</p>
+    <p v-if="error" role="alert">{{ t(error) }}</p>
+    <p v-if="catalogPending" class="mm-sr-only" role="status">
+      {{ t('library.loadingStatistics') }}
+    </p>
     <StatisticsLoadingState v-if="catalogPending" part="summary" />
     <div v-if="chartsData" class="mm-stat-grid">
       <article class="mm-stat-card">
-        <span>Filmes no catálogo</span
-        ><strong>{{ catalogTotal?.toLocaleString('pt-BR') ?? '—' }}</strong>
+        <span>{{ t('library.catalogMovies') }}</span
+        ><strong>{{ catalogTotal?.toLocaleString(locale) ?? '—' }}</strong>
       </article>
       <article class="mm-stat-card">
-        <span>Duração média do catálogo</span><strong>{{ formatDuration(catalogRuntime) }}</strong>
+        <span>{{ t('library.catalogDuration') }}</span
+        ><strong>{{ formatDuration(catalogRuntime, locale) }}</strong>
       </article>
       <article class="mm-stat-card">
-        <span>Nota média do site</span
+        <span>{{ t('library.siteRating') }}</span
         ><strong
-          >{{ formatRating(catalogRating)
+          >{{ formatRating(catalogRating, locale)
           }}<small v-if="catalogRating !== null"> / 10</small></strong
         >
         <div
@@ -33,25 +36,27 @@
           :aria-valuenow="catalogRating"
           :aria-valuemin="0"
           :aria-valuemax="10"
-          :aria-valuetext="`${formatRating(catalogRating)} de 10`"
-          aria-label="Nota média de todas as avaliações do site"
+          :aria-valuetext="
+            t('library.ratingOutOf', { rating: formatRating(catalogRating, locale) })
+          "
+          :aria-label="t('library.siteRatingLabel')"
         >
           <span :style="{ width: `${catalogRating * 10}%` }" />
         </div>
       </article>
     </div>
     <p v-if="catalogRating === 0" class="mm-dashboard-caption">
-      A média informada pelo site é zero; o mesmo valor é retornado quando ainda não há avaliações.
+      {{ t('library.zeroSiteRatingHelp') }}
     </p>
     <p v-if="catalogTotal === 0" class="mm-muted">
-      O catálogo ainda está vazio. Adicione filmes para acompanhar as estatísticas do site.
+      {{ t('library.emptyCatalog') }}
     </p>
     <div v-if="userStore.user.isLoged" class="mm-chart-grid">
       <div class="mm-chart-column">
         <section v-if="chartsData" class="mm-chart-card mm-monthly-card">
           <ClientOnly
             ><MovieSixMonthsAgoChart :charts-data="chartsData" /><template #fallback
-              ><BaseLoadingState label="Carregando gráfico…"
+              ><BaseLoadingState :label="t('library.loadingChart')"
                 ><BaseSkeleton shape="block" height="18rem" /></BaseLoadingState></template
           ></ClientOnly>
         </section>
@@ -61,7 +66,7 @@
             :statistics="profileStatistics"
             :charts-data="chartsData"
             :loading="personalLoading || (!profileStatistics && !personalError)"
-            :error="personalError"
+            :error="personalError ? t(personalError) : ''"
           />
         </section>
       </div>
@@ -73,6 +78,8 @@
   </BaseContainerMain>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, locale } = useI18n();
 import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { useUserStore } from 'src/core/stores/UserStore';
 import type { MovieStatistics } from 'src/core/types/statistics/Statistics';
@@ -165,8 +172,7 @@ async function getChartsData() {
         if (current()) chartsData.value = result;
       } catch {
         if (current()) {
-          error.value =
-            'Não foi possível carregar as estatísticas do site. Tente atualizar novamente.';
+          error.value = 'library.loadStatisticsFailed';
           showError(error.value);
         }
       } finally {
@@ -180,9 +186,7 @@ async function getChartsData() {
         if (result.id !== account) throw new Error('Unexpected profile');
         profileStatistics.value = personalStatistics(result.statistics);
       } catch {
-        if (current())
-          personalError.value =
-            'Não foi possível carregar suas estatísticas. Use Atualizar para tentar novamente.';
+        if (current()) personalError.value = 'library.loadPersonalFailed';
       } finally {
         if (current()) personalLoading.value = false;
       }

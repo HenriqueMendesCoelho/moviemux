@@ -4,7 +4,7 @@
       class="mm-poster-link"
       type="button"
       :disabled="disabled || reordering"
-      :aria-label="`Ver detalhes de ${movie.title || movie.title_english}`"
+      :aria-label="t('library.detailsFor', { name: movie.title || movie.title_english })"
       @click="!disabled && !reordering && emit('open')"
     >
       <BaseCardImage
@@ -12,7 +12,7 @@
         :alt="movie.title || movie.title_english"
         :animate="animate && !disabled && !reordering"
         ><span v-if="isInAnyWishlist()" class="mm-badge">{{
-          showRemoveItem ? 'Em outras listas' : 'Já na sua lista'
+          showRemoveItem ? t('library.otherLists') : t('library.inYourList')
         }}</span></BaseCardImage
       >
     </button>
@@ -30,14 +30,14 @@
       <BaseContextMenu
         v-if="!reordering"
         class="mm-film-menu"
-        :label="`Opções de ${movie.title || movie.title_english}`"
+        :label="t('library.optionsFor', { name: movie.title || movie.title_english })"
         :title="movie.title || movie.title_english"
       >
         <button type="button" :disabled="loading || disabled" @click="emit('copy-url')">
-          <BaseIcon name="share" />Copiar link
+          <BaseIcon name="share" />{{ t('library.copyLink') }}
         </button>
         <template v-if="_wishlists.length">
-          <p class="mm-menu-section" role="presentation">Adicionar a outra lista</p>
+          <p class="mm-menu-section" role="presentation">{{ t('library.addAnotherList') }}</p>
           <button
             v-for="list in _wishlists"
             :key="list.id"
@@ -47,7 +47,9 @@
           >
             <BaseIcon :name="disableList(list) ? 'check' : 'plus'" />
             {{ list.name
-            }}<span v-if="disableList(list)" class="mm-sr-only"> — Já está nesta lista</span>
+            }}<span v-if="disableList(list)" class="mm-sr-only">
+              {{ t('library.alreadyHere') }}</span
+            >
           </button>
         </template>
         <button
@@ -57,18 +59,20 @@
           :disabled="loading || disabled"
           @click="emit('removeMovie')"
         >
-          <BaseIcon name="close" />Remover desta lista
+          <BaseIcon name="close" />{{ t('library.removeFromList') }}
         </button>
       </BaseContextMenu>
-      <p class="mm-film-date" :title="DateUtils.toLocaleDateStringLong(movie.release_date)">
-        {{ DateUtils.toLocaleDateStringLong(movie.release_date) }}
+      <p class="mm-film-date" :title="DateUtils.toLocaleDateStringLong(movie.release_date, locale)">
+        {{ DateUtils.toLocaleDateStringLong(movie.release_date, locale) }}
       </p>
     </div>
-    <p v-if="loading" role="status" class="mm-film-saving">Salvando…</p>
+    <p v-if="loading" role="status" class="mm-film-saving">{{ t('library.saving') }}</p>
   </article>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, locale } = useI18n();
 import { computed, onBeforeUnmount, ref } from 'vue';
 import { useRuntimeConfig } from '#imports';
 import { useMovieWatchlistStore } from '../stores/MovieWatchlistStore';
@@ -140,10 +144,10 @@ async function addMovieToWishlist(wishlistId: string, tmdbId: number) {
       !user.user.isLoged
     )
       return;
-    showSuccess('Filme adicionado à lista com sucesso');
+    showSuccess('library.movieAdded');
   } catch {
     if (!disposed && account === user.user.id && session === user.user)
-      showError('Erro ao adicionar filme na lista');
+      showError('library.addMovieFailed');
   } finally {
     if (!disposed) loading.value = false;
   }

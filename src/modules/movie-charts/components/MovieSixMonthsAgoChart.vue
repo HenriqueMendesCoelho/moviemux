@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Filmes adicionados por mês</h2>
+    <h2>{{ t('library.monthlyTitle') }}</h2>
     <p class="mm-month-range">{{ rangeLabel }}</p>
     <apex-chart
       v-if="hasMovies"
@@ -10,11 +10,14 @@
       :options="chartOptions"
       :series="series"
     />
-    <p v-else class="mm-empty">Nenhum filme registrado neste período.</p>
+    <p v-else class="mm-empty">{{ t('library.emptyPeriod') }}</p>
   </div>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, locale } = useI18n();
 import { computed, useId } from 'vue';
+import { compactMonthLabel } from '../utils/monthLabels';
 import type { ApexOptions } from 'apexcharts';
 import type { MovieStatistics } from 'src/core/types/statistics/Statistics';
 import { useStyleStore } from 'src/core/stores/StyleStore';
@@ -26,20 +29,15 @@ const months = computed(() => Object.keys(props.chartsData?.movies_six_months_ag
 const rangeLabel = computed(() => {
   const first = months.value[0];
   const last = months.value.at(-1);
-  if (!first || !last) return 'Sem período disponível';
+  if (!first || !last) return t('library.noPeriod');
   const startYear = first.match(/\d{4}/)?.[0];
   const endYear = last.match(/\d{4}/)?.[0];
   const years =
     startYear && endYear ? (startYear === endYear ? startYear : `${startYear}–${endYear}`) : '';
-  return `${compactMonth(first)} – ${compactMonth(last)}${years ? ` · ${years}` : ''} · ${months.value.length} meses`;
+  return `${compactMonth(first)} – ${compactMonth(last)}${years ? ` · ${years}` : ''} · ${t('library.monthCount', months.value.length)}`;
 });
 function compactMonth(value: string) {
-  const numeric = value.match(/^(\d{4})[-/](\d{2})/);
-  if (numeric)
-    return new Intl.DateTimeFormat('pt-BR', { month: 'short', timeZone: 'UTC' })
-      .format(new Date(Date.UTC(Number(numeric[1]), Number(numeric[2]) - 1, 1)))
-      .replace('.', '');
-  return value.replace(/[/ -]?\d{4}/g, '').slice(0, 3);
+  return compactMonthLabel(value, locale.value);
 }
 const hasMovies = computed(() =>
   Object.values(props.chartsData?.movies_six_months_ago || {}).some((count) => count > 0),
@@ -58,17 +56,20 @@ const chartOptions = computed<ApexOptions>(() => ({
     min: 0,
     forceNiceScale: true,
     decimalsInFloat: 0,
-    labels: { formatter: (value: number) => (Number.isInteger(value) ? String(value) : '') },
+    labels: {
+      formatter: (value: number) =>
+        Number.isInteger(value) ? value.toLocaleString(locale.value) : '',
+    },
   },
   dataLabels: {
     enabled: true,
     style: { colors: ['#202336'] },
-    formatter: (value) => (Number(value) > 0 ? String(value) : ''),
+    formatter: (value) => (Number(value) > 0 ? Number(value).toLocaleString(locale.value) : ''),
   },
   tooltip: { enabled: true, theme: style.layoutSettings.darkMode ? 'dark' : 'light' },
 }));
 const series = computed(() => [
-  { name: 'Filmes', data: Object.values(props.chartsData?.movies_six_months_ago || {}) },
+  { name: t('library.movies'), data: Object.values(props.chartsData?.movies_six_months_ago || {}) },
 ]);
 </script>
 

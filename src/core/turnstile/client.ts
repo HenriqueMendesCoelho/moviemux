@@ -4,7 +4,7 @@ export interface TurnstileOptions {
   action: TurnstileAction;
   theme: 'light' | 'dark';
   size: 'flexible' | 'compact';
-  language: 'pt-br';
+  language: 'pt-br' | 'en';
   callback: (token: string) => void;
   'expired-callback': () => void;
   'error-callback': () => void;

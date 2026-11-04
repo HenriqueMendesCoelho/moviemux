@@ -1,0 +1,18 @@
+{
+  "notFound": "Page not found",
+  "admin": "Administration",
+  "home": "My collection",
+  "login": "Sign in",
+  "profile": "Profile",
+  "changePassword": "Change password",
+  "addMovie": "Add movie",
+  "statistics": "Statistics",
+  "discover": "Discover movies",
+  "watchlists": "Movie lists",
+  "accessDenied": "Access denied",
+  "errorTitle": "Could not open this page",
+  "notFoundMessage": "This page does not exist or is no longer available.",
+  "accessDeniedMessage": "Your account does not have permission to access this page.",
+  "errorMessage": "Something went wrong. Go back to the home page and try again.",
+  "backHome": "Back to home"
+}

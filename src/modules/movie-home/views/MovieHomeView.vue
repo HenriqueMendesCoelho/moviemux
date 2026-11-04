@@ -1,11 +1,10 @@
 <template>
   <BaseContainerMain>
     <header class="mm-collection-heading">
-      <h1>Minha coleção</h1>
+      <h1>{{ t('catalog.collection') }}</h1>
       <router-link class="mm-button mm-button-primary mm-home-add" :to="{ name: 'add' }"
-        ><BaseIcon name="plus" /> Adicionar<span class="mm-add-long-label">
-          filme</span
-        ></router-link
+        ><BaseIcon name="plus" /> <span class="mm-add-long-label">{{ t('catalog.addMovie') }}</span
+        ><span class="mm-add-short-label">{{ t('catalog.add') }}</span></router-link
       >
     </header>
     <MovieHomeLastMovies />
@@ -14,6 +13,8 @@
 </template>
 
 <script lang="ts" setup>
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import BaseIcon from 'src/core/components/BaseIcon.vue';
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import MovieHomeLastMovies from '../components/MovieHomeLastMovies.vue';
@@ -39,6 +40,9 @@ import MovieHomeGridMovies from '../components/MovieHomeGridMovies.vue';
   align-items: center;
   gap: 6px;
 }
+.mm-add-short-label {
+  display: none;
+}
 @media (max-width: 600px) {
   .mm-home-add {
     font-size: 0.8rem;
@@ -46,6 +50,9 @@ import MovieHomeGridMovies from '../components/MovieHomeGridMovies.vue';
   }
 }
 @media (max-width: 380px) {
+  .mm-add-short-label {
+    display: inline;
+  }
   .mm-add-long-label {
     display: none;
   }

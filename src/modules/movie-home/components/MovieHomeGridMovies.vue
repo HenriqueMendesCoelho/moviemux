@@ -2,9 +2,9 @@
   <section class="mm-section mm-browse-scope">
     <header class="mm-section-header">
       <div>
-        <span class="mm-eyebrow">Seu cinema, sua comunidade</span>
+        <span class="mm-eyebrow">{{ t('catalog.community') }}</span>
         <h2>
-          Todos os filmes <small>{{ totalNumberOfMovies }}</small>
+          {{ t('catalog.allMovies') }} <small>{{ n(totalNumberOfMovies) }}</small>
         </h2>
       </div>
     </header>
@@ -13,13 +13,13 @@
       @submit.prevent="searchFromIndexMenu"
     >
       <div class="mm-search-field">
-        <label for="library-search">Buscar na coleção</label
+        <label for="library-search">{{ t('catalog.searchCollection') }}</label
         ><input
           id="library-search"
           ref="searchInput"
           :class="{ 'mm-search-has-value': searchText.length > 0 }"
           v-model="searchText"
-          placeholder="Título do filme…"
+          :placeholder="t('catalog.movieTitle')"
           autocomplete="off"
           role="combobox"
           :aria-expanded="showMenu"
@@ -34,16 +34,16 @@
           v-if="searchText.length > 0"
           type="button"
           class="mm-search-clear"
-          aria-label="Limpar busca"
-          title="Limpar busca"
+          :aria-label="t('catalog.clearSearch')"
+          :title="t('catalog.clearSearch')"
           @click="clearSearch"
         >
           <BaseIcon name="close" />
         </button>
         <button
           class="mm-search-submit"
-          aria-label="Buscar na coleção"
-          title="Buscar"
+          :aria-label="t('catalog.searchCollection')"
+          :title="t('catalog.search')"
           :disabled="loading"
         >
           <BaseIcon name="search" />
@@ -68,21 +68,30 @@
       </div>
       <BaseSelect
         v-model="orderOption"
-        label="Ordenar"
-        :options="[{ value: '', label: 'Padrão' }, ...orderOptions]"
+        :label="t('catalog.sort')"
+        :options="[{ value: '', label: t('catalog.defaultSort') }, ...orderOptions]"
         @change="search"
       />
       <BaseMultiSelect
         v-model="genresSelected"
-        label="Gêneros"
-        placeholder="Todos os gêneros"
-        :options="genresOptions.map((genre) => ({ value: genre.id, label: genre.name }))"
+        :label="t('catalog.genres')"
+        :placeholder="t('catalog.allGenres')"
+        :options="
+          genresOptions.map((genre) => ({
+            value: genre.id,
+            label: te(`catalog.genre.${genre.tmdb_id}`)
+              ? t(`catalog.genre.${genre.tmdb_id}`)
+              : genre.name,
+          }))
+        "
         @change="search"
       />
-      <button type="button" class="mm-clear-filters" @click="refreshSearch">Limpar filtros</button>
+      <button type="button" class="mm-clear-filters" @click="refreshSearch">
+        {{ t('catalog.clearFilters') }}
+      </button>
     </form>
     <p v-if="error" role="alert" class="mm-error">
-      {{ error }} <button class="mm-button" @click="search">Tentar novamente</button>
+      {{ t(error) }} <button class="mm-button" @click="search">{{ t('catalog.retry') }}</button>
     </p>
     <div class="mm-poster-grid" :aria-busy="loading">
       <template v-if="loading && !movies.length"
@@ -95,16 +104,18 @@
       <MovieHomeCardImageGrid v-for="movie in movies" :key="movie.id" :movie="movie" />
     </div>
     <p v-if="!loading && !error && !movies.length" class="mm-empty">
-      Nenhum filme encontrado. Experimente outro título ou gênero.
+      {{ t('catalog.collectionEmpty') }}
     </p>
     <div ref="loadTarget" class="mm-load-more">
       <button v-if="page <= totalPages" class="mm-button" :disabled="loading" @click="loadMore">
-        {{ loading ? 'Carregando…' : 'Carregar mais filmes' }}</button
-      ><span v-else-if="loading" role="status">Carregando…</span>
+        {{ loading ? t('catalog.loading') : t('catalog.loadMore') }}</button
+      ><span v-else-if="loading" role="status">{{ t('catalog.loading') }}</span>
     </div>
   </section>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, n, te } = useI18n();
 import {
   computed,
   onMounted,
@@ -213,8 +224,7 @@ async function refreshRetainedPages() {
     totalNumberOfMovies.value = results[0]?.total_elements || 0;
     page.value = Math.min(loadedPages, totalPages.value) + 1;
   } catch {
-    if (!disposed && version === requestVersion)
-      error.value = 'Não foi possível atualizar a coleção. Seus filmes continuam disponíveis.';
+    if (!disposed && version === requestVersion) error.value = 'catalog.refreshFailed';
   } finally {
     if (!disposed && version === requestVersion) {
       loading.value = false;
@@ -226,23 +236,23 @@ let requestVersion = 0;
 let appliedFilters: { title: string; sort?: string; withGenres?: string } = { title: '' };
 let suggestionVersion = 0;
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
-const orderOptions = [
-  { label: 'Título (A–Z)', value: 'portugueseTitle,asc' },
-  { label: 'Título (Z–A)', value: 'portugueseTitle,desc' },
-  { label: 'Lançamento: mais novo', value: 'releaseDate,portugueseTitle,desc' },
-  { label: 'Lançamento: mais antigo', value: 'releaseDate,portugueseTitle,asc' },
-  { label: 'Nota: maior', value: 'portugueseTitle,asc&sortJoin=notes,desc' },
-  { label: 'Nota: menor', value: 'portugueseTitle,asc&sortJoin=notes,asc' },
-  { label: 'Cadastro: mais novo', value: 'createdAt,portugueseTitle,desc' },
-  { label: 'Cadastro: mais antigo', value: 'createdAt,portugueseTitle,asc' },
-  { label: 'Duração: maior', value: 'runtime,desc' },
-  { label: 'Duração: menor', value: 'runtime,asc' },
-];
+const orderOptions = computed(() => [
+  { label: t('catalog.titleAsc'), value: 'portugueseTitle,asc' },
+  { label: t('catalog.titleDesc'), value: 'portugueseTitle,desc' },
+  { label: t('catalog.releaseDesc'), value: 'releaseDate,portugueseTitle,desc' },
+  { label: t('catalog.releaseAsc'), value: 'releaseDate,portugueseTitle,asc' },
+  { label: t('catalog.ratingDesc'), value: 'portugueseTitle,asc&sortJoin=notes,desc' },
+  { label: t('catalog.ratingAsc'), value: 'portugueseTitle,asc&sortJoin=notes,asc' },
+  { label: t('catalog.addedDesc'), value: 'createdAt,portugueseTitle,desc' },
+  { label: t('catalog.addedAsc'), value: 'createdAt,portugueseTitle,asc' },
+  { label: t('catalog.runtimeDesc'), value: 'runtime,desc' },
+  { label: t('catalog.runtimeAsc'), value: 'runtime,asc' },
+]);
 onMounted(async () => {
   try {
     genresOptions.value = await MovieService.getMoviesGenresWithMovies();
   } catch {
-    if (!disposed) showError('Erro ao carregar gêneros');
+    if (!disposed) showError(() => t('catalog.genresFailed'));
   }
   if (disposed) return;
   await search();
@@ -364,7 +374,7 @@ async function loadMore() {
     totalNumberOfMovies.value = result.total_elements;
     page.value++;
   } catch {
-    if (current()) error.value = 'Não foi possível carregar os filmes.';
+    if (current()) error.value = 'catalog.moviesFailed';
   } finally {
     if (current()) {
       loading.value = false;

@@ -6,13 +6,15 @@
       :disabled="disableSave"
       @click="emit('save')"
     >
-      Salvar filme</button
+      {{ t('catalog.movie.saveMovie') }}</button
     ><button type="button" class="mm-button" :disabled="disableCancel" @click="emit('cancel')">
-      Cancelar
+      {{ t('catalog.movie.cancel') }}
     </button>
   </footer>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 defineProps<{ disableSave?: boolean; disableCancel?: boolean }>();
 const emit = defineEmits<{ save: []; cancel: [] }>();
 </script>

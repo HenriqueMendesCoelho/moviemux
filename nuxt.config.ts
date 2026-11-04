@@ -17,7 +17,16 @@ export default defineNuxtConfig({
   srcDir: 'src/',
   serverDir: 'src/server',
   dir: { app: '.' },
-  modules: ['@pinia/nuxt', '@vite-pwa/nuxt', 'nuxt-auth-utils'],
+  modules: ['@pinia/nuxt', '@vite-pwa/nuxt', 'nuxt-auth-utils', '@nuxtjs/i18n'],
+  i18n: {
+    strategy: 'no_prefix',
+    defaultLocale: 'pt-BR',
+    detectBrowserLanguage: false,
+    locales: [
+      { code: 'pt-BR', language: 'pt-BR', file: 'pt-BR.ts' },
+      { code: 'en', language: 'en-US', file: 'en.ts' },
+    ],
+  },
   auth: { loadStrategy: 'none' },
   nitro: { preset: 'node-server', experimental: { websocket: true } },
   alias: {

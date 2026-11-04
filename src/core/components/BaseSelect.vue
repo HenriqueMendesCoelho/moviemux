@@ -80,6 +80,8 @@
   </div>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, locale } = useI18n();
 import {
   computed,
   nextTick,
@@ -106,7 +108,8 @@ const above = ref(false);
 const alignRight = ref(false);
 const height = ref(380);
 const summary = computed(
-  () => props.options.find((option) => option.value === model.value)?.label || 'Selecionar',
+  () =>
+    props.options.find((option) => option.value === model.value)?.label || t('components.select'),
 );
 let listening = false;
 let typed = '';
@@ -115,7 +118,7 @@ const normalize = (value: string) =>
   value
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '')
-    .toLocaleLowerCase('pt-BR');
+    .toLocaleLowerCase(locale.value);
 function position() {
   const rect = root.value?.getBoundingClientRect();
   if (!rect) return;

@@ -1,8 +1,10 @@
 <template>
   <section class="mm-summary-stage" :aria-busy="loading">
-    <p v-if="loading && !movie" class="mm-sr-only" role="status">Carregando informações do filme…</p>
+    <p v-if="loading && !movie" class="mm-sr-only" role="status">
+      {{ t('components.loadingMovie') }}
+    </p>
     <div v-if="loading && movie" class="mm-summary-refresh" role="status">
-      Atualizando informações…
+      {{ t('components.refreshingMovie') }}
     </div>
     <div v-if="loading && !movie" key="loading" class="mm-summary-skeleton" aria-hidden="true">
       <div class="mm-skeleton-poster" />
@@ -14,10 +16,10 @@
     </div>
     <div v-else-if="error && !movie" key="error" class="mm-summary-error" role="alert">
       <BaseIcon name="refresh" />
-      <h3>Não foi possível abrir este filme</h3>
-      <p>{{ error }} Tente novamente sem sair desta janela.</p>
+      <h3>{{ t('components.openMovieFailed') }}</h3>
+      <p>{{ t(error) }} {{ t('components.retryInDialog') }}</p>
       <button type="button" class="mm-button mm-button-primary" @click="getMovie">
-        Tentar novamente
+        {{ t('components.retry') }}
       </button>
     </div>
     <div
@@ -35,13 +37,13 @@
           :src="movie.url_image"
           :srcset="tmdbPosterSrcset(imageBase, movie.url_image)"
           sizes="(max-width: 650px) 104px, 280px"
-          :alt="`Pôster de ${movie.portuguese_title}`"
+          :alt="t('components.posterOf', { title: movie.portuguese_title })"
         />
-        <div v-else class="mm-empty">Pôster indisponível</div>
+        <div v-else class="mm-empty">{{ t('components.posterUnavailable') }}</div>
         <BaseBtnDialogCast :movie-id="movieId" />
       </div>
       <div class="mm-summary-info">
-        <p class="mm-eyebrow">INFORMAÇÕES DO FILME</p>
+        <p class="mm-eyebrow">{{ t('components.movieInformation') }}</p>
         <h2>{{ movie.portuguese_title || movie.original_title }}</h2>
         <p class="mm-muted">
           {{ movie.original_title
@@ -50,7 +52,7 @@
           >
         </p>
         <p class="mm-summary-meta">
-          {{ StringUtils.runtimeToText(movie.runtime) }} · {{ releaseDate }} ·
+          {{ StringUtils.runtimeToText(movie.runtime, locale) }} · {{ releaseDate }} ·
           {{ movie.director }}
         </p>
         <div v-if="matchingRating" class="mm-preview-rating">
@@ -60,25 +62,38 @@
             class="mm-button mm-button-ghost"
             @click="ratingRevealed = true"
           >
-            <BaseIcon name="lock" />Revelar nota do TMDB
+            <BaseIcon name="lock" />{{ t('components.revealRating') }}
           </button>
           <p v-else role="status">
-            <template v-if="matchingRating.votes === 0">Ainda sem avaliações no TMDB.</template
+            <template v-if="matchingRating.votes === 0">{{
+              t('components.noTmdbRatings')
+            }}</template
             ><template v-else
-              ><strong>{{ matchingRating.value.toFixed(1) }}</strong> / 10 <span>no TMDB</span
+              ><strong>{{
+                matchingRating.value.toLocaleString(locale, {
+                  minimumFractionDigits: 1,
+                  maximumFractionDigits: 1,
+                })
+              }}</strong>
+              / 10 <span>{{ t('components.onTmdb') }}</span
               ><small v-if="matchingRating.votes !== undefined">
-                · {{ matchingRating.votes }} avaliações</small
+                ·
+                {{
+                  t('components.ratingCount', { count: matchingRating.votes }, matchingRating.votes)
+                }}</small
               ></template
-            ><button type="button" class="mm-link" @click="ratingRevealed = false">Ocultar</button>
+            ><button type="button" class="mm-link" @click="ratingRevealed = false">
+              {{ t('components.hide') }}
+            </button>
           </p>
         </div>
         <div class="mm-genre-list">
           <span v-for="genre in movie.genres" :key="genre.name" class="mm-chip">{{
-            genre.name
+            genreLabel(genre.name)
           }}</span>
         </div>
-        <h3>Sinopse</h3>
-        <p class="mm-synopsis">{{ movie.description || 'Sinopse não disponível.' }}</p>
+        <h3>{{ t('components.synopsis') }}</h3>
+        <p class="mm-synopsis">{{ movie.description || t('components.noSynopsis') }}</p>
         <div class="mm-actions">
           <a
             v-if="movie.tmdb_id"
@@ -101,11 +116,11 @@
           v-if="movie.portuguese_url_trailer || movie.english_url_trailer"
           class="mm-trailers"
         >
-          <h3>Trailers</h3>
+          <h3>{{ t('components.trailers') }}</h3>
           <iframe
             v-if="movie.portuguese_url_trailer"
             :src="trailer(movie.portuguese_url_trailer)"
-            title="Trailer em português"
+            :title="t('components.portugueseTrailer')"
             allow="
               accelerometer;
               autoplay;
@@ -118,7 +133,7 @@
           /><iframe
             v-if="movie.english_url_trailer"
             :src="trailer(movie.english_url_trailer)"
-            title="Trailer em inglês"
+            :title="t('components.englishTrailer')"
             allow="
               accelerometer;
               autoplay;
@@ -133,11 +148,20 @@
       </div>
     </div>
     <p v-if="error && movie" role="alert" class="mm-error">
-      {{ error }} <button type="button" class="mm-link" @click="getMovie">Tentar novamente</button>
+      {{ t(error) }}
+      <button type="button" class="mm-link" @click="getMovie">{{ t('components.retry') }}</button>
     </p>
   </section>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, te, locale } = useI18n();
+import { standardGenreId } from 'src/modules/movie-charts/utils/monthLabels';
+function genreLabel(name: string) {
+  const id = standardGenreId(name);
+  const key = `catalog.genre.${id}`;
+  return id && te(key) ? t(key) : name;
+}
 import BaseIcon from './BaseIcon.vue';
 import { useUserStore } from 'src/core/stores/UserStore';
 import { tmdbImageUrl, tmdbPosterSrcset } from 'src/modules/movie/utils/MovieStateUtils';
@@ -181,8 +205,8 @@ let activeId: number | undefined;
 let mounted = true;
 const releaseDate = computed(() =>
   movie.value?.release_date
-    ? new Date(movie.value.release_date).toLocaleDateString('pt-BR')
-    : 'Data não informada',
+    ? new Date(movie.value.release_date).toLocaleDateString(locale.value)
+    : t('components.dateUnknown'),
 );
 async function getMovie() {
   if (!props.movieId || !mounted || (loading.value && activeId === props.movieId)) return;
@@ -216,7 +240,7 @@ async function getMovie() {
     );
   } catch {
     if (id === request) {
-      error.value = 'Não foi possível carregar o filme.';
+      error.value = 'components.movieLoadError';
       emit('error');
     }
   } finally {

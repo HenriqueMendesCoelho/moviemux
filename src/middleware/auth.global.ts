@@ -9,6 +9,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return navigateTo({ name: 'login', query: { from: to.fullPath } });
   }
   if (!roles.some((role) => store.user.roles.includes(role))) {
-    return abortNavigation(createError({ statusCode: 403, statusMessage: 'Acesso não permitido' }));
+    return abortNavigation(
+      createError({ statusCode: 403, statusMessage: useNuxtApp().$i18n.t('shell.accessDenied') }),
+    );
   }
 });

@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
+import { createI18n } from 'vue-i18n';
+import account from '../../../../../i18n/locales/pt-BR/account.json';
 import NecessaryCookieNotice from '../NecessaryCookieNotice.vue';
 import TmdbCredits from '../TmdbCredits.vue';
 import tmdbLogo from 'src/assets/tmdb-logo-long.svg';
@@ -9,7 +11,11 @@ beforeEach(() => localStorage.clear());
 afterEach(() => vi.restoreAllMocks());
 describe('entry notices', () => {
   it('renders the necessary-cookie information in SSR without blocking the form', async () => {
-    const html = await renderToString(createSSRApp({ render: () => h(NecessaryCookieNotice) }));
+    const html = await renderToString(
+      createSSRApp({ render: () => h(NecessaryCookieNotice) }).use(
+        createI18n({ legacy: false, locale: 'pt-BR', messages: { 'pt-BR': { account }, en: { account } } }),
+      ),
+    );
     expect(html).toContain('Cookies necessários');
     expect(html).toContain('apenas confirma a leitura');
     expect(html).not.toContain('role="dialog"');

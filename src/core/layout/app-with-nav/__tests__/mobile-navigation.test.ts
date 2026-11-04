@@ -1,3 +1,5 @@
+import { createI18n } from 'vue-i18n';
+import pt from '../../../../../i18n/locales/pt-BR';
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import { reactive, createSSRApp } from 'vue';
@@ -126,7 +128,7 @@ describe('responsive sidebar keyboard access', () => {
   it('does not inspect matchMedia during server rendering', async () => {
     const app = createSSRApp(AppLayout);
     app.component('NuxtLink', { template: '<a href="#"><slot /></a>' });
-    const html = await renderToString(app);
+    const html = await renderToString(app.use(createI18n({ legacy: false, locale: 'pt-BR', messages: { 'pt-BR': pt, en: pt } })));
     expect(html).toContain('primary-sidebar');
     expect(window.matchMedia).not.toHaveBeenCalled();
   });

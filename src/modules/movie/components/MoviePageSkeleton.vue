@@ -1,5 +1,7 @@
 <template>
-  <BaseLoadingState :label="editing ? 'Carregando formulário do filme…' : 'Carregando filme…'">
+  <BaseLoadingState
+    :label="editing ? t('catalog.movie.loadingEditor') : t('catalog.movie.loadingMovie')"
+  >
     <div class="mm-film-skeleton" :class="{ 'mm-film-skeleton-edit': editing }">
       <BaseSkeleton shape="block" class="mm-film-skeleton-poster" />
       <div class="mm-film-skeleton-heading">
@@ -41,6 +43,8 @@
   </BaseLoadingState>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import BaseLoadingState from 'src/core/components/BaseLoadingState.vue';
 import BaseSkeleton from 'src/core/components/BaseSkeleton.vue';
 withDefaults(defineProps<{ editing?: boolean }>(), { editing: false });

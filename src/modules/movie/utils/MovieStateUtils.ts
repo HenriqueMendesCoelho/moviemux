@@ -20,9 +20,22 @@ export function dateOnly(value?: string | Date): string {
     value instanceof Date ? (Number.isNaN(value.getTime()) ? '' : value.toISOString()) : value;
   return /^\d{4}-\d{2}-\d{2}/.exec(text)?.[0] || '';
 }
-export function fullReleaseDate(value?: string | Date): string {
-  const [year, month, day] = dateOnly(value).split('-');
-  return year && month && day ? `${day}/${month}/${year}` : 'Data não informada';
+export function fullReleaseDate(
+  value?: string | Date,
+  locale = 'pt-BR',
+  unavailable = 'Data não informada',
+): string {
+  const calendarDate = dateOnly(value);
+  if (!calendarDate) return unavailable;
+  const parsed = new Date(`${calendarDate}T12:00:00Z`);
+  // Reject invalid timestamps and dates normalized into another month (e.g. February 30).
+  if (!Number.isFinite(parsed.getTime()) || dateOnly(parsed) !== calendarDate) return unavailable;
+  return new Intl.DateTimeFormat(locale, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(parsed);
 }
 export function noteTimestamp(note: MovieNoteType, kind: 'created' | 'updated'): number {
   const value =
@@ -30,11 +43,15 @@ export function noteTimestamp(note: MovieNoteType, kind: 'created' | 'updated'):
   const timestamp = value ? new Date(value).getTime() : 0;
   return Number.isFinite(timestamp) ? timestamp : 0;
 }
-export function sortNotes(notes: MovieNoteType[], order: string): MovieNoteType[] {
+export function sortNotes(
+  notes: MovieNoteType[],
+  order: string,
+  locale = 'pt-BR',
+): MovieNoteType[] {
   return [...notes].sort((a, b) => {
     if (order === 'note') return (b.note ?? -Infinity) - (a.note ?? -Infinity) || 0;
     if (order === 'updated') return noteTimestamp(b, 'updated') - noteTimestamp(a, 'updated');
-    return a.user.name.localeCompare(b.user.name) * (order === 'name-desc' ? -1 : 1);
+    return a.user.name.localeCompare(b.user.name, locale) * (order === 'name-desc' ? -1 : 1);
   });
 }
 export function hasMovieFields(movie: Movie): boolean {

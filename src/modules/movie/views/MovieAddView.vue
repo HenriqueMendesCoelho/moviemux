@@ -8,13 +8,15 @@
       :disable-cancel="saving || !hasMovieFields(draft)"
       :disable-save="saving"
     />
-    <p v-if="saving" role="status">Salvando filme…</p>
+    <p v-if="saving" role="status">{{ t('catalog.movie.savingMovie') }}</p>
     <BaseConfirmDialog ref="confirmDialogRef" @ok="resetForm" /><MovieDialogImportFromTmdb
       v-model="showImport"
     />
   </BaseContainerMain>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
@@ -70,16 +72,20 @@ async function save() {
     style.scrollToContainer(0, 0, 'smooth');
     const account = userStore.user.id;
     notifyRouteToMovie({
+      t,
       movieTitle:
-        result.portuguese_title || result.english_title || result.original_title || 'Filme',
+        result.portuguese_title ||
+        result.english_title ||
+        result.original_title ||
+        t('catalog.movie.movie'),
       handler: () => {
         if (userStore.user.isLoged && userStore.user.id === account)
           void router.push(`/movie/${result.id}`);
       },
     });
-    showSuccess('Filme salvo com sucesso.');
+    showSuccess(() => t('catalog.movie.movieSaved'));
   } catch {
-    if (current()) showError('Erro ao salvar filme.');
+    if (current()) showError(() => t('catalog.movie.saveError'));
   } finally {
     if (current()) saving.value = false;
   }
@@ -92,10 +98,10 @@ function resetForm() {
 }
 function showConfirmDialogCancel() {
   confirmDialogRef.value?.show({
-    message: 'Descartar todos os dados preenchidos?',
+    message: () => t('catalog.movie.discardAll'),
     focus: 'cancel',
-    title: 'Limpar formulário',
-    ok: 'Descartar',
+    title: () => t('catalog.movie.clearForm'),
+    ok: () => t('catalog.movie.discard'),
   });
 }
 </script>

@@ -2,13 +2,13 @@
   <div class="mm-search-toolbar">
     <slot name="prepend" />
     <div class="mm-search-field">
-      <label class="mm-sr-only" :for="searchId">Buscar filmes</label
+      <label class="mm-sr-only" :for="searchId">{{ t('components.searchMovies') }}</label
       ><input
         :id="searchId"
         ref="input"
         type="search"
         maxlength="150"
-        placeholder="Buscar filmes…"
+        :placeholder="t('components.searchMoviesPlaceholder')"
         :value="inputSearch"
         @input="changed"
         @focus="emit('inputSearchFocus', true)"
@@ -19,11 +19,12 @@
         @keydown.esc.prevent="emit('keydown-esc:inputSearch')"
       /><slot name="input-search" />
     </div>
-    <button type="button" class="mm-button mm-button-primary" @click="emit('search')">Buscar</button
+    <button type="button" class="mm-button mm-button-primary" @click="emit('search')">
+      {{ t('components.search') }}</button
     ><label v-if="showSelect" class="mm-field"
-      ><span class="mm-sr-only">{{ selectOrderLabel }}</span
+      ><span class="mm-sr-only">{{ selectOrderLabel || t('components.sort') }}</span
       ><select :value="currentOrder" @change="orderChanged">
-        <option value="">{{ selectOrderLabel }}</option>
+        <option value="">{{ selectOrderLabel || t('components.sort') }}</option>
         <option v-for="(option, index) in orderOptions" :key="index" :value="value(option)">
           {{ label(option) }}
         </option>
@@ -31,7 +32,7 @@
     ><slot name="append" /><button
       type="button"
       class="mm-button mm-button-ghost"
-      aria-label="Atualizar resultados"
+      :aria-label="t('components.refreshResults')"
       @click="emit('refresh')"
     >
       ↻
@@ -39,6 +40,8 @@
   </div>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { computed, ref, useId, nextTick } from 'vue';
 const props = withDefaults(
   defineProps<{
@@ -49,7 +52,7 @@ const props = withDefaults(
     showSelect?: boolean;
     separetedInputEvent?: boolean;
   }>(),
-  { selectOrderLabel: 'Ordenar', showSelect: true, separetedInputEvent: false },
+  { selectOrderLabel: '', showSelect: true, separetedInputEvent: false },
 );
 const emit = defineEmits<{
   'update:inputSearch': [value: string];

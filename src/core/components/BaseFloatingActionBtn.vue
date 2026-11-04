@@ -1,11 +1,11 @@
 <template>
-  <aside v-if="visible" class="mm-floating-actions" aria-label="Navegação da página">
+  <aside v-if="visible" class="mm-floating-actions" :aria-label="t('components.pageNavigation')">
     <slot name="before-top" />
     <button
       type="button"
       class="mm-scroll-top"
-      aria-label="Voltar ao topo"
-      title="Voltar ao topo"
+      :aria-label="t('components.backTop')"
+      :title="t('components.backTop')"
       @click="scrollToTop"
     >
       <BaseIcon name="chevron-up" />
@@ -14,6 +14,8 @@
   </aside>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import BaseIcon from './BaseIcon.vue';
 import { useStyleStore } from 'src/core/stores/StyleStore';

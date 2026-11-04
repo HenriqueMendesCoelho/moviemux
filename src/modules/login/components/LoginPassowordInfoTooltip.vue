@@ -1,9 +1,10 @@
 <template>
   <p v-if="modelValue" class="mm-muted" role="note">
-    Use letras maiúsculas e minúsculas, números e caracteres especiais (@ # $ ! % * ? &), entre 8 e
-    70 caracteres.
+    {{ t('account.passwordTooltip') }}
   </p>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 defineProps<{ modelValue: boolean }>();
 </script>

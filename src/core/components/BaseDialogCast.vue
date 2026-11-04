@@ -1,7 +1,13 @@
 <template>
-  <BaseModal v-model="visible" title="Elenco e equipe" wide class="mm-cast-dialog" @hide="onHide">
+  <BaseModal
+    v-model="visible"
+    :title="t('components.castCrew')"
+    wide
+    class="mm-cast-dialog"
+    @hide="onHide"
+  >
     <section class="mm-cast-content" :aria-busy="loading">
-      <p v-if="loading" class="mm-cast-status" role="status">Carregando elenco e equipe…</p>
+      <p v-if="loading" class="mm-cast-status" role="status">{{ t('components.loadingCast') }}</p>
       <Transition name="mm-cast-state" mode="out-in">
         <div
           v-if="loading"
@@ -16,32 +22,36 @@
         </div>
         <div v-else-if="error" key="error" class="mm-cast-error" role="alert">
           <BaseIcon name="refresh" />
-          <h3>O elenco não carregou</h3>
-          <p>{{ error }}</p>
+          <h3>{{ t('components.castFailed') }}</h3>
+          <p>{{ t(error) }}</p>
           <button type="button" class="mm-button mm-button-primary" @click="load">
-            Tentar novamente</button
-          ><button type="button" class="mm-link" @click="visible = false">Fechar</button>
+            {{ t('components.retry') }}</button
+          ><button type="button" class="mm-link" @click="visible = false">
+            {{ t('components.close') }}
+          </button>
         </div>
         <div v-else key="content">
           <h3 class="mm-cast-heading">
-            Elenco <span>{{ credits?.cast.length || 0 }}</span>
+            {{ t('components.cast') }}
+            <span>{{ (credits?.cast.length || 0).toLocaleString(locale) }}</span>
           </h3>
           <div v-if="credits?.cast.length" class="mm-people-grid">
             <figure v-for="(member, index) in credits.cast" :key="`${member.name}:${index}`">
               <BasePersonPortrait :src="image(member.profile_path)" :name="member.name" />
               <figcaption>
                 <strong>{{ member.name }}</strong
-                ><small>{{ member.character || 'Personagem não informado' }}</small>
+                ><small>{{ member.character || t('components.characterUnknown') }}</small>
               </figcaption>
             </figure>
           </div>
           <div v-else class="mm-cast-empty">
-            <h4>Nenhum nome disponível por enquanto</h4>
-            <p>O catálogo ainda não informou o elenco deste filme.</p>
+            <h4>{{ t('components.noCastNames') }}</h4>
+            <p>{{ t('components.noCast') }}</p>
           </div>
           <details class="mm-crew">
             <summary>
-              Equipe técnica <span>{{ credits?.crew.length || 0 }}</span>
+              {{ t('components.crew') }}
+              <span>{{ (credits?.crew.length || 0).toLocaleString(locale) }}</span>
             </summary>
             <div v-if="credits?.crew.length" class="mm-people-grid">
               <figure
@@ -53,12 +63,12 @@
                   <strong>{{ member.name }}</strong
                   ><small>{{
                     [member.department, member.job].filter(Boolean).join(' · ') ||
-                    'Função não informada'
+                    t('components.jobUnknown')
                   }}</small>
                 </figcaption>
               </figure>
             </div>
-            <p v-else class="mm-cast-empty">Equipe técnica não informada.</p>
+            <p v-else class="mm-cast-empty">{{ t('components.noCrew') }}</p>
           </details>
         </div>
       </Transition>
@@ -66,6 +76,8 @@
   </BaseModal>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, locale } = useI18n();
 import { useRuntimeConfig } from '#imports';
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import BaseModal from './BaseModal.vue';
@@ -121,9 +133,7 @@ async function load() {
       throw new Error('Invalid credits response');
     if (current()) credits.value = result;
   } catch {
-    if (current())
-      error.value =
-        'Não foi possível consultar estas informações. Você pode tentar novamente sem sair da janela.';
+    if (current()) error.value = 'components.castError';
   } finally {
     if (current()) loading.value = false;
   }

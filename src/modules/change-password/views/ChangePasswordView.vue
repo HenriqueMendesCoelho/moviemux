@@ -3,14 +3,15 @@
     <router-link to="/" class="mm-brand">MOVIEMUX</router-link>
     <form class="mm-card mm-form" @submit.prevent="redefinePassword">
       <header>
-        <p class="mm-eyebrow">RECUPERAR ACESSO</p>
-        <h1>Uma nova senha.</h1>
+        <p class="mm-eyebrow">{{ t('account.recover') }}</p>
+        <h1>{{ t('account.newPasswordTitle') }}</h1>
       </header>
       <label class="mm-field"
-        >E-mail<input v-model.trim="email" type="email" autocomplete="email" required
+        >{{ t('account.email')
+        }}<input v-model.trim="email" type="email" autocomplete="email" required
       /></label>
       <BasePasswordInput
-        label="Nova senha"
+        :label="t('account.newPassword')"
         v-model="password"
         required
         autocomplete="new-password"
@@ -18,10 +19,10 @@
         maxlength="70"
       />
       <p class="mm-muted">
-        Use 8 a 70 caracteres, maiúsculas, minúsculas, números e um símbolo (@ # $ ! % * ? &).
+        {{ t('account.resetHelp') }}
       </p>
       <BasePasswordInput
-        label="Confirme a nova senha"
+        :label="t('account.confirmNewPassword')"
         v-model="confirmation"
         required
         autocomplete="new-password"
@@ -30,14 +31,17 @@
       <p v-if="error" role="alert" class="mm-error">{{ error }}</p>
       <div class="mm-actions">
         <button class="mm-btn mm-btn-primary" :disabled="busy || !ready">
-          {{ busy ? 'Salvando…' : 'Salvar nova senha' }}</button
-        ><button class="mm-btn" type="button" :disabled="busy" @click="clear">Limpar</button
-        ><router-link to="/" class="mm-link">Voltar ao início</router-link>
+          {{ busy ? t('account.saving') : t('account.saveNewPassword') }}</button
+        ><button class="mm-btn" type="button" :disabled="busy" @click="clear">
+          {{ t('account.clear') }}</button
+        ><router-link to="/" class="mm-link">{{ t('account.backHome') }}</router-link>
       </div>
     </form>
   </main>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import TurnstileChallenge from 'src/core/components/TurnstileChallenge.vue';
 import { useTurnstileForm } from 'src/core/turnstile/useTurnstileForm';
 import { verificationFailureMessage } from 'src/core/turnstile/errors';
@@ -54,7 +58,8 @@ const password = ref('');
 const confirmation = ref('');
 const busy = ref(false);
 const { token, widget, ready, reset: resetChallenge } = useTurnstileForm();
-const error = ref('');
+const errorMessage = ref<() => string>(() => '');
+const error = computed(() => errorMessage.value());
 onMounted(async () => {
   if (key.value.length !== 200) await router.replace('/login');
 });
@@ -63,19 +68,19 @@ function clear() {
   email.value = '';
   password.value = '';
   confirmation.value = '';
-  error.value = '';
+  errorMessage.value = () => '';
 }
 async function redefinePassword() {
   if (busy.value || !ready.value) return;
-  error.value = '';
+  errorMessage.value = () => '';
   if (
     !/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{8,70}$/.test(password.value)
   ) {
-    error.value = 'A senha precisa seguir todos os requisitos indicados.';
+    errorMessage.value = () => t('account.passwordRequirements');
     return;
   }
   if (password.value !== confirmation.value) {
-    error.value = 'As senhas precisam ser iguais.';
+    errorMessage.value = () => t('account.passwordMismatch');
     return;
   }
   busy.value = true;
@@ -85,12 +90,10 @@ async function redefinePassword() {
       password: password.value,
       'cf-turnstile-response': token.value,
     });
-    showSuccess('Senha alterada. Entre com sua nova senha.');
+    showSuccess(() => t('account.passwordChanged'));
     await router.push('/');
   } catch (err) {
-    error.value =
-      verificationFailureMessage(err) ??
-      'Não foi possível redefinir a senha. Confira o link de recuperação ou solicite outro.';
+    errorMessage.value = () => verificationFailureMessage(err, t) ?? t('account.resetFailed');
   } finally {
     resetChallenge();
     busy.value = false;

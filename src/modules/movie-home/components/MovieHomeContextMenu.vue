@@ -1,10 +1,10 @@
 <template>
   <BaseContextMenu
-    :label="title ? `Opções de ${title}` : 'Opções do filme'"
-    :title="title || 'Filme na coleção'"
+    :label="title ? t('catalog.optionsOf', { title }) : t('catalog.movieOptions')"
+    :title="title || t('catalog.collectionMovie')"
   >
     <button type="button" :disabled="!movieId" @click.prevent="copyMovie(movieId)">
-      <BaseIcon name="share" />Copiar link do filme
+      <BaseIcon name="share" />{{ t('catalog.copyMovieLink') }}
     </button>
     <router-link
       v-if="movieId"
@@ -12,12 +12,16 @@
       target="_blank"
       rel="noopener noreferrer"
     >
-      <BaseIcon name="arrow" />Abrir em nova guia
+      <BaseIcon name="arrow" />{{ t('catalog.openNewTab') }}
     </router-link>
-    <button v-else type="button" disabled><BaseIcon name="arrow" />Abrir em nova guia</button>
+    <button v-else type="button" disabled>
+      <BaseIcon name="arrow" />{{ t('catalog.openNewTab') }}
+    </button>
   </BaseContextMenu>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import BaseContextMenu from 'src/core/components/BaseContextMenu.vue';
 import BaseIcon from 'src/core/components/BaseIcon.vue';
 import { showError, showSuccess } from 'src/core/utils/NotificationUtils';
@@ -28,9 +32,9 @@ async function copyMovie(id: string) {
     await navigator.clipboard.writeText(
       `${window.location.origin}/movie/${encodeURIComponent(id)}`,
     );
-    showSuccess('Link copiado');
+    showSuccess(() => t('catalog.linkCopied'));
   } catch {
-    showError('Não foi possível copiar o link');
+    showError(() => t('catalog.copyFailed'));
   }
 }
 </script>

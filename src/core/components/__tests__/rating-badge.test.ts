@@ -17,7 +17,7 @@ describe('visible movie rating badge', () => {
     document.documentElement.setAttribute('data-theme', theme);
     const wrapper = mount(BaseChipNote, { props: { movie: movieWithScores([10, 10]) } });
     expect(wrapper.classes()).toContain('mm-rating-perfect');
-    expect(wrapper.attributes('aria-label')).toBe('Nota média 10.0');
+    expect(wrapper.attributes('aria-label')).toBe('Nota média 10,0');
     wrapper.unmount();
   });
 
@@ -30,7 +30,7 @@ describe('visible movie rating badge', () => {
 
   it('preserves zero and empty averages, then updates to exact ten', async () => {
     const wrapper = mount(BaseChipNote, { props: { movie: movieWithScores([0]) } });
-    expect(wrapper.text()).toContain('0.0');
+    expect(wrapper.text()).toContain('0,0');
     expect(wrapper.classes()).toContain('mm-rating-low');
     await wrapper.setProps({ movie: movieWithScores([]) });
     expect(wrapper.classes()).toContain('mm-rating-low');

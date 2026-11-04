@@ -1,24 +1,26 @@
 <template>
   <div>
     <button class="mm-button mm-button-primary" type="button" @click="openDialog">
-      + Criar lista
+      {{ t('library.createListAction') }}
     </button>
-    <BaseModal v-model="visible" title="Nova lista de filmes">
+    <BaseModal v-model="visible" :title="t('library.newList')">
       <form @submit.prevent="createWishlist">
         <label
-          >Nome<input
+          >{{ t('library.name')
+          }}<input
             v-model="name"
             required
             minlength="3"
             maxlength="30"
             autofocus
-            placeholder="Ex.: Filmes para o fim de semana"
+            :placeholder="t('library.namePlaceholder')"
         /></label>
-        <p>Use entre 3 e 30 caracteres.</p>
+        <p>{{ t('library.nameHelp') }}</p>
         <div class="mm-actions">
-          <button class="mm-button" type="button" @click="visible = false">Cancelar</button
+          <button class="mm-button" type="button" @click="visible = false">
+            {{ t('library.cancel') }}</button
           ><button class="mm-button mm-button-primary" :disabled="busy || name.trim().length < 3">
-            {{ busy ? 'Criando…' : 'Criar lista' }}
+            {{ busy ? t('library.creating') : t('library.createList') }}
           </button>
         </div>
       </form>
@@ -26,6 +28,8 @@
   </div>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { onBeforeUnmount, ref, watch } from 'vue';
 import { useUserStore } from 'src/core/stores/UserStore';
 import BaseModal from 'src/core/components/BaseModal.vue';
@@ -72,7 +76,7 @@ async function createWishlist() {
   try {
     await MovieWatchlistService.createWatchlist(name.value.trim());
     if (!current()) return;
-    showSuccess('Lista criada com sucesso');
+    showSuccess('library.created');
     visible.value = false;
     emit('ok');
   } catch (error) {
@@ -80,10 +84,10 @@ async function createWishlist() {
     const message = axios.isAxiosError(error) ? String(error.response?.data?.message || '') : '';
     showError(
       message.includes('wishlits limit')
-        ? 'Você atingiu o limite de 10 listas'
+        ? 'library.limitReached'
         : message.includes('Wishlist already created with the name')
-          ? 'Já existe uma lista com esse nome'
-          : 'Erro ao criar lista',
+          ? 'library.duplicateName'
+          : 'library.createFailed',
     );
   } finally {
     if (current()) busy.value = false;

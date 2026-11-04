@@ -19,7 +19,9 @@
       @keydown.down.prevent="show"
     >
       <span :id="`${id}-value`" class="mm-multiselect-value">{{ summary }}</span>
-      <span v-if="model.length > 1" class="mm-multiselect-count">{{ model.length }}</span>
+      <span v-if="model.length > 1" class="mm-multiselect-count">{{
+        model.length.toLocaleString(locale)
+      }}</span>
       <svg
         aria-hidden="true"
         width="16"
@@ -60,17 +62,19 @@
             v-model="query"
             type="search"
             autocomplete="off"
-            :aria-label="`Buscar em ${label}`"
-            placeholder="Buscar gênero…"
+            :aria-label="t('components.searchIn', { label })"
+            :placeholder="t('components.searchGenre')"
             @keydown.down.prevent="focusOption(0)"
             @keydown.up.prevent="focusOption(filtered.length - 1)"
           />
         </div>
-        <div v-if="loading" class="mm-multiselect-message" role="status">Carregando opções…</div>
+        <div v-if="loading" class="mm-multiselect-message" role="status">
+          {{ t('components.loadingOptions') }}
+        </div>
         <div v-else-if="error" class="mm-multiselect-message" role="alert">
           <span>{{ error }}</span
           ><button type="button" class="mm-multiselect-retry" @click="emit('retry')">
-            Tentar novamente
+            {{ t('components.retry') }}
           </button>
         </div>
         <div
@@ -112,23 +116,27 @@
             <span>{{ option.label }}</span>
           </button>
           <p v-if="!filtered.length" class="mm-multiselect-message" role="status">
-            {{ query ? 'Nenhum gênero encontrado.' : 'Nenhum gênero disponível.' }}
+            {{ query ? t('components.noGenreFound') : t('components.noGenreAvailable') }}
           </p>
         </div>
         <footer class="mm-multiselect-footer">
           <span aria-live="polite">{{
             model.length
-              ? `${model.length} selecionado${model.length === 1 ? '' : 's'}`
-              : 'Todos os gêneros'
+              ? t('components.selectedCount', { count: model.length }, model.length)
+              : t('components.allGenres')
           }}</span>
-          <button type="button" :disabled="!model.length" @click="clear">Limpar</button>
-          <button type="button" @click="close(true)">Concluir</button>
+          <button type="button" :disabled="!model.length" @click="clear">
+            {{ t('components.clear') }}
+          </button>
+          <button type="button" @click="close(true)">{{ t('components.done') }}</button>
         </footer>
       </section>
     </Transition>
   </div>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, locale } = useI18n();
 import {
   computed,
   nextTick,
@@ -149,7 +157,7 @@ const props = withDefaults(
     error?: string;
     disabled?: boolean;
   }>(),
-  { placeholder: 'Todos os gêneros', loading: false, error: '', disabled: false },
+  { placeholder: '', loading: false, error: '', disabled: false },
 );
 const model = defineModel<number[]>({ default: () => [] });
 const emit = defineEmits<{ change: [values: number[]]; retry: [] }>();
@@ -168,14 +176,16 @@ const normalize = (value: string) =>
   value
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '')
-    .toLocaleLowerCase('pt-BR');
+    .toLocaleLowerCase(locale.value);
 const filtered = computed(() =>
   props.options.filter((option) => normalize(option.label).includes(normalize(query.value.trim()))),
 );
 const summary = computed(() => {
-  if (!model.value.length) return props.placeholder;
+  if (!model.value.length) return props.placeholder || t('components.allGenres');
   const first = props.options.find((option) => option.value === model.value[0]);
-  return model.value.length === 1 ? first?.label || '1 selecionado' : 'Gêneros selecionados';
+  return model.value.length === 1
+    ? first?.label || t('components.oneSelected')
+    : t('components.selectedGenres');
 });
 watch(query, () => {
   activeIndex.value = 0;
