@@ -4,11 +4,17 @@
     <p class="mm-muted">Atualize seu nome, e-mail e preferências de notificação.</p>
     <p v-if="error" class="mm-error" role="alert">{{ error }}</p>
     <BaseUserInfoPanel v-if="loaded" v-model="user" />
-    <p v-else-if="busy" role="status">Carregando seu perfil…</p>
+    <ProfileLoadingState v-else-if="!error" />
     <div class="mm-actions">
       <button class="mm-btn mm-btn-primary" :disabled="busy || !loaded">
         {{ busy ? 'Aguarde…' : 'Salvar alterações' }}</button
-      ><button type="button" class="mm-btn" :disabled="busy" @click="loadUser">
+      ><button
+        v-if="loaded || error"
+        type="button"
+        class="mm-btn"
+        :disabled="busy"
+        @click="loadUser"
+      >
         {{ loaded ? 'Descartar alterações' : 'Tentar novamente' }}
       </button>
     </div>
@@ -16,6 +22,7 @@
 </template>
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+import ProfileLoadingState from './ProfileLoadingState.vue';
 import User from 'src/core/domain/user/User';
 import BaseUserInfoPanel from 'src/core/components/BaseUserInfoPanel.vue';
 import UserService from 'src/core/services/UserService';

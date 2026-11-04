@@ -3,96 +3,100 @@
     <router-link class="mm-back-link" :to="{ name: 'movie-watchlist-list' }"
       ><BaseIcon name="chevron-left" /> Minhas listas</router-link
     >
-    <div class="mm-detail-top">
-      <MovieWatchlistPageTitle
+    <template v-if="watchlist"
+      ><div class="mm-detail-top">
+        <MovieWatchlistPageTitle
+          :key="viewKey"
+          :watchlist="watchlist"
+          :disabled="mutationBlocked"
+          :rename="renameWatchlist"
+        />
+        <div v-if="isOwner" class="mm-list-utilities">
+          <label class="mm-visibility-control"
+            ><input
+              type="checkbox"
+              :checked="watchlist?.shareable"
+              :disabled="mutationBlocked"
+              @change="onShareToggle"
+            /><span>Lista pública</span></label
+          >
+          <button
+            v-if="!allowDrag"
+            class="mm-button mm-reorder-entry"
+            type="button"
+            :disabled="mutationBlocked || filteredMovies.length < 2"
+            @click="startReorder"
+          >
+            <BaseIcon name="grip" />Reordenar
+          </button>
+        </div>
+      </div>
+      <div v-if="allowDrag" class="mm-reorder-intro">
+        <strong>Organize do seu jeito</strong>
+        <p id="reorder-help">Arraste pela alça ou use as setas. Salve para confirmar sua ordem.</p>
+      </div>
+      <div v-if="allowDrag" class="mm-reorder-toolbar">
+        <span class="mm-unsaved-label">Ordem não salva</span>
+        <div class="mm-actions">
+          <button class="mm-button" :disabled="saving || isSwapping" @click="cancelReorder">
+            Cancelar</button
+          ><button
+            class="mm-button mm-button-primary"
+            :disabled="saving || isSwapping"
+            @click="saveReorder"
+          >
+            {{ saving ? 'Salvando…' : 'Salvar ordem' }}
+          </button>
+        </div>
+      </div>
+      <MovieWatchlistCleanupBtn
+        v-if="isOwner && !allowDrag"
         :key="viewKey"
-        :watchlist="watchlist"
+        :wishlist="watchlist"
         :disabled="mutationBlocked"
-        :rename="renameWatchlist"
+        :remove-rated="removeRated"
       />
-      <div v-if="isOwner" class="mm-list-utilities">
-        <label class="mm-visibility-control"
+      <form v-if="!allowDrag" class="mm-filter-bar" @submit.prevent="applySearch">
+        <label class="mm-search-field"
+          ><BaseIcon name="search" /><span class="mm-sr-only">Buscar nesta lista</span
           ><input
-            type="checkbox"
-            :checked="watchlist?.shareable"
-            :disabled="mutationBlocked"
-            @change="onShareToggle"
-          /><span>Lista pública</span></label
-        >
+            v-model="searchText"
+            :disabled="loading || saving"
+            list="watchlist-titles"
+            placeholder="Buscar nesta lista"
+            @input="applySearch" /><datalist id="watchlist-titles">
+            <option
+              v-for="movie in watchlist?.movies_wishlists"
+              :key="movie.tmdb_id"
+              :value="movie.title || movie.title_english"
+            /></datalist
+        ></label>
         <button
-          v-if="!allowDrag"
-          class="mm-button mm-reorder-entry"
+          v-if="searchText"
+          class="mm-clear-search"
           type="button"
-          :disabled="mutationBlocked || filteredMovies.length < 2"
-          @click="startReorder"
+          aria-label="Limpar busca"
+          @click="
+            searchText = '';
+            applySearch();
+          "
         >
-          <BaseIcon name="grip" />Reordenar
+          <BaseIcon name="close" />
         </button>
-      </div>
-    </div>
-    <div v-if="allowDrag" class="mm-reorder-intro">
-      <strong>Organize do seu jeito</strong>
-      <p id="reorder-help">Arraste pela alça ou use as setas. Salve para confirmar sua ordem.</p>
-    </div>
-    <div v-if="allowDrag" class="mm-reorder-toolbar">
-      <span class="mm-unsaved-label">Ordem não salva</span>
-      <div class="mm-actions">
-        <button class="mm-button" :disabled="saving || isSwapping" @click="cancelReorder">
-          Cancelar</button
-        ><button
-          class="mm-button mm-button-primary"
-          :disabled="saving || isSwapping"
-          @click="saveReorder"
+        <span class="mm-result-count"
+          >{{ filteredMovies.length }} {{ filteredMovies.length === 1 ? 'filme' : 'filmes' }}</span
         >
-          {{ saving ? 'Salvando…' : 'Salvar ordem' }}
-        </button>
-      </div>
-    </div>
-    <MovieWatchlistCleanupBtn
-      v-if="isOwner && !allowDrag"
-      :key="viewKey"
-      :wishlist="watchlist"
-      :disabled="mutationBlocked"
-      :remove-rated="removeRated"
-    />
-    <form v-if="!allowDrag" class="mm-filter-bar" @submit.prevent="applySearch">
-      <label class="mm-search-field"
-        ><BaseIcon name="search" /><span class="mm-sr-only">Buscar nesta lista</span
-        ><input
-          v-model="searchText"
-          :disabled="loading || saving"
-          list="watchlist-titles"
-          placeholder="Buscar nesta lista"
-          @input="applySearch" /><datalist id="watchlist-titles">
-          <option
-            v-for="movie in watchlist?.movies_wishlists"
-            :key="movie.tmdb_id"
-            :value="movie.title || movie.title_english"
-          /></datalist
-      ></label>
-      <button
-        v-if="searchText"
-        class="mm-clear-search"
-        type="button"
-        aria-label="Limpar busca"
-        @click="
-          searchText = '';
-          applySearch();
-        "
-      >
-        <BaseIcon name="close" />
-      </button>
-      <span class="mm-result-count"
-        >{{ filteredMovies.length }} {{ filteredMovies.length === 1 ? 'filme' : 'filmes' }}</span
-      >
-    </form>
-    <p v-if="loading" role="status">Carregando lista…</p>
+      </form> </template
+    ><WatchlistLoadingState v-if="loading && !watchlist" detail />
     <p v-if="error" class="mm-error" role="alert">
       {{ error }} <button class="mm-button" @click="loadWatchlist">Tentar novamente</button>
     </p>
-    <p class="mm-sr-only" role="status" aria-live="polite">{{ reorderAnnouncement }}</p>
+    <p v-if="watchlist" class="mm-sr-only" role="status" aria-live="polite">
+      {{ reorderAnnouncement }}
+    </p>
     <div
       ref="posterGrid"
+      v-show="!!watchlist"
       class="mm-poster-grid"
       :class="{ 'mm-reorder-grid': allowDrag }"
       :aria-describedby="allowDrag ? 'reorder-help' : undefined"
@@ -158,7 +162,7 @@
         </article>
       </div>
     </div>
-    <p v-if="!loading && !error && !filteredMovies.length" class="mm-empty">
+    <p v-if="watchlist && !loading && !error && !filteredMovies.length" class="mm-empty">
       {{
         searchText
           ? 'Nenhum filme corresponde à busca.'
@@ -182,6 +186,7 @@ import {
   orderMoviesBySlots,
 } from '../utils/WatchlistDraft';
 import BaseFloatingActionBtn from 'src/core/components/BaseFloatingActionBtn.vue';
+import WatchlistLoadingState from '../components/WatchlistLoadingState.vue';
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import BaseDialogFormMovieSummary from 'src/core/components/BaseDialogFormMovieSummary.vue';
@@ -198,7 +203,7 @@ const userStore = useUserStore();
 const store = useMovieWatchlistStore();
 const watchlist = ref<WatchlistType>();
 const searchText = ref('');
-const loading = ref(false);
+const loading = ref(true);
 const saving = ref(false);
 const error = ref('');
 const allowDrag = ref(false);

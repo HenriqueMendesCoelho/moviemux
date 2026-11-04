@@ -9,7 +9,7 @@
       </button>
     </header>
     <p v-if="error" role="alert">{{ error }}</p>
-    <p v-if="loading && !chartsData" role="status">Carregando estatísticas…</p>
+    <StatisticsLoadingState v-if="!chartsData && !error" />
     <div v-if="chartsData" class="mm-stat-grid">
       <article class="mm-stat-card">
         <span>Total de filmes</span><strong>{{ chartsData?.total_number_of_movies ?? '—' }}</strong>
@@ -49,19 +49,18 @@
       <section class="mm-chart-card">
         <ClientOnly
           ><MovieSixMonthsAgoChart :charts-data="chartsData" /><template #fallback
-            ><p>Carregando gráfico…</p></template
-          ></ClientOnly
-        >
+            ><BaseLoadingState label="Carregando gráfico…"
+              ><BaseSkeleton shape="block" height="18rem" /></BaseLoadingState></template
+        ></ClientOnly>
       </section>
       <section class="mm-chart-card">
         <ClientOnly
           ><MovieByGenderChart :charts-data="chartsData" /><template #fallback
-            ><p>Carregando gráfico…</p></template
-          ></ClientOnly
-        >
-      </section>
-    </div></BaseContainerMain
-  >
+            ><BaseLoadingState label="Carregando gráfico…"
+              ><BaseSkeleton shape="block" height="18rem" /></BaseLoadingState></template
+        ></ClientOnly>
+      </section></div
+  ></BaseContainerMain>
 </template>
 
 <script setup lang="ts">
@@ -70,6 +69,9 @@ import { useUserStore } from 'src/core/stores/UserStore';
 
 import type { MovieStatistics } from 'src/core/types/statistics/Statistics';
 
+import StatisticsLoadingState from '../components/StatisticsLoadingState.vue';
+import BaseLoadingState from 'src/core/components/BaseLoadingState.vue';
+import BaseSkeleton from 'src/core/components/BaseSkeleton.vue';
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 
 import MovieSixMonthsAgoChart from '../components/MovieSixMonthsAgoChart.vue';

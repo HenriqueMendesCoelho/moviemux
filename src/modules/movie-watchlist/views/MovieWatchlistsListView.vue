@@ -5,7 +5,8 @@
         <span class="mm-eyebrow">BIBLIOTECA</span>
         <h1>Minhas listas</h1>
         <p>
-          Organize o que você quer assistir. <span>{{ watchlists.length }}/10 listas</span>
+          Organize o que você quer assistir.
+          <span v-if="!loading || watchlists.length">{{ watchlists.length }}/10 listas</span>
         </p>
       </div>
       <MovieWatchlistBtnCreate @ok="reload" />
@@ -20,7 +21,7 @@
         @delete="openDialogConfirm(list)"
       />
     </div>
-    <p v-else-if="loading" role="status">Carregando listas…</p>
+    <WatchlistLoadingState v-else-if="loading" />
     <p v-else-if="loadError" role="alert">
       Não foi possível carregar suas listas.
       <button class="mm-button" @click="reload">Tentar novamente</button>
@@ -45,6 +46,7 @@ import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 
 import BaseConfirmDialog from 'src/core/components/BaseConfirmDialog.vue';
 import MovieWatchlistBtnCreate from '../components/MovieWatchlistBtnCreate.vue';
+import WatchlistLoadingState from '../components/WatchlistLoadingState.vue';
 import MovieWatchlistCard from '../components/MovieWatchlistCard.vue';
 
 import { showSuccess, showError } from 'src/core/utils/NotificationUtils';
@@ -56,7 +58,7 @@ import { hideLoading, showLoading } from 'src/core/utils/LoadingUtils';
 const watchlistStore = useMovieWatchlistStore();
 const userStore = useUserStore();
 const deleting = ref(false);
-const loading = ref(false);
+const loading = ref(true);
 const loadError = ref(false);
 let generation = 0;
 let disposed = false;

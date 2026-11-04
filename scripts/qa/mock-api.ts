@@ -4,6 +4,7 @@ const port = Number(process.env.QA_API_PORT || 3001);
 const origin = `http://127.0.0.1:${port}`;
 const now = new Date().toISOString();
 const fixtureCount = Math.max(8, Math.min(120, Number(process.env.QA_MOVIE_COUNT) || 8));
+const pageDelay = Math.max(0, Math.min(5000, Number(process.env.QA_PAGE_DELAY_MS) || 0));
 const summaryDelay = Math.max(0, Math.min(5000, Number(process.env.QA_SUMMARY_DELAY_MS) || 0));
 const providerDelay = Math.max(0, Math.min(5000, Number(process.env.QA_PROVIDER_DELAY_MS) || 0));
 const staticRequests = new Map<string, number>();
@@ -147,6 +148,15 @@ const server = createServer(async (req, res) => {
   }
   const url = new URL(req.url || '/', origin);
   const path = url.pathname;
+  if (
+    req.method === 'GET' &&
+    pageDelay &&
+    (/^\/movie\/movie-\d+$/.test(path) ||
+      path === '/user' ||
+      path.startsWith('/user/wishlist') ||
+      path === '/statistic/movies')
+  )
+    await new Promise((resolve) => setTimeout(resolve, pageDelay));
   if (path === '/qa/static-metrics' && req.method === 'GET') {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ requests: Object.fromEntries(staticRequests) }));

@@ -145,3 +145,17 @@ test('failed visibility update restores the confirmed checkbox state', async () 
   expect((wrapper.find('input[type="checkbox"]').element as HTMLInputElement).checked).toBe(false);
   expect(mocks.showError).toHaveBeenCalled();
 });
+
+test('initial list skeleton replaces unknown title/count and disappears for resolved content', async () => {
+  const request = deferred<WatchlistType>();
+  mocks.searchWatchlistById.mockReturnValue(request.promise);
+  const wrapper = await create();
+  expect(wrapper.findComponent({ name: 'WatchlistLoadingState' }).exists()).toBe(true);
+  expect(wrapper.find('h1').exists()).toBe(false);
+  request.resolve(list());
+  await flushPromises();
+  expect(wrapper.findComponent({ name: 'WatchlistLoadingState' }).exists()).toBe(false);
+  expect(wrapper.findComponent({ name: 'MovieWatchlistPageTitle' }).props('watchlist').name).toBe(
+    'List a',
+  );
+});
