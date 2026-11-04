@@ -86,7 +86,7 @@ export default defineNuxtConfig({
         },
       ],
     },
-    client: { installPrompt: true },
+    client: { installPrompt: false },
   },
   typescript: { strict: true },
   vite: {
