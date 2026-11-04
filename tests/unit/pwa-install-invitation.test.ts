@@ -123,7 +123,7 @@ test.each(['prompt', 'choice'])('native %s rejection cannot reuse event', async 
   if (path === 'choice') choice.reject(new Error('choice failure'));
   else choice.resolve({ outcome: 'dismissed' });
   await result;
-  expect(controller.state.feedback).toContain('menu do navegador');
+  expect(controller.state.feedback).toBe('shell.installFailed');
   expect(controller.state.pending).toBe(false);
   await controller.install();
   expect(event.prompt).toHaveBeenCalledOnce();
@@ -137,7 +137,7 @@ test('early choice rejection is handled while prompt is pending', async () => {
   await flushPromises();
   opening.resolve();
   await result;
-  expect(controller.state.feedback).toContain('menu do navegador');
+  expect(controller.state.feedback).toBe('shell.installFailed');
 });
 test('appinstalled and late choice do not revive eligibility', async () => {
   const { choice } = nativeEvent();

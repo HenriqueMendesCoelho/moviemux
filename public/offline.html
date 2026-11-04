@@ -1,2 +1,12 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#00f6ff"><title>Movie Mux · Sem conexão</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0b0e14;color:#f0f2fa;font-family:system-ui,sans-serif}main{max-width:440px;padding:32px;text-align:center}img{width:72px;height:72px;border-radius:18px}h1{font-size:32px;letter-spacing:-1px}p{color:#a0adc0;line-height:1.7}a{display:inline-block;background:#00f6ff;color:#00343b;padding:13px 22px;border-radius:12px;text-decoration:none;font-weight:700}a:focus-visible{outline:3px solid white;outline-offset:5px}</style></head><body><main><img src="/icons/icon-192x192.png" alt="Movie Mux"><h1>Um intervalo na sessão.</h1><p>Você está sem conexão. Seus dados não foram alterados. Reconecte-se para continuar descobrindo filmes.</p><a href="/">Tentar novamente</a></main></body></html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#00f6ff"><title>Movie Mux · Sem conexão</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0b0e14;color:#f0f2fa;font-family:system-ui,sans-serif}main{max-width:440px;padding:32px;text-align:center}img{width:72px;height:72px;border-radius:18px}h1{font-size:32px;letter-spacing:-1px}p{color:#a0adc0;line-height:1.7}a{display:inline-block;background:#00f6ff;color:#00343b;padding:13px 22px;border-radius:12px;text-decoration:none;font-weight:700}a:focus-visible{outline:3px solid white;outline-offset:5px}</style></head><body><main><img src="/icons/icon-192x192.png" alt="Movie Mux"><h1>Um intervalo na sessão.</h1><p>Você está sem conexão. Seus dados não foram alterados. Reconecte-se para continuar descobrindo filmes.</p><a href="/">Tentar novamente</a></main><script>
+(function () {
+  var match = document.cookie.match(/(?:^|;\s*)moviemux-language=([^;]*)/);
+  if (!match || match[1] !== 'en') return;
+  document.documentElement.lang = 'en';
+  document.title = 'Movie Mux · Offline';
+  document.querySelector('h1').textContent = 'An intermission.';
+  document.querySelector('main p').textContent = 'You are offline. Your data has not changed. Reconnect to keep discovering movies.';
+  document.querySelector('main a').textContent = 'Try again';
+})();
+</script></body></html>

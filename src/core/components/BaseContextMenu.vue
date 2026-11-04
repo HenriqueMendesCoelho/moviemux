@@ -10,8 +10,8 @@
       ref="trigger"
       type="button"
       class="mm-context-trigger"
-      :aria-label="label"
-      :title="label"
+      :aria-label="label || t('components.moreOptions')"
+      :title="label || t('components.moreOptions')"
       aria-haspopup="menu"
       :aria-expanded="open"
       :aria-controls="open ? menuId : undefined"
@@ -33,7 +33,7 @@
           ref="panel"
           class="mm-context-options"
           role="menu"
-          :aria-label="title || label"
+          :aria-label="title || label || t('components.moreOptions')"
           :style="position"
           @click.stop
           @click.capture="choose"
@@ -49,9 +49,11 @@
   </div>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { nextTick, onMounted, onBeforeUnmount, onDeactivated, ref, useId, watch } from 'vue';
 withDefaults(defineProps<{ label?: string; title?: string }>(), {
-  label: 'Mais opções',
+  label: '',
   title: '',
 });
 const menuId = `context-${useId()}`;

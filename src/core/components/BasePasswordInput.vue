@@ -1,6 +1,6 @@
 <template>
   <div class="mm-field mm-password-field" :class="$attrs.class" :style="$attrs.style">
-    <label :for="id || fieldId">{{ label }}</label>
+    <label :for="id || fieldId">{{ label || t('components.password') }}</label>
     <div class="mm-password-control" @focusout="onFocusOut">
       <input
         v-bind="inputAttrs()"
@@ -19,7 +19,7 @@
       <button
         type="button"
         class="mm-password-toggle"
-        :aria-label="visible ? 'Ocultar senha' : 'Mostrar senha'"
+        :aria-label="visible ? t('components.hidePassword') : t('components.showPassword')"
         :aria-pressed="visible"
         :aria-controls="id || fieldId"
         :disabled="disabled"
@@ -29,11 +29,15 @@
         <BaseIcon :name="visible ? 'eye' : 'eye-off'" />
       </button>
     </div>
-    <small :id="errorId" v-if="error" class="mm-error" role="alert">{{ error }}</small>
+    <small :id="errorId" v-if="error" class="mm-error" role="alert">{{
+      error.startsWith('components.') ? t(error) : error
+    }}</small>
     <slot />
   </div>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { onBeforeUnmount, onDeactivated, onMounted, ref, useAttrs, useId, watch } from 'vue';
 import BaseIcon from './BaseIcon.vue';
 defineOptions({ inheritAttrs: false });
@@ -51,7 +55,7 @@ const props = withDefaults(
     errorTextValidPassord?: boolean;
   }>(),
   {
-    label: 'Senha',
+    label: '',
     required: false,
     disabled: false,
     validPassword: false,
@@ -108,16 +112,15 @@ function describedBy() {
 }
 async function validate() {
   let result: boolean | string | undefined;
-  if (props.required && !props.modelValue) result = props.errorTextRequired ? 'Obrigatório' : false;
+  if (props.required && !props.modelValue)
+    result = props.errorTextRequired ? 'components.required' : false;
   else if (
     props.validPassword &&
     !/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$!%*?&])[A-Za-z\d@#$!%*?&]{8,70}$/.test(
       props.modelValue,
     )
   )
-    result = props.errorTextValidPassord
-      ? 'Use 8–70 caracteres, letras maiúsculas e minúsculas, números e símbolos (@#$!%*?&).'
-      : false;
+    result = props.errorTextValidPassord ? 'components.passwordRequirements' : false;
   else result = await props.customRules?.(props.modelValue);
   invalid.value = result === false || typeof result === 'string';
   error.value = typeof result === 'string' ? result : '';

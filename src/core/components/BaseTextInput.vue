@@ -23,7 +23,7 @@
         v-if="canClear()"
         type="button"
         class="mm-button mm-button-ghost"
-        :aria-label="`Limpar ${label || 'campo'}`"
+        :aria-label="t('components.clearField', { label: label || t('components.field') })"
         @click="clear"
       >
         <BaseIcon name="close" /></button
@@ -32,15 +32,19 @@
         type="button"
         class="mm-button mm-button-ghost"
         :title="iconTooltip"
-        :aria-label="iconTooltip || 'Abrir link'"
+        :aria-label="iconTooltip || t('components.openLink')"
         @click="emit('iconClick')"
       >
         <BaseIcon name="arrow" /></button></span
-    ><small :id="errorId" v-if="error" class="mm-error" role="alert">{{ error }}</small
+    ><small :id="errorId" v-if="error" class="mm-error" role="alert">{{
+      error.startsWith('components.') ? t(error) : error
+    }}</small
     ><slot
   /></label>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import BaseIcon from './BaseIcon.vue';
 import { ref, useAttrs, useId } from 'vue';
 defineOptions({ inheritAttrs: false });
@@ -86,9 +90,11 @@ function input(event: Event) {
 }
 async function validate() {
   const value = props.modelValue || '';
-  const result = props.required && !value.trim() ? 'Obrigatório' : await props.customRules?.(value);
+  const result =
+    props.required && !value.trim() ? 'components.required' : await props.customRules?.(value);
   invalid.value = result === false || typeof result === 'string';
-  error.value = result === false ? 'Valor inválido' : typeof result === 'string' ? result : '';
+  error.value =
+    result === false ? 'components.invalidValue' : typeof result === 'string' ? result : '';
   return !invalid.value;
 }
 async function hasErrors() {

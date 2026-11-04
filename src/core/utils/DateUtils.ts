@@ -1,35 +1,35 @@
 export default {
-  toLocaleString(date: string | Date): string {
+  toLocaleString(date: string | Date, locale = 'pt-BR'): string {
     if (!date) {
-      return 'Invalid date';
+      return '—';
     }
 
     const parsedDate = date instanceof Date ? date : new Date(date);
     if (isNaN(parsedDate.getTime())) {
-      return 'Invalid date';
+      return '—';
     }
 
-    return parsedDate.toLocaleString('pt-BR', {
+    return parsedDate.toLocaleString(locale, {
       dateStyle: 'short',
       timeStyle: 'short',
     });
   },
-  toLocaleDateString(date?: string | Date): string {
-    switch (true) {
-      case !date:
-        return 'Invalid date';
-      case date instanceof Date:
-        return new Date(date.toISOString().split(/T|\s/)[0] + 'T12:00:00').toLocaleDateString();
-      default:
-        return new Date(date.toString().split(/T|\s/)[0] + 'T12:00:00').toLocaleDateString();
-    }
+  toLocaleDateString(date?: string | Date, locale = 'pt-BR'): string {
+    if (!date) return '—';
+    if (date instanceof Date && Number.isNaN(date.getTime())) return '—';
+    const datePart = (date instanceof Date ? date.toISOString() : date).split(/T|\s/)[0];
+    const parsedDate = new Date(`${datePart}T12:00:00`);
+    return Number.isNaN(parsedDate.getTime()) ? '—' : parsedDate.toLocaleDateString(locale);
   },
-  toLocaleDateStringLong(date: string | Date | undefined): string {
+  toLocaleDateStringLong(date: string | Date | undefined, locale = 'pt-BR'): string {
     if (!date) {
-      return 'Invalid date';
+      return '—';
     }
 
-    return new Date(date).toLocaleString('pt-Br', {
+    const parsedDate = new Date(date);
+    if (Number.isNaN(parsedDate.getTime())) return '—';
+
+    return parsedDate.toLocaleString(locale, {
       dateStyle: 'long',
     });
   },

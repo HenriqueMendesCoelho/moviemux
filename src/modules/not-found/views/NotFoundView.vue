@@ -1,15 +1,19 @@
 <template>
   <main class="mm-not-found">
-    <p class="mm-eyebrow">CENA NÃO ENCONTRADA</p>
+    <p class="mm-eyebrow">{{ t('shell.notFoundEyebrow') }}</p>
     <p class="mm-error-code" aria-hidden="true">404</p>
-    <h1>Esse filme saiu de cartaz.</h1>
-    <p class="mm-muted">A página que você procurou não está aqui.</p>
-    <router-link :to="target" class="mm-btn mm-btn-primary">Voltar ao início</router-link>
-    <p v-if="!paused" class="mm-muted">Voltando automaticamente em {{ counter }} segundos.</p>
-    <button class="mm-link" v-if="!paused" @click="pause">Permanecer nesta página</button>
+    <h1>{{ t('shell.notFoundTitle') }}</h1>
+    <p class="mm-muted">{{ t('shell.notFoundDescription') }}</p>
+    <router-link :to="target" class="mm-btn mm-btn-primary">{{ t('shell.backHome') }}</router-link>
+    <p v-if="!paused" class="mm-muted">
+      {{ t('shell.backCountdown', { count: counter }, counter) }}
+    </p>
+    <button class="mm-link" v-if="!paused" @click="pause">{{ t('shell.stayHere') }}</button>
   </main>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/core/stores/UserStore';

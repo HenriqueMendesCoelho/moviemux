@@ -69,7 +69,7 @@ export function createPwaInstallController(host: Window) {
       if ('error' in result) throw result.error;
     } catch {
       if (!disposed && !state.installed)
-        state.feedback = 'Não foi possível abrir a instalação. Consulte o menu do navegador.';
+        state.feedback = 'shell.installFailed';
     } finally {
       active = undefined;
       if (!disposed) state.pending = false;

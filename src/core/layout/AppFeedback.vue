@@ -1,6 +1,12 @@
 <script setup lang="ts">
-import type { Notification } from '../utils/NotificationUtils';
+import { useI18n } from 'vue-i18n';
+const { t, te } = useI18n();
+import type { Notification, NotificationText } from '../utils/NotificationUtils';
 const pwa = useNuxtApp().$pwa;
+function notificationText(value: NotificationText) {
+  if (typeof value === 'function') return value();
+  return te(value) ? t(value) : value;
+}
 const notices = ref<(Notification & { id: number })[]>([]);
 const loading = ref({ active: false, message: '' });
 let next = 0;
@@ -32,16 +38,22 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <div v-if="loading.active" class="mm-loading" role="status">
-    <span class="mm-spinner" />{{ loading.message || 'Carregando…' }}
+    <span class="mm-spinner" />{{
+      loading.message
+        ? te(loading.message)
+          ? t(loading.message)
+          : loading.message
+        : t('components.loading')
+    }}
   </div>
   <div class="mm-notifications" aria-live="polite">
     <article v-if="pwa?.needRefresh" class="mm-notice">
-      <span>Uma nova versão está disponível.</span
-      ><button @click="pwa.updateServiceWorker()">Atualizar</button
-      ><button @click="pwa.cancelPrompt()" aria-label="Atualizar depois">×</button>
+      <span>{{ t('components.newVersion') }}</span
+      ><button @click="pwa.updateServiceWorker()">{{ t('components.update') }}</button
+      ><button @click="pwa.cancelPrompt()" :aria-label="t('components.updateLater')">×</button>
     </article>
     <article v-for="n in notices" :key="n.id" :class="['mm-notice', n.kind]">
-      <span>{{ n.message }}</span
+      <span>{{ notificationText(n.message) }}</span
       ><button
         v-if="n.action"
         @click="
@@ -49,8 +61,8 @@ onBeforeUnmount(() => {
           remove(n.id);
         "
       >
-        {{ n.action.label }}</button
-      ><button aria-label="Fechar notificação" @click="remove(n.id)">×</button>
+        {{ notificationText(n.action.label) }}</button
+      ><button :aria-label="t('components.closeNotification')" @click="remove(n.id)">×</button>
     </article>
   </div>
 </template>

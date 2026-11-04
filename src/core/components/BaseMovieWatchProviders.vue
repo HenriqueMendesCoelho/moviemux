@@ -1,20 +1,20 @@
 <template>
-  <section class="mm-providers" aria-label="Onde assistir no Brasil" :aria-busy="loading">
+  <section class="mm-providers" :aria-label="t('components.watchBrazil')" :aria-busy="loading">
     <header class="mm-providers-heading">
-      <h3>Onde assistir</h3>
-      <span class="mm-provider-country">Brasil</span>
+      <h3>{{ t('components.whereWatch') }}</h3>
+      <span class="mm-provider-country">{{ t('components.brazil') }}</span>
     </header>
     <div v-if="loading" class="mm-provider-loading">
-      <p class="mm-provider-status" role="status">Buscando plataformas…</p>
+      <p class="mm-provider-status" role="status">{{ t('components.loadingProviders') }}</p>
       <div class="mm-provider-skeleton" aria-hidden="true">
         <i />
         <div><span /><span /><span /></div>
       </div>
     </div>
     <div v-else-if="error" class="mm-provider-status" role="alert">
-      <p>Não foi possível consultar as plataformas.</p>
+      <p>{{ t('components.providersError') }}</p>
       <button type="button" class="mm-button mm-button-ghost" @click="load">
-        Tentar novamente
+        {{ t('components.retry') }}
       </button>
     </div>
     <template v-else>
@@ -47,14 +47,14 @@
         </section>
       </div>
       <p v-else class="mm-provider-status">
-        Nenhuma plataforma informada para este filme no Brasil.
+        {{ t('components.noProviders') }}
       </p>
       <footer class="mm-provider-footer">
         <a v-if="providers?.link" :href="providers.link" target="_blank" rel="noopener noreferrer"
-          >Consultar disponibilidade no TMDB <BaseIcon name="arrow"
+          >{{ t('components.tmdbAvailability') }} <BaseIcon name="arrow"
         /></a>
         <p>
-          Dados de disponibilidade:
+          {{ t('components.availabilityData') }}
           <a href="https://www.justwatch.com/br" target="_blank" rel="noopener noreferrer"
             >JustWatch</a
           >, via TMDB.
@@ -64,6 +64,8 @@
   </section>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import BaseIcon from './BaseIcon.vue';
 import { useRuntimeConfig } from '#imports';
 const imageBase = String(useRuntimeConfig().public.tmdbImageBase).replace(/\/$/, '');
@@ -76,31 +78,34 @@ const result = ref<MovieWatchProvider>(),
   error = ref(false);
 const failedLogos = ref(new Set<string>());
 const providers = computed(() => result.value?.results?.BR);
-const groups = [
-  {
-    key: 'flatrate',
-    title: 'Streaming por assinatura',
-    description: 'Disponível no catálogo de uma assinatura.',
-  },
-  {
-    key: 'rent',
-    title: 'Alugar',
-    description: 'Pagamento por filme, com acesso por tempo limitado.',
-  },
-  {
-    key: 'buy',
-    title: 'Comprar',
-    description: 'Compra digital, conforme as condições da plataforma.',
-  },
-  { key: 'free', title: 'Grátis', description: 'Disponível sem cobrança, conforme a plataforma.' },
-  {
-    key: 'ads',
-    title: 'Grátis com anúncios',
-    description: 'Disponível com intervalos publicitários.',
-  },
-] as const;
+const groups = computed(
+  () =>
+    [
+      {
+        key: 'flatrate',
+        title: t('components.subscription'),
+        description: t('components.subscriptionDescription'),
+      },
+      {
+        key: 'rent',
+        title: t('components.rent'),
+        description: t('components.rentDescription'),
+      },
+      {
+        key: 'buy',
+        title: t('components.buy'),
+        description: t('components.buyDescription'),
+      },
+      { key: 'free', title: t('components.free'), description: t('components.freeDescription') },
+      {
+        key: 'ads',
+        title: t('components.ads'),
+        description: t('components.adsDescription'),
+      },
+    ] as const,
+);
 const availableGroups = computed(() =>
-  groups.filter((group) => providers.value?.[group.key]?.length),
+  groups.value.filter((group) => providers.value?.[group.key]?.length),
 );
 const hasProviders = computed(() => availableGroups.value.length > 0);
 let request = 0;

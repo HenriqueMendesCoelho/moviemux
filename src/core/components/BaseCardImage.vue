@@ -16,13 +16,20 @@
       @load="loaded = true"
       @error="failed = true"
     />
-    <div v-else class="mm-poster-fallback" role="img" :aria-label="alt || 'Pôster indisponível'">
-      🎬<small>Imagem indisponível</small>
+    <div
+      v-else
+      class="mm-poster-fallback"
+      role="img"
+      :aria-label="alt || t('components.posterUnavailable')"
+    >
+      🎬<small>{{ t('components.imageUnavailable') }}</small>
     </div>
     <span v-if="!loaded && !failed && src" class="mm-poster-loading" aria-hidden="true" /><slot />
   </div>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { ref, watch } from 'vue';
 import { useRuntimeConfig } from '#imports';
 import { tmdbPosterSrcset } from 'src/modules/movie/utils/MovieStateUtils';

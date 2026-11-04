@@ -13,7 +13,7 @@
       v-else
       class="mm-person-silhouette"
       role="img"
-      :aria-label="`Retrato indisponível: ${name}`"
+      :aria-label="t('components.portraitUnavailable', { name })"
     >
       <svg aria-hidden="true" viewBox="0 0 120 160" fill="none">
         <circle cx="60" cy="57" r="24" fill="currentColor" />
@@ -23,6 +23,8 @@
   </div>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { ref, watch } from 'vue';
 const props = defineProps<{ src?: string; name: string }>();
 const failed = ref(false);

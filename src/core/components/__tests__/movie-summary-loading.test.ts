@@ -1,3 +1,6 @@
+import { createI18n } from 'vue-i18n';
+import pt from '../../../../i18n/locales/pt-BR';
+import en from '../../../../i18n/locales/en';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createSSRApp, reactive } from 'vue';
 import { renderToString } from 'vue/server-renderer';
@@ -52,7 +55,7 @@ describe('movie summary async presentation', () => {
     await flushPromises();
     expect(wrapper.find('.mm-summary-skeleton').exists()).toBe(false);
     expect(wrapper.text()).toContain('Filme 1');
-    expect(wrapper.text()).not.toContain('8.7');
+    expect(wrapper.text()).not.toContain('8,7');
     wrapper.unmount();
   });
   it('shows inline error and retry without dismissing the reserved surface', async () => {
@@ -105,9 +108,9 @@ describe('external rating consent', () => {
       createSSRApp(Summary, {
         movieId: 1,
         externalRating: { movieId: 1, value: 8.7, votes: 1234 },
-      }),
+      }).use(createI18n({ legacy: false, locale: 'pt-BR', messages: { 'pt-BR': pt, en: pt } })),
     );
-    expect(html).not.toContain('8.7');
+    expect(html).not.toContain('8,7');
     expect(html).not.toContain('1234');
     expect(html).toContain('mm-summary-skeleton');
   });
@@ -115,17 +118,17 @@ describe('external rating consent', () => {
     mocks.summary.mockResolvedValue(record(1));
     const wrapper = mountSummary({ movieId: 1, value: 8.7, votes: 1234 });
     await flushPromises();
-    expect(wrapper.html()).not.toContain('8.7');
+    expect(wrapper.html()).not.toContain('8,7');
     expect(wrapper.html()).not.toContain('1234');
     const reveal = wrapper
       .findAll('button')
       .find((button) => button.text().includes('Revelar nota'))!;
     await reveal.trigger('click');
-    expect(wrapper.text()).toContain('8.7');
+    expect(wrapper.text()).toContain('8,7');
     expect(wrapper.text()).toContain('1234');
     mocks.user.generation = 'two';
     await flushPromises();
-    expect(wrapper.html()).not.toContain('8.7');
+    expect(wrapper.html()).not.toContain('8,7');
     await wrapper
       .findAll('button')
       .find((button) => button.text().includes('Revelar nota'))!
@@ -133,8 +136,8 @@ describe('external rating consent', () => {
     mocks.summary.mockResolvedValue(record(2));
     await wrapper.setProps({ movieId: 2, externalRating: { movieId: 2, value: 6.2 } });
     await flushPromises();
-    expect(wrapper.html()).not.toContain('6.2');
-    expect(wrapper.html()).not.toContain('8.7');
+    expect(wrapper.html()).not.toContain('6,2');
+    expect(wrapper.html()).not.toContain('8,7');
     wrapper.unmount();
   });
   it('does not offer a mismatched or unavailable score and resets when preview is reopened', async () => {
@@ -152,7 +155,30 @@ describe('external rating consent', () => {
     first.unmount();
     const reopened = mountSummary({ movieId: 1, value: 8.7 });
     await flushPromises();
-    expect(reopened.html()).not.toContain('8.7');
+    expect(reopened.html()).not.toContain('8,7');
     reopened.unmount();
+  });
+});
+
+describe('summary genre localization', () => {
+  it('switches known genre labels without changing unknown labels or movie content', async () => {
+    const i18n = createI18n({ legacy: false, locale: 'pt-BR', messages: { 'pt-BR': pt, en } });
+    mocks.summary.mockResolvedValue({
+      ...record(1),
+      genres: ['Ação', 'Comédia', 'Experimental pessoal'],
+    });
+    const wrapper = shallowMount(Summary, { props: { movieId: 1 }, global: { plugins: [i18n] } });
+    await flushPromises();
+    expect(wrapper.get('.mm-genre-list').text()).toContain('Ação');
+    expect(wrapper.get('.mm-genre-list').text()).toContain('Comédia');
+    i18n.global.locale.value = 'en';
+    await flushPromises();
+    expect(wrapper.get('.mm-genre-list').text()).toContain('Action');
+    expect(wrapper.get('.mm-genre-list').text()).toContain('Comedy');
+    expect(wrapper.get('.mm-genre-list').text()).toContain('Experimental pessoal');
+    expect(wrapper.text()).toContain('Filme 1');
+    expect(wrapper.text()).toContain('Uma história.');
+    expect(mocks.summary).toHaveBeenCalledTimes(1);
+    wrapper.unmount();
   });
 });

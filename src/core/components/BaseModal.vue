@@ -3,7 +3,7 @@
     ref="dialog"
     class="mm-modal"
     :aria-labelledby="title ? titleId : undefined"
-    :aria-label="title ? undefined : 'Diálogo'"
+    :aria-label="title ? undefined : t('components.dialog')"
     :class="{ 'mm-modal-wide': wide }"
     @cancel="onCancel"
     @close="closed"
@@ -15,7 +15,7 @@
         <slot name="header" /><button
           type="button"
           class="mm-button mm-button-ghost"
-          aria-label="Fechar diálogo"
+          :aria-label="t('components.closeDialog')"
           @click="close"
         >
           ✕
@@ -26,6 +26,8 @@
   </dialog>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { nextTick, onMounted, onBeforeUnmount, ref, watch, useId } from 'vue';
 const props = withDefaults(
   defineProps<{ modelValue: boolean; title?: string; persistent?: boolean; wide?: boolean }>(),
