@@ -52,6 +52,11 @@ const titles = [
   'Depois da meia-noite',
   'O mapa do amanhã',
 ];
+if (process.env.QA_LONG_TITLES === 'true') {
+  titles[0] = 'Sol';
+  titles[1] =
+    'Uma viagem extraordinariamente longa através das estrelas e das memórias que nunca esquecemos';
+}
 const movies = Array.from({ length: fixtureCount }, (_, i) => ({
   title: titles[i % titles.length]! + (i >= titles.length ? ` · ${i + 1}` : ''),
   i,
