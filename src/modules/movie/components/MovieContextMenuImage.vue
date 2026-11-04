@@ -1,11 +1,14 @@
 <template>
   <details class="mm-discord-actions">
     <summary>Mensagem no Discord</summary>
-    <button type="button" class="mm-button" :disabled="busy" @click="showConfirmDialog('send')">
-      Enviar mensagem</button
-    ><button type="button" class="mm-button" :disabled="busy" @click="showConfirmDialog('update')">
-      Atualizar mensagem
-    </button>
+    <div class="mm-discord-action-buttons">
+      <button type="button" class="mm-button" :disabled="busy" @click="showConfirmDialog('send')">
+        Enviar mensagem
+      </button>
+      <button type="button" class="mm-button" :disabled="busy" @click="showConfirmDialog('update')">
+        Atualizar mensagem
+      </button>
+    </div>
   </details>
   <BaseConfirmDialog ref="confirmDialogRef" @ok="sendOrUpdateDiscordMessage($event)" />
 </template>
@@ -63,3 +66,19 @@ async function sendOrUpdateDiscordMessage(action: string | void) {
   }
 }
 </script>
+
+<style scoped>
+.mm-discord-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+}
+.mm-discord-action-buttons .mm-button {
+  box-sizing: border-box;
+  min-height: 44px;
+  max-width: 100%;
+  white-space: normal;
+}
+</style>
