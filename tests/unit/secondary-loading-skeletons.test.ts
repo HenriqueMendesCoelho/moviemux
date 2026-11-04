@@ -7,7 +7,6 @@ import ProfileLoadingState from '../../src/modules/profile/components/ProfileLoa
 test.each([
   ['lists', WatchlistLoadingState, {}],
   ['list', WatchlistLoadingState, { detail: true }],
-  ['statistics', StatisticsLoadingState, {}],
   ['profile', ProfileLoadingState, {}],
 ] as const)(
   '%s initial state has one announcement and no fake interactive content',
@@ -20,6 +19,20 @@ test.each([
     expect(shapes.findAll('button, a, input, select, textarea, [tabindex]')).toHaveLength(0);
     expect(shapes.text()).toBe('');
     expect(shapes.findAll('.mm-skeleton').length).toBeGreaterThan(5);
+    wrapper.unmount();
+  },
+);
+
+test.each(['summary', 'monthly', 'genres'] as const)(
+  'statistics %s is decorative; its route owns the live announcement',
+  (part) => {
+    const wrapper = mount(StatisticsLoadingState, { props: { part } });
+    expect(wrapper.attributes('aria-hidden')).toBe('true');
+    expect(wrapper.attributes('aria-busy')).toBe('true');
+    expect(wrapper.findAll('[role="status"]')).toHaveLength(0);
+    expect(wrapper.findAll('button, a, input, select, textarea, [tabindex]')).toHaveLength(0);
+    expect(wrapper.text()).toBe('');
+    expect(wrapper.findAll('.mm-skeleton').length).toBeGreaterThan(5);
     wrapper.unmount();
   },
 );
