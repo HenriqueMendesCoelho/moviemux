@@ -8,24 +8,7 @@
     <label class="mm-field"
       >E-mail<input v-model.trim="email" type="email" autocomplete="username" required
     /></label>
-    <label class="mm-field"
-      >Senha
-      <div class="mm-input-action">
-        <input
-          v-model="password"
-          :type="showPassword ? 'text' : 'password'"
-          autocomplete="current-password"
-          required
-        /><button
-          type="button"
-          class="mm-link"
-          :aria-pressed="showPassword"
-          @click="showPassword = !showPassword"
-        >
-          {{ showPassword ? 'Ocultar' : 'Mostrar' }}
-        </button>
-      </div></label
-    >
+    <BasePasswordInput v-model="password" autocomplete="current-password" required />
     <button type="button" class="mm-link" :disabled="busy" @click="emit('changeTab', 'forgot')">
       Esqueci minha senha
     </button>
@@ -43,6 +26,7 @@
   </form>
 </template>
 <script setup lang="ts">
+import BasePasswordInput from 'src/core/components/BasePasswordInput.vue';
 import TurnstileChallenge from 'src/core/components/TurnstileChallenge.vue';
 import { useTurnstileForm } from 'src/core/turnstile/useTurnstileForm';
 import { verificationFailureMessage } from 'src/core/turnstile/errors';
@@ -57,7 +41,6 @@ const router = useRouter();
 const store = useUserStore();
 const email = ref('');
 const password = ref('');
-const showPassword = ref(false);
 const busy = ref(false);
 const { token, widget, ready, reset: resetChallenge } = useTurnstileForm();
 const error = ref('');
