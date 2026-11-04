@@ -54,8 +54,8 @@ function onPointerMove(event: PointerEvent) {
     const bounds = pointer.target.getBoundingClientRect();
     if (!bounds.width || !bounds.height) return;
     const clamp = (value: number) => Math.max(-1, Math.min(1, value));
-    const x = clamp(((pointer.x - bounds.left) / bounds.width - 0.5) * 2) * 18;
-    const y = clamp(((pointer.y - bounds.top) / bounds.height - 0.5) * 2) * 18;
+    const x = clamp(((pointer.x - bounds.left) / bounds.width - 0.5) * 2) * bounds.width * 0.36;
+    const y = clamp(((pointer.y - bounds.top) / bounds.height - 0.5) * 2) * bounds.height * 0.36;
     background.value?.style.setProperty('--ambient-x', `${x}px`);
     background.value?.style.setProperty('--ambient-y', `${y}px`);
   });
@@ -115,8 +115,7 @@ defineExpose({ onPointerMove, onPointerLeave, onFocusIn, onFocusOut });
   pointer-events: none;
   z-index: 0;
 }
-.mm-login-ambient-drift,
-.mm-login-ambient-pointer {
+.mm-login-ambient-drift {
   position: absolute;
   inset: -24px;
 }
@@ -136,13 +135,19 @@ defineExpose({ onPointerMove, onPointerLeave, onFocusIn, onFocusOut });
   animation-play-state: paused;
 }
 .mm-login-ambient-pointer {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(80vw, 640px);
+  aspect-ratio: 1;
   background: radial-gradient(
-    ellipse at 38% 38%,
-    color-mix(in srgb, var(--mm-accent, #00f6ff) 7%, transparent),
-    transparent 48%
+    circle,
+    color-mix(in srgb, var(--mm-accent, #00f6ff) 16%, transparent),
+    color-mix(in srgb, var(--mm-accent, #00f6ff) 8%, transparent) 32%,
+    transparent 70%
   );
-  transform: translate3d(var(--ambient-x, 0px), var(--ambient-y, 0px), 0);
-  transition: transform 650ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  transform: translate3d(calc(-50% + var(--ambient-x, 0px)), calc(-50% + var(--ambient-y, 0px)), 0);
+  transition: transform 250ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 .mm-login-ambient-active .mm-login-ambient-drift {
   animation-play-state: running;
@@ -163,7 +168,7 @@ defineExpose({ onPointerMove, onPointerLeave, onFocusIn, onFocusOut });
     animation: none;
   }
   .mm-login-ambient-pointer {
-    transform: none;
+    transform: translate3d(-50%, -50%, 0);
     transition: none;
   }
 }
