@@ -8,7 +8,11 @@ import logo from '~/assets/logo.webp';
 import { showError } from '~/core/utils/NotificationUtils';
 const props = withDefaults(defineProps<{ mobile?: boolean }>(), { mobile: false });
 const panel = ref<HTMLElement>();
-const pwa = useNuxtApp().$pwa;
+const pwa = useNuxtApp().$pwaInstall;
+async function install() {
+  await pwa?.install();
+  if (pwa?.state.feedback) showError(pwa.state.feedback);
+}
 const user = useUserStore();
 const style = useStyleStore();
 const mobileOpen = computed(() => props.mobile && style.layoutSettings.isSideBarExpanded);
@@ -127,7 +131,7 @@ async function logout() {
     <p class="mm-nav-caption">BIBLIOTECA PESSOAL</p>
     <SidebarRouteButtons :show-texts-side-bar="true" />
     <div class="mm-sidebar-bottom">
-      <button v-if="pwa?.showInstallPrompt" class="mm-nav-link" @click="pwa.install()">
+      <button v-if="pwa?.state.available" type="button" class="mm-nav-link" @click="install">
         <BaseIcon name="download" /> Instalar aplicativo
       </button>
       <button class="mm-nav-link" @click="style.darkThemeToggle()">

@@ -8,14 +8,12 @@
         ></router-link
       >
     </header>
-    <BasePwaInstallInvitation />
     <MovieHomeLastMovies />
     <MovieHomeGridMovies />
   </BaseContainerMain>
 </template>
 
 <script lang="ts" setup>
-import BasePwaInstallInvitation from 'src/core/components/BasePwaInstallInvitation.vue';
 import BaseIcon from 'src/core/components/BaseIcon.vue';
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import MovieHomeLastMovies from '../components/MovieHomeLastMovies.vue';

@@ -8,21 +8,15 @@ export interface NativeInstallEvent extends Event {
   prompt: () => Promise<unknown>;
   userChoice: Promise<NativeInstallChoice>;
 }
-const DISMISSED_KEY = 'moviemux:pwa-install-dismissed';
 
-/** One browser-owned event controller per client app. Never instantiate during SSR. */
+/** Observe browser promotion without canceling it. One controller per client app. */
 export function createPwaInstallController(host: Window) {
   const state = reactive({ available: false, installed: false, pending: false, feedback: '' });
   const media = host.matchMedia('(display-mode: standalone)');
   let event: NativeInstallEvent | undefined;
-  let dismissed = false;
+  let active: NativeInstallEvent | undefined;
   let accepted = false;
   let disposed = false;
-  try {
-    dismissed = host.localStorage.getItem(DISMISSED_KEY) === 'true';
-  } catch {
-    /* memory only */
-  }
   function clear() {
     event = undefined;
     state.available = false;
@@ -37,31 +31,35 @@ export function createPwaInstallController(host: Window) {
       markInstalled();
   }
   function capture(raw: Event) {
-    if (disposed || dismissed || accepted || state.installed || state.pending) return;
+    if (disposed || accepted || state.installed || state.pending) return;
     const candidate = raw as Partial<NativeInstallEvent>;
-    if (typeof candidate.prompt !== 'function' || !candidate.userChoice) return;
-    raw.preventDefault();
-    event = candidate as NativeInstallEvent;
+    if (typeof candidate.prompt !== 'function' || typeof candidate.userChoice?.then !== 'function')
+      return;
+    const current = candidate as NativeInstallEvent;
+    event = current;
     state.feedback = '';
     state.available = true;
-  }
-  function dismiss() {
-    dismissed = true;
-    state.feedback = '';
-    clear();
-    try {
-      host.localStorage.setItem(DISMISSED_KEY, 'true');
-    } catch {
-      /* retain app-lifetime opt-out */
-    }
+    // Do not preventDefault: Chromium owns its promotion and may settle this
+    // choice without a sidebar click. Observe rejection immediately as well.
+    void current.userChoice.then(
+      (choice) => {
+        if (disposed || state.installed || (event !== current && active !== current)) return;
+        clear();
+        if (choice.outcome === 'accepted') accepted = true;
+      },
+      () => {
+        if (!disposed && event === current) clear();
+      },
+    );
   }
   async function install() {
     if (disposed || !state.available || state.installed || state.pending || !event) return;
     const current = event;
+    active = current;
     clear();
     state.pending = true;
     try {
-      // Called synchronously in the user's click stack. Consume before awaiting.
+      // Consume before awaiting. prompt() stays in the user's click stack.
       const choiceResult = current.userChoice.then(
         (choice) => ({ choice }),
         (error: unknown) => ({ error }),
@@ -69,14 +67,11 @@ export function createPwaInstallController(host: Window) {
       await current.prompt();
       const result = await choiceResult;
       if ('error' in result) throw result.error;
-      const choice = result.choice;
-      if (disposed || state.installed) return;
-      if (choice.outcome === 'dismissed') dismiss();
-      else accepted = true; // A choice is not proof of completed installation.
     } catch {
       if (!disposed && !state.installed)
         state.feedback = 'Não foi possível abrir a instalação. Consulte o menu do navegador.';
     } finally {
+      active = undefined;
       if (!disposed) state.pending = false;
     }
   }
@@ -91,6 +86,6 @@ export function createPwaInstallController(host: Window) {
     host.removeEventListener('appinstalled', markInstalled);
     media.removeEventListener('change', displayChanged);
   }
-  return { state, install, dismiss, dispose };
+  return { state, install, dispose };
 }
 export type PwaInstallController = ReturnType<typeof createPwaInstallController>;

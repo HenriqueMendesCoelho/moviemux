@@ -1,26 +1,23 @@
 import { flushPromises, mount } from '@vue/test-utils';
-import { renderToString } from 'vue/server-renderer';
-import { createSSRApp } from 'vue';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import type { VueWrapper } from '@vue/test-utils';
-import BasePwaInstallInvitation from '../../src/core/components/BasePwaInstallInvitation.vue';
+import { readFileSync, existsSync } from 'node:fs';
+import SideBar from '../../src/core/layout/app-with-nav/SideBar.vue';
 import {
   createPwaInstallController,
   type NativeInstallChoice,
   type PwaInstallController,
 } from '../../src/core/pwa/InstallController';
-const injected = vi.hoisted(() => ({ controller: undefined as PwaInstallController | undefined }));
-vi.mock('#imports', () => ({ useNuxtApp: () => ({ $pwaInstall: injected.controller }) }));
+vi.mock('../../src/core/stores/UserStore', () => ({
+  useUserStore: () => ({ user: { name: 'Test' }, logout: vi.fn() }),
+}));
+vi.mock('../../src/core/stores/StyleStore', () => ({
+  useStyleStore: () => ({ layoutSettings: { isSideBarExpanded: true }, darkThemeToggle: vi.fn() }),
+}));
+vi.mock('../../src/core/utils/NotificationUtils', () => ({ showError: vi.fn() }));
 let host: Window;
 let media: EventTarget & { matches: boolean };
+let controller: PwaInstallController;
 let storage: { getItem: ReturnType<typeof vi.fn>; setItem: ReturnType<typeof vi.fn> };
-const wrappers: VueWrapper[] = [];
-const controllers: PwaInstallController[] = [];
-function makeController() {
-  const c = createPwaInstallController(host);
-  controllers.push(c);
-  return c;
-}
 function pending<T>() {
   let resolve!: (value: T) => void;
   let reject!: (reason: Error) => void;
@@ -30,174 +27,163 @@ function pending<T>() {
   });
   return { promise, resolve, reject };
 }
-function nativeEvent(
-  choice: Promise<NativeInstallChoice> = Promise.resolve({ outcome: 'accepted' }),
-) {
+function nativeEvent(choice = pending<NativeInstallChoice>()) {
   const event = Object.assign(new Event('beforeinstallprompt', { cancelable: true }), {
     prompt: vi.fn().mockResolvedValue(undefined),
-    userChoice: choice,
+    userChoice: choice.promise,
   });
   host.dispatchEvent(event);
-  return event;
-}
-function create() {
-  const w = mount(BasePwaInstallInvitation);
-  wrappers.push(w);
-  return w;
+  return { event, choice };
 }
 beforeEach(() => {
   media = Object.assign(new EventTarget(), { matches: false });
-  storage = { getItem: vi.fn().mockReturnValue(null), setItem: vi.fn() };
+  storage = { getItem: vi.fn().mockReturnValue('true'), setItem: vi.fn() };
   host = Object.assign(new EventTarget(), {
     matchMedia: () => media,
     localStorage: storage,
     navigator: {},
   }) as unknown as Window;
-  injected.controller = makeController();
+  controller = createPwaInstallController(host);
+  vi.stubGlobal('useNuxtApp', () => ({ $pwaInstall: controller }));
 });
 afterEach(() => {
-  wrappers.splice(0).forEach((w) => w.unmount());
-  controllers.splice(0).forEach((c) => c.dispose());
+  controller.dispose();
+  vi.unstubAllGlobals();
 });
-test('SSR is empty even when client controller has an eligible event', async () => {
-  nativeEvent();
-  expect(await renderToString(createSSRApp(BasePwaInstallInvitation))).not.toContain(
-    'Instalar app',
+test('Home has no custom invitation and module install interception stays disabled', () => {
+  expect(readFileSync('src/modules/movie-home/views/MovieHomeView.vue', 'utf8')).not.toContain(
+    'BasePwaInstallInvitation',
   );
+  expect(existsSync('src/core/components/BasePwaInstallInvitation.vue')).toBe(false);
+  expect(readFileSync('nuxt.config.ts', 'utf8')).toContain('client: { installPrompt: false }');
 });
-test('missing controller/event never produces a fake invitation', async () => {
-  const w = create();
-  await flushPromises();
-  expect(w.find('aside').exists()).toBe(false);
-  injected.controller = undefined;
-  const absent = create();
-  await flushPromises();
-  expect(absent.find('aside').exists()).toBe(false);
-});
-test('eligible action is not automatic and installed event hides it', async () => {
-  const w = create();
-  const event = nativeEvent();
-  await flushPromises();
-  expect(w.get('aside').attributes('aria-label')).toBe('Instalar MovieMux');
-  expect(event.defaultPrevented).toBe(true);
+test('genuine eligibility remains uncanceled and never prompts automatically', () => {
+  const { event } = nativeEvent();
+  expect(event.defaultPrevented).toBe(false);
   expect(event.prompt).not.toHaveBeenCalled();
-  host.dispatchEvent(new Event('appinstalled'));
-  await flushPromises();
-  expect(w.find('aside').exists()).toBe(false);
+  expect(controller.state.available).toBe(true);
+  expect(storage.getItem).not.toHaveBeenCalled();
+  expect(storage.setItem).not.toHaveBeenCalled();
 });
-test('explicit repeated clicks consume one event synchronously and await native choice', async () => {
-  const choice = pending<NativeInstallChoice>();
-  const event = nativeEvent(choice.promise);
-  const w = create();
+test('sidebar retains eligibility across remount and explicit repeated clicks consume once', async () => {
+  const makeSidebar = () => mount(SideBar, { global: { stubs: { SidebarRouteButtons: true } } });
+  let w = makeSidebar();
+  expect(w.text()).not.toContain('Instalar aplicativo');
+  const { event, choice } = nativeEvent();
   await flushPromises();
-  const button = w.get('button');
+  expect(w.text()).toContain('Instalar aplicativo');
+  w.unmount();
+  w = makeSidebar();
+  const button = w.findAll('button').find((b) => b.text().includes('Instalar aplicativo'))!;
   button.element.click();
   button.element.click();
   expect(event.prompt).toHaveBeenCalledTimes(1);
-  const replaced = nativeEvent();
-  expect(replaced.defaultPrevented).toBe(false);
   choice.resolve({ outcome: 'accepted' });
   await flushPromises();
-  expect(w.find('aside').exists()).toBe(false);
-  nativeEvent();
-  expect(injected.controller!.state.available).toBe(false);
-  expect(injected.controller!.state.installed).toBe(false);
-});
-test('dismissal survives Home remount and guarded persistent storage failures', async () => {
-  storage.setItem.mockImplementation(() => {
-    throw new Error('blocked');
-  });
-  nativeEvent();
-  const w = create();
-  await flushPromises();
-  await w.findAll('button')[1]!.trigger('click');
-  expect(storage.setItem).toHaveBeenCalledOnce();
+  expect(w.text()).not.toContain('Instalar aplicativo');
+  expect(controller.state.installed).toBe(false);
+  expect(nativeEvent().event.defaultPrevented).toBe(false);
+  expect(controller.state.available).toBe(false);
   w.unmount();
-  nativeEvent();
-  const remount = create();
-  await flushPromises();
-  expect(remount.find('aside').exists()).toBe(false);
 });
-test('persisted dismissal suppresses future capture and blocked reads remain safe', () => {
-  injected.controller!.dispose();
-  storage.getItem.mockReturnValue('true');
-  const dismissed = makeController();
-  nativeEvent();
-  expect(dismissed.state.available).toBe(false);
-  dismissed.dispose();
-  storage.getItem.mockImplementation(() => {
-    throw new Error('blocked');
-  });
-  const safe = makeController();
-  nativeEvent();
-  expect(safe.state.available).toBe(true);
-});
-test('native dismissed choice opts out persistently', async () => {
-  const event = nativeEvent(Promise.resolve({ outcome: 'dismissed' }));
-  await injected.controller!.install();
-  expect(event.prompt).toHaveBeenCalledOnce();
-  expect(storage.setItem).toHaveBeenCalledWith('moviemux:pwa-install-dismissed', 'true');
-  nativeEvent();
-  expect(injected.controller!.state.available).toBe(false);
-});
-test.each(['prompt', 'choice'])(
-  'actual native %s rejection is caught, no reused-event loop',
-  async (path) => {
-    const choice = pending<NativeInstallChoice>();
-    const event = nativeEvent(choice.promise);
-    if (path === 'prompt') event.prompt.mockRejectedValue(new Error('native denied'));
-    const result = injected.controller!.install();
-    if (path === 'choice') {
-      await Promise.resolve();
-      choice.reject(new Error('native choice failed'));
-    } else choice.resolve({ outcome: 'dismissed' });
-    await result;
-    expect(injected.controller!.state.feedback).toContain('menu do navegador');
-    expect(injected.controller!.state.pending).toBe(false);
-    await injected.controller!.install();
-    expect(event.prompt).toHaveBeenCalledOnce();
+test.each(['accepted', 'dismissed'] as const)(
+  'browser-owned %s clears sidebar without an app click',
+  async (outcome) => {
+    const { event, choice } = nativeEvent();
+    choice.resolve({ outcome });
+    await flushPromises();
+    expect(controller.state.available).toBe(false);
+    expect(event.prompt).not.toHaveBeenCalled();
+    expect(storage.setItem).not.toHaveBeenCalled();
+    nativeEvent();
+    expect(controller.state.available).toBe(outcome === 'dismissed');
   },
 );
-test('installed display mode and standalone suppress capture', () => {
-  media.matches = true;
-  media.dispatchEvent(new Event('change'));
-  const event = nativeEvent();
-  expect(event.defaultPrevented).toBe(false);
-  expect(injected.controller!.state.installed).toBe(true);
-});
-test('late choice cannot undo installed state or revive invitation after disposal', async () => {
-  const choice = pending<NativeInstallChoice>();
-  nativeEvent(choice.promise);
-  const c = injected.controller!;
-  const result = c.install();
-  host.dispatchEvent(new Event('appinstalled'));
-  choice.resolve({ outcome: 'dismissed' });
+test('stale browser choices cannot clear newer eligibility', async () => {
+  const old = nativeEvent();
+  const fresh = nativeEvent();
+  old.choice.resolve({ outcome: 'accepted' });
+  await flushPromises();
+  expect(controller.state.available).toBe(true);
+  const result = controller.install();
+  expect(fresh.event.prompt).toHaveBeenCalledOnce();
+  fresh.choice.resolve({ outcome: 'dismissed' });
   await result;
-  expect(c.state.installed).toBe(true);
-  expect(storage.setItem).not.toHaveBeenCalled();
-  c.dispose();
-  nativeEvent();
-  expect(c.state.available).toBe(false);
 });
-test('invalid events are ignored and disposal removes all capture listeners', () => {
-  host.dispatchEvent(new Event('beforeinstallprompt'));
-  expect(injected.controller!.state.available).toBe(false);
-  injected.controller!.dispose();
-  const event = nativeEvent();
-  expect(event.defaultPrevented).toBe(false);
-  expect(injected.controller!.state.available).toBe(false);
+test('browser-owned choice rejection is observed without prompting', async () => {
+  const { choice } = nativeEvent();
+  choice.reject(new Error('browser failure'));
+  await flushPromises();
+  expect(controller.state.available).toBe(false);
 });
-
-test('early userChoice rejection is observed while native prompt promise is still pending', async () => {
-  const choice = pending<NativeInstallChoice>();
+test.each(['prompt', 'choice'])('native %s rejection cannot reuse event', async (path) => {
+  const { event, choice } = nativeEvent();
+  if (path === 'prompt') event.prompt.mockRejectedValue(new Error('native failure'));
+  const result = controller.install();
+  if (path === 'choice') choice.reject(new Error('choice failure'));
+  else choice.resolve({ outcome: 'dismissed' });
+  await result;
+  expect(controller.state.feedback).toContain('menu do navegador');
+  expect(controller.state.pending).toBe(false);
+  await controller.install();
+  expect(event.prompt).toHaveBeenCalledOnce();
+});
+test('early choice rejection is handled while prompt is pending', async () => {
+  const { event, choice } = nativeEvent();
   const opening = pending<void>();
-  const event = nativeEvent(choice.promise);
   event.prompt.mockReturnValue(opening.promise);
-  const result = injected.controller!.install();
-  choice.reject(new Error('choice cancelled early'));
+  const result = controller.install();
+  choice.reject(new Error('early failure'));
   await flushPromises();
   opening.resolve();
   await result;
-  expect(injected.controller!.state.feedback).toContain('menu do navegador');
-  expect(injected.controller!.state.pending).toBe(false);
+  expect(controller.state.feedback).toContain('menu do navegador');
+});
+test('appinstalled and late choice do not revive eligibility', async () => {
+  const { choice } = nativeEvent();
+  const result = controller.install();
+  host.dispatchEvent(new Event('appinstalled'));
+  choice.resolve({ outcome: 'dismissed' });
+  await result;
+  expect(controller.state.installed).toBe(true);
+  expect(controller.state.available).toBe(false);
+  expect(nativeEvent().event.defaultPrevented).toBe(false);
+});
+test.each(['media', 'navigator'])('installed %s state prevents sidebar eligibility', (mode) => {
+  controller.dispose();
+  if (mode === 'media') media.matches = true;
+  else Object.assign(host.navigator, { standalone: true });
+  controller = createPwaInstallController(host);
+  expect(controller.state.installed).toBe(true);
+  expect(nativeEvent().event.defaultPrevented).toBe(false);
+  expect(controller.state.available).toBe(false);
+});
+test('unsupported events and disposal do not expose an unusable action', async () => {
+  host.dispatchEvent(new Event('beforeinstallprompt'));
+  expect(controller.state.available).toBe(false);
+  const { choice } = nativeEvent();
+  controller.dispose();
+  choice.resolve({ outcome: 'accepted' });
+  await flushPromises();
+  expect(nativeEvent().event.defaultPrevented).toBe(false);
+  expect(controller.state.available).toBe(false);
+});
+
+test('events during an active prompt stay uncanceled and do not replace its action', async () => {
+  const first = nativeEvent();
+  const result = controller.install();
+  const next = nativeEvent();
+  expect(next.event.defaultPrevented).toBe(false);
+  expect(next.event.prompt).not.toHaveBeenCalled();
+  expect(controller.state.available).toBe(false);
+  first.choice.resolve({ outcome: 'dismissed' });
+  await result;
+  expect(controller.state.available).toBe(false);
+});
+test('a standalone display change clears previously eligible sidebar state', () => {
+  nativeEvent();
+  media.matches = true;
+  media.dispatchEvent(new Event('change'));
+  expect(controller.state.installed).toBe(true);
+  expect(controller.state.available).toBe(false);
 });
