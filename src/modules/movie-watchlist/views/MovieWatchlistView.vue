@@ -60,7 +60,9 @@
         <label class="mm-search-field"
           ><BaseIcon name="search" /><span class="mm-sr-only">Buscar nesta lista</span
           ><input
+            ref="searchInput"
             v-model="searchText"
+            class="mm-search-input"
             :disabled="loading || saving"
             list="watchlist-titles"
             placeholder="Buscar nesta lista"
@@ -76,10 +78,7 @@
           class="mm-clear-search"
           type="button"
           aria-label="Limpar busca"
-          @click="
-            searchText = '';
-            applySearch();
-          "
+          @click="clearSearch"
         >
           <BaseIcon name="close" />
         </button>
@@ -203,6 +202,7 @@ const userStore = useUserStore();
 const store = useMovieWatchlistStore();
 const watchlist = ref<WatchlistType>();
 const searchText = ref('');
+const searchInput = ref<HTMLInputElement>();
 const loading = ref(true);
 const saving = ref(false);
 const error = ref('');
@@ -370,6 +370,11 @@ function setWatchlist(value: WatchlistType) {
 }
 function applySearch() {
   /* Filtering is derived from the current query. */
+}
+async function clearSearch() {
+  searchText.value = '';
+  await nextTick();
+  searchInput.value?.focus();
 }
 async function persist(value: WatchlistType, reorder = false): Promise<boolean> {
   if (
@@ -601,7 +606,7 @@ function cancelReorder() {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
-.mm-search-field input {
+.mm-filter-bar .mm-search-field input.mm-search-input {
   min-width: 0;
   flex: 1;
   width: 100%;
