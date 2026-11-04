@@ -19,7 +19,7 @@
     >
     <div class="mm-discover-caption">
       <router-link :to="`/movie/discover?movie=${movie.id}`"
-        ><h3>{{ movie.title }}</h3></router-link
+        ><h3 :title="movie.title">{{ movie.title }}</h3></router-link
       ><span>{{ movie.release_date?.slice(0, 4) || 'Em breve' }}</span>
       <BaseContextMenu
         class="mm-card-menu"
@@ -136,26 +136,37 @@ function requestAdd(id: string) {
   left: 0.6rem;
 }
 .mm-discover-caption {
-  position: relative;
-  padding: 0.75rem 2.5rem 0 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  align-items: start;
+  gap: 5px 4px;
+  padding-top: 0.75rem;
 }
 .mm-discover-caption a {
+  min-width: 0;
   color: inherit;
   text-decoration: none;
 }
 .mm-discover-caption h3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  min-height: 2.8em;
   font-size: 0.95rem;
   line-height: 1.4;
-  margin: 0 0 0.3rem;
+  margin: 0;
 }
 .mm-discover-caption > span {
+  grid-column: 1 / -1;
   font-size: 0.75rem;
+  line-height: 1.5;
   opacity: 0.5;
 }
 .mm-discover-caption > .mm-card-menu {
-  position: absolute;
-  right: 0;
-  top: 0.7rem;
+  grid-column: 2;
+  grid-row: 1;
 }
 .mm-menu-group-label {
   margin: 0.5rem 0.7rem 0.25rem;
