@@ -1,140 +1,195 @@
 <template>
-  <BaseContainerMain
-    ><header class="mm-dashboard-heading">
+  <BaseContainerMain>
+    <header class="mm-dashboard-heading">
       <div>
         <h1>Estatísticas</h1>
+        <p class="mm-dashboard-caption">O catálogo do MovieMux e a sua história com os filmes.</p>
       </div>
       <button class="mm-button" :disabled="loading" @click="getChartsData">
         {{ loading ? 'Atualizando…' : 'Atualizar' }}
       </button>
     </header>
     <p v-if="error" role="alert">{{ error }}</p>
-    <StatisticsLoadingState v-if="!chartsData && !error" />
+    <p v-if="catalogPending" class="mm-sr-only" role="status">Carregando estatísticas do site…</p>
+    <StatisticsLoadingState v-if="catalogPending" part="summary" />
     <div v-if="chartsData" class="mm-stat-grid">
       <article class="mm-stat-card">
-        <span>Total de filmes</span><strong>{{ chartsData?.total_number_of_movies ?? '—' }}</strong>
+        <span>Filmes no catálogo</span
+        ><strong>{{ catalogTotal?.toLocaleString('pt-BR') ?? '—' }}</strong>
       </article>
       <article class="mm-stat-card">
-        <span>Duração média</span
-        ><strong>{{
-          chartsData.total_number_of_movies
-            ? StringUtils.runtimeToText(chartsData.average_runtime) || '—'
-            : '—'
-        }}</strong>
+        <span>Duração média do catálogo</span><strong>{{ formatDuration(catalogRuntime) }}</strong>
       </article>
       <article class="mm-stat-card">
-        <span>Nota média</span
+        <span>Nota média do site</span
         ><strong
-          >{{ chartsData.total_number_of_movies ? knobAvgNote.toFixed(1) : '—'
-          }}<small> / 10</small></strong
+          >{{ formatRating(catalogRating)
+          }}<small v-if="catalogRating !== null"> / 10</small></strong
         >
         <div
-          v-if="chartsData.total_number_of_movies"
+          v-if="catalogRating !== null"
           class="mm-average-track"
           role="meter"
-          :aria-valuenow="knobAvgNote"
+          :aria-valuenow="catalogRating"
           :aria-valuemin="0"
           :aria-valuemax="10"
-          :aria-valuetext="`${knobAvgNote.toFixed(1)} de 10`"
-          aria-label="Nota média"
+          :aria-valuetext="`${formatRating(catalogRating)} de 10`"
+          aria-label="Nota média de todas as avaliações do site"
         >
-          <span :style="{ width: `${Math.min(10, Math.max(0, knobAvgNote)) * 10}%` }" />
+          <span :style="{ width: `${catalogRating * 10}%` }" />
         </div>
       </article>
     </div>
-    <p v-if="chartsData?.total_number_of_movies === 0" class="mm-muted">
-      Sua coleção ainda está vazia. Adicione filmes para acompanhar suas estatísticas.
+    <p v-if="catalogRating === 0" class="mm-dashboard-caption">
+      A média informada pelo site é zero; o mesmo valor é retornado quando ainda não há avaliações.
     </p>
-    <div v-if="chartsData" class="mm-chart-grid">
-      <section class="mm-chart-card">
-        <ClientOnly
-          ><MovieSixMonthsAgoChart :charts-data="chartsData" /><template #fallback
-            ><BaseLoadingState label="Carregando gráfico…"
-              ><BaseSkeleton shape="block" height="18rem" /></BaseLoadingState></template
-        ></ClientOnly>
+    <p v-if="catalogTotal === 0" class="mm-muted">
+      O catálogo ainda está vazio. Adicione filmes para acompanhar as estatísticas do site.
+    </p>
+    <div v-if="userStore.user.isLoged" class="mm-chart-grid">
+      <div class="mm-chart-column">
+        <section v-if="chartsData" class="mm-chart-card mm-monthly-card">
+          <ClientOnly
+            ><MovieSixMonthsAgoChart :charts-data="chartsData" /><template #fallback
+              ><BaseLoadingState label="Carregando gráfico…"
+                ><BaseSkeleton shape="block" height="18rem" /></BaseLoadingState></template
+          ></ClientOnly>
+        </section>
+        <StatisticsLoadingState v-else-if="catalogPending" part="monthly" />
+        <section class="mm-chart-card mm-personal-card">
+          <PersonalStatisticsCard
+            :statistics="profileStatistics"
+            :charts-data="chartsData"
+            :loading="personalLoading || (!profileStatistics && !personalError)"
+            :error="personalError"
+          />
+        </section>
+      </div>
+      <section v-if="chartsData" class="mm-chart-card mm-genres-card">
+        <MovieByGenderChart :charts-data="chartsData" />
       </section>
-      <section class="mm-chart-card">
-        <ClientOnly
-          ><MovieByGenderChart :charts-data="chartsData" /><template #fallback
-            ><BaseLoadingState label="Carregando gráfico…"
-              ><BaseSkeleton shape="block" height="18rem" /></BaseLoadingState></template
-        ></ClientOnly>
-      </section></div
-  ></BaseContainerMain>
+      <StatisticsLoadingState v-else-if="catalogPending" part="genres" />
+    </div>
+  </BaseContainerMain>
 </template>
-
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { useUserStore } from 'src/core/stores/UserStore';
-
 import type { MovieStatistics } from 'src/core/types/statistics/Statistics';
-
 import StatisticsLoadingState from '../components/StatisticsLoadingState.vue';
+import PersonalStatisticsCard from '../components/PersonalStatisticsCard.vue';
 import BaseLoadingState from 'src/core/components/BaseLoadingState.vue';
 import BaseSkeleton from 'src/core/components/BaseSkeleton.vue';
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
-
 import MovieSixMonthsAgoChart from '../components/MovieSixMonthsAgoChart.vue';
 import MovieByGenderChart from '../components/MovieByGenderChart.vue';
-
 import StatisticService from '../services/StatisticService';
-import StringUtils from 'src/core/utils/StringUtils';
-
+import UserService from 'src/core/services/UserService';
+import {
+  formatDuration,
+  formatRating,
+  nonNegativeNumber,
+  personalStatistics,
+  rating,
+  type PersonalStatistics,
+} from '../utils/statisticsComparison';
 import { showError } from 'src/core/utils/NotificationUtils';
 
 const userStore = useUserStore();
 const chartsData = ref<MovieStatistics>();
-const knobAvgNote = ref(0);
-const loading = ref(false);
+const profileStatistics = ref<PersonalStatistics>();
+const catalogLoading = ref(false);
+const personalLoading = ref(false);
+const loading = computed(() => catalogLoading.value || personalLoading.value);
 const error = ref('');
+const personalError = ref('');
+const catalogPending = computed(() => !chartsData.value && !error.value && userStore.user.isLoged);
+const catalogTotal = computed(() => nonNegativeNumber(chartsData.value?.total_number_of_movies));
+const catalogRating = computed(() =>
+  catalogTotal.value ? rating(chartsData.value?.average_rate) : null,
+);
+const catalogRuntime = computed(() =>
+  catalogTotal.value ? nonNegativeNumber(chartsData.value?.average_runtime) : null,
+);
 let disposed = false;
 let generation = 0;
-onMounted(getChartsData);
+let mounted = false;
+onMounted(() => {
+  mounted = true;
+  void getChartsData();
+});
 onBeforeUnmount(() => {
   disposed = true;
   generation++;
 });
 watch(
-  () => userStore.user.id,
+  [
+    () => userStore.user,
+    () => userStore.user.id,
+    () => userStore.user.generation,
+    () => userStore.user.isLoged,
+  ],
   () => {
     generation++;
     chartsData.value = undefined;
+    profileStatistics.value = undefined;
     error.value = '';
-    knobAvgNote.value = 0;
-    loading.value = false;
-    if (userStore.user.isLoged) void getChartsData();
+    personalError.value = '';
+    catalogLoading.value = false;
+    personalLoading.value = false;
+    if (mounted && userStore.user.isLoged) void getChartsData();
   },
+  { flush: 'sync' },
 );
 async function getChartsData() {
   if (loading.value || disposed || !userStore.user.isLoged) return;
   const version = generation;
   const account = userStore.user.id;
   const session = userStore.user;
+  const sessionGeneration = session.generation;
   const current = () =>
     !disposed &&
     version === generation &&
     account === userStore.user.id &&
     session === userStore.user &&
+    sessionGeneration === userStore.user.generation &&
     userStore.user.isLoged;
-  loading.value = true;
+  catalogLoading.value = true;
+  personalLoading.value = true;
   error.value = '';
-  try {
-    const res = await StatisticService.movies();
-    if (current()) {
-      chartsData.value = res;
-      knobAvgNote.value = res.average_rate || 0;
-    }
-  } catch {
-    if (current()) {
-      error.value = 'Não foi possível carregar as estatísticas. Tente atualizar novamente.';
-      showError(error.value);
-    }
-  } finally {
-    if (current()) loading.value = false;
-  }
+  personalError.value = '';
+  await Promise.all([
+    (async () => {
+      try {
+        const result = await StatisticService.movies();
+        if (current()) chartsData.value = result;
+      } catch {
+        if (current()) {
+          error.value =
+            'Não foi possível carregar as estatísticas do site. Tente atualizar novamente.';
+          showError(error.value);
+        }
+      } finally {
+        if (current()) catalogLoading.value = false;
+      }
+    })(),
+    (async () => {
+      try {
+        const result = await UserService.getUser();
+        if (!current()) return;
+        if (result.id !== account) throw new Error('Unexpected profile');
+        profileStatistics.value = personalStatistics(result.statistics);
+      } catch {
+        if (current())
+          personalError.value =
+            'Não foi possível carregar suas estatísticas. Use Atualizar para tentar novamente.';
+      } finally {
+        if (current()) personalLoading.value = false;
+      }
+    })(),
+  ]);
 }
 </script>
-
 <style scoped>
 .mm-stat-grid {
   display: grid;
@@ -145,23 +200,24 @@ async function getChartsData() {
 .mm-stat-card,
 .mm-chart-card {
   padding: 18px;
-  border: 1px solid var(--grey-mid2);
-  background: var(--grey-dark2);
+  border: 1px solid var(--mm-border);
+  background: var(--mm-surface);
   border-radius: 18px;
   min-width: 0;
 }
-.mm-stat-card span {
-  font-size: 0.9rem;
-  opacity: 0.6;
+.mm-stat-card > span {
+  font-size: 0.85rem;
+  color: var(--mm-muted);
 }
 .mm-stat-card strong {
   display: block;
   margin-top: 8px;
   font-size: 1.6rem;
+  overflow-wrap: anywhere;
 }
 .mm-stat-card small {
   font-size: 1rem;
-  opacity: 0.5;
+  color: var(--mm-muted);
 }
 .mm-average-track {
   height: 5px;
@@ -185,10 +241,22 @@ async function getChartsData() {
   font-size: 1.8rem;
   margin: 0;
 }
+.mm-dashboard-caption {
+  color: var(--mm-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
 .mm-chart-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24px;
+  align-items: start;
+}
+.mm-chart-column {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
 }
 @media (max-width: 850px) {
   .mm-chart-grid {
@@ -215,7 +283,7 @@ async function getChartsData() {
     padding: 12px;
   }
   .mm-chart-card {
-    padding: 16px 10px;
+    padding: 16px;
   }
 }
 </style>

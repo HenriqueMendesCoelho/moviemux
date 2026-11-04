@@ -4,6 +4,8 @@ const port = Number(process.env.QA_API_PORT || 3001);
 const origin = `http://127.0.0.1:${port}`;
 const now = new Date().toISOString();
 const fixtureCount = Math.max(8, Math.min(120, Number(process.env.QA_MOVIE_COUNT) || 8));
+const dashboardScenario = process.env.QA_DASHBOARD_SCENARIO || '';
+const profileDelay = Math.max(0, Math.min(5000, Number(process.env.QA_PROFILE_DELAY_MS) || 0));
 const pageDelay = Math.max(0, Math.min(5000, Number(process.env.QA_PAGE_DELAY_MS) || 0));
 const summaryDelay = Math.max(0, Math.min(5000, Number(process.env.QA_SUMMARY_DELAY_MS) || 0));
 const providerDelay = Math.max(0, Math.min(5000, Number(process.env.QA_PROVIDER_DELAY_MS) || 0));
@@ -214,13 +216,49 @@ const server = createServer(async (req, res) => {
     data = { token: token(), warning: 'Local QA fixture only; not valid for any real backend' };
   else if (path === '/movie/genres' || path === '/movie/genres-with-movies') data = genres;
   else if (path === '/statistic/movies')
-    data = {
-      total_number_of_movies: 42,
-      average_rate: 8.2,
-      average_runtime: 123,
-      movies_by_gender: { Drama: 16, 'Ficção científica': 12, Aventura: 8, Comédia: 6 },
-      movies_six_months_ago: { Maio: 4, Junho: 8, Julho: 6, Agosto: 10, Setembro: 7, Outubro: 7 },
-    };
+    data =
+      dashboardScenario === 'empty'
+        ? {
+            total_number_of_movies: 0,
+            average_rate: 0,
+            average_runtime: 0,
+            movies_by_gender: {},
+            movies_six_months_ago: {},
+          }
+        : dashboardScenario
+          ? {
+              total_number_of_movies: 336,
+              average_rate: 6.8,
+              average_runtime: 117,
+              movies_by_gender: Object.fromEntries(
+                genres
+                  .slice(0, 18)
+                  .map((genre, index) => [genre.name, Math.max(1, 142 - index * 9)]),
+              ),
+              movies_six_months_ago: {
+                Maio: 4,
+                Junho: 3,
+                Julho: 3,
+                Agosto: 2,
+                Setembro: 1,
+                Outubro: 1,
+                Novembro: 0,
+              },
+            }
+          : {
+              total_number_of_movies: 42,
+              average_rate: 8.2,
+              average_runtime: 123,
+              movies_by_gender: { Drama: 16, 'Ficção científica': 12, Aventura: 8, Comédia: 6 },
+              movies_six_months_ago: {
+                Maio: 4,
+                Junho: 8,
+                Julho: 6,
+                Agosto: 10,
+                Setembro: 7,
+                Outubro: 7,
+              },
+            };
   else if (path.includes('/credits')) {
     if (creditsDelay) await new Promise((resolve) => setTimeout(resolve, creditsDelay));
     data = {
@@ -317,8 +355,40 @@ const server = createServer(async (req, res) => {
   else if (path.startsWith('/restricted/user/'))
     data = { ...user, email: decodeURIComponent(path.split('/')[3] || user.email) };
   else if (path === '/user' || path.startsWith('/user/update')) {
+    if (req.method === 'GET' && profileDelay)
+      await new Promise((resolve) => setTimeout(resolve, profileDelay));
     if (req.method === 'PATCH') Object.assign(user, body);
-    data = user;
+    if (req.method === 'GET' && dashboardScenario === 'personal-error') {
+      res.statusCode = 503;
+      data = { message: 'Disposable personal statistics fixture unavailable' };
+    } else
+      data = dashboardScenario
+        ? {
+            ...user,
+            statistics: {
+              ...user.statistics,
+              ratings_given:
+                dashboardScenario === 'no-personal-ratings'
+                  ? 0
+                  : dashboardScenario === 'missing-personal'
+                    ? null
+                    : 24,
+              registered_movies: dashboardScenario === 'missing-personal' ? null : 7,
+              display_time:
+                dashboardScenario === 'missing-personal'
+                  ? null
+                  : dashboardScenario === 'no-personal-ratings'
+                    ? 0
+                    : 3000,
+              average_rating_movies:
+                dashboardScenario === 'missing-personal'
+                  ? null
+                  : dashboardScenario === 'no-personal-ratings'
+                    ? 0
+                    : 7.5,
+            },
+          }
+        : user;
   } else if (path === '/user/wishlist') {
     if (req.method === 'POST') {
       const list = {
