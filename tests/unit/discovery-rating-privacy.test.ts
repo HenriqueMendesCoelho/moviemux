@@ -1,6 +1,8 @@
 import { expect, test } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createSSRApp } from 'vue';
+import { createI18n } from 'vue-i18n';
+import pt from '../../i18n/locales/pt-BR';
 import { renderToString } from 'vue/server-renderer';
 import Card from 'src/modules/movie-discover/components/MovieDiscoverCardImage.vue';
 import type { MovieResultResponseTmdb } from 'src/core/types/movie/MovieType';
@@ -32,6 +34,7 @@ test('discovery poster never reveals external score in text, attributes or SSR',
   expect(wrapper.html()).not.toContain('9.4');
   wrapper.unmount();
   const app = createSSRApp(Card, { movie, modelValue: [] });
+  app.use(createI18n({ legacy: false, locale: 'pt-BR', messages: { 'pt-BR': pt, en: pt } }));
   app.component('RouterLink', Link);
   const html = await renderToString(app);
   expect(html).not.toContain('8.7');

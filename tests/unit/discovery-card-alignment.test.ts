@@ -75,18 +75,18 @@ test.each([
   expect(wrapper.get('.mm-discover-caption > span').text()).toBe('2026');
 });
 
-test('keeps missing-date fallback and every existing context action payload', async () => {
+test('keeps missing-date fallback and context actions with an authored title payload', async () => {
   const wrapper = setup('A full movie title', '');
   expect(wrapper.get('.mm-discover-caption > span').text()).toBe('Em breve');
   (await menuButton(wrapper, 'Filmes similares')).click();
   await flushPromises();
   expect(wrapper.emitted('callTmdb')?.[0]).toEqual([
-    { label: 'Similares a A full movie title', value: 'similar' },
+    { label: 'A full movie title', value: 'similar' },
   ]);
   (await menuButton(wrapper, 'Recomendações')).click();
   await flushPromises();
   expect(wrapper.emitted('callTmdb')?.[1]).toEqual([
-    { label: 'Recomendações para A full movie title', value: 'recommendation' },
+    { label: 'A full movie title', value: 'recommendation' },
   ]);
   (await menuButton(wrapper, 'Copiar link')).click();
   await flushPromises();

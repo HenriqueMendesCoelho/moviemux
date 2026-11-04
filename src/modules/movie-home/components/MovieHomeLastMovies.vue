@@ -1,21 +1,21 @@
 <template>
   <section class="mm-section" v-if="movies.length || loading || loadError">
     <header class="mm-recent-heading">
-      <h2>Recentes</h2>
+      <h2>{{ t('catalog.recent') }}</h2>
       <div class="mm-recent-actions">
         <button
           class="mm-recent-control"
           :aria-expanded="isVisibleLastFilms"
-          :aria-label="isVisibleLastFilms ? 'Recolher recentes' : 'Expandir recentes'"
-          :title="isVisibleLastFilms ? 'Recolher recentes' : 'Expandir recentes'"
+          :aria-label="isVisibleLastFilms ? t('catalog.collapseRecent') : t('catalog.expandRecent')"
+          :title="isVisibleLastFilms ? t('catalog.collapseRecent') : t('catalog.expandRecent')"
           @click="toggleVisible"
         >
           <BaseIcon :name="isVisibleLastFilms ? 'chevron-up' : 'chevron-down'" />
         </button>
         <button
           class="mm-recent-control"
-          aria-label="Atualizar recentes"
-          title="Atualizar recentes"
+          :aria-label="t('catalog.refreshRecent')"
+          :title="t('catalog.refreshRecent')"
           :disabled="loading"
           @click="loadLastMovies"
         >
@@ -23,7 +23,7 @@
         </button>
       </div>
     </header>
-    <p v-if="loadError" role="alert">{{ loadError }}</p>
+    <p v-if="loadError" role="alert">{{ t(loadError) }}</p>
     <div
       ref="recentRegion"
       :inert="!isVisibleLastFilms"
@@ -46,12 +46,14 @@
       :aria-expanded="showAllRecent"
       @click="toggleExpanded"
     >
-      {{ showAllRecent ? 'Ver menos' : 'Ver mais' }}
+      {{ showAllRecent ? t('catalog.showLess') : t('catalog.showMore') }}
     </button>
   </section>
 </template>
 
 <script lang="ts" setup>
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { animateHeightChange } from 'src/core/ui/animateHeightChange';
 import BaseIcon from 'src/core/components/BaseIcon.vue';
 import { onActivated, onMounted, onBeforeUnmount, ref, watch } from 'vue';
@@ -146,8 +148,8 @@ async function loadLastMovies() {
     if (!pendingRefresh) stateSocketAllMovies.hasToExecuteUpdate = false;
   } catch {
     if (current()) {
-      loadError.value = 'Não foi possível atualizar os últimos filmes.';
-      showError('Erro ao carregar últimos filmes. Tente novamente.');
+      loadError.value = 'catalog.recentFailed';
+      showError(() => t('catalog.recentRetry'));
     }
   } finally {
     if (current()) {

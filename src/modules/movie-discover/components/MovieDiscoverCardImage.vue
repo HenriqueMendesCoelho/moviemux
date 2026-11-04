@@ -13,24 +13,26 @@
         loading="lazy"
       />
       <div v-else class="mm-no-poster">{{ movie.title }}</div>
-      <span v-if="isInAnyWishlist" class="mm-saved-badge" title="Já está em uma lista"
-        >✓ Na sua lista</span
-      ></router-link
+      <span v-if="isInAnyWishlist" class="mm-saved-badge" :title="t('catalog.alreadyListed')">{{
+        t('catalog.inYourList')
+      }}</span></router-link
     >
     <div class="mm-discover-caption">
       <router-link :to="`/movie/discover?movie=${movie.id}`"
         ><h3 :title="movie.title">{{ movie.title }}</h3></router-link
-      ><span>{{ movie.release_date?.slice(0, 4) || 'Em breve' }}</span>
+      ><span>{{ movie.release_date?.slice(0, 4) || t('catalog.upcoming') }}</span>
       <BaseContextMenu
         class="mm-card-menu"
-        :label="`Opções para ${movie.title}`"
+        :label="t('catalog.optionsFor', { title: movie.title })"
         :title="movie.title"
       >
-        <button type="button" @click="related('similar')">Filmes similares</button>
-        <button type="button" @click="related('recommendation')">Recomendações</button>
+        <button type="button" @click="related('similar')">{{ t('catalog.similarMovies') }}</button>
+        <button type="button" @click="related('recommendation')">
+          {{ t('catalog.recommendations') }}
+        </button>
         <MovieDiscoverContextMenu :movie-id="movie.id" @copy-url="emit('copy-url', $event)" />
         <template v-if="watchlists?.length">
-          <p class="mm-menu-group-label">Adicionar à lista</p>
+          <p class="mm-menu-group-label">{{ t('catalog.addToList') }}</p>
           <MovieDiscoverMenuWatchlist
             :movie="movie"
             :watchlists="watchlists"
@@ -40,10 +42,12 @@
         </template>
       </BaseContextMenu>
     </div>
-    <span v-if="adding" role="status">Salvando na lista…</span>
+    <span v-if="adding" role="status">{{ t('catalog.savingToList') }}</span>
   </article>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { computed } from 'vue';
 import BaseContextMenu from 'src/core/components/BaseContextMenu.vue';
 import { useRuntimeConfig } from '#imports';
@@ -71,7 +75,7 @@ const isInAnyWishlist = computed(() =>
 );
 function related(type: string) {
   emit('callTmdb', {
-    label: `${type === 'similar' ? 'Similares a' : 'Recomendações para'} ${props.movie.title}`,
+    label: props.movie.title,
     value: type,
   });
 }

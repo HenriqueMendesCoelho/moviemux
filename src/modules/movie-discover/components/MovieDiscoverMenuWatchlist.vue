@@ -1,6 +1,6 @@
 <template>
   <div class="mm-watchlist-menu">
-    <p v-if="!watchlists?.length">Crie uma lista para salvar este filme.</p>
+    <p v-if="!watchlists?.length">{{ t('catalog.createList') }}</p>
     <button
       v-for="list in watchlists"
       :key="list.id"
@@ -9,9 +9,9 @@
       :disabled="disableList(list)"
       :title="
         list.movies_wishlists?.length >= 100
-          ? 'Esta lista está cheia'
+          ? t('catalog.listFull')
           : disableList(list)
-            ? 'Filme já adicionado'
+            ? t('catalog.alreadyAdded')
             : ''
       "
       @click="emit('addMovie', list.id)"
@@ -21,6 +21,8 @@
   </div>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { useUserStore } from 'src/core/stores/UserStore';
 import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 import type { MovieResultResponseTmdb } from 'src/core/types/movie/MovieType';

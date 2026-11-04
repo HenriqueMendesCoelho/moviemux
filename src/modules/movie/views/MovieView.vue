@@ -1,14 +1,14 @@
 <template>
   <BaseContainerMain class="mm-film-detail">
     <template v-if="loading"
-      ><nav class="mm-movie-loading-actions" aria-label="Navegação do filme">
-        <router-link class="mm-button" to="/home">← Coleção</router-link>
+      ><nav class="mm-movie-loading-actions" :aria-label="t('catalog.movie.movieNavigation')">
+        <router-link class="mm-button" to="/home">{{ t('catalog.movie.collection') }}</router-link>
       </nav>
       <MoviePageSkeleton
     /></template>
     <div v-else-if="error" role="alert" class="mm-empty">
-      <p>{{ error }}</p>
-      <button class="mm-button" @click="loadMovie">Tentar novamente</button>
+      <p>{{ t(error) }}</p>
+      <button class="mm-button" @click="loadMovie">{{ t('catalog.movie.retry') }}</button>
     </div>
     <template v-else-if="ready && movie.id === movieId"
       ><MovieSuperiorButtons :show-edit-btn="canEdit" show-refresh-btn /><MovieForm
@@ -17,6 +17,8 @@
   </BaseContainerMain>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { computed, ref, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useHead } from '#imports';
@@ -44,7 +46,7 @@ const canEdit = computed(
 );
 let mounted = false;
 useHead(() => ({
-  title: `Movie Mux - ${ready.value ? movie.value.portuguese_title || 'Filme' : 'Filme'}`,
+  title: `Movie Mux - ${ready.value ? movie.value.portuguese_title || t('catalog.movie.movie') : t('catalog.movie.movie')}`,
 }));
 onMounted(() => {
   mounted = true;
@@ -75,7 +77,7 @@ async function loadMovie() {
     store.moviePage.selectedMovie = result;
     ready.value = true;
   } catch {
-    if (current()) error.value = 'Não foi possível carregar o filme.';
+    if (current()) error.value = 'catalog.movie.loadError';
   } finally {
     if (current()) loading.value = false;
   }

@@ -1,16 +1,16 @@
 <template>
-  <BaseModal v-model="visible" title="Importar do TMDB" :wide="movies.length > 0">
-    <p class="mm-muted">Encontre um filme e traga os detalhes para sua coleção.</p>
+  <BaseModal v-model="visible" :title="t('catalog.movie.importTmdb')" :wide="movies.length > 0">
+    <p class="mm-muted">{{ t('catalog.movie.importHelp') }}</p>
     <form class="mm-import-search" @submit.prevent="firstSearch">
-      <label class="mm-import-label" for="tmdb-search">Título do filme</label
+      <label class="mm-import-label" for="tmdb-search">{{ t('catalog.movie.movieTitle') }}</label
       ><input
         id="tmdb-search"
         v-model="text"
         type="search"
-        placeholder="Ex.: Central do Brasil"
+        :placeholder="t('catalog.movie.searchExample')"
         required
       /><button class="mm-button mm-button-primary" :disabled="loading || importing">
-        Pesquisar</button
+        {{ t('catalog.movie.search') }}</button
       ><button
         v-if="text || searched"
         type="button"
@@ -18,14 +18,16 @@
         :disabled="importing"
         @click="resetSearch"
       >
-        Limpar
+        {{ t('catalog.movie.clear') }}
       </button>
     </form>
-    <p v-if="importing" role="status">Importando filme…</p>
-    <p v-if="loading" role="status">Buscando filmes…</p>
+    <p v-if="importing" role="status">{{ t('catalog.movie.importing') }}</p>
+    <p v-if="loading" role="status">{{ t('catalog.movie.searching') }}</p>
     <p v-if="error" role="alert">
-      {{ error }}
-      <button type="button" class="mm-button" @click="firstSearch">Tentar novamente</button>
+      {{ t(error) }}
+      <button type="button" class="mm-button" @click="firstSearch">
+        {{ t('catalog.movie.retry') }}
+      </button>
     </p>
     <div class="mm-import-grid">
       <button
@@ -44,13 +46,13 @@
           :alt="movie.title"
           loading="lazy"
         />
-        <div v-else class="mm-import-placeholder">Sem cartaz</div>
+        <div v-else class="mm-import-placeholder">{{ t('catalog.movie.noPoster') }}</div>
         <strong>{{ movie.title }}</strong
         ><span>{{ movie.release_date?.slice(0, 4) }}</span>
       </button>
     </div>
     <p v-if="searched && !loading && !error && !movies.length">
-      Nenhum filme encontrado. Tente outro título.
+      {{ t('catalog.movie.noSearchResults') }}
     </p>
     <div ref="sentinel" aria-hidden="true" />
     <button
@@ -60,12 +62,14 @@
       :disabled="loading || importing"
       @click="loadMore"
     >
-      Carregar mais filmes
+      {{ t('catalog.movie.loadMore') }}
     </button>
     <BaseConfirmDialog ref="confirmDialogRef" @ok="importMovie" />
   </BaseModal>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { ref, watch, computed } from 'vue';
 import { useInfinitePaging } from '../composables/useInfinitePaging';
 import { useRuntimeConfig } from '#imports';
@@ -151,7 +155,7 @@ async function search(append = false) {
     page.value = requestedPage;
     totalPages.value = Math.min(500, result.total_pages);
   } catch {
-    if (current()) error.value = 'Não foi possível buscar filmes.';
+    if (current()) error.value = 'catalog.movie.searchError';
   } finally {
     if (current()) loading.value = false;
   }
@@ -170,10 +174,10 @@ function showConfirmDialog(movie: MovieResultResponseTmdb['results'][number]) {
   movieId = movie.id;
   confirmed = requests.begin('confirm');
   confirmDialogRef.value?.show({
-    title: 'Importar filme',
-    message: `Importar “${movie.title}”? Os campos atuais serão substituídos.`,
+    title: () => t('catalog.movie.importMovie'),
+    message: () => t('catalog.movie.importConfirm', { title: movie.title }),
     focus: 'cancel',
-    ok: 'Importar',
+    ok: () => t('catalog.movie.import'),
   });
 }
 async function importMovie() {
@@ -206,10 +210,10 @@ async function importMovie() {
       new Date(res.release_date || new Date()),
       res.runtime,
     );
-    showSuccess('Filme importado. Revise os dados e salve.');
+    showSuccess(() => t('catalog.movie.importSuccess'));
     visible.value = false;
   } catch {
-    if (current()) showError('Erro ao importar filme.');
+    if (current()) showError(() => t('catalog.movie.importError'));
   } finally {
     if (current()) importing.value = false;
   }

@@ -9,13 +9,14 @@
       <header class="mm-review-header">
         <div class="mm-review-heading">
           <h2 id="reviews-title">
-            Avaliações <span class="mm-review-count">{{ notes.length }}</span>
+            {{ t('catalog.movie.reviews') }}
+            <span class="mm-review-count">{{ n(notes.length) }}</span>
           </h2>
           <p>
             {{
               movie.show_notes && !privacyPending
-                ? 'A opinião de quem assistiu.'
-                : 'As notas dos outros ficam ocultas durante a votação.'
+                ? t('catalog.movie.reviewHelp')
+                : t('catalog.movie.hiddenHelp')
             }}
           </p>
         </div>
@@ -27,14 +28,14 @@
               :checked="movie.show_notes"
               :disabled="loading"
               @change="updateShowNotes(($event.target as HTMLInputElement).checked)"
-            /><span>Notas visíveis</span></label
+            /><span>{{ t('catalog.movie.ratingsVisible') }}</span></label
           >
           <button
             v-if="privacyPending || !stateSocketMovie.connected"
             class="mm-review-icon"
             type="button"
-            aria-label="Atualizar avaliações"
-            title="Atualizar avaliações"
+            :aria-label="t('catalog.movie.refreshRatings')"
+            :title="t('catalog.movie.refreshRatings')"
             :disabled="loading"
             @click="getMovieNotes"
           >
@@ -47,33 +48,37 @@
             :disabled="loading"
             @click="openEditor()"
           >
-            Avaliar filme
+            {{ t('catalog.movie.rateMovie') }}
           </button>
         </div>
       </header>
       <div v-if="loading" class="mm-review-progress" role="status">
-        <span aria-hidden="true" /><span class="mm-sr-only">Atualizando avaliações…</span>
+        <span aria-hidden="true" /><span class="mm-sr-only">{{
+          t('catalog.movie.updatingRatings')
+        }}</span>
       </div>
       <p v-if="notesError" class="mm-review-error" role="alert">
-        {{ notesError }}
+        {{ t(notesError) }}
         <button type="button" class="mm-link" :disabled="loading" @click="getMovieNotes">
-          Tentar novamente
+          {{ t('catalog.movie.retry') }}
         </button>
       </p>
       <div v-if="notes.length > 1" class="mm-review-controls">
         <label
-          >Ordenar
-          <select v-model="sort" aria-label="Ordenar avaliações">
-            <option value="name">Nome A–Z</option>
-            <option value="name-desc">Nome Z–A</option>
+          >{{ t('catalog.movie.sort') }}
+          <select v-model="sort" :aria-label="t('catalog.movie.sortRatings')">
+            <option value="name">{{ t('catalog.movie.nameAsc') }}</option>
+            <option value="name-desc">{{ t('catalog.movie.nameDesc') }}</option>
             <option value="note" :disabled="!canSortScores">
-              {{ canSortScores ? 'Maior nota' : 'Maior nota — disponível após revelar' }}
+              {{
+                canSortScores ? t('catalog.movie.highestRating') : t('catalog.movie.highestHidden')
+              }}
             </option>
-            <option value="updated">Mais recentes</option>
+            <option value="updated">{{ t('catalog.movie.mostRecent') }}</option>
           </select></label
         >
         <label v-if="notes.length > 5"
-          >Por página
+          >{{ t('catalog.movie.perPage') }}
           <select v-model.number="pageSize">
             <option :value="5">5</option>
             <option :value="10">10</option>
@@ -86,8 +91,8 @@
       <div v-else-if="!notes.length && !notesError" class="mm-review-empty">
         <div class="mm-empty-symbol" aria-hidden="true">☆</div>
         <div>
-          <h3>A primeira opinião pode ser sua</h3>
-          <p>Avalie de 0 a 10 e comece a conversa sobre este filme.</p>
+          <h3>{{ t('catalog.movie.firstReview') }}</h3>
+          <p>{{ t('catalog.movie.firstReviewHelp') }}</p>
         </div>
         <button
           class="mm-button mm-button-primary"
@@ -95,18 +100,22 @@
           :disabled="loading"
           @click="openEditor()"
         >
-          Avaliar filme
+          {{ t('catalog.movie.rateMovie') }}
         </button>
       </div>
       <table v-else-if="notes.length" class="mm-rating-table">
         <caption class="mm-sr-only">
-          Avaliações dos participantes
+          {{
+            t('catalog.movie.participantRatings')
+          }}
         </caption>
         <thead>
           <tr>
-            <th>Pessoa</th>
-            <th>Nota</th>
-            <th><span class="mm-sr-only">Ações</span></th>
+            <th>{{ t('catalog.movie.person') }}</th>
+            <th>{{ t('catalog.movie.rating') }}</th>
+            <th>
+              <span class="mm-sr-only">{{ t('catalog.movie.actions') }}</span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -123,18 +132,22 @@
                 <div class="mm-review-identity">
                   <div class="mm-review-name">
                     {{ note.user.name }}
-                    <span v-if="note.user.id === user.id" class="mm-person-label">Você</span
-                    ><span v-if="note.user.id === movie.user_id" class="mm-person-label"
-                      >Adicionou o filme</span
-                    >
+                    <span v-if="note.user.id === user.id" class="mm-person-label">{{
+                      t('catalog.movie.you')
+                    }}</span
+                    ><span v-if="note.user.id === movie.user_id" class="mm-person-label">{{
+                      t('catalog.movie.addedMovie')
+                    }}</span>
                   </div>
                   <BaseDisclosure class="mm-review-dates">
                     <template #summary>
                       {{ formatDate(note, 'updated')
-                      }}<span class="mm-sr-only"> — detalhes das datas</span>
+                      }}<span class="mm-sr-only"> {{ t('catalog.movie.dateDetails') }}</span>
                     </template>
                     <div class="mm-review-date-details">
-                      Criada em {{ formatDate(note, 'created') }}<br />Atualizada em
+                      {{ t('catalog.movie.createdOn') }} {{ formatDate(note, 'created') }}<br />{{
+                        t('catalog.movie.updatedOn')
+                      }}
                       {{ formatDate(note, 'updated') }}
                     </div>
                   </BaseDisclosure>
@@ -143,11 +156,13 @@
             </td>
             <td class="mm-review-score">
               <span class="mm-score-badge" :class="{ 'mm-score-hidden': !canSeeScore(note) }"
-                ><strong>{{ canSeeScore(note) ? (note.note ?? '—') : '—' }}</strong
+                ><strong>{{
+                  canSeeScore(note) ? (note.note == null ? '—' : n(note.note)) : '—'
+                }}</strong
                 ><small v-if="canSeeScore(note)">/ 10</small><BaseIcon v-else name="lock" /><span
                   v-if="!canSeeScore(note)"
                   class="mm-sr-only"
-                  >Nota oculta</span
+                  >{{ t('catalog.movie.hiddenRating') }}</span
                 ></span
               >
             </td>
@@ -157,7 +172,10 @@
                 class="mm-review-menu"
                 @keydown.esc.prevent.stop="closeMenu($event)"
               >
-                <summary aria-label="Opções da sua avaliação" title="Opções da sua avaliação">
+                <summary
+                  :aria-label="t('catalog.movie.ratingOptions')"
+                  :title="t('catalog.movie.ratingOptions')"
+                >
                   <BaseIcon name="menu" />
                 </summary>
                 <div>
@@ -169,7 +187,7 @@
                       openEditor(note);
                     "
                   >
-                    <BaseIcon name="edit" />Editar</button
+                    <BaseIcon name="edit" />{{ t('catalog.movie.edit') }}</button
                   ><button
                     type="button"
                     :disabled="loading"
@@ -179,7 +197,7 @@
                       confirmDelete();
                     "
                   >
-                    <BaseIcon name="close" />Excluir
+                    <BaseIcon name="close" />{{ t('catalog.movie.delete') }}
                   </button>
                 </div>
               </details>
@@ -187,17 +205,20 @@
           </tr>
         </tbody>
       </table>
-      <nav v-if="pageCount > 1" class="mm-pagination" aria-label="Páginas de avaliações">
-        <span
-          >{{ (page - 1) * pageSize + 1 }}–{{ Math.min(page * pageSize, notes.length) }} de
-          {{ notes.length }}</span
-        >
+      <nav v-if="pageCount > 1" class="mm-pagination" :aria-label="t('catalog.movie.ratingPages')">
+        <span>{{
+          t('catalog.movie.pagination', {
+            start: n((page - 1) * pageSize + 1),
+            end: n(Math.min(page * pageSize, notes.length)),
+            total: n(notes.length),
+          })
+        }}</span>
         <div>
           <button
             type="button"
             class="mm-review-icon"
             :disabled="page === 1"
-            aria-label="Página anterior"
+            :aria-label="t('catalog.movie.previousPage')"
             @click="page--"
           >
             <BaseIcon name="chevron-left" /></button
@@ -205,7 +226,7 @@
             type="button"
             class="mm-review-icon"
             :disabled="page === pageCount"
-            aria-label="Próxima página"
+            :aria-label="t('catalog.movie.nextPage')"
             @click="page++"
           >
             <BaseIcon name="chevron-right" />
@@ -213,9 +234,11 @@
         </div>
       </nav>
     </div>
-    <BaseModal v-model="editorOpen" :title="editing ? 'Editar sua avaliação' : 'Sua avaliação'"
+    <BaseModal
+      v-model="editorOpen"
+      :title="editing ? t('catalog.movie.editYourRating') : t('catalog.movie.yourRating')"
       ><form class="mm-note-form" @submit.prevent="saveNote">
-        <label for="movie-note">Qual é sua nota, de 0 a 10?</label
+        <label for="movie-note">{{ t('catalog.movie.ratingQuestion') }}</label
         ><input
           id="movie-note"
           v-model.number="draftNote"
@@ -226,8 +249,11 @@
           required
         />
         <div class="mm-review-actions">
-          <button type="button" class="mm-button" @click="editorOpen = false">Cancelar</button
-          ><button class="mm-button mm-button-primary" :disabled="loading">Salvar avaliação</button>
+          <button type="button" class="mm-button" @click="editorOpen = false">
+            {{ t('catalog.movie.cancel') }}</button
+          ><button class="mm-button mm-button-primary" :disabled="loading">
+            {{ t('catalog.movie.saveRating') }}
+          </button>
         </div>
       </form></BaseModal
     >
@@ -235,6 +261,8 @@
   </section>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, locale, n } = useI18n();
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import type { MovieNoteType } from 'src/core/types/movie/MovieType';
 import { useUserStore } from 'src/core/stores/UserStore';
@@ -312,6 +340,7 @@ const visibleNotes = computed(() =>
     sort.value === 'note' && (!movie.value.show_notes || privacyPending.value)
       ? 'name'
       : sort.value,
+    locale.value,
   ).slice((page.value - 1) * pageSize.value, page.value * pageSize.value),
 );
 watch([sort, pageSize], () => (page.value = 1));
@@ -475,8 +504,8 @@ async function drainRefresh() {
     if (metadata && !visibilityQueued) privacyPending.value = false;
   } catch {
     if (current()) {
-      notesError.value = 'Não foi possível atualizar as avaliações.';
-      showError('Erro ao buscar avaliações.');
+      notesError.value = 'catalog.movie.ratingsError';
+      showError(() => t('catalog.movie.fetchRatingsError'));
     }
   } finally {
     if (current()) loading.value = false;
@@ -484,7 +513,7 @@ async function drainRefresh() {
 }
 function formatDate(note: MovieNoteType, key: 'created' | 'updated') {
   const timestamp = noteTimestamp(note, key);
-  return timestamp ? DateUtils.toLocaleString(new Date(timestamp)) : '—';
+  return timestamp ? DateUtils.toLocaleString(new Date(timestamp), locale.value) : '—';
 }
 function openEditor(note?: MovieNoteType) {
   if (
@@ -530,9 +559,9 @@ async function saveNote() {
       movie.value.notes = mergeReview(notes.value, result);
     }
     editorOpen.value = false;
-    showSuccess('Avaliação salva.');
+    showSuccess(() => t('catalog.movie.ratingSaved'));
   } catch {
-    if (current()) showError('Não foi possível salvar sua avaliação.');
+    if (current()) showError(() => t('catalog.movie.saveRatingError'));
   } finally {
     if (current()) loading.value = false;
   }
@@ -552,8 +581,8 @@ async function getMovieNotes() {
     if (current() && hasTarget()) movie.value.notes = result;
   } catch {
     if (current()) {
-      notesError.value = 'Não foi possível atualizar as avaliações.';
-      showError('Erro ao buscar avaliações.');
+      notesError.value = 'catalog.movie.ratingsError';
+      showError(() => t('catalog.movie.fetchRatingsError'));
     }
   } finally {
     if (current()) loading.value = false;
@@ -565,10 +594,10 @@ function confirmDelete() {
   deletionOwner = user.value.id;
   deletionCurrent = requests.begin('delete-confirm');
   confirmDialogRef.value?.show({
-    message: 'Excluir sua avaliação deste filme?',
-    title: 'Excluir avaliação',
+    message: () => t('catalog.movie.deleteRatingConfirm'),
+    title: () => t('catalog.movie.deleteRating'),
     focus: 'cancel',
-    ok: 'Excluir',
+    ok: () => t('catalog.movie.delete'),
   });
 }
 async function deleteNote() {
@@ -589,9 +618,9 @@ async function deleteNote() {
     await MovieService.deleteMovieNotes(target);
     if (!current() || !hasTarget()) return;
     movie.value.notes = notes.value.filter((note) => note.user.id !== owner);
-    showSuccess('Avaliação excluída.');
+    showSuccess(() => t('catalog.movie.ratingDeleted'));
   } catch {
-    if (current()) showError('Erro ao excluir avaliação.');
+    if (current()) showError(() => t('catalog.movie.deleteRatingError'));
   } finally {
     if (current()) loading.value = false;
   }
@@ -610,9 +639,9 @@ async function updateShowNotes(visible: boolean) {
     if (!current() || !hasTarget()) return;
     movie.value.show_notes = result.show_notes ?? visible;
     queueRefresh(true);
-    showSuccess('Visibilidade atualizada.');
+    showSuccess(() => t('catalog.movie.visibilityUpdated'));
   } catch {
-    if (current()) showError('Erro ao atualizar visibilidade.');
+    if (current()) showError(() => t('catalog.movie.visibilityError'));
   } finally {
     if (current()) loading.value = false;
   }

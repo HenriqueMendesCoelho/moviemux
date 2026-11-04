@@ -1,11 +1,11 @@
 <template>
-  <nav class="mm-movie-actions" aria-label="Ações do filme">
-    <router-link class="mm-button" to="/home">← Coleção</router-link>
+  <nav class="mm-movie-actions" :aria-label="t('catalog.movie.movieActions')">
+    <router-link class="mm-button" to="/home">{{ t('catalog.movie.collection') }}</router-link>
     <button
       v-if="showRefreshBtn"
       type="button"
-      aria-label="Atualizar filme"
-      title="Atualizar filme"
+      :aria-label="t('catalog.movie.refreshMovie')"
+      :title="t('catalog.movie.refreshMovie')"
       class="mm-button mm-button-ghost"
       :disabled="disabled || refreshing || deleting"
       @click="requestRefresh"
@@ -19,7 +19,7 @@
       :disabled="disabled || deleting"
       @click="goToEditPage"
     >
-      Editar filme
+      {{ t('catalog.movie.editMovie') }}
     </button>
     <button
       v-if="userStore.isAdmin && showDeleteBtn"
@@ -28,7 +28,7 @@
       :disabled="disabled || deleting"
       @click="confirmDelete"
     >
-      Excluir filme
+      {{ t('catalog.movie.deleteMovie') }}
     </button>
     <button
       v-if="showImportBtn"
@@ -37,7 +37,7 @@
       :disabled="disabled"
       @click="emit('import')"
     >
-      <BaseIcon name="download" /> Importar do TMDB
+      <BaseIcon name="download" /> {{ t('catalog.movie.importTmdb') }}
     </button>
   </nav>
   <BaseConfirmDialog ref="deleteDialog" @ok="deleteMovie" /><BaseConfirmDialog
@@ -46,6 +46,8 @@
   />
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 import { computed, watch, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BaseIcon from 'src/core/components/BaseIcon.vue';
@@ -95,9 +97,7 @@ watch(
     const last = events.at(-1);
     if (!userStore.user.isLoged || last?.movie !== movie.value.id) return;
     if (props.confirmRefresh) {
-      showWarning(
-        'Este filme foi atualizado. Use Atualizar para carregar os novos dados e descartar sua edição.',
-      );
+      showWarning(() => t('catalog.movie.remoteUpdate'));
       return;
     }
     void loadMovie(false);
@@ -116,7 +116,7 @@ watch(
     )
       return;
     void router.push('/home');
-    showWarning('O filme que você estava vendo foi excluído.', 10000);
+    showWarning(() => t('catalog.movie.remoteDelete'), 10000);
   },
   { deep: true },
 );
@@ -125,10 +125,10 @@ function requestRefresh() {
   refreshCurrent = requests.begin('refresh-confirm');
   if (props.confirmRefresh)
     refreshDialog.value?.show({
-      title: 'Recarregar filme',
-      message: 'Descartar as alterações não salvas e carregar os dados atuais?',
+      title: () => t('catalog.movie.reloadMovie'),
+      message: () => t('catalog.movie.reloadConfirm'),
       focus: 'cancel',
-      ok: 'Recarregar',
+      ok: () => t('catalog.movie.reload'),
     });
   else void loadMovie();
 }
@@ -144,9 +144,9 @@ async function loadMovie(notify = true) {
     const result = await MovieService.getMovie(target);
     if (!current()) return;
     movie.value = result;
-    if (notify) showSuccess('Filme atualizado.');
+    if (notify) showSuccess(() => t('catalog.movie.movieUpdated'));
   } catch {
-    if (current()) showError('Não foi possível atualizar o filme.');
+    if (current()) showError(() => t('catalog.movie.refreshError'));
   } finally {
     if (current()) refreshing.value = false;
   }
@@ -156,10 +156,14 @@ function confirmDelete() {
   deletionTarget = movie.value.id;
   deletionCurrent = requests.begin('delete-confirm');
   deleteDialog.value?.show({
-    title: 'Excluir filme',
-    message: `Excluir “${movie.value.portuguese_title || movie.value.original_title}” e suas avaliações?`,
+    title: () => t('catalog.movie.deleteMovie'),
+    message: () =>
+      t('catalog.movie.deleteConfirm', {
+        title:
+          movie.value.portuguese_title || movie.value.original_title || t('catalog.movie.movie'),
+      }),
     focus: 'cancel',
-    ok: 'Excluir',
+    ok: () => t('catalog.movie.delete'),
   });
 }
 async function deleteMovie() {
@@ -178,10 +182,10 @@ async function deleteMovie() {
   try {
     await MovieService.deleteMovie(target);
     if (!current()) return;
-    showSuccess('Filme excluído.');
+    showSuccess(() => t('catalog.movie.movieDeleted'));
     await router.push('/home');
   } catch {
-    if (current()) showError('Não foi possível excluir o filme.');
+    if (current()) showError(() => t('catalog.movie.deleteError'));
   } finally {
     if (current()) deleting.value = false;
   }

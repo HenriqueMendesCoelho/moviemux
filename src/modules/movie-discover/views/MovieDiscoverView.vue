@@ -1,22 +1,24 @@
 <template>
   <BaseContainerMain class="mm-browse-scope">
     <header class="mm-discover-header">
-      <p class="mm-eyebrow">Catálogo TMDB</p>
-      <h1>Descobrir filmes<span>.</span></h1>
-      <p>Encontre sua próxima sessão.</p>
+      <p class="mm-eyebrow">{{ t('catalog.tmdbCatalog') }}</p>
+      <h1>{{ t('catalog.discoverMovies') }}<span>.</span></h1>
+      <p>{{ t('catalog.nextScreening') }}</p>
     </header>
     <form
       class="mm-discover-toolbar mm-browse-toolbar mm-browse-toolbar-discover"
       @submit.prevent="submitSearch"
     >
       <div class="mm-autocomplete" @focusout="onSearchFocusOut">
-        <label class="mm-toolbar-label" for="discover-search">Buscar no catálogo</label
+        <label class="mm-toolbar-label" for="discover-search">{{
+          t('catalog.searchCatalog')
+        }}</label
         ><input
           id="discover-search"
           v-model="searchText"
           type="search"
           autocomplete="off"
-          placeholder="Buscar por título…"
+          :placeholder="t('catalog.searchTitle')"
           role="combobox"
           :aria-expanded="suggestionsOpen && suggestions.length > 0"
           aria-controls="movie-suggestions"
@@ -54,45 +56,51 @@
       <BaseSelect
         v-model="sort"
         class="mm-sort"
-        label="Mostrar"
+        :label="t('catalog.show')"
         :options="[
-          { value: 'popular', label: 'Populares' },
-          { value: 'playingNow', label: 'Nos cinemas' },
-          { value: 'topRated', label: 'Melhores avaliações' },
-          { value: 'voteAverageAsc', label: 'Menores avaliações' },
-          { value: 'upcoming', label: 'Em breve' },
+          { value: 'popular', label: t('catalog.popular') },
+          { value: 'playingNow', label: t('catalog.nowPlaying') },
+          { value: 'topRated', label: t('catalog.topRated') },
+          { value: 'voteAverageAsc', label: t('catalog.lowRated') },
+          { value: 'upcoming', label: t('catalog.upcoming') },
         ]"
         @change="applySort"
       />
       <label class="mm-discover-year"
-        >Ano
+        >{{ t('catalog.year') }}
         <input
           v-model="year"
           type="number"
           min="1870"
           max="9999"
-          placeholder="Qualquer ano"
+          :placeholder="t('catalog.anyYear')"
           @change="applyGenres"
         />
       </label>
       <BaseMultiSelect
         v-model="genreIds"
         :options="genreOptions"
-        label="Gêneros"
+        :label="t('catalog.genres')"
         :loading="loadingGenres"
-        :error="genreError"
+        :error="genreError ? t(genreError) : ''"
         @change="applyGenres"
         @retry="loadGenres"
       />
-      <button type="submit" class="mm-button mm-button-primary" :disabled="loading">Buscar</button>
-      <button type="button" class="mm-discover-clear" @click="resetSearch">Limpar filtros</button>
+      <button type="submit" class="mm-button mm-button-primary" :disabled="loading">
+        {{ t('catalog.search') }}
+      </button>
+      <button type="button" class="mm-discover-clear" @click="resetSearch">
+        {{ t('catalog.clearFilters') }}
+      </button>
     </form>
     <h2 class="mm-results-title">
-      {{ error ? 'Não foi possível consultar o catálogo' : collectionTitle }}
+      {{ error ? t('catalog.catalogFailed') : collectionTitle }}
     </h2>
     <p v-if="error" role="alert" class="mm-error">
-      {{ error }}
-      <button type="button" class="mm-button" @click="loadMovies(false)">Tentar novamente</button>
+      {{ t(error) }}
+      <button type="button" class="mm-button" @click="loadMovies(false)">
+        {{ t('catalog.retry') }}
+      </button>
     </p>
     <div class="mm-discover-grid" :aria-busy="loading">
       <template v-if="loading && !movies.length">
@@ -117,9 +125,9 @@
         @copy-url="copyMovie"
       />
     </div>
-    <p v-if="loading" class="mm-status" role="status">Buscando sua próxima história…</p>
+    <p v-if="loading" class="mm-status" role="status">{{ t('catalog.findingStory') }}</p>
     <p v-if="!loading && !error && !movies.length" class="mm-status">
-      Nenhum filme por aqui. Experimente outro título ou gênero.
+      {{ t('catalog.discoveryEmpty') }}
     </p>
     <div ref="sentinel" aria-hidden="true" style="height: 1px" />
     <BaseFloatingActionBtn />
@@ -131,7 +139,7 @@
         :disabled="loading"
         @click="loadMovies(true)"
       >
-        Carregar mais filmes
+        {{ t('catalog.loadMore') }}
       </button>
     </div>
     <BaseDialogFormMovieSummary
@@ -141,7 +149,7 @@
       @hide="closeSummary"
       ><template #prepend:bar
         ><details class="mm-summary-watchlists">
-          <summary>Adicionar à lista</summary>
+          <summary>{{ t('catalog.addToList') }}</summary>
           <MovieDiscoverMenuWatchlist
             :watchlists="watchlists"
             :movie="summaryId"
@@ -152,6 +160,8 @@
   </BaseContainerMain>
 </template>
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+const { t, te } = useI18n();
 import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { MovieResultResponseTmdb } from 'src/core/types/movie/MovieType';
@@ -186,7 +196,10 @@ const genres = ref<{ id: number; name: string; tmdb_id: number }[]>([]),
   loadingGenres = ref(false),
   genreError = ref('');
 const genreOptions = computed(() =>
-  genres.value.map((genre) => ({ value: genre.tmdb_id, label: genre.name })),
+  genres.value.map((genre) => ({
+    value: genre.tmdb_id,
+    label: te(`catalog.genre.${genre.tmdb_id}`) ? t(`catalog.genre.${genre.tmdb_id}`) : genre.name,
+  })),
 );
 const movies = ref<MovieResultResponseTmdb['results']>([]),
   suggestions = ref<MovieResultResponseTmdb['results']>([]);
@@ -212,18 +225,22 @@ let debounce: ReturnType<typeof setTimeout> | undefined,
   mounted = false;
 const collectionTitle = computed(
   () =>
-    related.value?.label ||
+    (related.value
+      ? t(related.value.type === 'similar' ? 'catalog.similarTo' : 'catalog.recommendedFor', {
+          title: related.value.label,
+        })
+      : '') ||
     (activeSearch.value
-      ? `Resultados para “${activeSearch.value}”`
+      ? t('catalog.resultsFor', { title: activeSearch.value })
       : genreIds.value.length || year.value
-        ? 'Filmes do seu jeito'
+        ? t('catalog.yourMovies')
         : {
-            popular: 'Em alta agora',
-            playingNow: 'Nas telas dos cinemas',
-            topRated: 'Vale cada minuto',
-            voteAverageAsc: 'Do menor para o maior',
-            upcoming: 'Ainda vem muita coisa boa',
-          }[sort.value] || 'Descubra mais'),
+            popular: t('catalog.trending'),
+            playingNow: t('catalog.cinemaScreens'),
+            topRated: t('catalog.worthEveryMinute'),
+            voteAverageAsc: t('catalog.lowestFirst'),
+            upcoming: t('catalog.comingGood'),
+          }[sort.value] || t('catalog.discoverMore')),
 );
 useInfinitePaging(
   sentinel,
@@ -292,7 +309,7 @@ async function loadWatchlists() {
     const result = await MovieWatchlistService.listWatchlists();
     if (current()) watchlists.value = result;
   } catch {
-    if (current()) showError('Não foi possível carregar suas listas.');
+    if (current()) showError(() => t('catalog.listsFailed'));
   }
 }
 async function loadGenres() {
@@ -303,7 +320,7 @@ async function loadGenres() {
     const result = await MovieService.getMoviesGenres();
     if (current()) genres.value = result;
   } catch {
-    if (current()) genreError.value = 'Não foi possível carregar os gêneros.';
+    if (current()) genreError.value = 'catalog.genreLoadFailed';
   } finally {
     if (current()) loadingGenres.value = false;
   }
@@ -354,9 +371,7 @@ async function loadMovies(append: boolean) {
     page.value = requestedPage;
     lastPage.value = Math.min(result.total_pages, 500);
   } catch {
-    if (current())
-      error.value =
-        'O serviço de filmes está indisponível no momento. Sua busca não foi concluída. Tente novamente.';
+    if (current()) error.value = 'catalog.serviceUnavailable';
   } finally {
     if (current()) loading.value = false;
   }
@@ -431,9 +446,9 @@ async function copyMovie(id: number) {
   const current = requests.begin('clipboard');
   try {
     await navigator.clipboard.writeText(`${window.location.origin}/movie/discover?movie=${id}`);
-    if (current()) showSuccess('Link copiado.');
+    if (current()) showSuccess(() => t('catalog.linkCopiedPeriod'));
   } catch {
-    if (current()) showError('Não foi possível copiar o link.');
+    if (current()) showError(() => t('catalog.copyFailedPeriod'));
   }
 }
 async function closeSummary() {
@@ -461,9 +476,9 @@ async function addMovieToWatchlist(id: string, movieId: number) {
     const result = await MovieWatchlistService.addMovieToWatchlist(id, movieId);
     if (!current()) return;
     watchlists.value = watchlists.value.map((list) => (list.id === id ? result : list));
-    showSuccess('Filme adicionado à lista.');
+    showSuccess(() => t('catalog.addedToList'));
   } catch {
-    if (current()) showError('Não foi possível adicionar o filme.');
+    if (current()) showError(() => t('catalog.addFailed'));
   } finally {
     if (current()) adding.value = false;
   }

@@ -2,21 +2,23 @@
   <article class="mm-poster-card">
     <router-link :to="{ name: 'movie', params: { id: movie.id } }" class="mm-poster-link">
       <BaseCardImage :src="movie.url_image" :alt="movie.portuguese_title"
-        ><BaseChipNote v-if="showChipNote()" :movie="movie" /><span v-else class="mm-badge"
-          >Sem avaliações</span
-        ></BaseCardImage
+        ><BaseChipNote v-if="showChipNote()" :movie="movie" /><span v-else class="mm-badge">{{
+          t('catalog.unrated')
+        }}</span></BaseCardImage
       >
     </router-link>
     <div class="mm-card-footer">
       <router-link :to="{ name: 'movie', params: { id: movie.id } }" class="mm-poster-link">
         <h3 :title="movie.portuguese_title">{{ movie.portuguese_title }}</h3>
-        <p>{{ DateUtils.toLocaleDateStringLong(movie.release_date) }}</p> </router-link
+        <p>{{ DateUtils.toLocaleDateStringLong(movie.release_date, locale) }}</p> </router-link
       ><MovieHomeContextMenu :movie-id="movie.id || ''" :title="movie.portuguese_title" />
     </div>
   </article>
 </template>
 
 <script lang="ts" setup>
+import { useI18n } from 'vue-i18n';
+const { t, locale } = useI18n();
 import type Movie from 'src/core/domain/movie/movie';
 
 import MovieHomeContextMenu from './MovieHomeContextMenu.vue';
