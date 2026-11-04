@@ -1,0 +1,18 @@
+{
+  "notFound": "Página não encontrada",
+  "admin": "Administração",
+  "home": "Minha coleção",
+  "login": "Entrar",
+  "profile": "Perfil",
+  "changePassword": "Alterar senha",
+  "addMovie": "Cadastrar filme",
+  "statistics": "Estatísticas",
+  "discover": "Descobrir filmes",
+  "watchlists": "Listas de filmes",
+  "accessDenied": "Acesso não permitido",
+  "errorTitle": "Não foi possível abrir esta página",
+  "notFoundMessage": "Esta página não existe ou não está mais disponível.",
+  "accessDeniedMessage": "Sua conta não tem permissão para acessar esta página.",
+  "errorMessage": "Algo deu errado. Volte ao início e tente novamente.",
+  "backHome": "Voltar ao início"
+}

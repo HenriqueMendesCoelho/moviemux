@@ -23,7 +23,7 @@ Keyboard focus indicators, reduced-motion styles and loading, empty and retry st
 
 ## Interface preview
 
-Native browser captures from a local preview with **fictional demo accounts, films and statistics**. The interface is in Brazilian Portuguese. The narrow views demonstrate responsive desktop-browser viewports, not physical-device certification.
+Native browser captures from a local preview with **fictional demo accounts, films and statistics**. These screenshots show Brazilian Portuguese; the interface also supports English. The narrow views demonstrate responsive desktop-browser viewports, not physical-device certification.
 
 ### Discover films · desktop, light theme
 
@@ -169,3 +169,11 @@ Related integration projects:
 ## Attribution
 
 This product uses the TMDB API but is not endorsed or certified by TMDB.
+
+### Interface languages
+
+MovieMux supports **Brazilian Portuguese (default)** and **English** through Nuxt i18n and Vue I18n. Use the language selector on public screens or in desktop/mobile navigation. The choice is stored for one year in the same-site `moviemux-language` preference cookie and survives navigation, reloads and sign-out. New visitors see Portuguese regardless of browser language. URLs, existing query parameters and backend payloads are unchanged.
+
+Translation resources live in `i18n/locales/{pt-BR,en}/`, grouped into shell, shared components, account, catalog, library/statistics and page metadata. Add semantic keys to both catalogs, keep interpolation parameters identical, and use full sentences/plural forms rather than concatenated fragments. Use computed labels or message getters when text must update while an existing dialog, notification or view stays open. Pure formatting helpers receive an explicit locale. `pnpm test` checks resource parity, message compilation and reactive UI flows; `pnpm test:i18n:ssr` checks real production SSR with fictional loopback data after `pnpm build`.
+
+Movie titles, synopses, user names, comments and watchlist content remain as received. Known genre labels are translated for display, while IDs and remote metadata requests stay unchanged. Browser/OS-owned installation wording is controlled by the browser; MovieMux's own install/update notices and offline page support both languages. A completed security challenge is preserved when the interface language changes; the next challenge uses the new language.
