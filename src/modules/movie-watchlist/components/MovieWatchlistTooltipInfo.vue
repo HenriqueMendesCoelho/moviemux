@@ -1,6 +1,6 @@
 <template>
-  <details class="mm-list-info">
-    <summary>Sobre esta lista</summary>
+  <details ref="disclosure" class="mm-list-info" @toggle="syncListeners">
+    <summary ref="trigger">Sobre esta lista</summary>
     <dl>
       <dt>Criada por</dt>
       <dd>{{ watchlist.user.name }}</dd>
@@ -15,6 +15,7 @@
 </template>
 
 <script setup lang="ts">
+import { onBeforeUnmount, ref } from 'vue';
 import type { WatchlistType } from 'src/core/types/movie-watchlist/WatchlistType';
 
 import DateUtils from 'src/core/utils/DateUtils';
@@ -23,6 +24,49 @@ interface Props {
   watchlist: WatchlistType;
 }
 defineProps<Props>();
+const disclosure = ref<HTMLDetailsElement>();
+const trigger = ref<HTMLElement>();
+let listening = false;
+
+function removeListeners() {
+  document.removeEventListener('pointerdown', onOutsidePointer, true);
+  document.removeEventListener('keydown', onEscape);
+  document.removeEventListener('focusin', onFocusChange);
+  listening = false;
+}
+function syncListeners() {
+  if (!disclosure.value?.open) {
+    removeListeners();
+    return;
+  }
+  if (listening) return;
+  document.addEventListener('pointerdown', onOutsidePointer, true);
+  document.addEventListener('keydown', onEscape);
+  document.addEventListener('focusin', onFocusChange);
+  listening = true;
+}
+function dismiss(restoreFocus = false) {
+  if (!disclosure.value?.open) return;
+  disclosure.value.open = false;
+  removeListeners();
+  if (restoreFocus) trigger.value?.focus();
+}
+function isInside(target: EventTarget | null) {
+  return target instanceof Node && !!disclosure.value?.contains(target);
+}
+function onOutsidePointer(event: PointerEvent) {
+  if (!isInside(event.target)) dismiss();
+}
+function onFocusChange(event: FocusEvent) {
+  if (!isInside(event.target)) dismiss();
+}
+function onEscape(event: KeyboardEvent) {
+  if (event.key !== 'Escape' || event.defaultPrevented) return;
+  const restoreFocus = isInside(document.activeElement);
+  if (restoreFocus) event.preventDefault();
+  dismiss(restoreFocus);
+}
+onBeforeUnmount(removeListeners);
 </script>
 
 <style scoped>
