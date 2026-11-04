@@ -1,0 +1,33 @@
+/* Keep native sizing, visibility and input behavior. Touch and high-contrast
+   environments retain their platform scrollbars without an application override. */
+@media (hover: hover) and (pointer: fine) and (forced-colors: none) {
+  @supports (scrollbar-color: auto) {
+    :root {
+      --mm-scrollbar-thumb: #5c7787;
+      --mm-scrollbar-track: var(--mm-bg);
+      scrollbar-color: var(--mm-scrollbar-thumb) var(--mm-scrollbar-track);
+      scrollbar-width: auto;
+    }
+
+    :root[data-theme='light'] {
+      --mm-scrollbar-thumb: #637983;
+    }
+
+    /* Only active scrollable regions receive the accent, never the entire
+       viewport merely because the pointer or keyboard focus is on the page. */
+    :where(
+      textarea,
+      [role='listbox'],
+      [role='menu'],
+      .mm-table-wrap,
+      .mm-table-scroll,
+      .mm-summary-stage,
+      .mm-cast-content,
+      .mm-suggestions,
+      .mm-genre-options
+    ):is(:hover, :focus-within),
+    :focus-visible {
+      scrollbar-color: var(--mm-link) var(--mm-scrollbar-track);
+    }
+  }
+}

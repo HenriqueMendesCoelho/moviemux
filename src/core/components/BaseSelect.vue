@@ -265,8 +265,6 @@ onBeforeUnmount(detach);
   box-shadow: 0 14px 40px #0003;
   overflow-y: auto;
   overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: var(--mm-border) transparent;
 }
 .mm-select-panel.mm-select-above {
   top: auto;

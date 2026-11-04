@@ -364,8 +364,6 @@ onBeforeUnmount(detach);
   max-height: min(260px, 38dvh);
   overflow-y: auto;
   overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: var(--mm-border) transparent;
   padding: 0.35rem 0;
 }
 .mm-multiselect-option {
