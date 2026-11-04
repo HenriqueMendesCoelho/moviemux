@@ -89,11 +89,29 @@ test('coalesces pointer events and layout reads into one bounded update without 
   expect(wrapper.element.getBoundingClientRect).not.toHaveBeenCalled();
   flushFrame();
   expect(wrapper.element.getBoundingClientRect).toHaveBeenCalledTimes(1);
-  expect(wrapper.get('.mm-login-ambient').attributes('style')).toContain('--ambient-x: 18px');
-  expect(wrapper.get('.mm-login-ambient').attributes('style')).toContain('--ambient-y: 18px');
+  expect(wrapper.get('.mm-login-ambient').attributes('style')).toContain('--ambient-x: 360px');
+  expect(wrapper.get('.mm-login-ambient').attributes('style')).toContain('--ambient-y: 288px');
   expect(frames.size).toBe(0);
   expect(window.requestAnimationFrame).toHaveBeenCalledTimes(1);
   await wrapper.trigger('pointerleave');
+  expect(wrapper.get('.mm-login-ambient').attributes('style')).toContain('--ambient-x: 0px');
+});
+
+test('visibly tracks separated positions while keeping the glow inside bounded page coordinates', async () => {
+  const wrapper = create();
+  await wrapper.trigger('pointermove', { pointerType: 'mouse', clientX: 0, clientY: 0 });
+  flushFrame();
+  expect(wrapper.get('.mm-login-ambient').attributes('style')).toContain('--ambient-x: -360px');
+  expect(wrapper.get('.mm-login-ambient').attributes('style')).toContain('--ambient-y: -288px');
+  await wrapper.trigger('pointermove', { pointerType: 'mouse', clientX: 500, clientY: 400 });
+  flushFrame();
+  expect(wrapper.get('.mm-login-ambient').attributes('style')).toContain('--ambient-x: 0px');
+  expect(wrapper.get('.mm-login-ambient').attributes('style')).toContain('--ambient-y: 0px');
+  await wrapper.trigger('pointermove', { pointerType: 'pen', clientX: 1000, clientY: 800 });
+  flushFrame();
+  expect(wrapper.get('.mm-login-ambient').attributes('style')).toContain('--ambient-x: 360px');
+  expect(wrapper.get('.mm-login-ambient').attributes('style')).toContain('--ambient-y: 288px');
+  await wrapper.get('input').trigger('focusin');
   expect(wrapper.get('.mm-login-ambient').attributes('style')).toContain('--ambient-x: 0px');
 });
 
