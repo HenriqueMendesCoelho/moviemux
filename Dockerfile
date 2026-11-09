@@ -6,6 +6,7 @@ RUN pnpm install --frozen-lockfile
 COPY nuxt.config.ts tsconfig.json ./
 COPY src ./src
 COPY shared ./shared
+COPY i18n ./i18n
 COPY public ./public
 RUN pnpm build
 FROM node:26.13.0-alpine
