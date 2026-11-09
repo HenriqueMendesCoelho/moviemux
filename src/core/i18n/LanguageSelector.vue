@@ -46,6 +46,11 @@ async function change(value: string) {
 </template>
 <style scoped>
 .mm-language-selector {
+  width: 240px;
+  max-width: 100%;
+}
+.mm-language-selector :deep(.mm-select-panel) {
+  width: 100%;
   max-width: 100%;
 }
 </style>
