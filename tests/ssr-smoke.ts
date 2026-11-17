@@ -1,6 +1,7 @@
 /** Production SSR through the real Nuxt session/BFF; upstream data is fictional. */
 import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
+import { request as httpRequest } from 'node:http';
 import { spawn } from 'node:child_process';
 const port = 3100;
 const apiPort = 3101;
@@ -30,6 +31,25 @@ const request = (path: string, cookie = '', options: RequestInit = {}) =>
     redirect: 'manual',
     headers: { accept: 'text/html', ...(cookie ? { cookie } : {}), ...options.headers },
   });
+// Preserve the request target verbatim: URL-based clients may normalize slashes.
+function rawRequest(path: string, cookie = ''): Promise<{ status: number; html: string }> {
+  return new Promise((resolve, reject) => {
+    const req = httpRequest(
+      { hostname: '127.0.0.1', port, path, headers: { accept: 'text/html', cookie } },
+      (res) => {
+        let html = '';
+        res.setEncoding('utf8');
+        res.on('data', (chunk) => {
+          html += chunk;
+        });
+        res.on('end', () => resolve({ status: res.statusCode || 0, html }));
+      },
+    );
+    req.setTimeout(10000, () => req.destroy(new Error('Raw-path request timed out')));
+    req.on('error', reject);
+    req.end();
+  });
+}
 function assertBrandAccent(html: string) {
   const tags = [...html.matchAll(/<meta\b[^>]*>/gi)].map(([tag]) =>
     Object.fromEntries(
@@ -105,6 +125,22 @@ try {
   assertBrandAccent(secondHtml);
   assert.doesNotMatch(firstHtml + secondHtml, /access_token|qa-fixture-not-a-real-signature/);
   assert.equal((await request('/adm', other.cookie)).status, 403);
+  assert.equal((await request('/adm')).status, 302);
+  assert.equal((await request('/api/movie')).status, 401);
+  // GHSA-r99w-jh2x-3mg9: Nitro and Nuxt must agree on the raw page path.
+  // Even ADM must not resolve //x/adm as /adm; role checks alone miss that mismatch.
+  // The app's existing catch-all renders its not-found view with HTTP 200.
+  for (const cookie of ['', other.cookie, admin.cookie]) {
+    for (const path of ['//x/adm', '///x/adm', '//x/home', '///x/home', '//x/api/movie']) {
+      const response = await rawRequest(path, cookie);
+      assert.equal(response.status, 200, `Existing catch-all handles raw path: ${path}`);
+      assert.match(
+        response.html,
+        /<main class="mm-not-found"/,
+        `Raw path is not remapped: ${path}`,
+      );
+    }
+  }
   for (const path of [
     '/home',
     '/movie/add',
