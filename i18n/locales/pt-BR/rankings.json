@@ -1,25 +1,25 @@
 {
-  "title": "Rankings",
+  "title": "Coleções",
   "subtitle": "Coleções separadas. Suas pessoas, suas notas.",
-  "yourRankings": "Seus rankings",
-  "loading": "Carregando rankings…",
-  "loadError": "Não foi possível carregar seus rankings.",
+  "yourRankings": "Suas coleções",
+  "loading": "Carregando coleções…",
+  "loadError": "Não foi possível carregar suas coleções.",
   "retry": "Tentar novamente",
-  "empty": "Nenhum ranking ainda. Crie um para começar a avaliar juntos.",
-  "unnamed": "Ranking sem nome",
+  "empty": "Nenhuma coleção ainda. Crie uma para começar a avaliar juntos.",
+  "unnamed": "Coleção sem nome",
   "more": "Carregar mais",
-  "create": "Criar ranking",
-  "createHint": "Escolha quem pode ver seu ranking e como as pessoas entram.",
-  "name": "Nome do ranking",
+  "create": "Criar coleção",
+  "createHint": "Escolha quem pode ver sua coleção e como as pessoas entram.",
+  "name": "Nome da coleção",
   "visibilityLabel": "Quem pode ver?",
   "admissionLabel": "Como as pessoas entram?",
-  "visibilityHint": "Visibilidade e entrada são independentes. Leitura pública não dá permissão para alterar um ranking.",
-  "created": "Ranking criado. Ele já está na sua lista.",
+  "visibilityHint": "Visibilidade e entrada são independentes. Leitura pública não dá permissão para alterar uma coleção.",
+  "created": "Coleção criada. Ela já está na sua lista.",
   "creating": "Criando…",
   "checkList": "Conferir a lista",
   "visibility": {
-    "PRIVATE": "Privado",
-    "PUBLIC": "Público"
+    "PRIVATE": "Privada",
+    "PUBLIC": "Pública"
   },
   "admission": {
     "INVITATION": "Somente por convite",
@@ -28,15 +28,15 @@
   },
   "errors": {
     "invalidName": "Use um nome de 1 a 120 caracteres.",
-    "limitReached": "Você atingiu o limite de rankings desta instância.",
+    "limitReached": "Você atingiu o limite de coleções desta instância. Coleções arquivadas também contam.",
     "unavailable": "A criação está indisponível até o administrador configurar o limite da instância.",
     "denied": "Você não tem permissão para esta ação.",
     "sessionExpired": "Sua sessão expirou. Entre novamente.",
-    "uncertain": "Não conseguimos confirmar se o ranking foi criado. Confira sua lista antes de tentar novamente para evitar duplicação."
+    "uncertain": "Não conseguimos confirmar se a coleção foi criada. Confira sua lista antes de tentar novamente para evitar duplicação."
   },
   "leaveTitle": "Sair deste formulário?",
-  "leaveDraft": "O nome do ranking não salvo será descartado.",
-  "leavePending": "A solicitação ainda pode ser concluída. Sair não cancela a criação. Confira seus rankings antes de enviar novamente.",
+  "leaveDraft": "O nome não salvo da coleção será descartado.",
+  "leavePending": "A solicitação ainda pode ser concluída. Sair não cancela a criação. Confira suas coleções antes de enviar novamente.",
   "leave": "Sair do formulário",
   "stay": "Continuar aqui"
 }

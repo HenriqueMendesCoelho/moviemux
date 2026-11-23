@@ -6,11 +6,11 @@
   "save": "Salvar alterações",
   "cancel": "Cancelar",
   "invalid": "Digite um número inteiro de 0 a 10.",
-  "archived": "Este ranking arquivado não aceita alterações.",
+  "archived": "Esta coleção arquivada não aceita alterações.",
   "duplicate": "Já existe uma nota nesta rodada. Consulte-a antes de fazer alterações.",
   "uncertain": "O resultado não foi confirmado. Consulte sua nota antes de fazer alterações.",
   "check": "Verificar minha nota",
   "saved": "Sua nota foi salva.",
   "loadError": "Não foi possível consultar sua nota.",
-  "intro": "Consulte os filmes e as rodadas deste ranking. Quando tiver permissão, você pode alterar apenas suas próprias notas."
+  "intro": "Consulte os filmes e as rodadas desta coleção. Quando tiver permissão, você pode alterar apenas suas próprias notas."
 }
