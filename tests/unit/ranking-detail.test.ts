@@ -485,3 +485,51 @@ test('scope denial clears picker then refetches; absent capability remains unava
   expect(w.findComponent(Picker).exists()).toBe(false);
   expect(mocks.rounds).not.toHaveBeenCalled();
 });
+
+test.each([undefined, false, 'true'])(
+  'does not infer an OPEN owner from complete grants without exact true (%s)',
+  async (proof) => {
+    mocks.summary.mockResolvedValue({
+      ranking_id: id,
+      name: 'Collection',
+      visibility: 'PRIVATE',
+      admission: 'OPEN',
+      capabilities: ['READ', 'ADD_ENTRY', 'INVITE_MEMBER', 'MANAGE_MEMBERS', 'RATE_OWN'],
+      can_share_open_link: proof,
+    });
+    await render();
+    expect(w.text()).not.toContain('Copy collection join link');
+  },
+);
+
+test('copies the neutral same-origin link only after an explicit owner click', async () => {
+  mocks.summary.mockResolvedValue({
+    ranking_id: id,
+    name: 'Private title',
+    visibility: 'PRIVATE',
+    admission: 'OPEN',
+    capabilities: ['READ'],
+    can_share_open_link: true,
+  });
+  const writeText = vi.fn().mockResolvedValue(undefined);
+  const original = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+  Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+  try {
+    await render('pt-BR');
+    expect(writeText).not.toHaveBeenCalled();
+    const copy = w.findAll('button').find((b) => b.text() === 'Copiar link de entrada na coleção');
+    expect(copy).toBeDefined();
+    await copy!.trigger('click');
+    await flushPromises();
+    expect(writeText).toHaveBeenCalledExactlyOnceWith(
+      new URL(`/rankings/${id}/join`, window.location.origin).href,
+    );
+    expect(w.text()).toContain('Link de entrada copiado.');
+    mocks.user.user.isLoged = false;
+    await flushPromises();
+    expect(w.text()).not.toContain('Copiar link de entrada na coleção');
+  } finally {
+    if (original) Object.defineProperty(navigator, 'clipboard', original);
+    else Reflect.deleteProperty(navigator, 'clipboard');
+  }
+});

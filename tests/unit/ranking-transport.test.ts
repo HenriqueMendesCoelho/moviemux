@@ -549,3 +549,34 @@ describe('read-only round aggregate preserves exact disclosure boundary', () => 
     });
   });
 });
+
+describe('current owner link proof', () => {
+  const ranking = '11111111-1111-4111-8111-111111111111';
+  const dto = {
+    ranking_id: ranking,
+    name: 'Private title',
+    visibility: 'PRIVATE',
+    admission: 'OPEN',
+    capabilities: ['READ', 'MANAGE_MEMBERS'],
+  };
+  it.each([true, false, 'true', undefined])('relays a strict boolean only (%s)', async (proof) => {
+    respond(200, { ...dto, can_share_open_link: proof, extra: 'must not be relayed' });
+    await expect(upstreamRequest(`/rankings/${ranking}`, { method: 'GET' })).resolves.toEqual({
+      status: 200,
+      data: {
+        ...dto,
+        ...(typeof proof === 'boolean' ? { can_share_open_link: proof } : {}),
+      },
+    });
+  });
+  it('rejects a summary from another scope', async () => {
+    respond(200, {
+      ...dto,
+      ranking_id: '22222222-2222-4222-8222-222222222222',
+      can_share_open_link: true,
+    });
+    await expect(upstreamRequest(`/rankings/${ranking}`, { method: 'GET' })).rejects.toMatchObject({
+      status: 502,
+    });
+  });
+});

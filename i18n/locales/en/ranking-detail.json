@@ -27,5 +27,8 @@
   "ownUnavailable": "Your rating is absent or unavailable in this context.",
   "moreRounds": "Load more rounds",
   "partialMean": "Mean of revealed rounds",
-  "unratedPartial": "No numeric votes in revealed rounds yet."
+  "unratedPartial": "No numeric votes in revealed rounds yet.",
+  "copyOpenLink": "Copy collection join link",
+  "openLinkCopied": "Join link copied.",
+  "openLinkCopyError": "Could not copy the join link. Try again."
 }

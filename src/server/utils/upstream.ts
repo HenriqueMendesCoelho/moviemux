@@ -386,6 +386,34 @@ export async function upstreamRequest(
       data: { round_id: v.round_id, round_number: v.round_number, revealed: v.revealed },
     };
   }
+  if (options.method === 'GET' && rankingSummaryPath.test(path)) {
+    const v = data as Record<string, unknown> | null;
+    if (
+      response.status !== 200 ||
+      !v ||
+      typeof v.ranking_id !== 'string' ||
+      v.ranking_id.toLowerCase() !== path.slice('/rankings/'.length).toLowerCase() ||
+      !(v.name === null || typeof v.name === 'string') ||
+      !(v.visibility === 'PRIVATE' || v.visibility === 'PUBLIC') ||
+      !(v.admission === 'OPEN' || v.admission === 'APPROVAL' || v.admission === 'INVITATION') ||
+      !Array.isArray(v.capabilities) ||
+      !v.capabilities.every((grant) => typeof grant === 'string')
+    )
+      throw createError({ status: 502, message: 'Invalid API response' });
+    return {
+      status: 200,
+      data: {
+        ranking_id: v.ranking_id,
+        name: v.name,
+        visibility: v.visibility,
+        admission: v.admission,
+        capabilities: v.capabilities,
+        ...(typeof v.can_share_open_link === 'boolean'
+          ? { can_share_open_link: v.can_share_open_link }
+          : {}),
+      },
+    };
+  }
   if (options.method === 'GET' && path.split('?')[0] === incomingInvitationsPath) {
     const page = data as { items?: unknown; next_cursor?: unknown } | null;
     const validId = (id: unknown) =>

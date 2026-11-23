@@ -147,7 +147,11 @@ export default {
     const { data } = await api.get(path(ranking), { signal });
     const result = rankingSummary(data);
     check(result.ranking_id === ranking);
-    return result;
+    const ownerProof: unknown = data?.can_share_open_link;
+    return {
+      ...result,
+      ...(typeof ownerProof === 'boolean' ? { can_share_open_link: ownerProof } : {}),
+    };
   },
   async access(ranking: string, signal?: AbortSignal): Promise<RankingAccess> {
     const { data } = await api.get(`${path(ranking)}/access`, { signal });

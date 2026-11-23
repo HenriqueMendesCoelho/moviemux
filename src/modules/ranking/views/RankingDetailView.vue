@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n';
 import { useUserStore } from '~/core/stores/UserStore';
 import BaseContainerMain from '~/core/components/BaseContainerMain.vue';
 import RankingEntryCard from '../components/RankingEntryCard.vue';
+import { rankingIdPattern } from '../services/RankingService';
 import RankingInvitationIssuer from '../components/RankingInvitationIssuer.vue';
 import RankingTmdbPicker from '../components/RankingTmdbPicker.vue';
 import type { ImportReceipt } from '../services/RankingTmdbPickerService';
@@ -36,6 +37,37 @@ const detailError = ref('');
 const aggregate = ref<RatingAggregate | null>(null);
 const canRate = ref(false);
 const canInvite = ref(false);
+const canShareOpenLink = ref(false);
+const copyingOpenLink = ref(false);
+const openLinkNotice = ref('');
+function resetOpenLink() {
+  canShareOpenLink.value = false;
+  copyingOpenLink.value = false;
+  openLinkNotice.value = '';
+}
+async function copyOpenLink() {
+  const id = props.rankingId;
+  if (
+    !canShareOpenLink.value ||
+    !user.user.isLoged ||
+    loading.value ||
+    copyingOpenLink.value ||
+    !rankingIdPattern.test(id)
+  )
+    return;
+  const started = epoch;
+  copyingOpenLink.value = true;
+  openLinkNotice.value = '';
+  try {
+    const url = new URL(`/rankings/${id.toLowerCase()}/join`, window.location.origin);
+    await navigator.clipboard.writeText(url.href);
+    if (started === epoch && canShareOpenLink.value) openLinkNotice.value = 'openLinkCopied';
+  } catch {
+    if (started === epoch && canShareOpenLink.value) openLinkNotice.value = 'openLinkCopyError';
+  } finally {
+    if (started === epoch) copyingOpenLink.value = false;
+  }
+}
 const canAdd = ref(false);
 const pickerEpoch = ref(0);
 const pickerNotice = ref('');
@@ -172,6 +204,9 @@ async function load(more = false, replace = false) {
     canRate.value = access.capabilities.includes('RATE_OWN');
     canAdd.value =
       access.capabilities.includes('READ') && access.capabilities.includes('ADD_ENTRY');
+    const share = access.can_share_open_link === true && access.admission === 'OPEN';
+    if (!share) resetOpenLink();
+    canShareOpenLink.value = share;
     canInvite.value =
       access.admission === 'INVITATION' &&
       access.capabilities.includes('READ') &&
@@ -185,6 +220,7 @@ async function load(more = false, replace = false) {
   } catch (e) {
     if (started === epoch && !request.signal.aborted) {
       canInvite.value = false;
+      resetOpenLink();
       error.value = message(e);
       if (error.value === 'unavailable' || error.value === 'sessionExpired') {
         canAdd.value = false;
@@ -205,6 +241,7 @@ function reset() {
   clearDetail();
   canRate.value = false;
   canInvite.value = false;
+  resetOpenLink();
   canAdd.value = false;
   pickerNotice.value = '';
   invitationUnavailable.value = false;
@@ -282,6 +319,7 @@ async function open(entry: RankingEntry, more = false) {
       detailError.value = message(e);
       if (detailError.value === 'unavailable' || detailError.value === 'sessionExpired') {
         canInvite.value = false;
+        resetOpenLink();
         canAdd.value = false;
         resetInterruption();
         rounds.value = [];
@@ -299,6 +337,7 @@ function invalidateScope() {
   controller?.abort();
   canRate.value = false;
   canInvite.value = false;
+  resetOpenLink();
   canAdd.value = false;
   rankingName.value = undefined;
   entries.value = [];
@@ -402,6 +441,12 @@ async function refreshAggregate() {
         }}
       </h1>
       <p>{{ t('rankingOwnRating.intro') }}</p>
+      <div v-if="canShareOpenLink && user.user.isLoged && !loading">
+        <button type="button" class="mm-button" :disabled="copyingOpenLink" @click="copyOpenLink">
+          {{ t('rankingDetail.copyOpenLink') }}
+        </button>
+        <p v-if="openLinkNotice" role="status">{{ t(`rankingDetail.${openLinkNotice}`) }}</p>
+      </div>
     </header>
     <p v-if="loading && !entries.length" role="status">{{ t('rankingDetail.loading') }}</p>
     <div v-if="error" role="alert">

@@ -27,5 +27,8 @@
   "ownUnavailable": "Sua nota não existe ou está indisponível neste contexto.",
   "moreRounds": "Carregar mais rodadas",
   "partialMean": "Média das rodadas reveladas",
-  "unratedPartial": "Ainda não há notas numéricas nas rodadas reveladas."
+  "unratedPartial": "Ainda não há notas numéricas nas rodadas reveladas.",
+  "copyOpenLink": "Copiar link de entrada na coleção",
+  "openLinkCopied": "Link de entrada copiado.",
+  "openLinkCopyError": "Não foi possível copiar o link de entrada. Tente novamente."
 }
