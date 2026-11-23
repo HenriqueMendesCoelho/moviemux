@@ -2,7 +2,7 @@ import { defineEventHandler, createError, setResponseStatus } from 'nuxt/server'
 import { protectedBody, turnstileAction } from '../utils/turnstile';
 import { revokeSession } from '../utils/session-registry';
 import { boundedBody } from '../utils/body';
-import { allowedApiPath, upstreamRequest } from '../utils/upstream';
+import { allowedApiPath, assertRankingReadQuery, upstreamRequest } from '../utils/upstream';
 import { readActiveSession } from '../utils/session';
 export default defineEventHandler(async (event) => {
   const path = event.url.pathname.slice(4);
@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: 'API route not available' });
   const isPublic = path.startsWith('/public/');
   const session = isPublic ? undefined : await readActiveSession(event);
+  assertRankingReadQuery(path, method, event.url.searchParams);
   const contentType = event.req.headers.get('content-type')?.split(';')[0];
   if (
     !['GET', 'HEAD'].includes(method) &&
@@ -29,6 +30,10 @@ export default defineEventHandler(async (event) => {
       token: session?.secure.accessToken,
     });
     setResponseStatus(event, result.status);
+    if (result.rawJson !== undefined) {
+      event.res.headers.set('content-type', 'application/json; charset=utf-8');
+      return result.rawJson;
+    }
     return result.status === 204 ? null : result.data;
   } catch (error) {
     // A late401 must not delete a newer login's cookie. Revoke only this request's generation.
