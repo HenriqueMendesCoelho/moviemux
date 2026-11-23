@@ -188,4 +188,7 @@ test('ambiguous own 404 rechecks access before retaining authorized catalog and 
   expect(w.find('.mm-detail-entry').exists()).toBe(true);
   expect(w.text()).toContain(messages.en.ownUnavailable);
   expect(w.text()).toContain(ownMessages.en.add);
+  w.findComponent({ name: 'RankingOwnRating' }).vm.$emit('confirmed');
+  await flushPromises();
+  expect(w.text()).not.toContain(messages.en.ownUnavailable);
 });

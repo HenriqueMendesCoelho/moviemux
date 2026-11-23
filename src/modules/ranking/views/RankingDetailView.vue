@@ -182,6 +182,7 @@ function markReconcile(roundId: string, required: boolean) {
   else uncertain.value.delete(roundId);
 }
 async function refreshAggregate() {
+  if (detailError.value === 'ownUnavailable') detailError.value = '';
   if (!selected.value) return;
   const started = ++aggregateEpoch;
   const context = selection;
