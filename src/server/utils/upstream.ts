@@ -1,5 +1,10 @@
 import { createError, useRuntimeConfig } from 'nuxt/server';
 import { fixedUpstream } from './security';
+import {
+  rankingTmdbError,
+  rankingTmdbOperation,
+  rankingTmdbResponse,
+} from './ranking-tmdb-contract';
 
 const uuid = '[a-zA-Z0-9_-]{1,128}';
 const rankingUuid = '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}';
@@ -68,7 +73,10 @@ const rules: Array<[RegExp, string[]]> = [
 ];
 export function allowedApiPath(path: string, method: string): boolean {
   if (path.includes('..') || path.includes('\\') || /%(?:2f|5c|2e|25)/i.test(path)) return false;
-  return rules.some(([pattern, methods]) => pattern.test(path) && methods.includes(method));
+  return (
+    Boolean(rankingTmdbOperation(path, method)) ||
+    rules.some(([pattern, methods]) => pattern.test(path) && methods.includes(method))
+  );
 }
 export function assertRankingReadIntent(path: string, method: string, headers: Headers): void {
   if (
@@ -86,6 +94,7 @@ export function assertRankingReadQuery(
   query: URLSearchParams,
 ): void {
   if (
+    rankingTmdbOperation(pathname, method) ||
     issueInvitationPath.test(pathname) ||
     revokeInvitationPath.test(pathname) ||
     acceptInvitationPath.test(pathname) ||
@@ -289,7 +298,10 @@ export async function upstreamRequest(
   const text = Buffer.concat(chunks).toString('utf8');
   if (!response.ok) {
     // Only a verified code may cross the boundary, never upstream messages or other fields.
-    const code = rankingErrorCode(path, options.method, response.status, text);
+    const operation = rankingTmdbOperation(path, options.method);
+    const code = operation
+      ? rankingTmdbError(operation, response.status, text)
+      : rankingErrorCode(path, options.method, response.status, text);
     throw createError({
       status:
         code || [400, 401, 403, 404, 409, 422, 429].includes(response.status)
@@ -324,6 +336,12 @@ export async function upstreamRequest(
   } catch {
     throw createError({ status: 502, message: 'Invalid API response' });
   }
+  const tmdb = rankingTmdbOperation(path, options.method);
+  if (tmdb)
+    return {
+      status: response.status,
+      data: rankingTmdbResponse(tmdb, response.status, data, options.body),
+    };
   const roundDetailId =
     options.method === 'GET' ? rankingRoundDetailPath.exec(path)?.[1] : undefined;
   if (roundDetailId) {
