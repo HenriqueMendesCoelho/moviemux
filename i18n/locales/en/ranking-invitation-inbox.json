@@ -1,0 +1,18 @@
+{
+  "title": "Ranking invitations",
+  "loading": "Loading…",
+  "ready": "You can now open {name}.",
+  "open": "Open ranking",
+  "loadError": "Could not load your invitations.",
+  "retry": "Try again",
+  "empty": "No pending ranking invitations.",
+  "unnamed": "Unnamed ranking",
+  "expires": "Expires:",
+  "accept": "Accept invitation",
+  "more": "Load more invitations",
+  "inviteUnavailable": "This invitation is unavailable.",
+  "accessUnconfirmed": "Your acceptance was saved, but ranking access could not be verified.",
+  "acceptUnconfirmed": "Acceptance could not be confirmed. Check access or review your inbox before trying again.",
+  "checkAccess": "Check ranking access",
+  "reviewInbox": "Review invitations"
+}

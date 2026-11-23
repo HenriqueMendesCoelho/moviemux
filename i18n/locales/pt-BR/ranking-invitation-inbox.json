@@ -1,0 +1,18 @@
+{
+  "title": "Convites para rankings",
+  "loading": "Carregando…",
+  "ready": "Agora você pode abrir {name}.",
+  "open": "Abrir ranking",
+  "loadError": "Não foi possível carregar seus convites.",
+  "retry": "Tentar novamente",
+  "empty": "Nenhum convite para ranking pendente.",
+  "unnamed": "Ranking sem nome",
+  "expires": "Expira em:",
+  "accept": "Aceitar convite",
+  "more": "Carregar mais convites",
+  "inviteUnavailable": "Este convite está indisponível.",
+  "accessUnconfirmed": "Seu aceite foi registrado, mas não foi possível verificar o acesso ao ranking.",
+  "acceptUnconfirmed": "Não foi possível confirmar o aceite. Verifique o acesso ou consulte os convites antes de tentar novamente.",
+  "checkAccess": "Verificar acesso ao ranking",
+  "reviewInbox": "Consultar convites"
+}

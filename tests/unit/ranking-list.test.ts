@@ -21,6 +21,7 @@ vi.mock('../../src/modules/ranking/services/RankingService', async (original) =>
   ...(await original<any>()),
   default: mocks,
 }));
+import Inbox from '../../src/modules/ranking/components/RankingInvitationInbox.vue';
 import View from '../../src/modules/ranking/views/RankingListView.vue';
 const id = '11111111-1111-4111-8111-111111111111';
 const item = {
@@ -51,6 +52,7 @@ async function render(locale = 'en') {
       stubs: {
         NuxtLink: { props: ['to'], template: '<a :href="to"><slot /></a>' },
         BaseSelect: true,
+        RankingInvitationInbox: true,
       },
     },
   });
@@ -136,4 +138,37 @@ test('cancelled navigation preserves draft; confirming resolves the guarded navi
   await flushPromises();
   w.findComponent({ name: 'BaseConfirmDialog' }).vm.$emit('ok');
   expect(await next).toBe(true);
+});
+
+test('verified inbox join resets the ranking cursor, supersedes stale pagination, and keeps draft', async () => {
+  const extra = '22222222-2222-4222-8222-222222222222';
+  const page = deferred();
+  mocks.list.mockResolvedValueOnce({ items: [item], next_cursor: id });
+  mocks.list.mockReturnValueOnce(page.promise);
+  const w = await render();
+  await w.get('input').setValue('Keep this draft');
+  await w
+    .findAll('button')
+    .find((b) => b.text() === en.more)!
+    .trigger('click');
+  const staleSignal = mocks.list.mock.calls[1]![1] as AbortSignal;
+  mocks.list.mockResolvedValueOnce({
+    items: [{ ...item, ranking_id: extra, name: 'Fresh ranking' }],
+    next_cursor: null,
+  });
+  w.getComponent(Inbox).vm.$emit('joined', { ...item, ranking_id: extra, name: 'Fresh ranking' });
+  await flushPromises();
+  expect(staleSignal.aborted).toBe(true);
+  expect(mocks.list).toHaveBeenCalledTimes(3);
+  expect(mocks.list).toHaveBeenLastCalledWith(undefined, expect.any(AbortSignal));
+  expect(w.text()).toContain('Fresh ranking');
+  expect(w.text()).not.toContain(en.more);
+  expect((w.get('input').element as HTMLInputElement).value).toBe('Keep this draft');
+  page.resolve({ items: [{ ...item, name: 'Stale page' }], next_cursor: id });
+  await flushPromises();
+  expect(w.text()).not.toContain('Stale page');
+  mocks.user.user.isLoged = false;
+  await flushPromises();
+  expect(w.findComponent(Inbox).exists()).toBe(false);
+  expect(w.text()).not.toContain('Fresh ranking');
 });

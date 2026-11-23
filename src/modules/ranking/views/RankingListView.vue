@@ -7,6 +7,7 @@ import { useUserStore } from '~/core/stores/UserStore';
 import BaseContainerMain from '~/core/components/BaseContainerMain.vue';
 import BaseSelect from '~/core/components/BaseSelect.vue';
 import BaseSkeleton from '~/core/components/BaseSkeleton.vue';
+import RankingInvitationInbox from '../components/RankingInvitationInbox.vue';
 import RankingService, { validRankingName, type RankingSummary } from '../services/RankingService';
 const { t } = useI18n();
 const user = useUserStore();
@@ -47,6 +48,7 @@ onBeforeRouteLeave(() => {
   return navigationDecision;
 });
 let epoch = 0;
+let listEpoch = 0;
 let controller: AbortController | undefined;
 const visibilityOptions = computed(() =>
   ['PRIVATE', 'PUBLIC'].map((value) => ({ value, label: t(`rankings.visibility.${value}`) })),
@@ -57,29 +59,35 @@ const admissionOptions = computed(() =>
     label: t(`rankings.admission.${value}`),
   })),
 );
-async function load(more = false) {
-  if (loading.value) return;
+async function load(more = false, replace = false, createdRanking?: RankingSummary) {
+  if (!user.user.isLoged || (loading.value && !replace)) return;
   const started = epoch;
+  const request = ++listEpoch;
+  const after = more ? cursor.value || undefined : undefined;
+  controller?.abort();
   controller = new AbortController();
   loading.value = true;
   loadError.value = false;
   try {
-    const page = await RankingService.list(
-      more ? cursor.value || undefined : undefined,
-      controller.signal,
-    );
-    if (started !== epoch) return;
-    const previous = more ? items.value : [];
+    const page = await RankingService.list(after, controller.signal);
+    if (started !== epoch || request !== listEpoch) return;
+    const previous = more ? items.value : createdRanking ? [createdRanking] : [];
     items.value = [
       ...new Map([...previous, ...page.items].map((item) => [item.ranking_id, item])).values(),
     ];
     // A repeated cursor must not create an infinite pagination loop.
-    cursor.value = more && page.next_cursor === cursor.value ? null : page.next_cursor;
+    cursor.value = more && page.next_cursor === after ? null : page.next_cursor;
   } catch {
-    if (started === epoch) loadError.value = true;
+    if (started === epoch && request === listEpoch) loadError.value = true;
   } finally {
-    if (started === epoch) loading.value = false;
+    if (started === epoch && request === listEpoch) loading.value = false;
   }
+}
+function refreshAfterJoin() {
+  if (!user.user.isLoged) return;
+  items.value = [];
+  cursor.value = null;
+  void load(false, true);
 }
 watch(
   () => [user.user.generation, user.user.isLoged],
@@ -97,7 +105,7 @@ watch(
     creating.value = false;
     if (user.user.isLoged) void load();
   },
-  { immediate: true },
+  { immediate: true, flush: 'sync' },
 );
 onBeforeUnmount(() => {
   epoch++;
@@ -121,7 +129,8 @@ async function create() {
       admission: admission.value as RankingSummary['admission'],
     });
     if (started !== epoch) return;
-    epoch++;
+    const refreshInFlight = loading.value;
+    listEpoch++;
     controller?.abort();
     loading.value = false;
     loadError.value = false;
@@ -132,6 +141,10 @@ async function create() {
     creating.value = false;
     created.value = true;
     name.value = '';
+    if (refreshInFlight) {
+      cursor.value = null;
+      void load(false, true, ranking);
+    }
   } catch (error) {
     if (started !== epoch) return;
     const response = (
@@ -212,55 +225,58 @@ async function create() {
           {{ loading ? t('rankings.loading') : t('rankings.more') }}
         </button>
       </section>
-      <section class="mm-ranking-create" :aria-labelledby="'ranking-create-title'">
-        <h2 id="ranking-create-title">{{ t('rankings.create') }}</h2>
-        <p>{{ t('rankings.createHint') }}</p>
-        <form @submit.prevent="create">
-          <label for="ranking-name">{{ t('rankings.name') }}</label>
-          <input
-            id="ranking-name"
-            v-model="name"
-            class="mm-input"
-            autocomplete="off"
-            :disabled="creating || uncertain"
-            :aria-invalid="createError === 'invalidName'"
-            :aria-describedby="createError ? 'ranking-create-error' : undefined"
-          />
-          <BaseSelect
-            v-model="visibility"
-            :label="t('rankings.visibilityLabel')"
-            :options="visibilityOptions"
-            :disabled="creating || uncertain"
-          />
-          <BaseSelect
-            v-model="admission"
-            :label="t('rankings.admissionLabel')"
-            :options="admissionOptions"
-            :disabled="creating || uncertain"
-          />
-          <p class="mm-ranking-hint">{{ t('rankings.visibilityHint') }}</p>
-          <p v-if="createError" id="ranking-create-error" role="alert">
-            {{ t(`rankings.errors.${createError}`) }}
-          </p>
-          <p v-if="created" role="status">{{ t('rankings.created') }}</p>
-          <button
-            class="mm-button mm-button-primary"
-            :disabled="creating || uncertain"
-            type="submit"
-          >
-            {{ creating ? t('rankings.creating') : t('rankings.create') }}
-          </button>
-          <button
-            v-if="uncertain"
-            type="button"
-            class="mm-button"
-            :disabled="loading"
-            @click="load()"
-          >
-            {{ t('rankings.checkList') }}
-          </button>
-        </form>
-      </section>
+      <div class="mm-ranking-side">
+        <RankingInvitationInbox v-if="user.user.isLoged" @joined="refreshAfterJoin" />
+        <section class="mm-ranking-create" :aria-labelledby="'ranking-create-title'">
+          <h2 id="ranking-create-title">{{ t('rankings.create') }}</h2>
+          <p>{{ t('rankings.createHint') }}</p>
+          <form @submit.prevent="create">
+            <label for="ranking-name">{{ t('rankings.name') }}</label>
+            <input
+              id="ranking-name"
+              v-model="name"
+              class="mm-input"
+              autocomplete="off"
+              :disabled="creating || uncertain"
+              :aria-invalid="createError === 'invalidName'"
+              :aria-describedby="createError ? 'ranking-create-error' : undefined"
+            />
+            <BaseSelect
+              v-model="visibility"
+              :label="t('rankings.visibilityLabel')"
+              :options="visibilityOptions"
+              :disabled="creating || uncertain"
+            />
+            <BaseSelect
+              v-model="admission"
+              :label="t('rankings.admissionLabel')"
+              :options="admissionOptions"
+              :disabled="creating || uncertain"
+            />
+            <p class="mm-ranking-hint">{{ t('rankings.visibilityHint') }}</p>
+            <p v-if="createError" id="ranking-create-error" role="alert">
+              {{ t(`rankings.errors.${createError}`) }}
+            </p>
+            <p v-if="created" role="status">{{ t('rankings.created') }}</p>
+            <button
+              class="mm-button mm-button-primary"
+              :disabled="creating || uncertain"
+              type="submit"
+            >
+              {{ creating ? t('rankings.creating') : t('rankings.create') }}
+            </button>
+            <button
+              v-if="uncertain"
+              type="button"
+              class="mm-button"
+              :disabled="loading"
+              @click="load()"
+            >
+              {{ t('rankings.checkList') }}
+            </button>
+          </form>
+        </section>
+      </div>
     </div>
   </BaseContainerMain>
 </template>
@@ -285,6 +301,11 @@ async function create() {
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
   gap: 24px;
   align-items: start;
+}
+.mm-ranking-side {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
 }
 .mm-ranking-list,
 .mm-ranking-create {
