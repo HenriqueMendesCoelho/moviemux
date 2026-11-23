@@ -1,6 +1,7 @@
 import { createError } from 'nuxt/server';
 import { collectionContractPath } from './collection-contract-path';
 import { rankingTmdbBody, rankingTmdbOperation } from './ranking-tmdb-contract';
+import { rankingRatingCopyBody, rankingRatingCopyOperation } from './ranking-rating-copy';
 import { rankingVisibilityBody, rankingVisibilityOperation } from './ranking-visibility-contract';
 import { repeatedRoundBody, repeatedRoundOperation } from './repeated-round-contract';
 const uuid = '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}';
@@ -14,6 +15,8 @@ export function rankingRequestBody(
   contentType: string | undefined,
 ): string | undefined {
   path = collectionContractPath(path);
+  const copy = rankingRatingCopyOperation(path, method);
+  if (copy) return rankingRatingCopyBody(copy, body, contentType);
   const visibility = rankingVisibilityOperation(path, method);
   if (visibility) return rankingVisibilityBody(visibility, body, contentType);
   const repeated = repeatedRoundOperation(path, method);

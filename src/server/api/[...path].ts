@@ -15,6 +15,11 @@ import {
   RANKING_VISIBILITY_BODY_LIMIT,
   rankingVisibilityOperation,
 } from '../utils/ranking-visibility-contract';
+import {
+  invalidRatingCopy,
+  rankingRatingCopyOperation,
+  ratingCopyBodyLimit,
+} from '../utils/ranking-rating-copy';
 import { rankingRequestBody } from '../utils/ranking-requests';
 import {
   allowedApiPath,
@@ -33,23 +38,25 @@ export default defineEventHandler(async (event) => {
   const logical = collectionContractPath(path);
   const repeated = repeatedRoundOperation(logical, method);
   const visibility = rankingVisibilityOperation(logical, method);
+  const copy = rankingRatingCopyOperation(logical, method);
   // Nitro's portable event also proxies its underlying H3 node context.
   const native = (event as typeof event & Partial<Pick<H3Event, 'node'>>).node;
   const rawUrl = native?.req.originalUrl ?? native?.req.url;
-  if (visibility && rawUrl !== undefined && rawUrl.split('?', 1)[0] !== `/api${path}`)
+  if ((visibility || copy) && rawUrl !== undefined && rawUrl.split('?', 1)[0] !== `/api${path}`)
     throw createError({ status: 404, message: 'API route not available' });
   const session = isPublic ? undefined : await readActiveSession(event);
   assertRankingReadQuery(
     path,
     method,
     event.url.searchParams,
-    (visibility ? rawUrl ?? event.url.href : event.url.href).includes('?'),
+    (visibility || copy ? (rawUrl ?? event.url.href) : event.url.href).includes('?'),
   );
   assertRankingReadIntent(path, method, event.req.headers);
   if (
     visibility === 'read' &&
     (event.req.headers.has('transfer-encoding') ||
-      (event.req.headers.has('content-length') && event.req.headers.get('content-length') !== '0') ||
+      (event.req.headers.has('content-length') &&
+        event.req.headers.get('content-length') !== '0') ||
       event.req.body != null)
   )
     invalidVisibilitySettings();
@@ -65,13 +72,20 @@ export default defineEventHandler(async (event) => {
       : event.req.headers.get('content-type')?.split(';')[0];
   if (
     !visibility &&
+    !copy &&
     !['GET', 'HEAD'].includes(method) &&
     contentType &&
     !['application/json', 'application/x-www-form-urlencoded'].includes(contentType)
   )
     throw createError({ status: 415, message: 'Unsupported request type' });
   let body: string | undefined;
-  if (visibility === 'write') {
+  if (copy) {
+    try {
+      body = await boundedBody(event, ratingCopyBodyLimit(copy), true);
+    } catch {
+      invalidRatingCopy();
+    }
+  } else if (visibility === 'write') {
     try {
       body = await boundedBody(event, RANKING_VISIBILITY_BODY_LIMIT, true);
     } catch {
