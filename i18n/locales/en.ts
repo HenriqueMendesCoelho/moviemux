@@ -7,7 +7,9 @@ import components from './en/components.json';
 import rankings from './en/rankings.json';
 import rankingDetail from './en/ranking-detail.json';
 import rankingOwnRating from './en/ranking-own-rating.json';
+import rankingInvitationAddress from './en/ranking-invitation-address.json';
 export default {
+  rankingInvitationAddress,
   rankingOwnRating,
   rankingDetail,
   rankings,

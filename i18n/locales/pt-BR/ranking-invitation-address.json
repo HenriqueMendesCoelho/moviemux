@@ -1,0 +1,20 @@
+{
+  "title": "Endereço de convite para rankings",
+  "description": "Compartilhe você mesmo este código com quem você quer que te convide para um ranking. Ele não serve para entrar na sua conta.",
+  "reveal": "Mostrar meu código",
+  "hide": "Ocultar código",
+  "copy": "Copiar código",
+  "rotate": "Trocar código",
+  "rotateWarning": "O código antigo deixa de funcionar para novos convites. Os convites já enviados não mudam.",
+  "cancel": "Cancelar",
+  "confirmRotate": "Trocar meu código",
+  "empty": "Você ainda não gerou um código de convite.",
+  "generate": "Gerar meu código",
+  "check": "Consultar meu código",
+  "working": "Aguarde…",
+  "updated": "Seu código de convite está pronto.",
+  "copied": "Código de convite copiado.",
+  "loadError": "Não foi possível consultar seu código de convite.",
+  "copyError": "Não foi possível copiar automaticamente. Você pode selecionar e copiar o código.",
+  "uncertain": "Não foi possível confirmar a mudança. Consulte seu código atual antes de tentar novamente."
+}

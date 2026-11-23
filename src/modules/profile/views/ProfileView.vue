@@ -23,7 +23,11 @@
       </button>
     </nav>
     <section ref="panel" tabindex="-1" class="mm-card mm-profile-panel">
-      <PanelProfile v-if="tab === 'myData'" /><PanelSecurityProfile v-else />
+      <template v-if="tab === 'myData'">
+        <PanelProfile />
+        <RankingInvitationAddress class="mm-profile-invitation-address" />
+      </template>
+      <PanelSecurityProfile v-else />
     </section>
   </BaseContainerMain>
 </template>
@@ -32,6 +36,7 @@ import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 import { ref, watch, nextTick } from 'vue';
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
+import RankingInvitationAddress from '~/modules/ranking/components/RankingInvitationAddress.vue';
 import PanelProfile from '../components/PanelProfile.vue';
 import PanelSecurityProfile from '../components/PanelSecurityProfile.vue';
 const tab = ref('myData');
@@ -54,5 +59,8 @@ watch(tab, async () => {
 .mm-profile-panel {
   margin-top: 1.5rem;
   padding: clamp(1rem, 2vw, 1.5rem);
+}
+.mm-profile-invitation-address {
+  margin-top: 1.5rem;
 }
 </style>

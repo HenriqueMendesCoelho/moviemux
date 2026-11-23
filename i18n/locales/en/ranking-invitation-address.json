@@ -1,0 +1,20 @@
+{
+  "title": "Ranking invitation address",
+  "description": "Share this code yourself with someone you want to receive a ranking invitation from. It is not a sign-in code.",
+  "reveal": "Show my code",
+  "hide": "Hide code",
+  "copy": "Copy code",
+  "rotate": "Replace code",
+  "rotateWarning": "The old code will stop working for new invitations. Invitations already sent are unchanged.",
+  "cancel": "Cancel",
+  "confirmRotate": "Replace my code",
+  "empty": "You haven’t generated an invitation code yet.",
+  "generate": "Generate my code",
+  "check": "Check my code",
+  "working": "Working…",
+  "updated": "Your invitation code is ready.",
+  "copied": "Invitation code copied.",
+  "loadError": "Could not load your invitation code.",
+  "copyError": "Could not copy automatically. You can select and copy the code.",
+  "uncertain": "Could not confirm the change. Check your current code before trying again."
+}
