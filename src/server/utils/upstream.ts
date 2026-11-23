@@ -9,6 +9,7 @@ const rankingSummaryPath = new RegExp(`^${rankingRoot}$`);
 const rankingAccessPath = new RegExp(`^${rankingRoot}/access$`);
 const rankingEntriesPath = new RegExp(`^${rankingRoot}/entries$`);
 const rankingRoundsPath = new RegExp(`^${rankingEntry}/rounds$`);
+const rankingRoundDetailPath = new RegExp(`^${rankingEntry}/rounds/(${rankingUuid})$`);
 const ownRatingPath = new RegExp(`^${rankingRoot}/rounds/${rankingUuid}/rating/me$`);
 const aggregatePath = new RegExp(`^${rankingRoot}/entries/(${rankingUuid})/ratings/aggregate$`);
 const issueInvitationPath = new RegExp(`^${rankingRoot}/invitations$`);
@@ -30,6 +31,7 @@ const rules: Array<[RegExp, string[]]> = [
   [rankingAccessPath, ['GET']],
   [rankingEntriesPath, ['GET']],
   [rankingRoundsPath, ['GET']],
+  [rankingRoundDetailPath, ['GET']],
   [ownRatingPath, ['GET', 'POST', 'PATCH']],
   [aggregatePath, ['GET']],
   [/^\/user$/, ['GET']],
@@ -63,6 +65,16 @@ const rules: Array<[RegExp, string[]]> = [
 export function allowedApiPath(path: string, method: string): boolean {
   if (path.includes('..') || path.includes('\\') || /%(?:2f|5c|2e|25)/i.test(path)) return false;
   return rules.some(([pattern, methods]) => pattern.test(path) && methods.includes(method));
+}
+export function assertRankingReadIntent(path: string, method: string, headers: Headers): void {
+  if (
+    method === 'GET' &&
+    rankingRoundDetailPath.test(path) &&
+    [headers.get('purpose'), headers.get('sec-purpose')].some(
+      (value) => value && /\b(?:prefetch|prerender)\b/i.test(value),
+    )
+  )
+    throw createError({ status: 400, message: 'Explicit round detail action required' });
 }
 export function assertRankingReadQuery(
   pathname: string,
@@ -134,6 +146,7 @@ function rankingErrorCode(
     method === 'GET' &&
     (paged ||
       rankingSummaryPath.test(pathname) ||
+      rankingRoundDetailPath.test(pathname) ||
       rankingAccessPath.test(pathname) ||
       ownRating ||
       aggregate)
@@ -277,6 +290,26 @@ export async function upstreamRequest(
     data = text ? JSON.parse(text) : null;
   } catch {
     throw createError({ status: 502, message: 'Invalid API response' });
+  }
+  const roundDetailId =
+    options.method === 'GET' ? rankingRoundDetailPath.exec(path)?.[1] : undefined;
+  if (roundDetailId) {
+    const v = data as Record<string, unknown> | null;
+    if (
+      response.status !== 200 ||
+      !v ||
+      typeof v.round_id !== 'string' ||
+      v.round_id.toLowerCase() !== roundDetailId.toLowerCase() ||
+      typeof v.round_number !== 'number' ||
+      !Number.isSafeInteger(v.round_number) ||
+      v.round_number < 1 ||
+      !(v.revealed === null || typeof v.revealed === 'boolean')
+    )
+      throw createError({ status: 502, message: 'Invalid API response' });
+    return {
+      status: 200,
+      data: { round_id: v.round_id, round_number: v.round_number, revealed: v.revealed },
+    };
   }
   if (options.method === 'GET' && path.split('?')[0] === incomingInvitationsPath) {
     const page = data as { items?: unknown; next_cursor?: unknown } | null;

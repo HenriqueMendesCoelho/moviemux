@@ -465,3 +465,43 @@ describe('recipient code issuer transport', () => {
     });
   });
 });
+describe('explicit scoped round detail transport', () => {
+  const id = '11111111-1111-4111-8111-111111111111';
+  const path = `/rankings/${id}/entries/${id}/rounds/${id}`;
+  it('only GET exact route, never HEAD or speculative intent', async () => {
+    const { assertRankingReadIntent } = await import('../../src/server/utils/upstream');
+    expect(allowedApiPath(path, 'GET')).toBe(true);
+    for (const method of ['HEAD', 'POST', 'PATCH'])
+      expect(allowedApiPath(path, method)).toBe(false);
+    expect(() =>
+      assertRankingReadQuery(path, 'GET', new URLSearchParams('prefetch=true')),
+    ).toThrow();
+    expect(() => assertRankingReadIntent(path, 'GET', new Headers())).not.toThrow();
+    for (const [name, value] of [
+      ['Purpose', 'prefetch'],
+      ['Sec-Purpose', 'prefetch;prerender'],
+      ['Purpose', 'PRERENDER'],
+    ])
+      expect(() =>
+        assertRankingReadIntent(path, 'GET', new Headers({ [name!]: value! })),
+      ).toThrow();
+  });
+  it('projects only matching round and exact disclosure, never vote metadata', async () => {
+    const detail = { round_id: id, round_number: 1, revealed: true };
+    respond(200, { ...detail, score: 10, authors: ['private'] });
+    expect(await upstreamRequest(path, { method: 'GET' })).toEqual({ status: 200, data: detail });
+    for (const body of [
+      { ...detail, round_id: '22222222-2222-4222-8222-222222222222' },
+      { ...detail, round_number: 0 },
+      { ...detail, revealed: 'true' },
+    ]) {
+      respond(200, body);
+      await expect(upstreamRequest(path, { method: 'GET' })).rejects.toMatchObject({ status: 502 });
+    }
+    respond(404, { code: 'ranking.not_found', private: 'hidden' });
+    await expect(upstreamRequest(path, { method: 'GET' })).rejects.toMatchObject({
+      status: 404,
+      data: { code: 'ranking.not_found' },
+    });
+  });
+});
