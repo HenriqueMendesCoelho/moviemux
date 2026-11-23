@@ -37,7 +37,7 @@ function hide(focus = false) {
   if (focus) void nextTick(() => revealButton.value?.focus());
 }
 watch(
-  () => [user.user.generation, user.user.isLoged],
+  [() => user.user.generation, () => user.user.isLoged],
   () => {
     writeEpoch++;
     writing.value = false;

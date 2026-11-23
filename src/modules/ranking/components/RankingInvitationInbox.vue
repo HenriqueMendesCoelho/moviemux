@@ -80,7 +80,7 @@ async function load(more = false, force = false) {
   }
 }
 watch(
-  () => [user.user.generation, user.user.isLoged],
+  [() => user.user.generation, () => user.user.isLoged],
   () => {
     reset();
     void load();

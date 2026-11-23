@@ -37,9 +37,18 @@ function reset() {
   receipt.value = null;
   confirming.value = false;
 }
-watch(() => [props.rankingId, props.canInvite, user.user.generation, user.user.isLoged], reset, {
-  flush: 'sync',
-});
+watch(
+  [
+    () => props.rankingId,
+    () => props.canInvite,
+    () => user.user.generation,
+    () => user.user.isLoged,
+  ],
+  reset,
+  {
+    flush: 'sync',
+  },
+);
 onBeforeUnmount(reset);
 function allowed() {
   return props.canInvite && user.user.isLoged && !scopeBlocked.value;

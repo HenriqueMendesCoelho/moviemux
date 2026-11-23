@@ -90,7 +90,7 @@ function refreshAfterJoin() {
   void load(false, true);
 }
 watch(
-  () => [user.user.generation, user.user.isLoged],
+  [() => user.user.generation, () => user.user.isLoged],
   () => {
     epoch++;
     controller?.abort();
