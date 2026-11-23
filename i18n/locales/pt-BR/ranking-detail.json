@@ -12,7 +12,7 @@
   "untitled": "Filme sem título",
   "more": "Carregar mais filmes",
   "rounds": "Rodadas do filme",
-  "partial": "Algumas rodadas ainda estão ocultas. O resultado geral não é exibido.",
+  "partial": "Somente as rodadas reveladas estão incluídas. As notas ocultas não afetam este resultado.",
   "unrated": "Ainda não há notas numéricas.",
   "mean": "Média geral",
   "exactRatio": "Total exato dividido pela quantidade de votos numéricos.",
@@ -25,5 +25,7 @@
   "ownScore": "Minha nota",
   "noNumericScore": "Nenhuma nota numérica registrada",
   "ownUnavailable": "Sua nota não existe ou está indisponível neste contexto.",
-  "moreRounds": "Carregar mais rodadas"
+  "moreRounds": "Carregar mais rodadas",
+  "partialMean": "Média das rodadas reveladas",
+  "unratedPartial": "Ainda não há notas numéricas nas rodadas reveladas."
 }

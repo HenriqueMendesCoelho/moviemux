@@ -98,13 +98,19 @@ beforeEach(() => {
 });
 afterEach(() => w?.unmount());
 test.each(['en', 'pt-BR'])(
-  'localized rounds preserve user text and conceal partial result %s',
+  'localized rounds preserve user text and label disclosed subtotal %s',
   async (locale) => {
     await render(locale);
     await open();
     expect(w.text()).toContain(locale === 'en' ? 'Round 1' : 'Rodada 1');
     expect(w.text()).toContain('User description');
-    expect(w.text()).not.toContain('9007199254740993');
+    expect(w.text()).toContain('9007199254740993 / 3');
+    expect(w.text()).toContain(
+      locale === 'en' ? messages.en.partialMean : messages['pt-BR'].partialMean,
+    );
+    expect(w.text()).not.toContain(
+      locale === 'en' ? messages.en.mean + ':' : messages['pt-BR'].mean + ':',
+    );
     expect(mocks.ownRating).not.toHaveBeenCalled();
     await w.get('.mm-detail-rounds button').trigger('click');
     await flushPromises();
@@ -191,4 +197,13 @@ test('ambiguous own 404 rechecks access before retaining authorized catalog and 
   w.findComponent({ name: 'RankingOwnRating' }).vm.$emit('confirmed');
   await flushPromises();
   expect(w.text()).not.toContain(messages.en.ownUnavailable);
+});
+
+test('zero revealed votes has no partial average and does not imply hidden participation', async () => {
+  mocks.aggregate.mockResolvedValue({ entry_id: id, total: 0n, votes: 0n, partial: true });
+  await render();
+  await open();
+  expect(w.text()).toContain(messages.en.unratedPartial);
+  expect(w.text()).not.toContain('0 / 0');
+  expect(w.text()).not.toContain(messages.en.mean + ':');
 });

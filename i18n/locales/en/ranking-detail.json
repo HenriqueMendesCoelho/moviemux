@@ -12,7 +12,7 @@
   "untitled": "Untitled movie",
   "more": "Load more movies",
   "rounds": "Movie rounds",
-  "partial": "Some rounds are still concealed. The overall result is not shown.",
+  "partial": "Only revealed rounds are included. Concealed ratings do not affect this result.",
   "unrated": "No numeric votes yet.",
   "mean": "Overall mean",
   "exactRatio": "Exact total divided by the number of numeric votes.",
@@ -25,5 +25,7 @@
   "ownScore": "My rating",
   "noNumericScore": "No numeric score recorded",
   "ownUnavailable": "Your rating is absent or unavailable in this context.",
-  "moreRounds": "Load more rounds"
+  "moreRounds": "Load more rounds",
+  "partialMean": "Mean of revealed rounds",
+  "unratedPartial": "No numeric votes in revealed rounds yet."
 }

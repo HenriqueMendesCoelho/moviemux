@@ -255,9 +255,11 @@ async function refreshAggregate() {
         </div>
         <template v-if="aggregate">
           <p v-if="aggregate.partial">{{ t('rankingDetail.partial') }}</p>
-          <p v-else-if="aggregate.votes === 0n">{{ t('rankingDetail.unrated') }}</p>
+          <p v-if="aggregate.votes === 0n">
+            {{ t(aggregate.partial ? 'rankingDetail.unratedPartial' : 'rankingDetail.unrated') }}
+          </p>
           <p v-else>
-            {{ t('rankingDetail.mean') }}:
+            {{ t(aggregate.partial ? 'rankingDetail.partialMean' : 'rankingDetail.mean') }}:
             <strong>{{ aggregate.total.toString() }} / {{ aggregate.votes.toString() }}</strong
             ><small class="mm-detail-exact">{{ t('rankingDetail.exactRatio') }}</small>
           </p>
