@@ -9,6 +9,9 @@ const rankingSummaryPath = new RegExp(`^${rankingRoot}$`);
 const rankingAccessPath = new RegExp(`^${rankingRoot}/access$`);
 const rankingEntriesPath = new RegExp(`^${rankingRoot}/entries$`);
 const rankingRoundsPath = new RegExp(`^${rankingEntry}/rounds$`);
+const roundAggregatePath = new RegExp(
+  `^${rankingEntry}/rounds/(${rankingUuid})/ratings/aggregate$`,
+);
 const rankingRoundDetailPath = new RegExp(`^${rankingEntry}/rounds/(${rankingUuid})$`);
 const ownRatingPath = new RegExp(`^${rankingRoot}/rounds/${rankingUuid}/rating/me$`);
 const aggregatePath = new RegExp(`^${rankingRoot}/entries/(${rankingUuid})/ratings/aggregate$`);
@@ -32,6 +35,7 @@ const rules: Array<[RegExp, string[]]> = [
   [rankingEntriesPath, ['GET']],
   [rankingRoundsPath, ['GET']],
   [rankingRoundDetailPath, ['GET']],
+  [roundAggregatePath, ['GET']],
   [ownRatingPath, ['GET', 'POST', 'PATCH']],
   [aggregatePath, ['GET']],
   [/^\/user$/, ['GET']],
@@ -147,6 +151,7 @@ function rankingErrorCode(
     (paged ||
       rankingSummaryPath.test(pathname) ||
       rankingRoundDetailPath.test(pathname) ||
+      roundAggregatePath.test(pathname) ||
       rankingAccessPath.test(pathname) ||
       ownRating ||
       aggregate)
@@ -220,6 +225,27 @@ function validAggregate(text: string, entryId: string): boolean {
     ['true', 'false'].includes(values.get('partial') || '')
   );
 }
+const roundAggregateMember =
+  /^[ \t\r\n]*"(round_id|revealed|total|votes)"[ \t\r\n]*:[ \t\r\n]*("[a-fA-F0-9-]+"|true|false|null|0|-?[1-9][0-9]*)[ \t\r\n]*$/;
+function validRoundAggregate(text: string, roundId: string): boolean {
+  const members = aggregateDocument.exec(text)?.[1]?.split(',');
+  if (members?.length !== 4) return false;
+  const fields = new Map<string, string>();
+  for (const member of members) {
+    const match = roundAggregateMember.exec(member);
+    if (!match || fields.has(match[1]!)) return false;
+    fields.set(match[1]!, match[2]!);
+  }
+  if (fields.get('round_id')?.toLowerCase() !== JSON.stringify(roundId.toLowerCase())) return false;
+  if (fields.get('revealed') === 'false' || fields.get('revealed') === 'null')
+    return fields.get('total') === 'null' && fields.get('votes') === 'null';
+  return (
+    fields.get('revealed') === 'true' &&
+    /^(0|-?[1-9][0-9]*)$/.test(fields.get('total') || '') &&
+    /^(0|[1-9][0-9]*)$/.test(fields.get('votes') || '') &&
+    (fields.get('votes') !== '0' || fields.get('total') === '0')
+  );
+}
 export async function upstreamRequest(
   path: string,
   options: { method: string; body?: string; contentType?: string; token?: string },
@@ -284,6 +310,13 @@ export async function upstreamRequest(
     if (response.status !== 200 || !validAggregate(text, aggregateEntryId))
       throw createError({ status: 502, message: 'Invalid API response' });
     return { status: response.status, data: null, rawJson: text };
+  }
+  const aggregateRoundId =
+    options.method === 'GET' ? roundAggregatePath.exec(path.split('?')[0] || '')?.[1] : undefined;
+  if (aggregateRoundId) {
+    if (response.status !== 200 || !validRoundAggregate(text, aggregateRoundId))
+      throw createError({ status: 502, message: 'Invalid API response' });
+    return { status: 200, data: null, rawJson: text };
   }
   let data: unknown;
   try {

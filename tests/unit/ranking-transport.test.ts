@@ -505,3 +505,47 @@ describe('explicit scoped round detail transport', () => {
     });
   });
 });
+describe('read-only round aggregate preserves exact disclosure boundary', () => {
+  const id = '11111111-1111-4111-8111-111111111111';
+  const path = `/rankings/${id}/entries/${id}/rounds/${id}/ratings/aggregate`;
+  it('allows only GET with no query, separate from triggering detail', () => {
+    expect(allowedApiPath(path, 'GET')).toBe(true);
+    expect(allowedApiPath(path, 'HEAD')).toBe(false);
+    expect(allowedApiPath(path, 'POST')).toBe(false);
+    expect(() => assertRankingReadQuery(path, 'GET', new URLSearchParams('reveal=true'))).toThrow();
+  });
+  it.each(['false', 'null'])('never forwards totals/counts for disclosure %s', async (revealed) => {
+    const raw = `{"round_id":"${id}","revealed":${revealed},"total":null,"votes":null}`;
+    respond(200, raw, true);
+    expect(await upstreamRequest(path, { method: 'GET' })).toEqual({
+      status: 200,
+      data: null,
+      rawJson: raw,
+    });
+    respond(200, raw.replace('"total":null', '"total":0'), true);
+    await expect(upstreamRequest(path, { method: 'GET' })).rejects.toMatchObject({ status: 502 });
+  });
+  it('keeps huge integer tokens lossless and rejects wrong scope/extra fields/duplicate fields', async () => {
+    const raw = `{"round_id":"${id}","revealed":true,"total":72057594037927945,"votes":9007199254740993}`;
+    respond(200, raw, true);
+    expect(await upstreamRequest(path, { method: 'GET' })).toEqual({
+      status: 200,
+      data: null,
+      rawJson: raw,
+    });
+    for (const invalid of [
+      raw.replace(id, '22222222-2222-4222-8222-222222222222'),
+      raw.replace('}', ',"authors":[]}'),
+      raw.replace('}', ',"votes":1}'),
+      raw.replace('9007199254740993', '0'),
+    ]) {
+      respond(200, invalid, true);
+      await expect(upstreamRequest(path, { method: 'GET' })).rejects.toMatchObject({ status: 502 });
+    }
+    respond(404, { code: 'ranking.not_found', private: 'hidden' });
+    await expect(upstreamRequest(path, { method: 'GET' })).rejects.toMatchObject({
+      status: 404,
+      data: { code: 'ranking.not_found' },
+    });
+  });
+});
