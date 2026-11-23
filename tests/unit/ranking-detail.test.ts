@@ -6,6 +6,7 @@ import en from '../../i18n/locales/en/ranking-detail.json';
 import pt from '../../i18n/locales/pt-BR/ranking-detail.json';
 import enLocale from '../../i18n/locales/en';
 import ptLocale from '../../i18n/locales/pt-BR';
+import Picker from '../../src/modules/ranking/components/RankingTmdbPicker.vue';
 import Round from '../../src/modules/ranking/components/RankingRoundPanel.vue';
 import Confirm from '../../src/core/components/BaseConfirmDialog.vue';
 import Card from '../../src/modules/ranking/components/RankingEntryCard.vue';
@@ -18,6 +19,7 @@ const mocks = vi.hoisted(() => ({
   aggregate: vi.fn(),
   ownRating: vi.fn(),
   roundEnter: vi.fn(),
+  pickerEnabled: false,
   roundAggregate: vi.fn(),
   leave: null as null | (() => boolean | Promise<boolean>),
   update: null as
@@ -28,6 +30,19 @@ const mocks = vi.hoisted(() => ({
       ) => boolean | Promise<boolean>),
   user: null as any,
 }));
+vi.mock('#imports', async (original) => {
+  const actual = await original<typeof import('#imports')>();
+  return {
+    ...actual,
+    useRuntimeConfig: () => {
+      const config = actual.useRuntimeConfig();
+      return {
+        ...config,
+        public: { ...config.public, rankingTmdbPickerEnabled: mocks.pickerEnabled },
+      };
+    },
+  };
+});
 vi.mock('vue-router', async (original) => ({
   ...(await original<typeof import('vue-router')>()),
   onBeforeRouteLeave: (handler: NonNullable<typeof mocks.leave>) => {
@@ -114,6 +129,7 @@ function deferred() {
 }
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.pickerEnabled = false;
   mocks.user = reactive({ user: { generation: 'a', isLoged: true } });
   mocks.summary.mockResolvedValue({
     ranking_id: id,
@@ -386,4 +402,86 @@ test('same-session refresh does not reset selected round or an active draft', as
   const leave = mocks.leave?.();
   w.getComponent(Confirm).vm.$emit('cancel');
   expect(await leave).toBe(false);
+});
+
+function usablePicker() {
+  mocks.summary.mockResolvedValue({
+    ranking_id: id,
+    name: 'Authorized ranking',
+    visibility: 'PRIVATE',
+    admission: 'INVITATION',
+    capabilities: ['READ', 'ADD_ENTRY'],
+  });
+}
+test('picker remains disabled by default even with scoped capability', async () => {
+  usablePicker();
+  await render();
+  expect(w.findComponent(Picker).exists()).toBe(false);
+  expect(w.text()).not.toContain(enLocale.rankingTmdbPicker.open);
+});
+test('confirmed import refreshes only current ranked catalog, never selects or reveals an entry', async () => {
+  usablePicker();
+  mocks.pickerEnabled = true;
+  await render();
+  const picker = w.getComponent(Picker);
+  expect(picker.props('enabled')).toBe(true);
+  const count = mocks.entries.mock.calls.length;
+  picker.vm.$emit('imported', { rankingId: other, entryId: other, disposition: 'new' });
+  expect(mocks.entries).toHaveBeenCalledTimes(count);
+  picker.vm.$emit('imported', { rankingId: id, entryId: other, disposition: 'verified' });
+  await flushPromises();
+  expect(mocks.entries).toHaveBeenCalledTimes(count + 1);
+  expect(mocks.entries).toHaveBeenLastCalledWith(id, undefined, expect.any(AbortSignal));
+  expect(mocks.rounds).not.toHaveBeenCalled();
+  expect(mocks.roundEnter).not.toHaveBeenCalled();
+  expect(mocks.ownRating).not.toHaveBeenCalled();
+  expect(w.find('.mm-detail-panel').exists()).toBe(false);
+});
+test('pending import prevents switching; uncertain prompt is explicit and cancel retains picker', async () => {
+  usablePicker();
+  mocks.pickerEnabled = true;
+  await render();
+  const picker = w.getComponent(Picker),
+    dialog = w.getComponent(Confirm);
+  const entryButton = w.getComponent(Card).get('button');
+  picker.vm.$emit('interaction', 'pending');
+  await entryButton.trigger('click');
+  expect(mocks.leave?.()).toBe(false);
+  expect(w.text()).toContain(enLocale.rankingTmdbPicker.busyLeave);
+  expect(mocks.rounds).not.toHaveBeenCalled();
+  picker.vm.$emit('interaction', 'uncertain');
+  await entryButton.trigger('click');
+  await flushPromises();
+  expect(w.text()).toContain(enLocale.rankingTmdbPicker.uncertainLeaveHint);
+  dialog.vm.$emit('cancel');
+  await flushPromises();
+  expect(w.getComponent(Picker).element).toBe(picker.element);
+  expect(mocks.rounds).not.toHaveBeenCalled();
+  await entryButton.trigger('click');
+  dialog.vm.$emit('ok');
+  await flushPromises();
+  expect(w.getComponent(Picker).element).not.toBe(picker.element);
+  expect(mocks.rounds).toHaveBeenCalledTimes(1);
+  expect(mocks.roundEnter).not.toHaveBeenCalled();
+});
+test('scope denial clears picker then refetches; absent capability remains unavailable', async () => {
+  usablePicker();
+  mocks.pickerEnabled = true;
+  await render();
+  const pending = deferred();
+  mocks.summary.mockReturnValueOnce(pending.promise);
+  w.getComponent(Picker).vm.$emit('scopeLost', 403);
+  await flushPromises();
+  expect(w.findComponent(Picker).exists()).toBe(false);
+  pending.resolve({
+    ranking_id: id,
+    name: 'Current ranking',
+    visibility: 'PRIVATE',
+    admission: 'INVITATION',
+    capabilities: ['READ'],
+  });
+  await flushPromises();
+  expect(w.text()).toContain(enLocale.rankingTmdbPicker.unavailable);
+  expect(w.findComponent(Picker).exists()).toBe(false);
+  expect(mocks.rounds).not.toHaveBeenCalled();
 });

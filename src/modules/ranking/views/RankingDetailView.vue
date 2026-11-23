@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router';
+import { useRuntimeConfig } from '#imports';
 import { useI18n } from 'vue-i18n';
 import { useUserStore } from '~/core/stores/UserStore';
 import BaseContainerMain from '~/core/components/BaseContainerMain.vue';
 import RankingEntryCard from '../components/RankingEntryCard.vue';
 import RankingInvitationIssuer from '../components/RankingInvitationIssuer.vue';
+import RankingTmdbPicker from '../components/RankingTmdbPicker.vue';
+import type { ImportReceipt } from '../services/RankingTmdbPickerService';
 import RankingRoundPanel from '../components/RankingRoundPanel.vue';
 import BaseConfirmDialog from '~/core/components/BaseConfirmDialog.vue';
 import { formatRatingMean } from '../utils/formatRatingMean';
@@ -19,6 +22,8 @@ import catalog, {
 const props = defineProps<{ rankingId: string }>();
 const { t, locale } = useI18n();
 const user = useUserStore();
+const config = useRuntimeConfig();
+const pickerEnabled = computed(() => String(config.public.rankingTmdbPickerEnabled) === 'true');
 const entries = ref<RankingEntry[]>([]);
 const cursor = ref<string | null>(null);
 const loading = ref(false);
@@ -31,21 +36,30 @@ const detailError = ref('');
 const aggregate = ref<RatingAggregate | null>(null);
 const canRate = ref(false);
 const canInvite = ref(false);
+const canAdd = ref(false);
+const pickerEpoch = ref(0);
+const pickerNotice = ref('');
+const pickerInteraction = ref<'idle' | 'draft' | 'pending' | 'uncertain'>('idle');
 const invitationUnavailable = ref(false);
 const rankingName = ref<string | null | undefined>(undefined);
 const uncertain = ref(new Set<string>());
 const interactions = ref(new Map<string, 'draft' | 'pending'>());
-const guardBusy = ref(false);
+const guardBusy = ref<'rating' | 'picker' | null>(null);
 const dialogKey = ref(0);
 const discardDialog = ref<InstanceType<typeof BaseConfirmDialog>>();
 let decision: ((allow: boolean) => void) | undefined;
+function hasRatingRequest() {
+  return [...interactions.value.values()].includes('pending');
+}
 function settle(allow: boolean) {
-  decision?.(allow);
+  decision?.(allow && !hasRatingRequest() && pickerInteraction.value !== 'pending');
   decision = undefined;
 }
 function resetInterruption() {
   interactions.value.clear();
-  guardBusy.value = false;
+  guardBusy.value = null;
+  pickerInteraction.value = 'idle';
+  pickerEpoch.value++;
   if (decision) {
     settle(false);
     dialogKey.value++;
@@ -55,23 +69,54 @@ function markInteraction(roundId: string, state: 'idle' | 'draft' | 'pending') {
   if (state === 'idle') interactions.value.delete(roundId);
   else if (rounds.value.some((round) => round.round_id === roundId))
     interactions.value.set(roundId, state);
-  if (![...interactions.value.values()].includes('pending')) guardBusy.value = false;
+  if (!hasRatingRequest() && guardBusy.value === 'rating') guardBusy.value = null;
+}
+function markPickerInteraction(state: typeof pickerInteraction.value) {
+  pickerInteraction.value = state;
+  if (state !== 'pending' && guardBusy.value === 'picker') guardBusy.value = null;
 }
 function allowInterruption(): boolean | Promise<boolean> {
-  if (!user.user.isLoged || !interactions.value.size) return true;
-  if ([...interactions.value.values()].includes('pending')) {
-    guardBusy.value = true;
+  const pickerState = pickerInteraction.value;
+  if (!user.user.isLoged || (!interactions.value.size && pickerState === 'idle')) return true;
+  if (hasRatingRequest() || pickerState === 'pending') {
+    guardBusy.value = pickerState === 'pending' ? 'picker' : 'rating';
     return false;
   }
   if (decision || !discardDialog.value) return false;
   const pending = new Promise<boolean>((resolve) => {
     decision = resolve;
   });
+  const ratingDraft = interactions.value.size > 0;
+  const copy =
+    pickerState === 'uncertain'
+      ? {
+          title: 'rankingTmdbPicker.uncertainLeaveTitle',
+          message: ratingDraft
+            ? 'rankingTmdbPicker.uncertainAndRating'
+            : 'rankingTmdbPicker.uncertainLeaveHint',
+          ok: 'rankingTmdbPicker.leaveAnyway',
+          cancel: 'rankingTmdbPicker.stay',
+        }
+      : pickerState === 'draft'
+        ? {
+            title: 'rankingTmdbPicker.discardTitle',
+            message: ratingDraft
+              ? 'rankingTmdbPicker.discardAndRating'
+              : 'rankingTmdbPicker.discardHint',
+            ok: 'rankingTmdbPicker.discard',
+            cancel: 'rankingTmdbPicker.stay',
+          }
+        : {
+            title: 'rankingRoundPanel.discardTitle',
+            message: 'rankingRoundPanel.discardHint',
+            ok: 'rankingRoundPanel.discard',
+            cancel: 'rankingRoundPanel.stay',
+          };
   void discardDialog.value.show({
-    title: () => t('rankingRoundPanel.discardTitle'),
-    message: () => t('rankingRoundPanel.discardHint'),
-    ok: () => t('rankingRoundPanel.discard'),
-    cancel: () => t('rankingRoundPanel.stay'),
+    title: () => t(copy.title),
+    message: () => t(copy.message),
+    ok: () => t(copy.ok),
+    cancel: () => t(copy.cancel),
     persistent: false,
   });
   return pending;
@@ -105,25 +150,28 @@ function clearDetail() {
   detailError.value = '';
   detailLoading.value = false;
 }
-async function load(more = false) {
-  if (loading.value || !user.user.isLoged) return;
+async function load(more = false, replace = false) {
+  if ((loading.value && !replace) || !user.user.isLoged) return;
   const started = epoch;
   const rankingId = props.rankingId;
   const request = new AbortController();
+  controller?.abort();
   controller = request;
   loading.value = true;
   error.value = '';
   try {
     const access = await catalog.summary(rankingId, request.signal);
-    if (started !== epoch) return;
+    if (started !== epoch || request.signal.aborted) return;
     const page = await catalog.entries(
       rankingId,
       more ? cursor.value || undefined : undefined,
       request.signal,
     );
-    if (started !== epoch) return;
+    if (started !== epoch || request.signal.aborted) return;
     rankingName.value = access.name;
     canRate.value = access.capabilities.includes('RATE_OWN');
+    canAdd.value =
+      access.capabilities.includes('READ') && access.capabilities.includes('ADD_ENTRY');
     canInvite.value =
       access.admission === 'INVITATION' &&
       access.capabilities.includes('READ') &&
@@ -135,10 +183,11 @@ async function load(more = false) {
     ];
     cursor.value = more && page.next_cursor === cursor.value ? null : page.next_cursor;
   } catch (e) {
-    if (started === epoch) {
+    if (started === epoch && !request.signal.aborted) {
       canInvite.value = false;
       error.value = message(e);
       if (error.value === 'unavailable' || error.value === 'sessionExpired') {
+        canAdd.value = false;
         canRate.value = false;
         rankingName.value = undefined;
         entries.value = [];
@@ -147,7 +196,7 @@ async function load(more = false) {
       }
     }
   } finally {
-    if (started === epoch) loading.value = false;
+    if (started === epoch && !request.signal.aborted) loading.value = false;
   }
 }
 function reset() {
@@ -156,6 +205,8 @@ function reset() {
   clearDetail();
   canRate.value = false;
   canInvite.value = false;
+  canAdd.value = false;
+  pickerNotice.value = '';
   invitationUnavailable.value = false;
   rankingName.value = undefined;
   uncertain.value.clear();
@@ -231,6 +282,7 @@ async function open(entry: RankingEntry, more = false) {
       detailError.value = message(e);
       if (detailError.value === 'unavailable' || detailError.value === 'sessionExpired') {
         canInvite.value = false;
+        canAdd.value = false;
         resetInterruption();
         rounds.value = [];
         aggregate.value = null;
@@ -247,11 +299,30 @@ function invalidateScope() {
   controller?.abort();
   canRate.value = false;
   canInvite.value = false;
+  canAdd.value = false;
   rankingName.value = undefined;
   entries.value = [];
   cursor.value = null;
   loading.value = false;
   clearDetail();
+}
+async function lostPickerAccess(status: number) {
+  invalidateScope();
+  pickerNotice.value = status === 409 ? 'archived' : status === 401 ? '' : 'unavailable';
+  if (status === 401) error.value = 'sessionExpired';
+  else await load();
+}
+function refreshAfterImport(result: ImportReceipt & { rankingId: string }) {
+  if (
+    result.rankingId !== props.rankingId ||
+    !canAdd.value ||
+    !user.user.isLoged ||
+    !pickerEnabled.value
+  )
+    return;
+  pickerNotice.value = '';
+  cursor.value = null;
+  void load(false, true);
 }
 async function lostInvitationAccess(status: number) {
   invalidateScope();
@@ -318,7 +389,9 @@ async function refreshAggregate() {
       @ok="settle(true)"
       @cancel="settle(false)"
     />
-    <p v-if="guardBusy" role="status">{{ t('rankingRoundPanel.busy') }}</p>
+    <p v-if="guardBusy" role="status">
+      {{ t(guardBusy === 'picker' ? 'rankingTmdbPicker.busyLeave' : 'rankingRoundPanel.busy') }}
+    </p>
     <NuxtLink to="/rankings" class="mm-detail-back">{{ t('rankingDetail.back') }}</NuxtLink>
     <header>
       <h1>
@@ -345,6 +418,18 @@ async function refreshAggregate() {
       :ranking-id="rankingId"
       :can-invite="canInvite"
       @access-lost="lostInvitationAccess"
+    />
+    <p v-if="pickerNotice" role="alert">{{ t(`rankingTmdbPicker.${pickerNotice}`) }}</p>
+    <RankingTmdbPicker
+      v-if="pickerEnabled && canAdd && user.user.isLoged"
+      :key="pickerEpoch"
+      class="mm-detail-picker"
+      :ranking-id="rankingId"
+      :can-add="canAdd"
+      :enabled="pickerEnabled"
+      @imported="refreshAfterImport"
+      @scope-lost="lostPickerAccess"
+      @interaction="markPickerInteraction"
     />
     <div class="mm-detail-layout">
       <section :aria-label="t('rankingDetail.catalog')" :aria-busy="loading">
@@ -427,7 +512,8 @@ async function refreshAggregate() {
   display: inline-block;
   padding: 12px 0;
 }
-.mm-detail-issuer {
+.mm-detail-issuer,
+.mm-detail-picker {
   margin-bottom: 20px;
 }
 .mm-detail-layout {

@@ -22,6 +22,7 @@ As URLs internas não precisam ser públicas. Só o Nuxt precisa receber o naveg
 | `NUXT_PUBLIC_TURNSTILE_ENABLED` | `true` | Proteção falha fechada sem secret/hostnames. `false` só é aceito com origens explicitamente loopback, para testes isolados. Não use em produção. |
 | `NUXT_PUBLIC_TURNSTILE_SITE_KEY` | `0x4AAAAAAFwyH9xyrHzMmwps` | Pública; já vem definida. Use apenas a sitekey correspondente ao secret do widget. Chaves oficiais de teste são recusadas em configuração não loopback. |
 | `NUXT_PUBLIC_TMDB_IMAGE_BASE` | `https://image.tmdb.org/t/p` | CDN pública **sem tamanho** (`w500`, `original` etc.). O frontend escolhe tamanhos responsivos. Não é uma chave da API TMDB. |
+| `NUXT_PUBLIC_RANKING_TMDB_PICKER_ENABLED` | `false` | Exibe a busca e inclusão do TMDB no ranking quando a sessão tem `READ` e `ADD_ENTRY`. Não autoriza operações na API. |
 | `NODE_ENV` | `production` no Docker/build de produção | O Docker já define. Não rode o artefato de produção como desenvolvimento para contornar guardas. |
 | `NITRO_PORT` | `3000` | Porta de escuta do Nuxt. Tem prioridade sobre `PORT`; o Docker já define `PORT=3000`. |
 | `NITRO_HOST` | Depende do runtime; Docker usa `HOST=0.0.0.0` | Defina `0.0.0.0` em container, `127.0.0.1` em testes locais. Tem prioridade sobre `HOST`. |
@@ -73,3 +74,8 @@ A rota pública `GET /healthz` retorna somente `{"status":"ok"}`, sem cache, coo
 O probe usa `NITRO_PORT` antes de `PORT` (default 3000), `NITRO_HOST` antes de `HOST`, converte bind `0.0.0.0` em `127.0.0.1` e `::` em `::1`, e aceita `NITRO_UNIX_SOCKET` quando configurado. Se ambos `NITRO_SSL_CERT`/`NITRO_SSL_KEY` forem usados, verifica HTTPS sem desabilitar validação de certificado; a cadeia/hostname local devem ser válidos para o probe. Na topologia recomendada, o proxy termina TLS e o processo interno escuta HTTP.
 
 Um status diferente de 200, redirect, corpo inesperado, conexão recusada ou timeout produz exit code não zero. O healthcheck não executa reinício por conta própria: a ação ao estado unhealthy depende do orquestrador. Não configure a aplicação para uma porta aleatória (`PORT=0`) se o probe precisa descobri-la pela env.
+
+
+### Importação do TMDB em rankings
+
+O seletor do frontend fica desligado por padrão. Para um teste isolado, use `NUXT_PUBLIC_RANKING_TMDB_PICKER_ENABLED=true` com um backend compatível, sem alterar a configuração de produção. O backend precisa ter a versão com isolamento do catálogo, migrations V12/V13 aplicadas e a flag própria `ranking.catalog.tmdb-import-enabled` habilitada para servir a busca e a importação. A flag pública apenas controla a interface. Se o backend não estiver habilitado, a tela indica indisponibilidade e não usa o catálogo global como alternativa. Valide os dois lados antes de qualquer ativação coordenada.

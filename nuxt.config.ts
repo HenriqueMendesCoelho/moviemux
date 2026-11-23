@@ -66,6 +66,7 @@ export default defineNuxtConfig({
       turnstileEnabled: true,
       apiUrl: '/api',
       socketUrl: '',
+      rankingTmdbPickerEnabled: false,
       tmdbImageBase: process.env.TMDB_IMAGE_BASE || 'https://image.tmdb.org/t/p',
     },
   },
