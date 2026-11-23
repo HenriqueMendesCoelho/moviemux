@@ -23,6 +23,12 @@ import {
   recoveryDirectoryQuery,
   recoveryDirectoryResponse,
 } from './ranking-recovery-directory';
+import {
+  memberRosterError,
+  memberRosterOperation,
+  memberRosterQuery,
+  memberRosterResponse,
+} from './ranking-member-roster';
 import { fixedUpstream } from './security';
 import { collectionContractPath } from './collection-contract-path';
 import {
@@ -112,6 +118,7 @@ export function allowedApiPath(path: string, method: string): boolean {
   path = collectionContractPath(path);
   if (path.includes('..') || path.includes('\\') || /%(?:2f|5c|2e|25)/i.test(path)) return false;
   return (
+    Boolean(memberRosterOperation(path, method)) ||
     Boolean(entryRemovalOperation(path, method)) ||
     Boolean(recoveryDirectoryOperation(path, method)) ||
     Boolean(rankingRatingCopyOperation(path, method)) ||
@@ -139,6 +146,14 @@ export function assertRankingReadQuery(
   rawQuery?: string,
 ): void {
   pathname = collectionContractPath(pathname);
+  const roster = memberRosterOperation(pathname, method);
+  if (roster) {
+    memberRosterQuery(
+      roster,
+      hasQueryDelimiter || query.size ? (rawQuery ?? query.toString()) : undefined,
+    );
+    return;
+  }
   const recovery = recoveryDirectoryOperation(pathname, method);
   if (recovery) {
     recoveryDirectoryQuery(
@@ -392,24 +407,27 @@ export async function upstreamRequest(
   const copy = rankingRatingCopyOperation(path, options.method);
   const queryAt = path.indexOf('?');
   const pathname = queryAt < 0 ? path : path.slice(0, queryAt);
+  const roster = memberRosterOperation(pathname, options.method);
   const recovery = recoveryDirectoryOperation(pathname, options.method);
   const removal = entryRemovalOperation(path, options.method);
   if (!response.ok) {
     // Only a verified code may cross the boundary, never upstream messages or other fields.
     const operation = rankingTmdbOperation(path, options.method);
-    const code = recovery
-      ? recoveryDirectoryError(recovery, response.status, text)
-      : removal
-        ? entryRemovalError(removal, response.status, text)
-        : copy
-          ? rankingRatingCopyError(copy, response.status, text)
-          : visibility
-            ? rankingVisibilityError(response.status, text)
-            : repeated
-              ? repeatedRoundError(repeated, response.status, text)
-              : operation
-                ? rankingTmdbError(operation, response.status, text)
-                : rankingErrorCode(path, options.method, response.status, text);
+    const code = roster
+      ? memberRosterError(roster, response.status, text)
+      : recovery
+        ? recoveryDirectoryError(recovery, response.status, text)
+        : removal
+          ? entryRemovalError(removal, response.status, text)
+          : copy
+            ? rankingRatingCopyError(copy, response.status, text)
+            : visibility
+              ? rankingVisibilityError(response.status, text)
+              : repeated
+                ? repeatedRoundError(repeated, response.status, text)
+                : operation
+                  ? rankingTmdbError(operation, response.status, text)
+                  : rankingErrorCode(path, options.method, response.status, text);
     throw createError({
       status:
         code || [400, 401, 403, 404, 409, 422, 429].includes(response.status)
@@ -424,6 +442,13 @@ export async function upstreamRequest(
             : 'API request failed',
     });
   }
+  if (roster)
+    return memberRosterResponse(
+      roster,
+      response.status,
+      text,
+      queryAt < 0 ? undefined : path.slice(queryAt + 1),
+    );
   if (recovery)
     return recoveryDirectoryResponse(
       recovery,

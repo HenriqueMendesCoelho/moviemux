@@ -1,6 +1,7 @@
 import { createError } from 'nuxt/server';
 import { collectionContractPath } from './collection-contract-path';
 import { rankingTmdbBody, rankingTmdbOperation } from './ranking-tmdb-contract';
+import { memberRosterBody, memberRosterOperation } from './ranking-member-roster';
 import { entryRemovalBody, entryRemovalOperation } from './ranking-entry-recovery';
 import { recoveryDirectoryBody, recoveryDirectoryOperation } from './ranking-recovery-directory';
 import { rankingRatingCopyBody, rankingRatingCopyOperation } from './ranking-rating-copy';
@@ -17,6 +18,8 @@ export function rankingRequestBody(
   contentType: string | undefined,
 ): string | undefined {
   path = collectionContractPath(path);
+  const roster = memberRosterOperation(path, method);
+  if (roster) return memberRosterBody(roster, body, contentType);
   const removal = entryRemovalOperation(path, method);
   if (removal) return entryRemovalBody(removal, body, contentType);
   const recovery = recoveryDirectoryOperation(path, method);

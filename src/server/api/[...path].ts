@@ -29,6 +29,11 @@ import {
   recoveryDirectoryOperation,
   RESTORE_CURRENT_BODY_LIMIT,
 } from '../utils/ranking-recovery-directory';
+import {
+  invalidMemberRoster,
+  memberRosterOperation,
+  MEMBER_ROSTER_BODY_LIMIT,
+} from '../utils/ranking-member-roster';
 import { rankingRequestBody } from '../utils/ranking-requests';
 import {
   allowedApiPath,
@@ -50,23 +55,34 @@ export default defineEventHandler(async (event) => {
   const copy = rankingRatingCopyOperation(logical, method);
   const removal = entryRemovalOperation(logical, method);
   const recovery = recoveryDirectoryOperation(logical, method);
+  const roster = memberRosterOperation(logical, method);
   const recoveryRead = removal?.kind === 'preview' || recovery?.kind === 'list';
   // Nitro's portable event also proxies its underlying H3 node context.
   const native = (event as typeof event & Partial<Pick<H3Event, 'node'>>).node;
   const rawUrl = native?.req.originalUrl ?? native?.req.url;
   if (
-    (visibility || copy || removal || recovery) &&
+    (visibility || copy || removal || recovery || roster) &&
     rawUrl !== undefined &&
     rawUrl.split('?', 1)[0] !== `/api${path}`
   )
     throw createError({ status: 404, message: 'API route not available' });
   const session = isPublic ? undefined : await readActiveSession(event);
   const querySource =
-    visibility || copy || removal || recovery ? (rawUrl ?? event.url.href) : event.url.href;
+    visibility || copy || removal || recovery || roster
+      ? (rawUrl ?? event.url.href)
+      : event.url.href;
   const queryAt = querySource.indexOf('?');
   const rawQuery = queryAt >= 0 ? querySource.slice(queryAt + 1) : undefined;
   assertRankingReadQuery(path, method, event.url.searchParams, queryAt >= 0, rawQuery);
   assertRankingReadIntent(path, method, event.req.headers);
+  if (
+    roster === 'list' &&
+    (event.req.headers.has('transfer-encoding') ||
+      (event.req.headers.has('content-length') &&
+        event.req.headers.get('content-length') !== '0') ||
+      event.req.body != null)
+  )
+    invalidMemberRoster(roster);
   if (
     recoveryRead &&
     (event.req.headers.has('transfer-encoding') ||
@@ -93,6 +109,7 @@ export default defineEventHandler(async (event) => {
     repeated === 'read-settings' ||
     visibility === 'read' ||
     recoveryRead ||
+    roster === 'list' ||
     isRankingJoin(path, method)
       ? undefined
       : event.req.headers.get('content-type')?.split(';')[0];
@@ -101,13 +118,20 @@ export default defineEventHandler(async (event) => {
     !copy &&
     !removal &&
     !recovery &&
+    !roster &&
     !['GET', 'HEAD'].includes(method) &&
     contentType &&
     !['application/json', 'application/x-www-form-urlencoded'].includes(contentType)
   )
     throw createError({ status: 415, message: 'Unsupported request type' });
   let body: string | undefined;
-  if (removal?.kind === 'remove' || recovery?.kind === 'restore') {
+  if (roster === 'replace') {
+    try {
+      body = await boundedBody(event, MEMBER_ROSTER_BODY_LIMIT, true);
+    } catch {
+      invalidMemberRoster(roster);
+    }
+  } else if (removal?.kind === 'remove' || recovery?.kind === 'restore') {
     try {
       body = await boundedBody(
         event,
