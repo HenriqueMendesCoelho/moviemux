@@ -1,0 +1,16 @@
+{
+  "add": "Add my rating",
+  "edit": "Edit my rating",
+  "score": "Score (whole number from 0 to 10)",
+  "create": "Add rating",
+  "save": "Save changes",
+  "cancel": "Cancel",
+  "invalid": "Enter a whole number from 0 to 10.",
+  "archived": "This archived ranking does not accept changes.",
+  "duplicate": "A rating already exists for this round. Check it before making changes.",
+  "uncertain": "The result is not confirmed. Check your rating before making changes.",
+  "check": "Check my rating",
+  "saved": "Your rating was saved.",
+  "loadError": "Could not read your rating.",
+  "intro": "Browse this ranking’s movies and rounds. You can only change your own ratings where permitted."
+}

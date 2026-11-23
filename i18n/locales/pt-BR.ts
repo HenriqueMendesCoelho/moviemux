@@ -5,7 +5,11 @@ import catalog from './pt-BR/catalog.json';
 import library from './pt-BR/library.json';
 import components from './pt-BR/components.json';
 import rankings from './pt-BR/rankings.json';
+import rankingDetail from './pt-BR/ranking-detail.json';
+import rankingOwnRating from './pt-BR/ranking-own-rating.json';
 export default {
+  rankingOwnRating,
+  rankingDetail,
   rankings,
   pages,
   shell,
