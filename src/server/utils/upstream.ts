@@ -11,6 +11,8 @@ const rankingEntriesPath = new RegExp(`^${rankingRoot}/entries$`);
 const rankingRoundsPath = new RegExp(`^${rankingEntry}/rounds$`);
 const ownRatingPath = new RegExp(`^${rankingRoot}/rounds/${rankingUuid}/rating/me$`);
 const aggregatePath = new RegExp(`^${rankingRoot}/entries/(${rankingUuid})/ratings/aggregate$`);
+const issueInvitationPath = new RegExp(`^${rankingRoot}/invitations$`);
+const revokeInvitationPath = new RegExp(`^${rankingRoot}/invitations/${rankingUuid}$`);
 const incomingInvitationsPath = '/ranking-invitations/incoming';
 const acceptInvitationPath = new RegExp(`^${rankingRoot}/invitations/${rankingUuid}/accept$`);
 const rules: Array<[RegExp, string[]]> = [
@@ -21,6 +23,8 @@ const rules: Array<[RegExp, string[]]> = [
   [/^\/rankings$/, ['GET', 'POST']],
   [/^\/ranking-invitations\/incoming$/, ['GET']],
   [acceptInvitationPath, ['POST']],
+  [issueInvitationPath, ['POST']],
+  [revokeInvitationPath, ['DELETE']],
   [/^\/rankings\/access$/, ['GET']],
   [rankingSummaryPath, ['GET']],
   [rankingAccessPath, ['GET']],
@@ -66,6 +70,8 @@ export function assertRankingReadQuery(
   query: URLSearchParams,
 ): void {
   if (
+    issueInvitationPath.test(pathname) ||
+    revokeInvitationPath.test(pathname) ||
     acceptInvitationPath.test(pathname) ||
     pathname === '/user/ranking-invitation-address' ||
     pathname === '/user/ranking-invitation-address/rotate' ||
@@ -155,6 +161,14 @@ function rankingErrorCode(
   )
     expected = 'ranking.invitation_address_unavailable';
   if (method === 'POST' && acceptInvitationPath.test(pathname) && status === 404)
+    expected = 'ranking.invitation_not_found';
+  if (method === 'POST' && issueInvitationPath.test(pathname)) {
+    if (status === 400) expected = 'ranking.invalid_invitation';
+    if (status === 404) expected = 'ranking.invitation_not_found';
+    if (status === 409) expected = 'ranking.invitation_exists';
+    if (status === 503) expected = 'ranking.invitation_address_unavailable';
+  }
+  if (method === 'DELETE' && revokeInvitationPath.test(pathname) && status === 404)
     expected = 'ranking.invitation_not_found';
   if (!expected) return undefined;
   try {
@@ -294,6 +308,19 @@ export async function upstreamRequest(
       };
     });
     return { status: 200, data: { items, next_cursor: page.next_cursor } };
+  }
+  if (options.method === 'POST' && issueInvitationPath.test(path)) {
+    const v = data as Record<string, unknown> | null;
+    if (
+      response.status !== 201 ||
+      !v ||
+      typeof v.invite_id !== 'string' ||
+      !new RegExp(`^${rankingUuid}$`).test(v.invite_id) ||
+      typeof v.expires_at !== 'string' ||
+      !Number.isFinite(Date.parse(v.expires_at))
+    )
+      throw createError({ status: 502, message: 'Invalid API response' });
+    return { status: 201, data: { invite_id: v.invite_id, expires_at: v.expires_at } };
   }
   const addressResponse =
     (options.method === 'GET' && path === '/user/ranking-invitation-address') ||

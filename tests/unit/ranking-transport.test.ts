@@ -420,3 +420,48 @@ it('inbox projects only authorized title, identifiers and expiry, never issuer/p
     upstreamRequest('/ranking-invitations/incoming', { method: 'GET' }),
   ).rejects.toMatchObject({ status: 502 });
 });
+describe('recipient code issuer transport', () => {
+  const id = '11111111-1111-4111-8111-111111111111',
+    issue = `/rankings/${id}/invitations`,
+    revoke = `${issue}/${id}`;
+  it('allows exact issue/revoke, never directory/preview or code in query', () => {
+    expect(allowedApiPath(issue, 'POST')).toBe(true);
+    expect(allowedApiPath(revoke, 'DELETE')).toBe(true);
+    for (const path of [issue, revoke, `${issue}/resolve`, `${issue}/lookup`])
+      expect(allowedApiPath(path, 'GET')).toBe(false);
+    for (const [path, method] of [
+      [issue, 'POST'],
+      [revoke, 'DELETE'],
+    ])
+      expect(() =>
+        assertRankingReadQuery(path!, method!, new URLSearchParams('recipient_code=secret')),
+      ).toThrow();
+  });
+  it.each([
+    [400, 'ranking.invalid_invitation'],
+    [404, 'ranking.invitation_not_found'],
+    [409, 'ranking.invitation_exists'],
+    [503, 'ranking.invitation_address_unavailable'],
+  ] as const)('maps only exact issue error %s', async (status, code) => {
+    respond(status, { code, details: { private: 'hidden' } });
+    await expect(upstreamRequest(issue, { method: 'POST' })).rejects.toMatchObject({
+      status,
+      data: { code },
+    });
+  });
+  it('projects only confirmed receipt, with no recipient identity or reflected code', async () => {
+    const receipt = { invite_id: id, expires_at: '2026-12-01T00:00:00Z' };
+    respond(201, { ...receipt, recipient_code: 'secret', user_id: 'private' });
+    expect(await upstreamRequest(issue, { method: 'POST' })).toEqual({
+      status: 201,
+      data: receipt,
+    });
+    respond(200, receipt);
+    await expect(upstreamRequest(issue, { method: 'POST' })).rejects.toMatchObject({ status: 502 });
+    respond(404, { code: 'ranking.invitation_not_found' });
+    await expect(upstreamRequest(revoke, { method: 'DELETE' })).rejects.toMatchObject({
+      status: 404,
+      data: { code: 'ranking.invitation_not_found' },
+    });
+  });
+});

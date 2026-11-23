@@ -9,22 +9,30 @@ export function rankingRequestBody(
   contentType: string | undefined,
 ): string | undefined {
   if (
-    method === 'POST' &&
-    (path === '/user/ranking-invitation-address/rotate' ||
-      new RegExp(`^/rankings/${uuid}/invitations/${uuid}/accept$`).test(path))
+    (method === 'DELETE' && new RegExp(`^/rankings/${uuid}/invitations/${uuid}$`).test(path)) ||
+    (method === 'POST' &&
+      (path === '/user/ranking-invitation-address/rotate' ||
+        new RegExp(`^/rankings/${uuid}/invitations/${uuid}/accept$`).test(path)))
   ) {
     if (body !== undefined && body !== '')
       throw createError({ status: 400, message: 'Bodyless request required' });
     return undefined;
   }
+  const invite = method === 'POST' && new RegExp(`^/rankings/${uuid}/invitations$`).test(path);
   const create = path === '/rankings' && method === 'POST';
   const rate = ownRating.test(path) && (method === 'POST' || method === 'PATCH');
-  if (!create && !rate) return body;
+  if (!create && !rate && !invite) return body;
   const invalid = () =>
     createError({
       status: 400,
       message: 'Invalid ranking request',
-      data: { code: create ? 'ranking.invalid_creation' : 'ranking.invalid_rating' },
+      data: {
+        code: create
+          ? 'ranking.invalid_creation'
+          : invite
+            ? 'ranking.invalid_invitation'
+            : 'ranking.invalid_rating',
+      },
     });
   if (contentType !== 'application/json')
     throw createError({ status: 415, message: 'JSON request required' });
@@ -37,6 +45,16 @@ export function rankingRequestBody(
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw invalid();
   const v = value as Record<string, unknown>,
     keys = Object.keys(v);
+  if (invite) {
+    if (
+      keys.length !== 1 ||
+      keys[0] !== 'recipient_code' ||
+      typeof v.recipient_code !== 'string' ||
+      !/^[A-Za-z0-9_-]{21}[AQgw]$/.test(v.recipient_code)
+    )
+      throw invalid();
+    return JSON.stringify({ recipient_code: v.recipient_code });
+  }
   if (rate) {
     if (
       keys.length !== 1 ||

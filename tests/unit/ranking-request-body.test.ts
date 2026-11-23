@@ -66,3 +66,26 @@ test('invitation accept is bodyless and cannot supply membership grants', () => 
   for (const body of ['{}', '{"capabilities":["READ"]}', 'null'])
     expect(() => rankingRequestBody(path, 'POST', body, 'application/json')).toThrow();
 });
+test('issuance accepts only exact canonical recipient code, never raw UUID, lookup or grants', () => {
+  const path = `/rankings/${id}/invitations`,
+    code = 'aX-_AbCdefGhijkLMNopqA';
+  expect(
+    rankingRequestBody(path, 'POST', JSON.stringify({ recipient_code: code }), 'application/json'),
+  ).toBe(JSON.stringify({ recipient_code: code }));
+  for (const body of [
+    { user_id: id },
+    { recipient_code: code, user_id: id },
+    { recipient_code: code, capabilities: ['READ'] },
+    { recipient_code: ' ' + code },
+    { recipient_code: code + '=' },
+    { recipient_code: code.slice(0, -1) + 'R' },
+    { recipient_code: [code] },
+    {},
+  ])
+    expect(() =>
+      rankingRequestBody(path, 'POST', JSON.stringify(body), 'application/json'),
+    ).toThrow();
+  const revoke = `${path}/${id}`;
+  expect(rankingRequestBody(revoke, 'DELETE', undefined, undefined)).toBeUndefined();
+  expect(() => rankingRequestBody(revoke, 'DELETE', '{}', 'application/json')).toThrow();
+});
