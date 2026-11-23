@@ -1,4 +1,10 @@
 import { createError, useRuntimeConfig } from 'nuxt/server';
+import {
+  invalidVisibilitySettings,
+  rankingVisibilityError,
+  rankingVisibilityOperation,
+  rankingVisibilityResponse,
+} from './ranking-visibility-contract';
 import { fixedUpstream } from './security';
 import { collectionContractPath } from './collection-contract-path';
 import {
@@ -88,6 +94,7 @@ export function allowedApiPath(path: string, method: string): boolean {
   path = collectionContractPath(path);
   if (path.includes('..') || path.includes('\\') || /%(?:2f|5c|2e|25)/i.test(path)) return false;
   return (
+    Boolean(rankingVisibilityOperation(path, method)) ||
     Boolean(repeatedRoundOperation(path, method)) ||
     Boolean(rankingTmdbOperation(path, method)) ||
     rules.some(([pattern, methods]) => pattern.test(path) && methods.includes(method))
@@ -110,6 +117,10 @@ export function assertRankingReadQuery(
   hasQueryDelimiter = false,
 ): void {
   pathname = collectionContractPath(pathname);
+  if (rankingVisibilityOperation(pathname, method)) {
+    if (query.size || hasQueryDelimiter) invalidVisibilitySettings();
+    return;
+  }
   const repeated = repeatedRoundOperation(pathname, method);
   if (repeated) {
     if (query.size || hasQueryDelimiter) invalidRepeatedRoundRequest(repeated);
@@ -339,14 +350,17 @@ export async function upstreamRequest(
   }
   const text = Buffer.concat(chunks).toString('utf8');
   const repeated = repeatedRoundOperation(path, options.method);
+  const visibility = rankingVisibilityOperation(path, options.method);
   if (!response.ok) {
     // Only a verified code may cross the boundary, never upstream messages or other fields.
     const operation = rankingTmdbOperation(path, options.method);
-    const code = repeated
-      ? repeatedRoundError(repeated, response.status, text)
-      : operation
-        ? rankingTmdbError(operation, response.status, text)
-        : rankingErrorCode(path, options.method, response.status, text);
+    const code = visibility
+      ? rankingVisibilityError(response.status, text)
+      : repeated
+        ? repeatedRoundError(repeated, response.status, text)
+        : operation
+          ? rankingTmdbError(operation, response.status, text)
+          : rankingErrorCode(path, options.method, response.status, text);
     throw createError({
       status:
         code || [400, 401, 403, 404, 409, 422, 429].includes(response.status)
@@ -361,6 +375,7 @@ export async function upstreamRequest(
             : 'API request failed',
     });
   }
+  if (visibility) return rankingVisibilityResponse(visibility, response.status, text, options.body);
   if (repeated) return repeatedRoundResponse(repeated, response.status, text, options.body);
   if (isRankingJoin(path, options.method)) {
     if (response.status !== 204 || text !== '')
