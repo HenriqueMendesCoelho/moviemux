@@ -8,7 +8,7 @@ export interface IssuedInvitation {
 }
 function path(rankingId: string) {
   if (!rankingIdPattern.test(rankingId)) throw new Error('Invalid ranking identifier');
-  return `/rankings/${rankingId}/invitations`;
+  return `/movies/collections/${rankingId}/invitations`;
 }
 export default {
   async issue(rankingId: string, code: string): Promise<IssuedInvitation> {

@@ -8,7 +8,7 @@ test('canonical lowercase UUID and exact bodyless scoped POST', async () => {
   http.post.mockResolvedValue({ status: 204, data: '' });
   expect(canonicalJoinId(id.toUpperCase())).toBe(id);
   await join(id.toUpperCase());
-  expect(http.post.mock.calls).toEqual([[`/rankings/${id}/join`]]);
+  expect(http.post.mock.calls).toEqual([[`/movies/collections/${id}/join`]]);
 });
 test.each([undefined, [], {}, '../join', 'abc', 'abcdefab-2222-4222-8222-222222222222?another=1'])(
   'invalid route %s is not forwarded',

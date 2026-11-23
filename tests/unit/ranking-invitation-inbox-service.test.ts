@@ -18,7 +18,7 @@ test('inbox route accepts only a bounded scoped cursor, projects allowed fields'
     data: { items: [{ ...item, private: 'ignored' }], next_cursor: null },
   });
   expect(await service.incoming(invite, signal)).toEqual({ items: [item], next_cursor: null });
-  expect(api.get).toHaveBeenCalledWith('/ranking-invitations/incoming', {
+  expect(api.get).toHaveBeenCalledWith('/movies/collections/invitations/incoming', {
     params: { limit: 20, after: invite },
     signal,
   });
@@ -41,7 +41,7 @@ test('malformed recipients, names, expiry or cursor fail closed', async () => {
 test('accept performs exactly one bodyless POST and requires 204', async () => {
   api.post.mockResolvedValueOnce({ status: 204 });
   await service.accept(item);
-  expect(api.post.mock.calls).toEqual([[`/rankings/${rank}/invitations/${invite}/accept`]]);
+  expect(api.post.mock.calls).toEqual([[`/movies/collections/${rank}/invitations/${invite}/accept`]]);
   api.post.mockResolvedValueOnce({ status: 200, data: { capabilities: ['READ'] } });
   await expect(service.accept(item)).rejects.toThrow();
   await expect(service.accept({ ...item, invite_id: '../invite' })).rejects.toThrow();

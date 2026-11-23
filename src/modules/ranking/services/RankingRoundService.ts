@@ -23,7 +23,7 @@ function path(scope: RoundScope) {
     ![scope.rankingId, scope.entryId, scope.roundId].every((value) => rankingIdPattern.test(value))
   )
     invalid();
-  return `/rankings/${scope.rankingId}/entries/${scope.entryId}/rounds/${scope.roundId}`;
+  return `/movies/collections/${scope.rankingId}/entries/${scope.entryId}/rounds/${scope.roundId}`;
 }
 function disclosure(data: unknown, expected: string): RoundDisclosure {
   if (!data || typeof data !== 'object') return invalid();

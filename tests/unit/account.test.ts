@@ -299,3 +299,15 @@ it('moves keyboard focus to the new account panel heading', async () => {
   expect(heading.text()).toBe('Vamos te trazer de volta.');
   expect(document.activeElement).toBe(heading.element);
 });
+
+it('sanitizes both collection namespaces for login resumes', () => {
+  const id = 'abcdefab-2222-4222-8222-222222222222';
+  for (const [old, canonical] of [
+    ['/rankings', '/movies/collections'],
+    [`/rankings/${id.toUpperCase()}/join`, `/movies/collections/${id}/join`],
+    [`/public/rankings/${id}`, `/public/movies/collections/${id}`],
+    [`/movies/collections/${id.toUpperCase()}/join`, `/movies/collections/${id}/join`],
+  ]) {
+    expect(safeReturnPath(`${old}?return=//outside.example#discard`)).toBe(canonical);
+  }
+});

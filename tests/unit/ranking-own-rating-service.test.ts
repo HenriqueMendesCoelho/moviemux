@@ -4,7 +4,7 @@ vi.mock('~/core/http', () => ({ default: api }));
 import write, { validOwnScore } from '../../src/modules/ranking/services/RankingOwnRatingService';
 const rank = '11111111-1111-4111-8111-111111111111',
   round = '22222222-2222-4222-8222-222222222222';
-const path = `/rankings/${rank}/rounds/${round}/rating/me`;
+const path = `/movies/collections/${rank}/rounds/${round}/rating/me`;
 afterEach(() => vi.resetAllMocks());
 test('exact contextual POST201 and PATCH200 pass integer-only bodies', async () => {
   api.post.mockResolvedValue({ status: 201, data: { round_id: round, score: 0, extra: 'remove' } });

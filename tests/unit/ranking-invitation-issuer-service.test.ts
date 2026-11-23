@@ -11,7 +11,7 @@ test('exact code only in POST body and exact 201 scoped receipt', async () => {
   api.post.mockResolvedValueOnce({ status: 201, data: { ...issued, internal: 'ignored' } });
   expect(await issuer.issue(rank, code)).toEqual(issued);
   expect(api.post.mock.calls).toEqual([
-    [`/rankings/${rank}/invitations`, { recipient_code: code }],
+    [`/movies/collections/${rank}/invitations`, { recipient_code: code }],
   ]);
 });
 test('fail closed on malformed rank, code, receipt, or success status', async () => {
@@ -30,7 +30,7 @@ test('fail closed on malformed rank, code, receipt, or success status', async ()
 test('revoke takes known IDs, bodyless DELETE and 204 only', async () => {
   api.delete.mockResolvedValueOnce({ status: 204 });
   await issuer.revoke(rank, inv);
-  expect(api.delete.mock.calls).toEqual([[`/rankings/${rank}/invitations/${inv}`]]);
+  expect(api.delete.mock.calls).toEqual([[`/movies/collections/${rank}/invitations/${inv}`]]);
   await expect(issuer.revoke(rank, 'fake')).rejects.toThrow();
   api.delete.mockResolvedValueOnce({ status: 200 });
   await expect(issuer.revoke(rank, inv)).rejects.toThrow();

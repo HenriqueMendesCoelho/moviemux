@@ -40,7 +40,7 @@ export function rankingSummary(value: unknown): RankingSummary {
 export default {
   async list(after?: string, signal?: AbortSignal): Promise<RankingPage> {
     if (after && !rankingIdPattern.test(after)) throw new Error('Invalid ranking cursor');
-    const { data } = await api.get('/rankings', {
+    const { data } = await api.get('/movies/collections', {
       params: { limit: 20, ...(after ? { after } : {}) },
       signal,
     });
@@ -57,7 +57,7 @@ export default {
   },
   async create(input: CreateRanking): Promise<RankingSummary> {
     if (!validRankingName(input.name)) throw new Error('Invalid ranking name');
-    const { data, status } = await api.post('/rankings', {
+    const { data, status } = await api.post('/movies/collections', {
       name: input.name.trim(),
       visibility: input.visibility,
       admission: input.admission,

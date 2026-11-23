@@ -127,10 +127,42 @@ try {
   assert.equal((await request('/adm', other.cookie)).status, 403);
   assert.equal((await request('/adm')).status, 302);
   assert.equal((await request('/api/movie')).status, 401);
+  const collectionId = '11111111-1111-4111-8111-111111111111';
+  const joinPath = `/movies/collections/${collectionId}/join`;
+  for (const [legacy, target] of [
+    ['/rankings', '/movies/collections'],
+    [`/rankings/${collectionId}`, `/movies/collections/${collectionId}`],
+    [`/rankings/${collectionId}/join`, joinPath],
+    [`/public/rankings/${collectionId}`, `/public/movies/collections/${collectionId}`],
+  ]) {
+    const redirect = await request(legacy + '?untrusted=drop-me');
+    assert.equal(redirect.status, 307, legacy);
+    assert.equal(redirect.headers.get('location'), target + '#', legacy);
+    assert.match(redirect.headers.get('cache-control') || '', /no-store/);
+    assert.equal(redirect.headers.get('referrer-policy'), 'no-referrer');
+  }
+  const loginRedirect = await request(joinPath + '?untrusted=drop-me');
+  assert.equal(loginRedirect.status, 302);
+  assert.equal(
+    new URL(loginRedirect.headers.get('location')!, origin).searchParams.get('from'),
+    joinPath,
+  );
+  const publicShell = await request(`/public/movies/collections/${collectionId}`);
+  assert.equal(publicShell.status, 200);
+  assert.equal(publicShell.headers.get('set-cookie'), null);
+  assert.match(await publicShell.text(), /Coleção pública/);
+  for (const root of ['/rankings', '/movies/collections']) {
+    const apiPath = `/api${root}/${collectionId}/join`;
+    const response = await request(apiPath, '', { method: 'POST', headers: { origin } });
+    assert.equal(response.status, 401);
+    assert.equal(response.headers.get('location'), null);
+    assert.match(response.headers.get('cache-control') || '', /no-store/);
+  }
   // Real Nitro 404 formatting must not downgrade private error responses to no-cache.
   for (const path of [
     '/api/not-allowlisted',
     '/api/rankings/11111111-1111-4111-8111-111111111111',
+    '/api/movies/collections/11111111-1111-4111-8111-111111111111',
   ]) {
     const response = await request(path, other.cookie, { headers: { accept: 'application/json' } });
     assert.equal(response.status, 404);

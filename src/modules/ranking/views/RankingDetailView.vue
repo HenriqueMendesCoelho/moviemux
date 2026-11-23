@@ -10,6 +10,9 @@ import { rankingIdPattern } from '../services/RankingService';
 import RankingInvitationIssuer from '../components/RankingInvitationIssuer.vue';
 import RankingTmdbPicker from '../components/RankingTmdbPicker.vue';
 import type { ImportReceipt } from '../services/RankingTmdbPickerService';
+import RankingRepeatedRoundsSettings from '../components/RankingRepeatedRoundsSettings.vue';
+import RankingNewRoundForm from '../components/RankingNewRoundForm.vue';
+import type { CreatedRound, RoundCreationIntent } from '../services/RankingRepeatedRoundService';
 import RankingRoundPanel from '../components/RankingRoundPanel.vue';
 import BaseConfirmDialog from '~/core/components/BaseConfirmDialog.vue';
 import { formatRatingMean } from '../utils/formatRatingMean';
@@ -59,7 +62,7 @@ async function copyOpenLink() {
   copyingOpenLink.value = true;
   openLinkNotice.value = '';
   try {
-    const url = new URL(`/rankings/${id.toLowerCase()}/join`, window.location.origin);
+    const url = new URL(`/movies/collections/${id.toLowerCase()}/join`, window.location.origin);
     await navigator.clipboard.writeText(url.href);
     if (started === epoch && canShareOpenLink.value) openLinkNotice.value = 'openLinkCopied';
   } catch {
@@ -75,8 +78,54 @@ const pickerInteraction = ref<'idle' | 'draft' | 'pending' | 'uncertain'>('idle'
 const invitationUnavailable = ref(false);
 const rankingName = ref<string | null | undefined>(undefined);
 const uncertain = ref(new Set<string>());
+type RepeatInteraction = 'idle' | 'draft' | 'pending' | 'uncertain';
+const repeatSettings = ref<boolean | null>(null);
+const repeatSettingsState = ref<RepeatInteraction>('idle');
+const newRoundState = ref<RepeatInteraction>('idle');
+const repeatPolicyRevision = ref(0);
+const repeatIntents = ref(new Map<string, RoundCreationIntent>());
+const repeatIntent = computed<RoundCreationIntent | null>({
+  get: () => (selected.value ? (repeatIntents.value.get(selected.value.entry_id) ?? null) : null),
+  set: (intent) => {
+    const entry = selected.value?.entry_id;
+    if (!entry) return;
+    if (intent) repeatIntents.value.set(entry, intent);
+    else repeatIntents.value.delete(entry);
+  },
+});
+const hasRepeatRequest = () =>
+  repeatSettingsState.value === 'pending' || newRoundState.value === 'pending';
+function clearRepeatOwner() {
+  repeatSettings.value = null;
+  repeatSettingsState.value = 'idle';
+  newRoundState.value = 'idle';
+  repeatIntents.value.clear();
+}
+function rememberRepeatSettings(value: boolean | null) {
+  repeatSettings.value = value;
+}
+function confirmedRepeatedRound(result: CreatedRound & { rankingId: string; entryId: string }) {
+  if (result.rankingId !== props.rankingId || result.entryId !== selected.value?.entry_id) return;
+  void open(selected.value, false, true);
+}
+function lostRepeatOwner(status: number) {
+  clearRepeatOwner();
+  if (status === 401) {
+    invalidateScope();
+    error.value = 'sessionExpired';
+    return;
+  }
+  // Ownership may change without revoking READ. Revalidate canonical access on denial.
+  invalidateScope();
+  void load();
+}
+function repeatPolicyStale() {
+  // A command refusal is not proof of ownership. Hide new commands and re-read.
+  if (repeatSettings.value === true) repeatSettings.value = false;
+  repeatPolicyRevision.value++;
+}
 const interactions = ref(new Map<string, 'draft' | 'pending'>());
-const guardBusy = ref<'rating' | 'picker' | null>(null);
+const guardBusy = ref<'rating' | 'picker' | 'repeat' | null>(null);
 const dialogKey = ref(0);
 const discardDialog = ref<InstanceType<typeof BaseConfirmDialog>>();
 let decision: ((allow: boolean) => void) | undefined;
@@ -84,7 +133,9 @@ function hasRatingRequest() {
   return [...interactions.value.values()].includes('pending');
 }
 function settle(allow: boolean) {
-  decision?.(allow && !hasRatingRequest() && pickerInteraction.value !== 'pending');
+  decision?.(
+    allow && !hasRatingRequest() && !hasRepeatRequest() && pickerInteraction.value !== 'pending',
+  );
   decision = undefined;
 }
 function resetInterruption() {
@@ -107,11 +158,26 @@ function markPickerInteraction(state: typeof pickerInteraction.value) {
   pickerInteraction.value = state;
   if (state !== 'pending' && guardBusy.value === 'picker') guardBusy.value = null;
 }
+watch(
+  [repeatSettingsState, newRoundState],
+  () => {
+    if (!hasRepeatRequest() && guardBusy.value === 'repeat') guardBusy.value = null;
+  },
+  { flush: 'sync' },
+);
 function allowInterruption(): boolean | Promise<boolean> {
   const pickerState = pickerInteraction.value;
-  if (!user.user.isLoged || (!interactions.value.size && pickerState === 'idle')) return true;
-  if (hasRatingRequest() || pickerState === 'pending') {
-    guardBusy.value = pickerState === 'pending' ? 'picker' : 'rating';
+  const states = [repeatSettingsState.value, newRoundState.value];
+  const repeatEdited = states.some((state) => state !== 'idle');
+  const repeatUncertain = states.includes('uncertain');
+  if (!user.user.isLoged || (!interactions.value.size && pickerState === 'idle' && !repeatEdited))
+    return true;
+  if (hasRatingRequest() || pickerState === 'pending' || hasRepeatRequest()) {
+    guardBusy.value = hasRepeatRequest()
+      ? 'repeat'
+      : pickerState === 'pending'
+        ? 'picker'
+        : 'rating';
     return false;
   }
   if (decision || !discardDialog.value) return false;
@@ -120,30 +186,39 @@ function allowInterruption(): boolean | Promise<boolean> {
   });
   const ratingDraft = interactions.value.size > 0;
   const copy =
-    pickerState === 'uncertain'
+    repeatEdited && pickerState !== 'uncertain'
       ? {
-          title: 'rankingTmdbPicker.uncertainLeaveTitle',
-          message: ratingDraft
-            ? 'rankingTmdbPicker.uncertainAndRating'
-            : 'rankingTmdbPicker.uncertainLeaveHint',
-          ok: 'rankingTmdbPicker.leaveAnyway',
-          cancel: 'rankingTmdbPicker.stay',
+          title: 'rankingRepeatedRounds.leaveTitle',
+          message: repeatUncertain
+            ? 'rankingRepeatedRounds.leaveUncertain'
+            : 'rankingRepeatedRounds.leaveDraft',
+          ok: 'rankingRepeatedRounds.leave',
+          cancel: 'rankingRepeatedRounds.stay',
         }
-      : pickerState === 'draft'
+      : pickerState === 'uncertain'
         ? {
-            title: 'rankingTmdbPicker.discardTitle',
+            title: 'rankingTmdbPicker.uncertainLeaveTitle',
             message: ratingDraft
-              ? 'rankingTmdbPicker.discardAndRating'
-              : 'rankingTmdbPicker.discardHint',
-            ok: 'rankingTmdbPicker.discard',
+              ? 'rankingTmdbPicker.uncertainAndRating'
+              : 'rankingTmdbPicker.uncertainLeaveHint',
+            ok: 'rankingTmdbPicker.leaveAnyway',
             cancel: 'rankingTmdbPicker.stay',
           }
-        : {
-            title: 'rankingRoundPanel.discardTitle',
-            message: 'rankingRoundPanel.discardHint',
-            ok: 'rankingRoundPanel.discard',
-            cancel: 'rankingRoundPanel.stay',
-          };
+        : pickerState === 'draft'
+          ? {
+              title: 'rankingTmdbPicker.discardTitle',
+              message: ratingDraft
+                ? 'rankingTmdbPicker.discardAndRating'
+                : 'rankingTmdbPicker.discardHint',
+              ok: 'rankingTmdbPicker.discard',
+              cancel: 'rankingTmdbPicker.stay',
+            }
+          : {
+              title: 'rankingRoundPanel.discardTitle',
+              message: 'rankingRoundPanel.discardHint',
+              ok: 'rankingRoundPanel.discard',
+              cancel: 'rankingRoundPanel.stay',
+            };
   void discardDialog.value.show({
     title: () => t(copy.title),
     message: () => t(copy.message),
@@ -172,6 +247,7 @@ function message(e: unknown) {
 }
 function clearDetail() {
   selection++;
+  newRoundState.value = 'idle';
   resetInterruption();
   detailController?.abort();
   selected.value = null;
@@ -223,6 +299,7 @@ async function load(more = false, replace = false) {
       resetOpenLink();
       error.value = message(e);
       if (error.value === 'unavailable' || error.value === 'sessionExpired') {
+        clearRepeatOwner();
         canAdd.value = false;
         canRate.value = false;
         rankingName.value = undefined;
@@ -237,6 +314,7 @@ async function load(more = false, replace = false) {
 }
 function reset() {
   epoch++;
+  clearRepeatOwner();
   controller?.abort();
   clearDetail();
   canRate.value = false;
@@ -273,9 +351,10 @@ async function selectEntry(entry: RankingEntry, retry = false) {
   if (!(await allowInterruption()) || started !== epoch || current !== selection) return;
   await open(entry);
 }
-async function open(entry: RankingEntry, more = false) {
+async function open(entry: RankingEntry, more = false, refresh = false) {
   if (more && detailLoading.value) return;
-  if (!more) {
+  if (refresh) detailController?.abort();
+  if (!more && !refresh) {
     clearDetail();
     selected.value = entry;
   }
@@ -292,11 +371,11 @@ async function open(entry: RankingEntry, more = false) {
       more ? (roundCursor.value ?? undefined) : undefined,
       request.signal,
     );
-    if (started !== epoch || current !== selection) return;
+    if (started !== epoch || current !== selection || request.signal.aborted) return;
     const summary = more
       ? aggregate.value
       : await catalog.aggregate(props.rankingId, entry.entry_id, request.signal);
-    if (started !== epoch || current !== selection) return;
+    if (started !== epoch || current !== selection || request.signal.aborted) return;
     rounds.value = [
       ...new Map(
         [
@@ -315,9 +394,10 @@ async function open(entry: RankingEntry, more = false) {
     roundCursor.value = more && page.next_cursor === roundCursor.value ? null : page.next_cursor;
     aggregate.value = summary;
   } catch (e) {
-    if (started === epoch && current === selection) {
+    if (started === epoch && current === selection && !request.signal.aborted) {
       detailError.value = message(e);
       if (detailError.value === 'unavailable' || detailError.value === 'sessionExpired') {
+        clearRepeatOwner();
         canInvite.value = false;
         resetOpenLink();
         canAdd.value = false;
@@ -329,11 +409,13 @@ async function open(entry: RankingEntry, more = false) {
       }
     }
   } finally {
-    if (started === epoch && current === selection) detailLoading.value = false;
+    if (started === epoch && current === selection && !request.signal.aborted)
+      detailLoading.value = false;
   }
 }
 function invalidateScope() {
   epoch++;
+  clearRepeatOwner();
   controller?.abort();
   canRate.value = false;
   canInvite.value = false;
@@ -429,9 +511,17 @@ async function refreshAggregate() {
       @cancel="settle(false)"
     />
     <p v-if="guardBusy" role="status">
-      {{ t(guardBusy === 'picker' ? 'rankingTmdbPicker.busyLeave' : 'rankingRoundPanel.busy') }}
+      {{
+        t(
+          guardBusy === 'repeat'
+            ? 'rankingRepeatedRounds.busy'
+            : guardBusy === 'picker'
+              ? 'rankingTmdbPicker.busyLeave'
+              : 'rankingRoundPanel.busy',
+        )
+      }}
     </p>
-    <NuxtLink to="/rankings" class="mm-detail-back">{{ t('rankingDetail.back') }}</NuxtLink>
+    <NuxtLink to="/movies/collections" class="mm-detail-back">{{ t('rankingDetail.back') }}</NuxtLink>
     <header>
       <h1>
         {{
@@ -463,6 +553,17 @@ async function refreshAggregate() {
       :ranking-id="rankingId"
       :can-invite="canInvite"
       @access-lost="lostInvitationAccess"
+    />
+    <RankingRepeatedRoundsSettings
+      v-if="rankingName !== undefined && user.user.isLoged"
+      :ranking-id="rankingId"
+      :revision="repeatPolicyRevision"
+      :block-write="
+        newRoundState !== 'idle' || hasRatingRequest() || pickerInteraction === 'pending'
+      "
+      @settings="rememberRepeatSettings"
+      @scope-lost="lostRepeatOwner"
+      @interaction="repeatSettingsState = $event"
     />
     <p v-if="pickerNotice" role="alert">{{ t(`rankingTmdbPicker.${pickerNotice}`) }}</p>
     <RankingTmdbPicker
@@ -522,6 +623,23 @@ async function refreshAggregate() {
         <p v-if="!detailLoading && !detailError && !rounds.length">
           {{ t('rankingDetail.noRounds') }}
         </p>
+        <RankingNewRoundForm
+          v-if="repeatSettings !== null && !detailError"
+          :key="selected.entry_id"
+          v-model:intent="repeatIntent"
+          :ranking-id="rankingId"
+          :entry-id="selected.entry_id"
+          :owner-authorized="repeatSettings !== null"
+          :repeat-enabled="repeatSettings === true"
+          :block-write="
+            repeatSettingsState !== 'idle' || hasRatingRequest() || pickerInteraction === 'pending'
+          "
+          @created="confirmedRepeatedRound"
+          @settings="rememberRepeatSettings"
+          @policy-stale="repeatPolicyStale"
+          @scope-lost="lostRepeatOwner"
+          @interaction="newRoundState = $event"
+        />
         <ol class="mm-detail-rounds">
           <li v-for="round in rounds" :key="round.round_id">
             <RankingRoundPanel

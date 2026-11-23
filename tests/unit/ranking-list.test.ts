@@ -74,7 +74,7 @@ test.each(['en', 'pt-BR'])(
     await w.get('input').setValue('Cinema');
     await w.get('form').trigger('submit');
     await flushPromises();
-    expect(w.get(`a[href="/rankings/${id}"]`).text()).toBe('Cinema');
+    expect(w.get(`a[href="/movies/collections/${id}"]`).text()).toBe('Cinema');
     expect(w.text()).toContain(locale === 'en' ? en.created : pt.created);
   },
 );

@@ -7,7 +7,7 @@ import service, {
 } from '../../src/modules/ranking/services/RankingTmdbPickerService';
 const rank = '11111111-1111-4111-8111-111111111111',
   entry = '22222222-2222-4222-8222-222222222222';
-const path = `/rankings/${rank}/entries/tmdb`;
+const path = `/movies/collections/${rank}/entries/tmdb`;
 const item = {
   tmdb_id: 13,
   title: 'Movie',

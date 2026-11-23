@@ -7,7 +7,7 @@ const scope = {
   entryId: '22222222-2222-4222-8222-222222222222',
   roundId: '33333333-3333-4333-8333-333333333333',
 };
-const path = `/rankings/${scope.rankingId}/entries/${scope.entryId}/rounds/${scope.roundId}`;
+const path = `/movies/collections/${scope.rankingId}/entries/${scope.entryId}/rounds/${scope.roundId}`;
 afterEach(() => vi.resetAllMocks());
 test('minimal detail verified IDs, number and tri-state', async () => {
   const signal = new AbortController().signal;

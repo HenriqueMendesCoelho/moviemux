@@ -1,5 +1,7 @@
 import { createError } from 'nuxt/server';
+import { collectionContractPath } from './collection-contract-path';
 import { rankingTmdbBody, rankingTmdbOperation } from './ranking-tmdb-contract';
+import { repeatedRoundBody, repeatedRoundOperation } from './repeated-round-contract';
 const uuid = '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}';
 const openJoin = new RegExp(`^/rankings/${uuid}/join$`);
 const ownRating = new RegExp(`^/rankings/${uuid}/rounds/${uuid}/rating/me$`);
@@ -10,6 +12,9 @@ export function rankingRequestBody(
   body: string | undefined,
   contentType: string | undefined,
 ): string | undefined {
+  path = collectionContractPath(path);
+  const repeated = repeatedRoundOperation(path, method);
+  if (repeated) return repeatedRoundBody(repeated, body, contentType);
   if (method === 'POST' && openJoin.test(path)) {
     if (body !== undefined && body !== '')
       throw createError({

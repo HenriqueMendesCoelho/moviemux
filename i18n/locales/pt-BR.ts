@@ -14,7 +14,9 @@ import rankingRoundPanel from './pt-BR/ranking-round-panel.json';
 import rankingTmdbPicker from './pt-BR/ranking-tmdb-picker.json';
 import rankingJoin from './pt-BR/ranking-join.json';
 import publicCollection from './pt-BR/public-collection.json';
+import rankingRepeatedRounds from './pt-BR/ranking-repeated-rounds.json';
 export default {
+  rankingRepeatedRounds,
   publicCollection,
   rankingJoin,
   rankingTmdbPicker,

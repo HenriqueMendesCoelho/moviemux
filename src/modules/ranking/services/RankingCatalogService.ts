@@ -50,7 +50,7 @@ function id(v: unknown): v is string {
 }
 function path(...ids: string[]) {
   check(ids.every(id));
-  return `/rankings/${ids[0]}`;
+  return `/movies/collections/${ids[0]}`;
 }
 const nullableText = (v: unknown) => v === null || typeof v === 'string';
 const nullableInteger = (v: unknown) => v === null || Number.isSafeInteger(v);

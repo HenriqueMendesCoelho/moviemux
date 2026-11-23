@@ -14,6 +14,9 @@ import Issuer from '../../src/modules/ranking/components/RankingInvitationIssuer
 const messages = { en, 'pt-BR': pt };
 const mocks = vi.hoisted(() => ({
   summary: vi.fn(),
+  repeatSettings: vi.fn(),
+  repeatCreate: vi.fn(),
+  repeatSet: vi.fn(),
   entries: vi.fn(),
   rounds: vi.fn(),
   aggregate: vi.fn(),
@@ -54,6 +57,13 @@ vi.mock('vue-router', async (original) => ({
 }));
 vi.mock('../../src/modules/ranking/services/RankingRoundService', () => ({
   default: { enter: mocks.roundEnter, aggregate: mocks.roundAggregate },
+}));
+vi.mock('../../src/modules/ranking/services/RankingRepeatedRoundService', () => ({
+  default: {
+    settings: mocks.repeatSettings,
+    create: mocks.repeatCreate,
+    setSettings: mocks.repeatSet,
+  },
 }));
 vi.mock('~/core/stores/UserStore', () => ({ useUserStore: () => mocks.user }));
 vi.mock('../../src/modules/ranking/services/RankingCatalogService', async (original) => ({
@@ -130,6 +140,9 @@ function deferred() {
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.pickerEnabled = false;
+  mocks.repeatSettings.mockReset().mockRejectedValue({ response: { status: 404 } });
+  mocks.repeatCreate.mockReset();
+  mocks.repeatSet.mockReset();
   mocks.user = reactive({ user: { generation: 'a', isLoged: true } });
   mocks.summary.mockResolvedValue({
     ranking_id: id,
@@ -522,7 +535,7 @@ test('copies the neutral same-origin link only after an explicit owner click', a
     await copy!.trigger('click');
     await flushPromises();
     expect(writeText).toHaveBeenCalledExactlyOnceWith(
-      new URL(`/rankings/${id}/join`, window.location.origin).href,
+      new URL(`/movies/collections/${id}/join`, window.location.origin).href,
     );
     expect(w.text()).toContain('Link de entrada copiado.');
     mocks.user.user.isLoged = false;
@@ -532,4 +545,56 @@ test('copies the neutral same-origin link only after an explicit owner click', a
     if (original) Object.defineProperty(navigator, 'clipboard', original);
     else Reflect.deleteProperty(navigator, 'clipboard');
   }
+});
+
+test('uses scoped repeat settings, not the OPEN share proof, to admit an explicit new round', async () => {
+  const createdRound = { roundId: other, ordinal: 2n, replayed: false };
+  mocks.repeatSettings.mockResolvedValue(true);
+  mocks.repeatCreate.mockResolvedValue(createdRound);
+  mocks.rounds.mockResolvedValueOnce({ items: [round], next_cursor: null });
+  mocks.rounds.mockResolvedValueOnce({
+    items: [
+      round,
+      { ...round, round_id: other, number: 2, description: 'Repeat reason', revealed: null },
+    ],
+    next_cursor: null,
+  });
+  await render();
+  expect(mocks.repeatSettings).toHaveBeenCalledWith(id, expect.any(AbortSignal));
+  await open();
+  expect(mocks.repeatCreate).not.toHaveBeenCalled();
+  const launch = w.findAll('button').find((b) => b.text() === 'Add another round');
+  expect(launch).toBeDefined();
+  await launch!.trigger('click');
+  await w.get('textarea').setValue('  Repeat reason  ');
+  await w.get('form.mm-new-round-form').trigger('submit');
+  await flushPromises();
+  expect(mocks.repeatCreate).toHaveBeenCalledTimes(1);
+  expect(mocks.repeatCreate).toHaveBeenCalledWith(
+    expect.objectContaining({
+      rankingId: id,
+      entryId: id,
+      description: 'Repeat reason',
+      commandId: expect.any(String),
+    }),
+  );
+  expect(mocks.rounds).toHaveBeenCalledTimes(2);
+  expect(mocks.roundEnter).not.toHaveBeenCalled();
+  expect(w.text()).toContain('Round 2 created.');
+});
+
+test('an OPEN share proof never substitutes for denied settings authority', async () => {
+  mocks.summary.mockResolvedValue({
+    ranking_id: id,
+    name: 'Owner',
+    visibility: 'PRIVATE',
+    admission: 'OPEN',
+    capabilities: ['READ'],
+    can_share_open_link: true,
+  });
+  await render();
+  await open();
+  expect(w.text()).toContain('Copy collection join link');
+  expect(w.text()).not.toContain('Enable repeated rounds');
+  expect(w.text()).not.toContain('Add another round');
 });

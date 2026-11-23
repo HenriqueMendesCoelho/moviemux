@@ -1,3 +1,5 @@
+import { collectionSignInReturnPath } from '~/core/collection-browser-paths';
+
 /** Accept only local route paths, never protocol-relative or browser-normalized hosts. */
 export function safeReturnPath(value: unknown, fallback = '/home'): string {
   if (
@@ -10,5 +12,6 @@ export function safeReturnPath(value: unknown, fallback = '/home'): string {
     )
   )
     return fallback;
-  return value;
+  const pathname = value.split(/[?#]/, 1)[0];
+  return (pathname && collectionSignInReturnPath(pathname)) || value;
 }

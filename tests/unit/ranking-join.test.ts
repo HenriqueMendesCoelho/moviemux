@@ -89,7 +89,7 @@ test('neutral authenticated view has no pre-join network, IDs/titles, or action 
   expect(mocks.summary).toHaveBeenCalledExactlyOnceWith(id, expect.any(AbortSignal));
   expect(w!.text()).toContain(summary.name);
   expect(w!.find('b').exists()).toBe(false);
-  expect(w!.get(`a[href="/rankings/${id}"]`).attributes('data-no-prefetch')).toBe('true');
+  expect(w!.get(`a[href="/movies/collections/${id}"]`).attributes('data-no-prefetch')).toBe('true');
 });
 test('SSR and invalid UUID render safe strings without membership requests', async () => {
   const app = createSSRApp(View, { rankingId: id });
@@ -111,7 +111,7 @@ test('204 waits for current summary READ, a denial never offers another POST', a
   view();
   await click(en.join);
   expect(w!.text()).toContain(en.working);
-  expect(w!.find(`a[href="/rankings/${id}"]`).exists()).toBe(false);
+  expect(w!.find(`a[href="/movies/collections/${id}"]`).exists()).toBe(false);
   result.resolve({ ...summary, capabilities: [] });
   await flushPromises();
   expect(w!.text()).toContain(en.accessUnavailable);
@@ -188,6 +188,6 @@ test('stale scope summary cannot reveal previous ranking', async () => {
   result.resolve(summary);
   await flushPromises();
   expect(w!.text()).not.toContain(summary.name);
-  expect(w!.find(`a[href="/rankings/${id}"]`).exists()).toBe(false);
+  expect(w!.find(`a[href="/movies/collections/${id}"]`).exists()).toBe(false);
   expect((mocks.summary.mock.calls[0]![1] as AbortSignal).aborted).toBe(true);
 });

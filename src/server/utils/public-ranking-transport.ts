@@ -3,7 +3,7 @@ import { fixedUpstream } from './security';
 
 const uuid = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 const canonical = new RegExp(`^${uuid}$`);
-const route = new RegExp(`^/api/public/rankings/(${uuid})(/entries)?$`);
+const route = new RegExp(`^/api/public/(rankings|movies/collections)/(${uuid})(/entries)?$`);
 const MAX_RESPONSE_BYTES = 256 * 1024;
 type Request = {
   id: string;
@@ -11,6 +11,7 @@ type Request = {
   after: string | null;
   limit: number;
   malformed: boolean;
+  canonical?: true;
 };
 function notFound(): never {
   throw createError({
@@ -40,11 +41,12 @@ export function publicRankingRequest(
   const mark = target.indexOf('?');
   const path = mark === -1 ? target : target.slice(0, mark);
   const match = route.exec(path);
-  if (!match?.[1]) return notFound();
+  if (!match?.[2]) return notFound();
 
   const parsed: Request = {
-    id: match[1],
-    entries: Boolean(match[2]),
+    id: match[2],
+    entries: Boolean(match[3]),
+    ...(match[1] === 'movies/collections' ? { canonical: true as const } : {}),
     after: null,
     limit: 20,
     malformed:
@@ -273,10 +275,8 @@ export async function readPublicRanking(request: Request, configuredUpstream: st
   )
     return notFound();
   const base = fixedUpstream(configuredUpstream);
-  const safe = new URL(
-    `${base.pathname.replace(/\/$/, '')}/public/rankings/${request.id}`,
-    base.origin,
-  );
+  const root = request.canonical ? '/public/movies/collections' : '/public/rankings';
+  const safe = new URL(`${base.pathname.replace(/\/$/, '')}${root}/${request.id}`, base.origin);
   if (!request.malformed && request.entries) {
     safe.pathname += '/entries';
     if (request.after) safe.searchParams.set('after', request.after);

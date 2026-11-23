@@ -137,7 +137,7 @@ async function recheck() {
       aria-labelledby="ranking-join-title"
       :aria-busy="phase === 'joining' || phase === 'checking'"
     >
-      <NuxtLink to="/rankings" class="mm-join-back" no-prefetch>{{
+      <NuxtLink to="/movies/collections" class="mm-join-back" no-prefetch>{{
         t('rankingJoin.back')
       }}</NuxtLink>
       <h1 id="ranking-join-title">{{ t('rankingJoin.title') }}</h1>
@@ -148,7 +148,7 @@ async function recheck() {
             {{ t('rankingJoin.confirmed', { name: authorized.name || t('rankings.unnamed') }) }}
           </p>
           <NuxtLink
-            :to="`/rankings/${authorized.ranking_id}`"
+            :to="`/movies/collections/${authorized.ranking_id}`"
             class="mm-button mm-button-primary"
             no-prefetch
             >{{ t('rankingJoin.open') }}</NuxtLink

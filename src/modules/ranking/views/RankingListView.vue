@@ -212,7 +212,7 @@ async function create() {
         </p>
         <ul>
           <li v-for="ranking in items" :key="ranking.ranking_id" class="mm-ranking-card">
-            <NuxtLink :to="`/rankings/${ranking.ranking_id}`" class="mm-ranking-name">{{
+            <NuxtLink :to="`/movies/collections/${ranking.ranking_id}`" class="mm-ranking-name">{{
               ranking.name || t('rankings.unnamed')
             }}</NuxtLink>
             <div class="mm-ranking-tags">

@@ -23,7 +23,7 @@ test('requests bounded authenticated page and keeps null names and snake_case wi
   api.get.mockResolvedValue({ data: { items: [summary], next_cursor: null } });
   const signal = new AbortController().signal;
   expect(await service.list(id, signal)).toEqual({ items: [summary], next_cursor: null });
-  expect(api.get).toHaveBeenCalledWith('/rankings', { params: { limit: 20, after: id }, signal });
+  expect(api.get).toHaveBeenCalledWith('/movies/collections', { params: { limit: 20, after: id }, signal });
 });
 test('does not accept arbitrary path/cursor or malformed scope projections', async () => {
   await expect(service.list('../movie')).rejects.toThrow();
@@ -38,7 +38,7 @@ test('creates only requested fields, requires 201 and never supplies owner/grant
   expect(
     await service.create({ name: '  Cinema  ', visibility: 'PRIVATE', admission: 'INVITATION' }),
   ).toMatchObject({ name: 'Cinema' });
-  expect(api.post).toHaveBeenCalledWith('/rankings', {
+  expect(api.post).toHaveBeenCalledWith('/movies/collections', {
     name: 'Cinema',
     visibility: 'PRIVATE',
     admission: 'INVITATION',

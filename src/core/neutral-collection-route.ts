@@ -12,6 +12,6 @@ export function isNeutralCollectionRoute(route: {
     'publicCollection' in route.meta &&
     route.meta.publicCollection === true &&
     typeof route.path === 'string' &&
-    /^\/public\/rankings\/[^/?#]+\/?$/.test(route.path)
+    /^\/public\/movies\/collections\/[^/?#]+\/?$/.test(route.path)
   );
 }

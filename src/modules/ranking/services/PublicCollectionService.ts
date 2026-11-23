@@ -29,7 +29,7 @@ function invalid(): never {
 const SAFE_CONTENT_LIMIT = 256 * 1024;
 async function request(id: string, suffix: string, signal?: AbortSignal) {
   if (!publicCollectionId(id)) throw new PublicCollectionError(404);
-  const response = await fetch(`/api/public/rankings/${id}${suffix}`, {
+  const response = await fetch(`/api/public/movies/collections/${id}${suffix}`, {
     method: 'GET',
     cache: 'no-store',
     credentials: 'omit',

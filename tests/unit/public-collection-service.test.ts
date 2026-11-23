@@ -19,7 +19,7 @@ test('browser uses only anonymous same-origin GET, no auth/actor or persistent c
   response(`{"ranking_name":null,"ranking_id":"${rank}"}`);
   const signal = new AbortController().signal;
   expect(await service.summary(rank, signal)).toEqual({ ranking_id: rank, ranking_name: null });
-  expect(fetch).toHaveBeenCalledExactlyOnceWith('/api/public/rankings/' + rank, {
+  expect(fetch).toHaveBeenCalledExactlyOnceWith('/api/public/movies/collections/' + rank, {
     method: 'GET',
     cache: 'no-store',
     credentials: 'omit',
@@ -48,7 +48,7 @@ test('exact BigInt signed integer tokens preserve decades of data and title null
     next_cursor: null,
   });
   expect(fetch).toHaveBeenCalledExactlyOnceWith(
-    '/api/public/rankings/' + rank + '/entries?limit=20&after=' + rank,
+    '/api/public/movies/collections/' + rank + '/entries?limit=20&after=' + rank,
     expect.objectContaining({ signal, credentials: 'omit', cache: 'no-store' }),
   );
 });

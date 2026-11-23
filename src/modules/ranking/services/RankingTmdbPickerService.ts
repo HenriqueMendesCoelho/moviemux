@@ -22,7 +22,7 @@ function invalid(): never {
 }
 function endpoint(rankingId: string, enabled: boolean) {
   if (!enabled || !rankingIdPattern.test(rankingId)) return invalid();
-  return `/rankings/${rankingId}/entries/tmdb`;
+  return `/movies/collections/${rankingId}/entries/tmdb`;
 }
 function exact(value: unknown, keys: string[]): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return invalid();

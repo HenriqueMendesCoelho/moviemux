@@ -2,6 +2,13 @@ import { defineEventHandler, createError, setResponseStatus } from 'nuxt/server'
 import { protectedBody, turnstileAction } from '../utils/turnstile';
 import { revokeSession } from '../utils/session-registry';
 import { boundedBody } from '../utils/body';
+import { collectionContractPath } from '../utils/collection-contract-path';
+import {
+  ensureRepeatedRoundReadBodyless,
+  invalidRepeatedRoundRequest,
+  REPEATED_ROUND_BODY_LIMIT,
+  repeatedRoundOperation,
+} from '../utils/repeated-round-contract';
 import { rankingRequestBody } from '../utils/ranking-requests';
 import {
   allowedApiPath,
@@ -20,16 +27,31 @@ export default defineEventHandler(async (event) => {
   const session = isPublic ? undefined : await readActiveSession(event);
   assertRankingReadQuery(path, method, event.url.searchParams, event.url.href.includes('?'));
   assertRankingReadIntent(path, method, event.req.headers);
-  const contentType = isRankingJoin(path, method)
-    ? undefined
-    : event.req.headers.get('content-type')?.split(';')[0];
+  const repeated = repeatedRoundOperation(collectionContractPath(path), method);
+  if (repeated)
+    ensureRepeatedRoundReadBodyless(
+      repeated,
+      event.req.headers.get('content-length'),
+      event.req.headers.get('transfer-encoding'),
+    );
+  const contentType =
+    repeated === 'read-settings' || isRankingJoin(path, method)
+      ? undefined
+      : event.req.headers.get('content-type')?.split(';')[0];
   if (
     !['GET', 'HEAD'].includes(method) &&
     contentType &&
     !['application/json', 'application/x-www-form-urlencoded'].includes(contentType)
   )
     throw createError({ status: 415, message: 'Unsupported request type' });
-  let body = ['GET', 'HEAD'].includes(method) ? undefined : await boundedBody(event);
+  let body: string | undefined;
+  if (repeated && repeated !== 'read-settings') {
+    try {
+      body = await boundedBody(event, REPEATED_ROUND_BODY_LIMIT, true);
+    } catch {
+      invalidRepeatedRoundRequest(repeated);
+    }
+  } else if (!['GET', 'HEAD'].includes(method)) body = await boundedBody(event);
   body = rankingRequestBody(path, method, body, contentType);
   const action = turnstileAction(path, method);
   if (action) body = await protectedBody(body, contentType, action);

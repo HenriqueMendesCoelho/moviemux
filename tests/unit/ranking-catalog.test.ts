@@ -50,7 +50,7 @@ test('projections preserve unknown metadata and reveal state, no incidental scor
 test('bounded pages use explicit ranking and entry IDs, reject path injection before request', async () => {
   api.get.mockResolvedValue({ data: { items: [entry], next_cursor: null } });
   expect((await service.entries(id, id)).items).toEqual([entry]);
-  expect(api.get).toHaveBeenCalledWith(`/rankings/${id}/entries`, {
+  expect(api.get).toHaveBeenCalledWith(`/movies/collections/${id}/entries`, {
     params: { limit: 20, after: id },
     signal: undefined,
   });
@@ -81,7 +81,7 @@ test('summary is authorized by exact ranking ID, never inferred from another pag
   };
   api.get.mockResolvedValue({ data: summary });
   expect(await service.summary(id)).toEqual(summary);
-  expect(api.get).toHaveBeenCalledWith(`/rankings/${id}`, { signal: undefined });
+  expect(api.get).toHaveBeenCalledWith(`/movies/collections/${id}`, { signal: undefined });
   api.get.mockResolvedValue({
     data: { ...summary, ranking_id: '22222222-2222-4222-8222-222222222222' },
   });

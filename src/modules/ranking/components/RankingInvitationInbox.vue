@@ -202,7 +202,7 @@ function reviewInbox() {
           })
         }}
       </p>
-      <NuxtLink :to="`/rankings/${joined.ranking_id}`" no-prefetch class="mm-button">{{
+      <NuxtLink :to="`/movies/collections/${joined.ranking_id}`" no-prefetch class="mm-button">{{
         t('rankingInvitationInbox.open')
       }}</NuxtLink>
     </div>

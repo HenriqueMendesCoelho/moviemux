@@ -39,7 +39,7 @@ export default {
     signal?: AbortSignal,
   ): Promise<{ items: IncomingInvitation[]; next_cursor: string | null }> {
     if (after !== undefined && !isId(after)) throw new Error('Invalid invitation cursor');
-    const { status, data } = await api.get('/ranking-invitations/incoming', {
+    const { status, data } = await api.get('/movies/collections/invitations/incoming', {
       params: { limit: 20, ...(after ? { after } : {}) },
       signal,
     });
@@ -56,7 +56,7 @@ export default {
     if (!isId(invite.ranking_id) || !isId(invite.invite_id))
       throw new Error('Invalid invitation identifiers');
     const { status } = await api.post(
-      `/rankings/${invite.ranking_id}/invitations/${invite.invite_id}/accept`,
+      `/movies/collections/${invite.ranking_id}/invitations/${invite.invite_id}/accept`,
     );
     if (status !== 204) throw new Error('Unconfirmed invitation acceptance');
   },

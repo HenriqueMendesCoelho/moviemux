@@ -44,7 +44,7 @@ vi.mock('socket.io-client', () => ({
 }));
 const pub = {
   name: 'public-collection',
-  path: '/public/rankings/id',
+  path: '/public/movies/collections/id',
   meta: { publicCollection: true, roles: ['UNSECURE'] },
 };
 const priv = { name: 'private', path: '/home', fullPath: '/home', meta: { roles: ['USER'] } };
@@ -79,10 +79,10 @@ test('only exact neutral page bypasses auth bootstrap, with no broader UNSECURE 
     route: object,
   ) => Promise<unknown>;
   await middleware(pub);
-  await middleware({ ...pub, path: '/public/rankings/id/' });
+  await middleware({ ...pub, path: '/public/movies/collections/id/' });
   expect(kit.user.fetchSession).not.toHaveBeenCalled();
   await middleware({ ...pub, name: 'other' });
-  await middleware({ ...pub, path: '/public/rankings/id/entries' });
+  await middleware({ ...pub, path: '/public/movies/collections/id/entries' });
   expect(kit.user.fetchSession).toHaveBeenCalledTimes(2);
   await middleware(priv);
   expect(kit.user.fetchSession).toHaveBeenCalledTimes(3);
@@ -119,4 +119,34 @@ test('private → public → private pauses old and late socket work without cle
   expect(kit.sockets[1].connect).toHaveBeenCalledTimes(2);
   expect(kit.movieReset).not.toHaveBeenCalled();
   expect(kit.listReset).not.toHaveBeenCalled();
+});
+
+test('legacy links route to clean canonical paths before session load', async () => {
+  const middleware = (await import('../../src/middleware/auth.global')).default as unknown as (
+    route: object,
+  ) => Promise<unknown>;
+  const navigateTo = vi.fn();
+  vi.stubGlobal('navigateTo', navigateTo);
+  const id = 'abcdefab-2222-4222-8222-222222222222';
+  for (const [path, canonical] of [
+    ['/rankings', '/movies/collections'],
+    [`/rankings/${id}/join`, `/movies/collections/${id}/join`],
+    [`/public/rankings/${id}`, `/public/movies/collections/${id}`],
+  ]) {
+    await middleware({
+      name: 'notFound',
+      path,
+      fullPath: `${path}?access=discard#discard`,
+      meta: { roles: ['UNSECURE'] },
+    });
+    expect(navigateTo).toHaveBeenLastCalledWith(canonical, { replace: true, redirectCode: 307 });
+  }
+  expect(kit.user.fetchSession).not.toHaveBeenCalled();
+  expect(navigateTo).toHaveBeenCalledTimes(3);
+
+  kit.user.user.isLoged = false;
+  const path = `/movies/collections/${id}/join`;
+  await middleware({ ...priv, path, fullPath: path });
+  expect(kit.user.fetchSession).toHaveBeenCalledTimes(1);
+  expect(navigateTo).toHaveBeenLastCalledWith({ name: 'login', query: { from: path } });
 });

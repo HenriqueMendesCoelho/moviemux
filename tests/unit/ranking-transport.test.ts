@@ -168,7 +168,8 @@ describe('contextual ranking reads', () => {
     expect(allowedApiPath(path, 'GET')).toBe(true);
     for (const method of ['POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'])
       expect(allowedApiPath(path, method)).toBe(
-        path.endsWith('/rating/me') && ['POST', 'PATCH'].includes(method),
+        (path.endsWith('/rating/me') && ['POST', 'PATCH'].includes(method)) ||
+          (path.endsWith('/rounds') && method === 'POST'),
       );
     for (const invalid of [
       path + '/',

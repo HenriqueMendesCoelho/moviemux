@@ -1,5 +1,9 @@
 import { createError, type RequestEvent } from 'nuxt/server';
-export async function boundedBody(event: RequestEvent, limit = 128 * 1024): Promise<string> {
+export async function boundedBody(
+  event: RequestEvent,
+  limit = 128 * 1024,
+  strictUtf8 = false,
+): Promise<string> {
   const declared = Number(event.req.headers.get('content-length') || 0);
   if (declared > limit) throw createError({ status: 413, message: 'Request too large' });
   const reader = event.req.body?.getReader();
@@ -16,5 +20,8 @@ export async function boundedBody(event: RequestEvent, limit = 128 * 1024): Prom
     }
     chunks.push(value);
   }
-  return Buffer.concat(chunks).toString('utf8');
+  const bytes = Buffer.concat(chunks);
+  return strictUtf8
+    ? new TextDecoder('utf-8', { fatal: true }).decode(bytes)
+    : bytes.toString('utf8');
 }

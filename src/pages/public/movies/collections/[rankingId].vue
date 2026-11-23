@@ -6,7 +6,7 @@ const route = useRoute();
 const { t } = useI18n();
 const id = computed(() => {
   const value = route.params.rankingId;
-  return typeof value === 'string' && route.path === `/public/rankings/${value}` ? value : null;
+  return typeof value === 'string' && route.path === `/public/movies/collections/${value}` ? value : null;
 });
 definePageMeta({
   name: 'public-collection',

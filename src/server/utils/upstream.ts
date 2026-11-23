@@ -1,10 +1,18 @@
 import { createError, useRuntimeConfig } from 'nuxt/server';
 import { fixedUpstream } from './security';
+import { collectionContractPath } from './collection-contract-path';
 import {
   rankingTmdbError,
   rankingTmdbOperation,
   rankingTmdbResponse,
 } from './ranking-tmdb-contract';
+
+import {
+  invalidRepeatedRoundRequest,
+  repeatedRoundError,
+  repeatedRoundOperation,
+  repeatedRoundResponse,
+} from './repeated-round-contract';
 
 const uuid = '[a-zA-Z0-9_-]{1,128}';
 const rankingUuid = '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}';
@@ -26,7 +34,7 @@ const incomingInvitationsPath = '/ranking-invitations/incoming';
 const acceptInvitationPath = new RegExp(`^${rankingRoot}/invitations/${rankingUuid}/accept$`);
 const joinRankingPath = new RegExp(`^${rankingRoot}/join$`);
 export function isRankingJoin(path: string, method: string): boolean {
-  return method === 'POST' && joinRankingPath.test(path);
+  return method === 'POST' && joinRankingPath.test(collectionContractPath(path));
 }
 const rules: Array<[RegExp, string[]]> = [
   [/^\/public\/user$/, ['POST']],
@@ -77,8 +85,10 @@ const rules: Array<[RegExp, string[]]> = [
   [/^\/statistic\/movies$/, ['GET']],
 ];
 export function allowedApiPath(path: string, method: string): boolean {
+  path = collectionContractPath(path);
   if (path.includes('..') || path.includes('\\') || /%(?:2f|5c|2e|25)/i.test(path)) return false;
   return (
+    Boolean(repeatedRoundOperation(path, method)) ||
     Boolean(rankingTmdbOperation(path, method)) ||
     rules.some(([pattern, methods]) => pattern.test(path) && methods.includes(method))
   );
@@ -86,7 +96,7 @@ export function allowedApiPath(path: string, method: string): boolean {
 export function assertRankingReadIntent(path: string, method: string, headers: Headers): void {
   if (
     method === 'GET' &&
-    rankingRoundDetailPath.test(path) &&
+    rankingRoundDetailPath.test(collectionContractPath(path)) &&
     [headers.get('purpose'), headers.get('sec-purpose')].some(
       (value) => value && /\b(?:prefetch|prerender)\b/i.test(value),
     )
@@ -99,6 +109,18 @@ export function assertRankingReadQuery(
   query: URLSearchParams,
   hasQueryDelimiter = false,
 ): void {
+  pathname = collectionContractPath(pathname);
+  const repeated = repeatedRoundOperation(pathname, method);
+  if (repeated) {
+    if (query.size || hasQueryDelimiter) invalidRepeatedRoundRequest(repeated);
+    return;
+  }
+  if (
+    method === 'GET' &&
+    hasQueryDelimiter &&
+    (rankingRoundDetailPath.test(pathname) || roundAggregatePath.test(pathname))
+  )
+    throw createError({ status: 400, message: 'Invalid ranking query' });
   if (isRankingJoin(pathname, method)) {
     if (query.size || hasQueryDelimiter)
       throw createError({
@@ -277,9 +299,10 @@ function validRoundAggregate(text: string, roundId: string): boolean {
 export async function upstreamRequest(
   path: string,
   options: { method: string; body?: string; contentType?: string; token?: string },
-) {
+): Promise<{ status: number; data: unknown; rawJson?: string }> {
   const base = fixedUpstream(String(useRuntimeConfig().apiUpstream || ''));
   const target = new URL(`${base.pathname.replace(/\/$/, '')}${path}`, base.origin);
+  path = collectionContractPath(path);
   if (target.origin !== base.origin)
     throw createError({ status: 400, message: 'Invalid API path' });
   const headers: Record<string, string> = { accept: 'application/json' };
@@ -315,12 +338,15 @@ export async function upstreamRequest(
     }
   }
   const text = Buffer.concat(chunks).toString('utf8');
+  const repeated = repeatedRoundOperation(path, options.method);
   if (!response.ok) {
     // Only a verified code may cross the boundary, never upstream messages or other fields.
     const operation = rankingTmdbOperation(path, options.method);
-    const code = operation
-      ? rankingTmdbError(operation, response.status, text)
-      : rankingErrorCode(path, options.method, response.status, text);
+    const code = repeated
+      ? repeatedRoundError(repeated, response.status, text)
+      : operation
+        ? rankingTmdbError(operation, response.status, text)
+        : rankingErrorCode(path, options.method, response.status, text);
     throw createError({
       status:
         code || [400, 401, 403, 404, 409, 422, 429].includes(response.status)
@@ -335,6 +361,7 @@ export async function upstreamRequest(
             : 'API request failed',
     });
   }
+  if (repeated) return repeatedRoundResponse(repeated, response.status, text, options.body);
   if (isRankingJoin(path, options.method)) {
     if (response.status !== 204 || text !== '')
       throw createError({ status: 502, message: 'Unconfirmed ranking join response' });

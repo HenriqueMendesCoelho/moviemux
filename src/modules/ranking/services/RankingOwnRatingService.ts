@@ -17,7 +17,7 @@ export default async function writeOwnRating(
     (intent !== 'edit' && intent !== 'create')
   )
     throw new Error('Invalid rating command');
-  const path = `/rankings/${rankingId}/rounds/${roundId}/rating/me`;
+  const path = `/movies/collections/${rankingId}/rounds/${roundId}/rating/me`;
   const result =
     intent === 'create' ? await api.post(path, { score }) : await api.patch(path, { score });
   const value = result.data;

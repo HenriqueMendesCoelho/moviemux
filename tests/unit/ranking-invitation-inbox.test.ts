@@ -112,7 +112,7 @@ test('explicit accept clears inbox titles; no navigation until returned READ sum
   expect(w!.find('a').exists()).toBe(false);
   access.resolve(summary);
   await flushPromises();
-  expect(w!.get('a').attributes('href')).toBe('/rankings/' + rank);
+  expect(w!.get('a').attributes('href')).toBe('/movies/collections/' + rank);
   expect(w!.get('a').attributes('data-no-prefetch')).toBe('true');
   expect(w!.text()).toContain(summary.name);
   expect(w!.emitted('joined')).toEqual([[summary]]);
