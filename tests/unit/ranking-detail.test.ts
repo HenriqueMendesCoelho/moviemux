@@ -10,10 +10,13 @@ import Picker from '../../src/modules/ranking/components/RankingTmdbPicker.vue';
 import Round from '../../src/modules/ranking/components/RankingRoundPanel.vue';
 import Confirm from '../../src/core/components/BaseConfirmDialog.vue';
 import Card from '../../src/modules/ranking/components/RankingEntryCard.vue';
+import Visibility from '../../src/modules/ranking/components/RankingVisibilitySettings.vue';
 import Issuer from '../../src/modules/ranking/components/RankingInvitationIssuer.vue';
 const messages = { en, 'pt-BR': pt };
 const mocks = vi.hoisted(() => ({
   summary: vi.fn(),
+  visibilitySettings: vi.fn(),
+  visibilitySave: vi.fn(),
   repeatSettings: vi.fn(),
   repeatCreate: vi.fn(),
   repeatSet: vi.fn(),
@@ -64,6 +67,9 @@ vi.mock('../../src/modules/ranking/services/RankingRepeatedRoundService', () => 
     create: mocks.repeatCreate,
     setSettings: mocks.repeatSet,
   },
+}));
+vi.mock('../../src/modules/ranking/services/RankingVisibilityService', () => ({
+  default: { settings: mocks.visibilitySettings, save: mocks.visibilitySave },
 }));
 vi.mock('~/core/stores/UserStore', () => ({ useUserStore: () => mocks.user }));
 vi.mock('../../src/modules/ranking/services/RankingCatalogService', async (original) => ({
@@ -140,6 +146,8 @@ function deferred() {
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.pickerEnabled = false;
+  mocks.visibilitySettings.mockReset().mockRejectedValue({ response: { status: 404 } });
+  mocks.visibilitySave.mockReset();
   mocks.repeatSettings.mockReset().mockRejectedValue({ response: { status: 404 } });
   mocks.repeatCreate.mockReset();
   mocks.repeatSet.mockReset();
@@ -597,4 +605,20 @@ test('an OPEN share proof never substitutes for denied settings authority', asyn
   expect(w.text()).toContain('Copy collection join link');
   expect(w.text()).not.toContain('Enable repeated rounds');
   expect(w.text()).not.toContain('Add another round');
+});
+
+test('visibility changes block navigation while saving but do not grant other owner controls', async () => {
+  mocks.visibilitySettings.mockResolvedValue('PRIVATE');
+  await render();
+  const control = w.getComponent(Visibility);
+  expect(mocks.visibilitySettings).toHaveBeenCalledWith(id, expect.any(AbortSignal));
+  expect(w.text()).not.toContain('Copy collection join link');
+  control.vm.$emit('interaction', 'pending');
+  await flushPromises();
+  expect(mocks.leave?.()).toBe(false);
+  await flushPromises();
+  expect(w.text()).toContain('Wait for the visibility update to finish.');
+  control.vm.$emit('interaction', 'idle');
+  await flushPromises();
+  expect(mocks.leave?.()).toBe(true);
 });

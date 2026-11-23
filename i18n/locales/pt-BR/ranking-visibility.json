@@ -1,0 +1,18 @@
+{
+  "title": "Visibilidade da coleção",
+  "hint": "A visibilidade só define o que visitantes anônimos podem ver. Ela não muda como as pessoas entram.",
+  "public": "Visível para quem tem o link",
+  "private": "Não visível para visitantes anônimos",
+  "makePublic": "Tornar coleção pública",
+  "makePrivate": "Tornar coleção privada",
+  "publicDisclosure": "Qualquer pessoa com o link poderá ver a coleção e as médias das rodadas reveladas, sem participar. A coleção não aparece em buscas ou na descoberta, e as identidades dos membros e as notas individuais não são exibidas. A forma de entrada, os membros e os convites não mudam.",
+  "privateDisclosure": "O link público deixará de funcionar para visitantes anônimos. Não é possível apagar o que alguém já viu. A forma de entrada, os membros e os convites não mudam.",
+  "confirmSave": "Salvar visibilidade",
+  "check": "Verificar visibilidade atual",
+  "saved": "Visibilidade da coleção salva.",
+  "unknown": "Não foi possível confirmar a alteração. Verifique a visibilidade atual antes de tentar de novo.",
+  "unverified": "Não foi possível verificar a visibilidade atual. Nenhuma nova alteração foi enviada.",
+  "verified": "A visibilidade atual corresponde à sua escolha.",
+  "different": "A visibilidade atual é diferente da sua escolha. Confira a configuração acima antes de salvar de novo.",
+  "busy": "Aguarde a alteração de visibilidade terminar."
+}

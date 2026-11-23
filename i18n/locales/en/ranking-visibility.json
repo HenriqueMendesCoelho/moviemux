@@ -1,0 +1,18 @@
+{
+  "title": "Collection visibility",
+  "hint": "Visibility controls anonymous viewing only. It does not change how people join.",
+  "public": "Visible to anyone with the link",
+  "private": "Not visible to anonymous visitors",
+  "makePublic": "Make collection public",
+  "makePrivate": "Make collection private",
+  "publicDisclosure": "Anyone with the link can view the collection and averages from revealed rounds, but cannot participate. This does not list it in search or discovery or reveal members’ identities or individual ratings. Admission, members and invitations do not change.",
+  "privateDisclosure": "The public link will stop working for anonymous visitors. You cannot erase what someone has already seen. Admission, members and invitations do not change.",
+  "confirmSave": "Save visibility",
+  "check": "Check current visibility",
+  "saved": "Collection visibility saved.",
+  "unknown": "The save could not be confirmed. Check the current visibility before trying again.",
+  "unverified": "Current visibility could not be checked. No new change was sent.",
+  "verified": "The current visibility matches your choice.",
+  "different": "The current visibility differs from your choice. Check the setting above before saving again.",
+  "busy": "Wait for the visibility update to finish."
+}

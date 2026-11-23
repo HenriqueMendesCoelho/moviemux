@@ -10,6 +10,7 @@ import { rankingIdPattern } from '../services/RankingService';
 import RankingInvitationIssuer from '../components/RankingInvitationIssuer.vue';
 import RankingTmdbPicker from '../components/RankingTmdbPicker.vue';
 import type { ImportReceipt } from '../services/RankingTmdbPickerService';
+import RankingVisibilitySettings from '../components/RankingVisibilitySettings.vue';
 import RankingRepeatedRoundsSettings from '../components/RankingRepeatedRoundsSettings.vue';
 import RankingNewRoundForm from '../components/RankingNewRoundForm.vue';
 import type { CreatedRound, RoundCreationIntent } from '../services/RankingRepeatedRoundService';
@@ -81,6 +82,7 @@ const uncertain = ref(new Set<string>());
 type RepeatInteraction = 'idle' | 'draft' | 'pending' | 'uncertain';
 const repeatSettings = ref<boolean | null>(null);
 const repeatSettingsState = ref<RepeatInteraction>('idle');
+const visibilityState = ref<RepeatInteraction>('idle');
 const newRoundState = ref<RepeatInteraction>('idle');
 const repeatPolicyRevision = ref(0);
 const repeatIntents = ref(new Map<string, RoundCreationIntent>());
@@ -125,7 +127,7 @@ function repeatPolicyStale() {
   repeatPolicyRevision.value++;
 }
 const interactions = ref(new Map<string, 'draft' | 'pending'>());
-const guardBusy = ref<'rating' | 'picker' | 'repeat' | null>(null);
+const guardBusy = ref<'rating' | 'picker' | 'repeat' | 'visibility' | null>(null);
 const dialogKey = ref(0);
 const discardDialog = ref<InstanceType<typeof BaseConfirmDialog>>();
 let decision: ((allow: boolean) => void) | undefined;
@@ -134,7 +136,11 @@ function hasRatingRequest() {
 }
 function settle(allow: boolean) {
   decision?.(
-    allow && !hasRatingRequest() && !hasRepeatRequest() && pickerInteraction.value !== 'pending',
+    allow &&
+      !hasRatingRequest() &&
+      !hasRepeatRequest() &&
+      visibilityState.value !== 'pending' &&
+      pickerInteraction.value !== 'pending',
   );
   decision = undefined;
 }
@@ -165,19 +171,38 @@ watch(
   },
   { flush: 'sync' },
 );
-function allowInterruption(): boolean | Promise<boolean> {
+watch(
+  visibilityState,
+  (state) => {
+    if (state !== 'pending' && guardBusy.value === 'visibility') guardBusy.value = null;
+  },
+  { flush: 'sync' },
+);
+function allowInterruption(entryOnly = false): boolean | Promise<boolean> {
   const pickerState = pickerInteraction.value;
-  const states = [repeatSettingsState.value, newRoundState.value];
+  const states = [
+    repeatSettingsState.value,
+    newRoundState.value,
+    entryOnly && visibilityState.value !== 'pending' ? 'idle' : visibilityState.value,
+  ];
   const repeatEdited = states.some((state) => state !== 'idle');
   const repeatUncertain = states.includes('uncertain');
   if (!user.user.isLoged || (!interactions.value.size && pickerState === 'idle' && !repeatEdited))
     return true;
-  if (hasRatingRequest() || pickerState === 'pending' || hasRepeatRequest()) {
-    guardBusy.value = hasRepeatRequest()
-      ? 'repeat'
-      : pickerState === 'pending'
-        ? 'picker'
-        : 'rating';
+  if (
+    hasRatingRequest() ||
+    pickerState === 'pending' ||
+    hasRepeatRequest() ||
+    visibilityState.value === 'pending'
+  ) {
+    guardBusy.value =
+      visibilityState.value === 'pending'
+        ? 'visibility'
+        : hasRepeatRequest()
+          ? 'repeat'
+          : pickerState === 'pending'
+            ? 'picker'
+            : 'rating';
     return false;
   }
   if (decision || !discardDialog.value) return false;
@@ -314,6 +339,7 @@ async function load(more = false, replace = false) {
 }
 function reset() {
   epoch++;
+  visibilityState.value = 'idle';
   clearRepeatOwner();
   controller?.abort();
   clearDetail();
@@ -348,7 +374,7 @@ async function selectEntry(entry: RankingEntry, retry = false) {
   if (entry.entry_id === selected.value?.entry_id && !retry) return;
   const started = epoch,
     current = selection;
-  if (!(await allowInterruption()) || started !== epoch || current !== selection) return;
+  if (!(await allowInterruption(true)) || started !== epoch || current !== selection) return;
   await open(entry);
 }
 async function open(entry: RankingEntry, more = false, refresh = false) {
@@ -415,6 +441,7 @@ async function open(entry: RankingEntry, more = false, refresh = false) {
 }
 function invalidateScope() {
   epoch++;
+  visibilityState.value = 'idle';
   clearRepeatOwner();
   controller?.abort();
   canRate.value = false;
@@ -513,15 +540,19 @@ async function refreshAggregate() {
     <p v-if="guardBusy" role="status">
       {{
         t(
-          guardBusy === 'repeat'
-            ? 'rankingRepeatedRounds.busy'
-            : guardBusy === 'picker'
-              ? 'rankingTmdbPicker.busyLeave'
-              : 'rankingRoundPanel.busy',
+          guardBusy === 'visibility'
+            ? 'rankingVisibility.busy'
+            : guardBusy === 'repeat'
+              ? 'rankingRepeatedRounds.busy'
+              : guardBusy === 'picker'
+                ? 'rankingTmdbPicker.busyLeave'
+                : 'rankingRoundPanel.busy',
         )
       }}
     </p>
-    <NuxtLink to="/movies/collections" class="mm-detail-back">{{ t('rankingDetail.back') }}</NuxtLink>
+    <NuxtLink to="/movies/collections" class="mm-detail-back">{{
+      t('rankingDetail.back')
+    }}</NuxtLink>
     <header>
       <h1>
         {{
@@ -554,12 +585,22 @@ async function refreshAggregate() {
       :can-invite="canInvite"
       @access-lost="lostInvitationAccess"
     />
+    <RankingVisibilitySettings
+      v-if="rankingName !== undefined && user.user.isLoged"
+      :ranking-id="rankingId"
+      :block-write="hasRepeatRequest() || hasRatingRequest() || pickerInteraction === 'pending'"
+      @scope-lost="lostRepeatOwner"
+      @interaction="visibilityState = $event"
+    />
     <RankingRepeatedRoundsSettings
       v-if="rankingName !== undefined && user.user.isLoged"
       :ranking-id="rankingId"
       :revision="repeatPolicyRevision"
       :block-write="
-        newRoundState !== 'idle' || hasRatingRequest() || pickerInteraction === 'pending'
+        newRoundState !== 'idle' ||
+        visibilityState !== 'idle' ||
+        hasRatingRequest() ||
+        pickerInteraction === 'pending'
       "
       @settings="rememberRepeatSettings"
       @scope-lost="lostRepeatOwner"
@@ -632,7 +673,10 @@ async function refreshAggregate() {
           :owner-authorized="repeatSettings !== null"
           :repeat-enabled="repeatSettings === true"
           :block-write="
-            repeatSettingsState !== 'idle' || hasRatingRequest() || pickerInteraction === 'pending'
+            repeatSettingsState !== 'idle' ||
+            visibilityState !== 'idle' ||
+            hasRatingRequest() ||
+            pickerInteraction === 'pending'
           "
           @created="confirmedRepeatedRound"
           @settings="rememberRepeatSettings"
