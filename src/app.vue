@@ -5,11 +5,15 @@ useHead(() => ({
   htmlAttrs: { lang: locale.value === 'en' ? 'en' : 'pt-BR' },
   meta: [{ name: 'description', content: t('shell.description') }],
 }));
+import { computed } from 'vue';
+import { isNeutralCollectionRoute } from './core/neutral-collection-route';
 import { useUserStore } from './core/stores/UserStore';
 import AppFeedback from './core/layout/AppFeedback.vue';
 import { useStyleStore } from './core/stores/StyleStore';
 const style = useStyleStore();
 const user = useUserStore();
+const route = useRoute();
+const neutral = computed(() => isNeutralCollectionRoute(route));
 const savedTheme = useCookie<string | null>('theme');
 if (savedTheme.value) style.layoutSettings.darkMode = savedTheme.value === 'dark';
 useHead(() => ({ htmlAttrs: { 'data-theme': style.layoutSettings.darkMode ? 'dark' : 'light' } }));
@@ -18,7 +22,8 @@ onMounted(() => style.initializeTheme());
 <template>
   <NuxtLayout
     ><NuxtPage
-      :key="user.user.generation || 'anonymous'"
-      :keepalive="{ include: ['MovieMuxHomePage'], max: 1 }" /></NuxtLayout
-  ><AppFeedback />
+      :key="neutral ? 'anonymous-collection' : user.user.generation || 'anonymous'"
+      :keepalive="{ include: ['MovieMuxHomePage'], max: 1 }"
+  /></NuxtLayout>
+  <AppFeedback v-if="!neutral" />
 </template>

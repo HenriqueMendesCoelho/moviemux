@@ -1,5 +1,7 @@
+import { isNeutralCollectionRoute } from '~/core/neutral-collection-route';
 import { useUserStore } from '~/core/stores/UserStore';
 export default defineNuxtRouteMiddleware(async (to) => {
+  if (isNeutralCollectionRoute(to)) return;
   const store = useUserStore();
   if (!store.sessionLoaded) await store.fetchSession();
   const roles = (to.meta.roles || ['UNSECURE']) as string[];

@@ -2,21 +2,25 @@ import {
   initializeSockets,
   initializeMovieSocket,
   resetSocketSession,
+  pausePrivateSockets,
   socketAllMovies,
   socketMovie,
 } from '~/boot/socket';
+import { isNeutralCollectionRoute } from '~/core/neutral-collection-route';
 import { useUserStore } from '~/core/stores/UserStore';
 import { useMovieStore } from '~/modules/movie/stores/MovieStore';
 import { useMovieWatchlistStore } from '~/modules/movie-watchlist/stores/MovieWatchlistStore';
 export default defineNuxtPlugin(() => {
   initializeSockets();
   initializeMovieSocket();
+  const router = useRouter();
+  const neutral = () => isNeutralCollectionRoute(router.currentRoute.value);
   const user = useUserStore();
   const movie = useMovieStore();
   const lists = useMovieWatchlistStore();
   let recovery: Promise<void> | undefined;
   const endSession = () => {
-    if (recovery) return;
+    if (recovery || neutral()) return;
     user.applySession(null);
     recovery = user
       .fetchSession()
@@ -34,14 +38,26 @@ export default defineNuxtPlugin(() => {
   socketMovie.on('connect_error', connectionError);
   socketAllMovies.on('bridge:session-ended', endSession);
   socketMovie.on('bridge:session-ended', endSession);
+  let lastPrivateGeneration: string | undefined;
   watch(
-    () => [user.user.generation, user.user.isLoged, user.csrfToken] as const,
-    (current, previous) => {
-      resetSocketSession(current[1] ? current[2] : '');
-      if (previous && (current[0] !== previous[0] || !current[1])) {
+    [
+      neutral,
+      () => (neutral() ? '' : user.user.generation),
+      () => !neutral() && user.user.isLoged,
+      () => (neutral() ? '' : user.csrfToken),
+    ],
+    ([publicRoute, generation, loggedIn, csrf]) => {
+      pausePrivateSockets(publicRoute);
+      if (publicRoute) return;
+      resetSocketSession(loggedIn ? csrf : '');
+      if (
+        lastPrivateGeneration !== undefined &&
+        (lastPrivateGeneration !== generation || !loggedIn)
+      ) {
         movie.$reset();
         lists.$reset();
       }
+      lastPrivateGeneration = generation;
     },
     { immediate: true, flush: 'sync' },
   );

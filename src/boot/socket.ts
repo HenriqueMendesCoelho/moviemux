@@ -4,9 +4,15 @@ import type { MovieNoteType } from 'src/core/types/movie/MovieType';
 
 let all: Socket | undefined;
 let movie: Socket | undefined;
+let privateSocketsPaused = false;
 function proxySocket(resolve: () => Socket | undefined): Socket {
   return new Proxy({} as Socket, {
     get(_target, key) {
+      if (
+        privateSocketsPaused &&
+        ['connect', 'open', 'emit', 'emitWithAck', 'send'].includes(String(key))
+      )
+        return () => undefined;
       const socket = resolve();
       if (!socket) return key === 'connected' ? false : () => undefined;
       const value = Reflect.get(socket, key);
@@ -124,6 +130,7 @@ export function initializeMovieSocket() {
 
 /** Clear account-scoped events and credentials before another session can subscribe. */
 export function resetSocketSession(csrfToken = '') {
+  if (privateSocketsPaused) csrfToken = '';
   const reconnectAll = Boolean(all?.connected && csrfToken);
   const reconnectMovie = Boolean(movie?.connected && csrfToken);
   all?.disconnect();
@@ -141,4 +148,17 @@ export function resetSocketSession(csrfToken = '') {
   stateSocketMovie.deletedMovie = [];
   if (reconnectAll) all?.connect();
   if (reconnectMovie) movie?.connect();
+}
+
+/** Suspend legacy traffic while the separate anonymous collection is active. */
+export function pausePrivateSockets(paused: boolean) {
+  if (privateSocketsPaused === paused) return;
+  privateSocketsPaused = paused;
+  if (!paused) return;
+  resetSocketSession();
+  for (const socket of [all, movie]) {
+    if (!socket) continue;
+    socket.sendBuffer = [];
+    socket.receiveBuffer = [];
+  }
 }
