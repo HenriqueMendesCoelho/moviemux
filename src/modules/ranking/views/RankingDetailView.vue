@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import { onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useUserStore } from '~/core/stores/UserStore';
 import BaseContainerMain from '~/core/components/BaseContainerMain.vue';
 import RankingEntryCard from '../components/RankingEntryCard.vue';
 import RankingInvitationIssuer from '../components/RankingInvitationIssuer.vue';
-import RankingOwnRating from '../components/RankingOwnRating.vue';
+import RankingRoundPanel from '../components/RankingRoundPanel.vue';
+import BaseConfirmDialog from '~/core/components/BaseConfirmDialog.vue';
+import { formatRatingMean } from '../utils/formatRatingMean';
+import type { RoundScope } from '../services/RankingRoundService';
 import catalog, {
   entryTitle,
   type RankingEntry,
@@ -30,6 +34,52 @@ const canInvite = ref(false);
 const invitationUnavailable = ref(false);
 const rankingName = ref<string | null | undefined>(undefined);
 const uncertain = ref(new Set<string>());
+const interactions = ref(new Map<string, 'draft' | 'pending'>());
+const guardBusy = ref(false);
+const dialogKey = ref(0);
+const discardDialog = ref<InstanceType<typeof BaseConfirmDialog>>();
+let decision: ((allow: boolean) => void) | undefined;
+function settle(allow: boolean) {
+  decision?.(allow);
+  decision = undefined;
+}
+function resetInterruption() {
+  interactions.value.clear();
+  guardBusy.value = false;
+  if (decision) {
+    settle(false);
+    dialogKey.value++;
+  }
+}
+function markInteraction(roundId: string, state: 'idle' | 'draft' | 'pending') {
+  if (state === 'idle') interactions.value.delete(roundId);
+  else if (rounds.value.some((round) => round.round_id === roundId))
+    interactions.value.set(roundId, state);
+  if (![...interactions.value.values()].includes('pending')) guardBusy.value = false;
+}
+function allowInterruption(): boolean | Promise<boolean> {
+  if (!user.user.isLoged || !interactions.value.size) return true;
+  if ([...interactions.value.values()].includes('pending')) {
+    guardBusy.value = true;
+    return false;
+  }
+  if (decision || !discardDialog.value) return false;
+  const pending = new Promise<boolean>((resolve) => {
+    decision = resolve;
+  });
+  void discardDialog.value.show({
+    title: () => t('rankingRoundPanel.discardTitle'),
+    message: () => t('rankingRoundPanel.discardHint'),
+    ok: () => t('rankingRoundPanel.discard'),
+    cancel: () => t('rankingRoundPanel.stay'),
+    persistent: false,
+  });
+  return pending;
+}
+onBeforeRouteLeave(() => allowInterruption());
+onBeforeRouteUpdate(
+  (to, from) => to.params.rankingId === from.params.rankingId || allowInterruption(),
+);
 let aggregateEpoch = 0;
 let epoch = 0,
   selection = 0,
@@ -45,6 +95,7 @@ function message(e: unknown) {
 }
 function clearDetail() {
   selection++;
+  resetInterruption();
   detailController?.abort();
   selected.value = null;
   rounds.value = [];
@@ -114,7 +165,9 @@ function reset() {
   error.value = '';
   if (mounted) void load();
 }
-watch(() => [props.rankingId, user.user.generation, user.user.isLoged], reset, { flush: 'sync' });
+watch([() => props.rankingId, () => user.user.generation, () => user.user.isLoged], reset, {
+  flush: 'sync',
+});
 onMounted(() => {
   mounted = true;
   reset();
@@ -125,6 +178,13 @@ onBeforeUnmount(() => {
   controller?.abort();
   clearDetail();
 });
+async function selectEntry(entry: RankingEntry, retry = false) {
+  if (entry.entry_id === selected.value?.entry_id && !retry) return;
+  const started = epoch,
+    current = selection;
+  if (!(await allowInterruption()) || started !== epoch || current !== selection) return;
+  await open(entry);
+}
 async function open(entry: RankingEntry, more = false) {
   if (more && detailLoading.value) return;
   if (!more) {
@@ -133,7 +193,8 @@ async function open(entry: RankingEntry, more = false) {
   }
   const started = epoch,
     current = selection;
-  detailController = new AbortController();
+  const request = new AbortController();
+  detailController = request;
   detailLoading.value = true;
   detailError.value = '';
   try {
@@ -141,15 +202,26 @@ async function open(entry: RankingEntry, more = false) {
       props.rankingId,
       entry.entry_id,
       more ? (roundCursor.value ?? undefined) : undefined,
-      detailController.signal,
+      request.signal,
     );
+    if (started !== epoch || current !== selection) return;
     const summary = more
       ? aggregate.value
-      : await catalog.aggregate(props.rankingId, entry.entry_id, detailController.signal);
+      : await catalog.aggregate(props.rankingId, entry.entry_id, request.signal);
     if (started !== epoch || current !== selection) return;
     rounds.value = [
       ...new Map(
-        [...(more ? rounds.value : []), ...page.items].map((r) => [r.round_id, r]),
+        [
+          ...(more ? rounds.value : []),
+          ...page.items.map((round) =>
+            more &&
+            rounds.value.some(
+              (current) => current.round_id === round.round_id && current.revealed === true,
+            )
+              ? { ...round, revealed: true }
+              : round,
+          ),
+        ].map((r) => [r.round_id, r]),
       ).values(),
     ];
     roundCursor.value = more && page.next_cursor === roundCursor.value ? null : page.next_cursor;
@@ -159,6 +231,7 @@ async function open(entry: RankingEntry, more = false) {
       detailError.value = message(e);
       if (detailError.value === 'unavailable' || detailError.value === 'sessionExpired') {
         canInvite.value = false;
+        resetInterruption();
         rounds.value = [];
         aggregate.value = null;
         aggregateEpoch++;
@@ -202,6 +275,19 @@ async function lostScope(status: number) {
     if (started === epoch && !detailError.value) detailError.value = 'ownUnavailable';
   } else if (started === epoch) error.value = 'ownUnavailable';
 }
+function lostRoundScope(status: number) {
+  invalidateScope();
+  error.value = status === 401 ? 'sessionExpired' : 'unavailable';
+}
+function roundTransition(scope: RoundScope) {
+  if (scope.rankingId !== props.rankingId || scope.entryId !== selected.value?.entry_id) return;
+  const matching = rounds.value.find((round) => round.round_id === scope.roundId);
+  if (!matching || matching.revealed !== false) return;
+  rounds.value = rounds.value.map((round) =>
+    round.round_id === scope.roundId ? { ...round, revealed: true } : round,
+  );
+  void refreshAggregate();
+}
 function markReconcile(roundId: string, required: boolean) {
   if (required) uncertain.value.add(roundId);
   else uncertain.value.delete(roundId);
@@ -226,6 +312,13 @@ async function refreshAggregate() {
 </script>
 <template>
   <BaseContainerMain>
+    <BaseConfirmDialog
+      :key="dialogKey"
+      ref="discardDialog"
+      @ok="settle(true)"
+      @cancel="settle(false)"
+    />
+    <p v-if="guardBusy" role="status">{{ t('rankingRoundPanel.busy') }}</p>
     <NuxtLink to="/rankings" class="mm-detail-back">{{ t('rankingDetail.back') }}</NuxtLink>
     <header>
       <h1>
@@ -260,7 +353,7 @@ async function refreshAggregate() {
             <RankingEntryCard
               :entry="entry"
               :selected="selected?.entry_id === entry.entry_id"
-              @select="open(entry)"
+              @select="selectEntry(entry)"
             />
           </li>
         </ul>
@@ -278,7 +371,7 @@ async function refreshAggregate() {
         <p v-if="detailLoading" role="status">{{ t('rankingDetail.loading') }}</p>
         <div v-if="detailError" role="alert">
           <p>{{ t(`rankingDetail.${detailError}`) }}</p>
-          <button class="mm-button" :disabled="detailLoading" @click="open(selected)">
+          <button class="mm-button" :disabled="detailLoading" @click="selectEntry(selected, true)">
             {{ t('rankingDetail.retry') }}
           </button>
         </div>
@@ -289,8 +382,11 @@ async function refreshAggregate() {
           </p>
           <p v-else>
             {{ t(aggregate.partial ? 'rankingDetail.partialMean' : 'rankingDetail.mean') }}:
-            <strong>{{ aggregate.total.toString() }} / {{ aggregate.votes.toString() }}</strong
-            ><small class="mm-detail-exact">{{ t('rankingDetail.exactRatio') }}</small>
+            <strong>{{ formatRatingMean(aggregate.total, aggregate.votes, locale) }}</strong>
+            <small class="mm-detail-exact"
+              >{{ t('rankingDetail.exactRatio') }} {{ aggregate.total.toString() }} /
+              {{ aggregate.votes.toString() }}</small
+            >
           </p>
         </template>
         <p v-if="!detailLoading && !detailError && !rounds.length">
@@ -298,26 +394,17 @@ async function refreshAggregate() {
         </p>
         <ol class="mm-detail-rounds">
           <li v-for="round in rounds" :key="round.round_id">
-            <h3>{{ t('rankingDetail.round', { number: round.number }) }}</h3>
-            <p v-if="round.description" class="mm-detail-description">{{ round.description }}</p>
-            <p>
-              {{
-                t(
-                  round.revealed === true
-                    ? 'rankingDetail.revealed'
-                    : round.revealed === false
-                      ? 'rankingDetail.hidden'
-                      : 'rankingDetail.unknownReveal',
-                )
-              }}
-            </p>
-            <RankingOwnRating
+            <RankingRoundPanel
               :ranking-id="rankingId"
-              :round-id="round.round_id"
-              :target-label="`${entryTitle(selected, locale, t('rankingDetail.untitled'))} · ${t('rankingDetail.round', { number: round.number })}`"
+              :entry-id="selected.entry_id"
+              :entry-title="entryTitle(selected, locale, t('rankingDetail.untitled'))"
+              :round="round"
               :can-rate="canRate"
               :reconcile="uncertain.has(round.round_id)"
-              @scope-lost="lostScope"
+              @scope-lost="lostRoundScope"
+              @own-scope-lost="lostScope"
+              @interaction="markInteraction(round.round_id, $event)"
+              @transitioned="roundTransition"
               @reconciliation="markReconcile(round.round_id, $event)"
               @confirmed="refreshAggregate"
             />

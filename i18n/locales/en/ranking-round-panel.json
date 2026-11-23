@@ -1,0 +1,15 @@
+{
+  "open": "Open round",
+  "close": "Close round",
+  "unavailable": "This round is unavailable.",
+  "openError": "Could not open this round.",
+  "mean": "Round mean",
+  "noVotes": "No numeric votes in this round yet.",
+  "aggregateError": "Could not verify the round’s average.",
+  "busy": "Wait for the rating request to finish before leaving this round.",
+  "finishDraft": "Save or cancel your rating before closing this round.",
+  "discardTitle": "Discard rating draft?",
+  "discardHint": "Your unsaved rating will be lost if you leave this selection.",
+  "discard": "Discard draft",
+  "stay": "Keep editing"
+}

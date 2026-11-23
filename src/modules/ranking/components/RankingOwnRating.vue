@@ -18,6 +18,7 @@ const emit = defineEmits<{
   scopeLost: [status: number];
   reconciliation: [required: boolean];
   confirmed: [];
+  interaction: [state: 'idle' | 'draft' | 'pending'];
 }>();
 const { t } = useI18n();
 const inputId = useId(),
@@ -28,6 +29,11 @@ const draft = ref('');
 const pending = ref(false);
 const archived = ref(false);
 const feedback = ref('');
+watch(
+  () => (pending.value ? 'pending' : mode.value ? 'draft' : 'idle'),
+  (state) => emit('interaction', state),
+  { flush: 'sync' },
+);
 const field = ref<HTMLInputElement>();
 const readButton = ref<HTMLButtonElement>();
 let action: HTMLElement | undefined;

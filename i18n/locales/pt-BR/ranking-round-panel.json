@@ -1,0 +1,15 @@
+{
+  "open": "Abrir rodada",
+  "close": "Fechar rodada",
+  "unavailable": "Esta rodada está indisponível.",
+  "openError": "Não foi possível abrir esta rodada.",
+  "mean": "Média da rodada",
+  "noVotes": "Ainda não há notas numéricas nesta rodada.",
+  "aggregateError": "Não foi possível verificar a média da rodada.",
+  "busy": "Aguarde a conclusão da solicitação de nota antes de sair desta rodada.",
+  "finishDraft": "Salve ou cancele a nota antes de fechar esta rodada.",
+  "discardTitle": "Descartar rascunho da nota?",
+  "discardHint": "A nota não salva será perdida se você sair desta seleção.",
+  "discard": "Descartar rascunho",
+  "stay": "Continuar editando"
+}

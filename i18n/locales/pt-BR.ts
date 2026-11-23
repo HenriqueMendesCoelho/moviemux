@@ -10,7 +10,9 @@ import rankingOwnRating from './pt-BR/ranking-own-rating.json';
 import rankingInvitationAddress from './pt-BR/ranking-invitation-address.json';
 import rankingInvitationInbox from './pt-BR/ranking-invitation-inbox.json';
 import rankingInvitationIssuer from './pt-BR/ranking-invitation-issuer.json';
+import rankingRoundPanel from './pt-BR/ranking-round-panel.json';
 export default {
+  rankingRoundPanel,
   rankingInvitationIssuer,
   rankingInvitationInbox,
   rankingInvitationAddress,
