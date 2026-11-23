@@ -5,6 +5,7 @@ const uuid = '[a-zA-Z0-9_-]{1,128}';
 const rankingUuid = '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}';
 const rankingRoot = `/rankings/${rankingUuid}`;
 const rankingEntry = `${rankingRoot}/entries/${rankingUuid}`;
+const rankingSummaryPath = new RegExp(`^${rankingRoot}$`);
 const rankingAccessPath = new RegExp(`^${rankingRoot}/access$`);
 const rankingEntriesPath = new RegExp(`^${rankingRoot}/entries$`);
 const rankingRoundsPath = new RegExp(`^${rankingEntry}/rounds$`);
@@ -17,10 +18,11 @@ const rules: Array<[RegExp, string[]]> = [
   [/^\/public\/movie\/tmdb\/\d+\/info$/, ['GET']],
   [/^\/rankings$/, ['GET', 'POST']],
   [/^\/rankings\/access$/, ['GET']],
+  [rankingSummaryPath, ['GET']],
   [rankingAccessPath, ['GET']],
   [rankingEntriesPath, ['GET']],
   [rankingRoundsPath, ['GET']],
-  [ownRatingPath, ['GET']],
+  [ownRatingPath, ['GET', 'POST', 'PATCH']],
   [aggregatePath, ['GET']],
   [/^\/user$/, ['GET']],
   [/^\/user\/(?:update|p\/update)$/, ['PATCH']],
@@ -57,6 +59,10 @@ export function assertRankingReadQuery(
   method: string,
   query: URLSearchParams,
 ): void {
+  if ((method === 'POST' || method === 'PATCH') && ownRatingPath.test(pathname)) {
+    if (query.size) throw createError({ status: 400, message: 'Invalid ranking query' });
+    return;
+  }
   if (method !== 'GET' || !pathname.startsWith('/rankings')) return;
   const rounds = rankingRoundsPath.test(pathname);
   const paged =
@@ -92,6 +98,7 @@ function rankingErrorCode(
 ): string | undefined {
   const pathname = path.split('?')[0] || '';
   let expected: string | undefined;
+  let alternative: string | undefined;
   const paged =
     pathname === '/rankings' ||
     pathname === '/rankings/access' ||
@@ -99,11 +106,25 @@ function rankingErrorCode(
     rankingRoundsPath.test(pathname);
   const ownRating = ownRatingPath.test(pathname);
   const aggregate = aggregatePath.test(pathname);
-  if (method === 'GET' && (paged || rankingAccessPath.test(pathname) || ownRating || aggregate)) {
+  if (
+    method === 'GET' &&
+    (paged ||
+      rankingSummaryPath.test(pathname) ||
+      rankingAccessPath.test(pathname) ||
+      ownRating ||
+      aggregate)
+  ) {
     if (status === 400 && paged) expected = 'ranking.invalid_page';
     if (status === 400 && ownRating) expected = 'ranking.invalid_rating';
     if (status === 400 && aggregate) expected = 'ranking.invalid_rating_aggregate';
     if (status === 404) expected = 'ranking.not_found';
+  } else if ((method === 'POST' || method === 'PATCH') && ownRating) {
+    if (status === 400) expected = 'ranking.invalid_rating';
+    if (status === 404) expected = 'ranking.not_found';
+    if (status === 409) {
+      expected = 'ranking.archived_read_only';
+      if (method === 'POST') alternative = 'ranking.rating_exists';
+    }
   } else if (method === 'POST' && pathname === '/rankings') {
     if (status === 400) expected = 'ranking.invalid_creation';
     if (status === 409) expected = 'ranking.creation_limit_reached';
@@ -117,9 +138,9 @@ function rankingErrorCode(
       typeof body === 'object' &&
       !Array.isArray(body) &&
       'code' in body &&
-      body.code === expected
+      (body.code === expected || (alternative !== undefined && body.code === alternative))
     )
-      return expected;
+      return body.code as string;
   } catch {
     // Malformed upstream responses use the same generic, sanitized error as unknown codes.
   }

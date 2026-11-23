@@ -155,6 +155,7 @@ const scope = `/rankings/${rankingId}`;
 const entry = `${scope}/entries/${entryId}`;
 const aggregate = `${entry}/ratings/aggregate`;
 const contextualReads = [
+  scope,
   `${scope}/access`,
   `${scope}/entries`,
   `${entry}/rounds`,
@@ -163,10 +164,12 @@ const contextualReads = [
 ];
 
 describe('contextual ranking reads', () => {
-  it.each(contextualReads)('allows exact GET only: %s', (path) => {
+  it.each(contextualReads)('allows exact contextual methods: %s', (path) => {
     expect(allowedApiPath(path, 'GET')).toBe(true);
     for (const method of ['POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'])
-      expect(allowedApiPath(path, method)).toBe(false);
+      expect(allowedApiPath(path, method)).toBe(
+        path.endsWith('/rating/me') && ['POST', 'PATCH'].includes(method),
+      );
     for (const invalid of [
       path + '/',
       path.replace(rankingId, 'wrong-id'),
@@ -277,5 +280,35 @@ describe('ranking catch-all authenticated boundary', () => {
     respond(200, preciseAggregate, true);
     await expect(apiRoute(eventFor(aggregate))).rejects.toMatchObject({ status: 401 });
     expect(fetch).not.toHaveBeenCalled();
+  });
+});
+
+describe('contextual own rating writes', () => {
+  const path = `${scope}/rounds/${roundId}/rating/me`;
+  it.each(['POST', 'PATCH'])('permits exact %s only without query additions', (method) => {
+    expect(allowedApiPath(path, method)).toBe(true);
+    expect(allowedApiPath(path.replace('/rating/me', '/rating/another'), method)).toBe(false);
+    expect(() =>
+      assertRankingReadQuery(path, method, new URLSearchParams('actor=other')),
+    ).toThrow();
+  });
+  it.each([
+    ['POST', 400, 'ranking.invalid_rating'],
+    ['PATCH', 400, 'ranking.invalid_rating'],
+    ['POST', 404, 'ranking.not_found'],
+    ['PATCH', 404, 'ranking.not_found'],
+    ['POST', 409, 'ranking.rating_exists'],
+    ['POST', 409, 'ranking.archived_read_only'],
+    ['PATCH', 409, 'ranking.archived_read_only'],
+  ])('exposes only exact known %s %s %s', async (method, status, code) => {
+    respond(Number(status), { code, secret: 'never return' });
+    await expect(upstreamRequest(path, { method: String(method) })).rejects.toMatchObject({
+      status: Number(status),
+      data: { code },
+    });
+  });
+  it('does not leak unknown error or interpret PATCH duplicate as permission to recreate', async () => {
+    respond(409, { code: 'ranking.rating_exists' });
+    await expect(upstreamRequest(path, { method: 'PATCH' })).rejects.not.toHaveProperty('data');
   });
 });
