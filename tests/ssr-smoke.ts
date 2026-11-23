@@ -127,6 +127,18 @@ try {
   assert.equal((await request('/adm', other.cookie)).status, 403);
   assert.equal((await request('/adm')).status, 302);
   assert.equal((await request('/api/movie')).status, 401);
+  // Real Nitro 404 formatting must not downgrade private error responses to no-cache.
+  for (const path of [
+    '/api/not-allowlisted',
+    '/api/rankings/11111111-1111-4111-8111-111111111111',
+  ]) {
+    const response = await request(path, other.cookie, { headers: { accept: 'application/json' } });
+    assert.equal(response.status, 404);
+    assert.match(response.headers.get('cache-control') || '', /no-store/);
+    assert.match(response.headers.get('cache-control') || '', /private/);
+    assert.match(response.headers.get('vary') || '', /cookie/i);
+    assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
+  }
   // GHSA-r99w-jh2x-3mg9: Nitro and Nuxt must agree on the raw page path.
   // Even ADM must not resolve //x/adm as /adm; role checks alone miss that mismatch.
   // The app's existing catch-all renders its not-found view with HTTP 200.

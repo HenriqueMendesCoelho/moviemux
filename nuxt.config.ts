@@ -29,6 +29,15 @@ export default defineNuxtConfig({
   },
   auth: { loadStrategy: 'none' },
   nitro: { preset: 'node-server', experimental: { websocket: true } },
+  hooks: {
+    'nitro:config'(config) {
+      const existing = config.errorHandler;
+      config.errorHandler = [
+        fileURLToPath(new URL('./src/server/private-api-error.ts', import.meta.url)),
+        ...(Array.isArray(existing) ? existing : existing ? [existing] : []),
+      ];
+    },
+  },
   alias: {
     src: fileURLToPath(new URL('./src', import.meta.url)),
     '#auth-server': authServerModule,
