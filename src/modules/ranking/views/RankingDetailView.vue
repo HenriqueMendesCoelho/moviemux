@@ -3,6 +3,7 @@ import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useUserStore } from '~/core/stores/UserStore';
 import BaseContainerMain from '~/core/components/BaseContainerMain.vue';
+import RankingInvitationIssuer from '../components/RankingInvitationIssuer.vue';
 import RankingOwnRating from '../components/RankingOwnRating.vue';
 import catalog, {
   entryTitle,
@@ -24,6 +25,8 @@ const detailLoading = ref(false);
 const detailError = ref('');
 const aggregate = ref<RatingAggregate | null>(null);
 const canRate = ref(false);
+const canInvite = ref(false);
+const invitationUnavailable = ref(false);
 const rankingName = ref<string | null | undefined>(undefined);
 const uncertain = ref(new Set<string>());
 let aggregateEpoch = 0;
@@ -53,19 +56,26 @@ function clearDetail() {
 async function load(more = false) {
   if (loading.value || !user.user.isLoged) return;
   const started = epoch;
-  controller = new AbortController();
+  const rankingId = props.rankingId;
+  const request = new AbortController();
+  controller = request;
   loading.value = true;
   error.value = '';
   try {
-    const access = await catalog.summary(props.rankingId, controller.signal);
+    const access = await catalog.summary(rankingId, request.signal);
+    if (started !== epoch) return;
     const page = await catalog.entries(
-      props.rankingId,
+      rankingId,
       more ? cursor.value || undefined : undefined,
-      controller.signal,
+      request.signal,
     );
     if (started !== epoch) return;
     rankingName.value = access.name;
     canRate.value = access.capabilities.includes('RATE_OWN');
+    canInvite.value =
+      access.admission === 'INVITATION' &&
+      access.capabilities.includes('READ') &&
+      access.capabilities.includes('INVITE_MEMBER');
     entries.value = [
       ...new Map(
         [...(more ? entries.value : []), ...page.items].map((e) => [e.entry_id, e]),
@@ -74,6 +84,7 @@ async function load(more = false) {
     cursor.value = more && page.next_cursor === cursor.value ? null : page.next_cursor;
   } catch (e) {
     if (started === epoch) {
+      canInvite.value = false;
       error.value = message(e);
       if (error.value === 'unavailable' || error.value === 'sessionExpired') {
         canRate.value = false;
@@ -92,6 +103,8 @@ function reset() {
   controller?.abort();
   clearDetail();
   canRate.value = false;
+  canInvite.value = false;
+  invitationUnavailable.value = false;
   rankingName.value = undefined;
   uncertain.value.clear();
   entries.value = [];
@@ -144,6 +157,7 @@ async function open(entry: RankingEntry, more = false) {
     if (started === epoch && current === selection) {
       detailError.value = message(e);
       if (detailError.value === 'unavailable' || detailError.value === 'sessionExpired') {
+        canInvite.value = false;
         rounds.value = [];
         aggregate.value = null;
         aggregateEpoch++;
@@ -154,17 +168,27 @@ async function open(entry: RankingEntry, more = false) {
     if (started === epoch && current === selection) detailLoading.value = false;
   }
 }
-async function lostScope(status: number) {
-  const previousId = selected.value?.entry_id;
+function invalidateScope() {
   epoch++;
-  const started = epoch;
   controller?.abort();
   canRate.value = false;
+  canInvite.value = false;
   rankingName.value = undefined;
   entries.value = [];
   cursor.value = null;
   loading.value = false;
   clearDetail();
+}
+async function lostInvitationAccess(status: number) {
+  invalidateScope();
+  invitationUnavailable.value = status !== 401;
+  if (status === 401) error.value = 'sessionExpired';
+  else await load();
+}
+async function lostScope(status: number) {
+  const previousId = selected.value?.entry_id;
+  invalidateScope();
+  const started = epoch;
   error.value = status === 401 ? 'sessionExpired' : 'ownUnavailable';
   // Own-rating 404 deliberately conflates absent rating and lost access. Never infer either:
   // revalidate canonical access/entries before offering independent actions again.
@@ -210,7 +234,6 @@ async function refreshAggregate() {
             : rankingName || t('rankings.unnamed')
         }}
       </h1>
-      <p class="mm-detail-scope">{{ rankingId }}</p>
       <p>{{ t('rankingOwnRating.intro') }}</p>
     </header>
     <p v-if="loading && !entries.length" role="status">{{ t('rankingDetail.loading') }}</p>
@@ -221,6 +244,14 @@ async function refreshAggregate() {
       </button>
     </div>
     <p v-else-if="!loading && !entries.length">{{ t('rankingDetail.empty') }}</p>
+    <p v-if="invitationUnavailable" role="alert">{{ t('rankingInvitationIssuer.unavailable') }}</p>
+    <RankingInvitationIssuer
+      v-if="canInvite && user.user.isLoged"
+      class="mm-detail-issuer"
+      :ranking-id="rankingId"
+      :can-invite="canInvite"
+      @access-lost="lostInvitationAccess"
+    />
     <div class="mm-detail-layout">
       <section :aria-label="t('rankingDetail.catalog')" :aria-busy="loading">
         <ul class="mm-detail-catalog">
@@ -311,10 +342,8 @@ async function refreshAggregate() {
   display: inline-block;
   padding: 12px 0;
 }
-.mm-detail-scope {
-  font-size: 0.8rem;
-  color: var(--mm-muted);
-  overflow-wrap: anywhere;
+.mm-detail-issuer {
+  margin-bottom: 20px;
 }
 .mm-detail-layout {
   display: grid;

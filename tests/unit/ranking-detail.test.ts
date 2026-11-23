@@ -4,9 +4,9 @@ import { mount, flushPromises, type VueWrapper } from '@vue/test-utils';
 import { createI18n } from 'vue-i18n';
 import en from '../../i18n/locales/en/ranking-detail.json';
 import pt from '../../i18n/locales/pt-BR/ranking-detail.json';
-import ownEn from '../../i18n/locales/en/ranking-own-rating.json';
-import ownPt from '../../i18n/locales/pt-BR/ranking-own-rating.json';
-const ownMessages = { en: ownEn, 'pt-BR': ownPt };
+import enLocale from '../../i18n/locales/en';
+import ptLocale from '../../i18n/locales/pt-BR';
+import Issuer from '../../src/modules/ranking/components/RankingInvitationIssuer.vue';
 const messages = { en, 'pt-BR': pt };
 const mocks = vi.hoisted(() => ({
   summary: vi.fn(),
@@ -54,8 +54,8 @@ async function render(locale = 'en') {
           legacy: false,
           locale,
           messages: {
-            en: { rankingDetail: messages.en, rankingOwnRating: ownMessages.en },
-            'pt-BR': { rankingDetail: messages['pt-BR'], rankingOwnRating: ownMessages['pt-BR'] },
+            en: enLocale,
+            'pt-BR': ptLocale,
           },
         }),
       ],
@@ -193,7 +193,7 @@ test('ambiguous own 404 rechecks access before retaining authorized catalog and 
   expect(mocks.summary).toHaveBeenCalledTimes(2);
   expect(w.find('.mm-detail-entry').exists()).toBe(true);
   expect(w.text()).toContain(messages.en.ownUnavailable);
-  expect(w.text()).toContain(ownMessages.en.add);
+  expect(w.text()).toContain(enLocale.rankingOwnRating.add);
   w.findComponent({ name: 'RankingOwnRating' }).vm.$emit('confirmed');
   await flushPromises();
   expect(w.text()).not.toContain(messages.en.ownUnavailable);
@@ -206,4 +206,54 @@ test('zero revealed votes has no partial average and does not imply hidden parti
   expect(w.text()).toContain(messages.en.unratedPartial);
   expect(w.text()).not.toContain('0 / 0');
   expect(w.text()).not.toContain(messages.en.mean + ':');
+});
+
+test.each([
+  ['INVITATION', ['READ', 'INVITE_MEMBER'], true],
+  ['INVITATION', ['READ'], false],
+  ['OPEN', ['READ', 'INVITE_MEMBER'], false],
+  ['APPROVAL', ['READ', 'INVITE_MEMBER'], false],
+  ['INVITATION', ['INVITE_MEMBER'], false],
+] as const)(
+  'issuer requires fresh READ and INVITE_MEMBER and invitation admission %s %j',
+  async (admission, capabilities, shown) => {
+    mocks.summary.mockResolvedValueOnce({
+      ranking_id: id,
+      name: 'Ranking',
+      visibility: 'PRIVATE',
+      admission,
+      capabilities,
+    });
+    await render();
+    expect(w.findComponent(Issuer).exists()).toBe(shown);
+    expect(w.text()).not.toContain(id);
+  },
+);
+test('issuer scope failure clears stale data before auth refresh and never restores missing capability', async () => {
+  mocks.summary.mockResolvedValueOnce({
+    ranking_id: id,
+    name: 'Stale scope name',
+    visibility: 'PRIVATE',
+    admission: 'INVITATION',
+    capabilities: ['READ', 'INVITE_MEMBER'],
+  });
+  await render();
+  const current = deferred();
+  mocks.summary.mockReturnValueOnce(current.promise);
+  w.getComponent(Issuer).vm.$emit('accessLost', 404);
+  await flushPromises();
+  expect(w.findComponent(Issuer).exists()).toBe(false);
+  expect(w.text()).not.toContain('Stale scope name');
+  expect(w.text()).toContain(enLocale.rankingInvitationIssuer.unavailable);
+  expect(w.text()).not.toContain(enLocale.rankingDetail.ownUnavailable);
+  current.resolve({
+    ranking_id: id,
+    name: 'Revalidated scope',
+    visibility: 'PRIVATE',
+    admission: 'INVITATION',
+    capabilities: ['READ'],
+  });
+  await flushPromises();
+  expect(w.text()).toContain('Revalidated scope');
+  expect(w.findComponent(Issuer).exists()).toBe(false);
 });

@@ -9,7 +9,9 @@ import rankingDetail from './en/ranking-detail.json';
 import rankingOwnRating from './en/ranking-own-rating.json';
 import rankingInvitationAddress from './en/ranking-invitation-address.json';
 import rankingInvitationInbox from './en/ranking-invitation-inbox.json';
+import rankingInvitationIssuer from './en/ranking-invitation-issuer.json';
 export default {
+  rankingInvitationIssuer,
   rankingInvitationInbox,
   rankingInvitationAddress,
   rankingOwnRating,
