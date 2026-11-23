@@ -63,6 +63,10 @@ vi.mock('../../src/modules/ranking/services/RankingEntryRecoveryService', async 
   ...(await original<object>()),
   default: { list: mocks.recoveries },
 }));
+vi.mock('../../src/modules/ranking/services/RankingOwnerRosterService', async (original) => ({
+  ...(await original<object>()),
+  default: { list: vi.fn().mockResolvedValue({ items: [], next_cursor: null }) },
+}));
 vi.mock('../../src/modules/ranking/services/RankingRoundService', () => ({
   default: { enter: mocks.roundEnter, aggregate: mocks.roundAggregate },
 }));

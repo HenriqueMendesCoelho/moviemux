@@ -5,6 +5,7 @@ import { useRuntimeConfig } from '#imports';
 import { useI18n } from 'vue-i18n';
 import { useUserStore } from '~/core/stores/UserStore';
 import BaseContainerMain from '~/core/components/BaseContainerMain.vue';
+import RankingMemberRoster from '../components/RankingMemberRoster.vue';
 import RankingEntryRecovery from '../components/RankingEntryRecovery.vue';
 import RankingEntryCard from '../components/RankingEntryCard.vue';
 import { rankingIdPattern } from '../services/RankingService';
@@ -44,6 +45,7 @@ const aggregate = ref<RatingAggregate | null>(null);
 const canRate = ref(false);
 const approvalAdmission = ref(false);
 const recoveryGrant = ref('');
+const rosterState = ref<'idle' | 'draft' | 'pending'>('idle');
 const recoveryState = ref<'idle' | 'draft' | 'pending'>('idle');
 const canInvite = ref(false);
 const canShareOpenLink = ref(false);
@@ -132,7 +134,9 @@ function repeatPolicyStale() {
   repeatPolicyRevision.value++;
 }
 const interactions = ref(new Map<string, 'draft' | 'pending' | 'uncertain'>());
-const guardBusy = ref<'rating' | 'picker' | 'repeat' | 'visibility' | 'recovery' | null>(null);
+const guardBusy = ref<'rating' | 'picker' | 'repeat' | 'visibility' | 'recovery' | 'roster' | null>(
+  null,
+);
 const dialogKey = ref(0);
 const discardDialog = ref<InstanceType<typeof BaseConfirmDialog>>();
 let decision: ((allow: boolean) => void) | undefined;
@@ -142,6 +146,7 @@ function hasRatingRequest() {
 function settle(allow: boolean) {
   decision?.(
     allow &&
+      rosterState.value !== 'pending' &&
       recoveryState.value === 'idle' &&
       !hasRatingRequest() &&
       !hasRepeatRequest() &&
@@ -191,7 +196,19 @@ watch(
   },
   { flush: 'sync' },
 );
+watch(
+  rosterState,
+  (state) => {
+    if (state !== 'pending' && guardBusy.value === 'roster') guardBusy.value = null;
+  },
+  { flush: 'sync' },
+);
 function allowInterruption(entryOnly = false): boolean | Promise<boolean> {
+  if (user.user.isLoged && rosterState.value === 'pending') {
+    guardBusy.value = 'roster';
+    return false;
+  }
+  const rosterEdited = !entryOnly && rosterState.value === 'draft';
   if (user.user.isLoged && recoveryState.value !== 'idle') {
     if (recoveryState.value === 'pending') guardBusy.value = 'recovery';
     return false;
@@ -204,7 +221,10 @@ function allowInterruption(entryOnly = false): boolean | Promise<boolean> {
   ];
   const repeatEdited = states.some((state) => state !== 'idle');
   const repeatUncertain = states.includes('uncertain');
-  if (!user.user.isLoged || (!interactions.value.size && pickerState === 'idle' && !repeatEdited))
+  if (
+    !user.user.isLoged ||
+    (!interactions.value.size && pickerState === 'idle' && !repeatEdited && !rosterEdited)
+  )
     return true;
   if (
     hasRatingRequest() ||
@@ -261,12 +281,19 @@ function allowInterruption(entryOnly = false): boolean | Promise<boolean> {
               ok: 'rankingTmdbPicker.discard',
               cancel: 'rankingTmdbPicker.stay',
             }
-          : {
-              title: 'rankingRoundPanel.discardTitle',
-              message: 'rankingRoundPanel.discardHint',
-              ok: 'rankingRoundPanel.discard',
-              cancel: 'rankingRoundPanel.stay',
-            };
+          : rosterEdited && !ratingDraft
+            ? {
+                title: 'rankingMemberRoster.discardTitle',
+                message: 'rankingMemberRoster.discardHint',
+                ok: 'rankingRepeatedRounds.leave',
+                cancel: 'rankingRepeatedRounds.stay',
+              }
+            : {
+                title: 'rankingRoundPanel.discardTitle',
+                message: 'rankingRoundPanel.discardHint',
+                ok: 'rankingRoundPanel.discard',
+                cancel: 'rankingRoundPanel.stay',
+              };
   void discardDialog.value.show({
     title: () => t(copy.title),
     message: () => t(copy.message),
@@ -376,6 +403,7 @@ function reset() {
   canRate.value = false;
   recoveryGrant.value = '';
   recoveryState.value = 'idle';
+  rosterState.value = 'idle';
   canInvite.value = false;
   resetOpenLink();
   canAdd.value = false;
@@ -480,6 +508,7 @@ function invalidateScope() {
   canRate.value = false;
   recoveryGrant.value = '';
   recoveryState.value = 'idle';
+  rosterState.value = 'idle';
   canInvite.value = false;
   resetOpenLink();
   canAdd.value = false;
@@ -546,7 +575,7 @@ function entryLifecycleChanged(kind: 'remove' | 'restore', entryId: string) {
   if (selected.value?.entry_id === entryId) clearDetail();
   void load(false, true);
 }
-function lostRecoverySession() {
+function lostProtectedSession() {
   invalidateScope();
   error.value = 'sessionExpired';
 }
@@ -592,15 +621,17 @@ async function refreshAggregate() {
     <p v-if="guardBusy" role="status">
       {{
         t(
-          guardBusy === 'recovery'
-            ? 'rankingEntryRecovery.busy'
-            : guardBusy === 'visibility'
-              ? 'rankingVisibility.busy'
-              : guardBusy === 'repeat'
-                ? 'rankingRepeatedRounds.busy'
-                : guardBusy === 'picker'
-                  ? 'rankingTmdbPicker.busyLeave'
-                  : 'rankingRoundPanel.busy',
+          guardBusy === 'roster'
+            ? 'rankingMemberRoster.busy'
+            : guardBusy === 'recovery'
+              ? 'rankingEntryRecovery.busy'
+              : guardBusy === 'visibility'
+                ? 'rankingVisibility.busy'
+                : guardBusy === 'repeat'
+                  ? 'rankingRepeatedRounds.busy'
+                  : guardBusy === 'picker'
+                    ? 'rankingTmdbPicker.busyLeave'
+                    : 'rankingRoundPanel.busy',
         )
       }}
     </p>
@@ -643,10 +674,25 @@ async function refreshAggregate() {
       :can-invite="canInvite"
       @access-lost="lostInvitationAccess"
     />
+    <RankingMemberRoster
+      v-if="rankingName !== undefined && user.user.isLoged"
+      :ranking-id="rankingId"
+      :block-write="
+        recoveryState !== 'idle' ||
+        pickerInteraction !== 'idle' ||
+        repeatSettingsState !== 'idle' ||
+        visibilityState !== 'idle' ||
+        newRoundState !== 'idle' ||
+        interactions.size > 0
+      "
+      @interaction="rosterState = $event"
+      @session-lost="lostProtectedSession"
+    />
     <RankingVisibilitySettings
       v-if="rankingName !== undefined && user.user.isLoged"
       :ranking-id="rankingId"
       :block-write="
+        rosterState !== 'idle' ||
         recoveryState !== 'idle' ||
         hasRepeatRequest() ||
         hasRatingRequest() ||
@@ -660,6 +706,7 @@ async function refreshAggregate() {
       :ranking-id="rankingId"
       :revision="repeatPolicyRevision"
       :block-write="
+        rosterState !== 'idle' ||
         recoveryState !== 'idle' ||
         newRoundState !== 'idle' ||
         visibilityState !== 'idle' ||
@@ -709,6 +756,7 @@ async function refreshAggregate() {
               : null
           "
           :block-write="
+            rosterState !== 'idle' ||
             loading ||
             detailLoading ||
             interactions.size > 0 ||
@@ -719,7 +767,7 @@ async function refreshAggregate() {
           "
           @changed="entryLifecycleChanged"
           @reconcile="reconcileRecovery"
-          @session-lost="lostRecoverySession"
+          @session-lost="lostProtectedSession"
           @interaction="recoveryState = $event"
         />
       </section>
@@ -763,6 +811,7 @@ async function refreshAggregate() {
           :owner-authorized="repeatSettings !== null"
           :repeat-enabled="repeatSettings === true"
           :block-write="
+            rosterState !== 'idle' ||
             recoveryState !== 'idle' ||
             repeatSettingsState !== 'idle' ||
             visibilityState !== 'idle' ||
