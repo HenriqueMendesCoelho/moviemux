@@ -287,7 +287,7 @@ function expires(raw: string) {
   font-family: monospace;
 }
 .mm-issuer-input:focus-visible {
-  outline: 2px solid #00f6ff;
+  outline: 2px solid var(--mm-focus-ring);
   outline-offset: 2px;
 }
 </style>
