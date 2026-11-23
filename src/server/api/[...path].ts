@@ -20,6 +20,15 @@ import {
   rankingRatingCopyOperation,
   ratingCopyBodyLimit,
 } from '../utils/ranking-rating-copy';
+import {
+  ENTRY_REMOVAL_BODY_LIMIT,
+  entryRemovalOperation,
+  invalidEntryRemoval,
+} from '../utils/ranking-entry-recovery';
+import {
+  recoveryDirectoryOperation,
+  RESTORE_CURRENT_BODY_LIMIT,
+} from '../utils/ranking-recovery-directory';
 import { rankingRequestBody } from '../utils/ranking-requests';
 import {
   allowedApiPath,
@@ -39,19 +48,33 @@ export default defineEventHandler(async (event) => {
   const repeated = repeatedRoundOperation(logical, method);
   const visibility = rankingVisibilityOperation(logical, method);
   const copy = rankingRatingCopyOperation(logical, method);
+  const removal = entryRemovalOperation(logical, method);
+  const recovery = recoveryDirectoryOperation(logical, method);
+  const recoveryRead = removal?.kind === 'preview' || recovery?.kind === 'list';
   // Nitro's portable event also proxies its underlying H3 node context.
   const native = (event as typeof event & Partial<Pick<H3Event, 'node'>>).node;
   const rawUrl = native?.req.originalUrl ?? native?.req.url;
-  if ((visibility || copy) && rawUrl !== undefined && rawUrl.split('?', 1)[0] !== `/api${path}`)
+  if (
+    (visibility || copy || removal || recovery) &&
+    rawUrl !== undefined &&
+    rawUrl.split('?', 1)[0] !== `/api${path}`
+  )
     throw createError({ status: 404, message: 'API route not available' });
   const session = isPublic ? undefined : await readActiveSession(event);
-  assertRankingReadQuery(
-    path,
-    method,
-    event.url.searchParams,
-    (visibility || copy ? (rawUrl ?? event.url.href) : event.url.href).includes('?'),
-  );
+  const querySource =
+    visibility || copy || removal || recovery ? (rawUrl ?? event.url.href) : event.url.href;
+  const queryAt = querySource.indexOf('?');
+  const rawQuery = queryAt >= 0 ? querySource.slice(queryAt + 1) : undefined;
+  assertRankingReadQuery(path, method, event.url.searchParams, queryAt >= 0, rawQuery);
   assertRankingReadIntent(path, method, event.req.headers);
+  if (
+    recoveryRead &&
+    (event.req.headers.has('transfer-encoding') ||
+      (event.req.headers.has('content-length') &&
+        event.req.headers.get('content-length') !== '0') ||
+      event.req.body != null)
+  )
+    invalidEntryRemoval();
   if (
     visibility === 'read' &&
     (event.req.headers.has('transfer-encoding') ||
@@ -67,19 +90,34 @@ export default defineEventHandler(async (event) => {
       event.req.headers.get('transfer-encoding'),
     );
   const contentType =
-    repeated === 'read-settings' || visibility === 'read' || isRankingJoin(path, method)
+    repeated === 'read-settings' ||
+    visibility === 'read' ||
+    recoveryRead ||
+    isRankingJoin(path, method)
       ? undefined
       : event.req.headers.get('content-type')?.split(';')[0];
   if (
     !visibility &&
     !copy &&
+    !removal &&
+    !recovery &&
     !['GET', 'HEAD'].includes(method) &&
     contentType &&
     !['application/json', 'application/x-www-form-urlencoded'].includes(contentType)
   )
     throw createError({ status: 415, message: 'Unsupported request type' });
   let body: string | undefined;
-  if (copy) {
+  if (removal?.kind === 'remove' || recovery?.kind === 'restore') {
+    try {
+      body = await boundedBody(
+        event,
+        removal ? ENTRY_REMOVAL_BODY_LIMIT : RESTORE_CURRENT_BODY_LIMIT,
+        true,
+      );
+    } catch {
+      invalidEntryRemoval();
+    }
+  } else if (copy) {
     try {
       body = await boundedBody(event, ratingCopyBodyLimit(copy), true);
     } catch {
