@@ -1,0 +1,17 @@
+{
+  "title": "Public Collection",
+  "readOnly": "Read-only public view.",
+  "loading": "Loading collection…",
+  "unavailable": "This collection is not available.",
+  "loadError": "Could not load this collection.",
+  "moreError": "Could not load more movies.",
+  "retry": "Try again",
+  "movies": "Movies",
+  "empty": "No movies in this collection yet.",
+  "unnamed": "Unnamed collection",
+  "untitled": "Untitled movie",
+  "mean": "Mean from revealed rounds",
+  "exactRatio": "Exact ratio: {total} divided by {votes} votes from revealed rounds.",
+  "noVotes": "No numeric votes from revealed rounds.",
+  "more": "Load more movies"
+}

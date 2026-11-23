@@ -13,7 +13,9 @@ import rankingInvitationIssuer from './pt-BR/ranking-invitation-issuer.json';
 import rankingRoundPanel from './pt-BR/ranking-round-panel.json';
 import rankingTmdbPicker from './pt-BR/ranking-tmdb-picker.json';
 import rankingJoin from './pt-BR/ranking-join.json';
+import publicCollection from './pt-BR/public-collection.json';
 export default {
+  publicCollection,
   rankingJoin,
   rankingTmdbPicker,
   rankingRoundPanel,

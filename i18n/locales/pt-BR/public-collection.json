@@ -1,0 +1,17 @@
+{
+  "title": "Coleção pública",
+  "readOnly": "Visualização pública, somente para leitura.",
+  "loading": "Carregando coleção…",
+  "unavailable": "Esta coleção não está disponível.",
+  "loadError": "Não foi possível carregar esta coleção.",
+  "moreError": "Não foi possível carregar mais filmes.",
+  "retry": "Tentar novamente",
+  "movies": "Filmes",
+  "empty": "Esta coleção ainda não tem filmes.",
+  "unnamed": "Coleção sem nome",
+  "untitled": "Filme sem título",
+  "mean": "Média das rodadas reveladas",
+  "exactRatio": "Proporção exata: {total} dividido por {votes} votos das rodadas reveladas.",
+  "noVotes": "Nenhuma nota numérica nas rodadas reveladas.",
+  "more": "Carregar mais filmes"
+}
