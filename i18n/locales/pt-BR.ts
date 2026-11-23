@@ -16,7 +16,9 @@ import rankingJoin from './pt-BR/ranking-join.json';
 import publicCollection from './pt-BR/public-collection.json';
 import rankingRepeatedRounds from './pt-BR/ranking-repeated-rounds.json';
 import rankingVisibility from './pt-BR/ranking-visibility.json';
+import rankingRatingCopy from './pt-BR/ranking-rating-copy.json';
 export default {
+  rankingRatingCopy,
   rankingVisibility,
   rankingRepeatedRounds,
   publicCollection,

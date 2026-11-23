@@ -10,6 +10,7 @@ import service, {
 } from '../services/RankingRoundService';
 import { formatRatingMean } from '../utils/formatRatingMean';
 import RankingOwnRating from './RankingOwnRating.vue';
+import RankingRatingCopy from './RankingRatingCopy.vue';
 
 const props = defineProps<{
   rankingId: string;
@@ -18,12 +19,14 @@ const props = defineProps<{
   round: RankingRound;
   canRate: boolean;
   reconcile: boolean;
+  movieId?: string;
+  copyEnabled?: boolean;
 }>();
 const emit = defineEmits<{
   transitioned: [scope: RoundScope];
   scopeLost: [status: number];
   ownScopeLost: [status: number];
-  interaction: [state: 'idle' | 'draft' | 'pending'];
+  interaction: [state: 'idle' | 'draft' | 'pending' | 'uncertain'];
   reconciliation: [required: boolean];
   confirmed: [];
 }>();
@@ -39,9 +42,26 @@ const feedback = ref(''),
 const projection = ref<RoundDisclosure | null>(null),
   aggregate = ref<RoundAggregate | null>(null);
 const toggle = ref<HTMLButtonElement>();
-const interaction = ref<'idle' | 'draft' | 'pending'>('idle');
+const interaction = ref<'idle' | 'draft' | 'pending' | 'uncertain'>('idle');
 const closeHint = ref(false);
-function markInteraction(state: 'idle' | 'draft' | 'pending') {
+const ownInteraction = ref<'idle' | 'draft' | 'pending'>('idle');
+const copyInteraction = ref<'idle' | 'draft' | 'pending' | 'uncertain'>('idle');
+watch(
+  [ownInteraction, copyInteraction],
+  ([own, copy]) => {
+    markInteraction(
+      own === 'pending' || copy === 'pending'
+        ? 'pending'
+        : copy === 'uncertain'
+          ? 'uncertain'
+          : own === 'draft' || copy === 'draft'
+            ? 'draft'
+            : 'idle',
+    );
+  },
+  { flush: 'sync' },
+);
+function markInteraction(state: 'idle' | 'draft' | 'pending' | 'uncertain') {
   if (!opened.value && state !== 'idle') return;
   interaction.value = state;
   closeHint.value = false;
@@ -61,6 +81,8 @@ function clear() {
   detailRequest?.abort();
   aggregateRequest?.abort();
   opened.value = false;
+  ownInteraction.value = 'idle';
+  copyInteraction.value = 'idle';
   markInteraction('idle');
   opening.value = false;
   aggregating.value = false;
@@ -232,14 +254,24 @@ function confirmed() {
           </p>
         </template>
         <RankingOwnRating
+          v-if="copyInteraction === 'idle'"
           :ranking-id="rankingId"
           :round-id="round.round_id"
           :target-label="`${entryTitle} · ${label}`"
           :can-rate="canRate"
           :reconcile="reconcile"
           @scope-lost="ownScopeLost"
-          @interaction="markInteraction"
+          @interaction="ownInteraction = $event"
           @reconciliation="emit('reconciliation', $event)"
+          @confirmed="confirmed"
+        />
+        <RankingRatingCopy
+          v-if="copyEnabled && canRate && movieId && !reconcile"
+          :destination="scope()"
+          :movie-id="movieId"
+          :blocked="ownInteraction !== 'idle'"
+          @interaction="copyInteraction = $event"
+          @scope-lost="ownScopeLost"
           @confirmed="confirmed"
         />
       </template>

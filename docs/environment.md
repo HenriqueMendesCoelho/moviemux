@@ -79,3 +79,7 @@ Um status diferente de 200, redirect, corpo inesperado, conexão recusada ou tim
 ### Importação do TMDB em rankings
 
 O seletor do frontend fica desligado por padrão. Para um teste isolado, use `NUXT_PUBLIC_RANKING_TMDB_PICKER_ENABLED=true` com um backend compatível, sem alterar a configuração de produção. O backend precisa ter a versão com isolamento do catálogo, migrations V12/V13 aplicadas e a flag própria `ranking.catalog.tmdb-import-enabled` habilitada para servir a busca e a importação. A flag pública apenas controla a interface. Se o backend não estiver habilitado, a tela indica indisponibilidade e não usa o catálogo global como alternativa. Valide os dois lados antes de qualquer ativação coordenada.
+
+## Cópia da própria nota entre coleções
+
+A interface vem desligada (`NUXT_PUBLIC_RANKING_RATING_COPY_ENABLED=false`). Em testes descartáveis, ligue-a apenas com backend compatível e a configuração de prévia e aplicação habilitada separadamente no backend. A flag da interface não autoriza a cópia. Nunca persista o token de prévia, nem ative a aplicação apenas para disponibilizar a tela em produção.

@@ -29,6 +29,7 @@ const { t, locale } = useI18n();
 const user = useUserStore();
 const config = useRuntimeConfig();
 const pickerEnabled = computed(() => String(config.public.rankingTmdbPickerEnabled) === 'true');
+const copyEnabled = computed(() => String(config.public.rankingRatingCopyEnabled) === 'true');
 const entries = ref<RankingEntry[]>([]);
 const cursor = ref<string | null>(null);
 const loading = ref(false);
@@ -126,7 +127,7 @@ function repeatPolicyStale() {
   if (repeatSettings.value === true) repeatSettings.value = false;
   repeatPolicyRevision.value++;
 }
-const interactions = ref(new Map<string, 'draft' | 'pending'>());
+const interactions = ref(new Map<string, 'draft' | 'pending' | 'uncertain'>());
 const guardBusy = ref<'rating' | 'picker' | 'repeat' | 'visibility' | null>(null);
 const dialogKey = ref(0);
 const discardDialog = ref<InstanceType<typeof BaseConfirmDialog>>();
@@ -154,7 +155,7 @@ function resetInterruption() {
     dialogKey.value++;
   }
 }
-function markInteraction(roundId: string, state: 'idle' | 'draft' | 'pending') {
+function markInteraction(roundId: string, state: 'idle' | 'draft' | 'pending' | 'uncertain') {
   if (state === 'idle') interactions.value.delete(roundId);
   else if (rounds.value.some((round) => round.round_id === roundId))
     interactions.value.set(roundId, state);
@@ -210,8 +211,14 @@ function allowInterruption(entryOnly = false): boolean | Promise<boolean> {
     decision = resolve;
   });
   const ratingDraft = interactions.value.size > 0;
-  const copy =
-    repeatEdited && pickerState !== 'uncertain'
+  const copy = [...interactions.value.values()].includes('uncertain')
+    ? {
+        title: 'rankingRepeatedRounds.leaveTitle',
+        message: 'rankingRepeatedRounds.leaveUncertain',
+        ok: 'rankingRepeatedRounds.leave',
+        cancel: 'rankingRepeatedRounds.stay',
+      }
+    : repeatEdited && pickerState !== 'uncertain'
       ? {
           title: 'rankingRepeatedRounds.leaveTitle',
           message: repeatUncertain
@@ -689,6 +696,8 @@ async function refreshAggregate() {
             <RankingRoundPanel
               :ranking-id="rankingId"
               :entry-id="selected.entry_id"
+              :movie-id="selected.movie_id"
+              :copy-enabled="copyEnabled"
               :entry-title="entryTitle(selected, locale, t('rankingDetail.untitled'))"
               :round="round"
               :can-rate="canRate"

@@ -67,6 +67,7 @@ export default defineNuxtConfig({
       apiUrl: '/api',
       socketUrl: '',
       rankingTmdbPickerEnabled: false,
+      rankingRatingCopyEnabled: false,
       tmdbImageBase: process.env.TMDB_IMAGE_BASE || 'https://image.tmdb.org/t/p',
     },
   },
