@@ -139,6 +139,7 @@ describe('migration contracts', () => {
         'movie-watchlist',
         'not-found',
         'profile',
+        'ranking',
       ].sort(),
     );
   });

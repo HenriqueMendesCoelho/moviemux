@@ -4,4 +4,13 @@ import account from './pt-BR/account.json';
 import catalog from './pt-BR/catalog.json';
 import library from './pt-BR/library.json';
 import components from './pt-BR/components.json';
-export default { pages, shell, account, catalog, library, components };
+import rankings from './pt-BR/rankings.json';
+export default {
+  rankings,
+  pages,
+  shell,
+  account,
+  catalog,
+  library,
+  components,
+};

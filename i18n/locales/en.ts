@@ -4,4 +4,13 @@ import account from './en/account.json';
 import catalog from './en/catalog.json';
 import library from './en/library.json';
 import components from './en/components.json';
-export default { pages, shell, account, catalog, library, components };
+import rankings from './en/rankings.json';
+export default {
+  rankings,
+  pages,
+  shell,
+  account,
+  catalog,
+  library,
+  components,
+};

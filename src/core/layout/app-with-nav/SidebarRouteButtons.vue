@@ -6,6 +6,11 @@ defineProps<{ showTextsSideBar?: boolean }>();
 const user = useUserStore();
 const links = [
   {
+    name: 'rankings',
+    label: 'rankings.title',
+    path: 'M3 4h7v7H3z M14 4h7v7h-7z M3 15h7v6H3z M14 15h7v6h-7z',
+  },
+  {
     name: 'home',
     label: 'shell.home',
     path: 'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',

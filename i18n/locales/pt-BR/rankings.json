@@ -1,0 +1,42 @@
+{
+  "title": "Rankings",
+  "subtitle": "Coleções separadas. Suas pessoas, suas notas.",
+  "yourRankings": "Seus rankings",
+  "loading": "Carregando rankings…",
+  "loadError": "Não foi possível carregar seus rankings.",
+  "retry": "Tentar novamente",
+  "empty": "Nenhum ranking ainda. Crie um para começar a avaliar juntos.",
+  "unnamed": "Ranking sem nome",
+  "more": "Carregar mais",
+  "create": "Criar ranking",
+  "createHint": "Escolha quem pode ver seu ranking e como as pessoas entram.",
+  "name": "Nome do ranking",
+  "visibilityLabel": "Quem pode ver?",
+  "admissionLabel": "Como as pessoas entram?",
+  "visibilityHint": "Visibilidade e entrada são independentes. Leitura pública não dá permissão para alterar um ranking.",
+  "created": "Ranking criado. Ele já está na sua lista.",
+  "creating": "Criando…",
+  "checkList": "Conferir a lista",
+  "visibility": {
+    "PRIVATE": "Privado",
+    "PUBLIC": "Público"
+  },
+  "admission": {
+    "INVITATION": "Somente por convite",
+    "APPROVAL": "Requer aprovação",
+    "OPEN": "Entrada livre"
+  },
+  "errors": {
+    "invalidName": "Use um nome de 1 a 120 caracteres.",
+    "limitReached": "Você atingiu o limite de rankings desta instância.",
+    "unavailable": "A criação está indisponível até o administrador configurar o limite da instância.",
+    "denied": "Você não tem permissão para esta ação.",
+    "sessionExpired": "Sua sessão expirou. Entre novamente.",
+    "uncertain": "Não conseguimos confirmar se o ranking foi criado. Confira sua lista antes de tentar novamente para evitar duplicação."
+  },
+  "leaveTitle": "Sair deste formulário?",
+  "leaveDraft": "O nome do ranking não salvo será descartado.",
+  "leavePending": "A solicitação ainda pode ser concluída. Sair não cancela a criação. Confira seus rankings antes de enviar novamente.",
+  "leave": "Sair do formulário",
+  "stay": "Continuar aqui"
+}
