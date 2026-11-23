@@ -25,6 +25,8 @@ const rules: Array<[RegExp, string[]]> = [
   [ownRatingPath, ['GET', 'POST', 'PATCH']],
   [aggregatePath, ['GET']],
   [/^\/user$/, ['GET']],
+  [/^\/user\/ranking-invitation-address$/, ['GET']],
+  [/^\/user\/ranking-invitation-address\/rotate$/, ['POST']],
   [/^\/user\/(?:update|p\/update)$/, ['PATCH']],
   [/^\/user\/wishlist$/, ['GET', 'POST']],
   [new RegExp(`^/user/wishlist/${uuid}$`), ['GET', 'PATCH']],
@@ -59,7 +61,12 @@ export function assertRankingReadQuery(
   method: string,
   query: URLSearchParams,
 ): void {
-  if ((method === 'POST' || method === 'PATCH') && ownRatingPath.test(pathname)) {
+  if (
+    pathname === '/user/ranking-invitation-address' ||
+    pathname === '/user/ranking-invitation-address/rotate' ||
+    (method === 'POST' && pathname === '/rankings') ||
+    ((method === 'POST' || method === 'PATCH') && ownRatingPath.test(pathname))
+  ) {
     if (query.size) throw createError({ status: 400, message: 'Invalid ranking query' });
     return;
   }
@@ -130,6 +137,12 @@ function rankingErrorCode(
     if (status === 409) expected = 'ranking.creation_limit_reached';
     if (status === 503) expected = 'ranking.creation_unavailable';
   }
+  if (
+    status === 503 &&
+    ((method === 'GET' && pathname === '/user/ranking-invitation-address') ||
+      (method === 'POST' && pathname === '/user/ranking-invitation-address/rotate'))
+  )
+    expected = 'ranking.invitation_address_unavailable';
   if (!expected) return undefined;
   try {
     const body: unknown = JSON.parse(text);
@@ -237,6 +250,24 @@ export async function upstreamRequest(
     data = text ? JSON.parse(text) : null;
   } catch {
     throw createError({ status: 502, message: 'Invalid API response' });
+  }
+  const addressResponse =
+    (options.method === 'GET' && path === '/user/ranking-invitation-address') ||
+    (options.method === 'POST' && path === '/user/ranking-invitation-address/rotate');
+  if (addressResponse) {
+    const code =
+      data && typeof data === 'object' && 'recipient_code' in data
+        ? data.recipient_code
+        : undefined;
+    if (
+      response.status !== 200 ||
+      !(
+        (typeof code === 'string' && /^[A-Za-z0-9_-]{21}[AQgw]$/.test(code)) ||
+        (code === null && options.method === 'GET')
+      )
+    )
+      throw createError({ status: 502, message: 'Invalid API response' });
+    return { status: 200, data: { recipient_code: code } };
   }
   return { status: response.status, data };
 }

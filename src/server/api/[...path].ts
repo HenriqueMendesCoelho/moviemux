@@ -2,6 +2,7 @@ import { defineEventHandler, createError, setResponseStatus } from 'nuxt/server'
 import { protectedBody, turnstileAction } from '../utils/turnstile';
 import { revokeSession } from '../utils/session-registry';
 import { boundedBody } from '../utils/body';
+import { rankingRequestBody } from '../utils/ranking-requests';
 import { allowedApiPath, assertRankingReadQuery, upstreamRequest } from '../utils/upstream';
 import { readActiveSession } from '../utils/session';
 export default defineEventHandler(async (event) => {
@@ -20,6 +21,7 @@ export default defineEventHandler(async (event) => {
   )
     throw createError({ status: 415, message: 'Unsupported request type' });
   let body = ['GET', 'HEAD'].includes(method) ? undefined : await boundedBody(event);
+  body = rankingRequestBody(path, method, body, contentType);
   const action = turnstileAction(path, method);
   if (action) body = await protectedBody(body, contentType, action);
   try {

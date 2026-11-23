@@ -312,3 +312,59 @@ describe('contextual own rating writes', () => {
     await expect(upstreamRequest(path, { method: 'PATCH' })).rejects.not.toHaveProperty('data');
   });
 });
+
+describe('private invitation address transport', () => {
+  const read = '/user/ranking-invitation-address',
+    rotate = `${read}/rotate`;
+  it('allows only self read and explicit bodyless rotation', () => {
+    expect(allowedApiPath(read, 'GET')).toBe(true);
+    expect(allowedApiPath(rotate, 'POST')).toBe(true);
+    for (const [path, method] of [
+      [read, 'POST'],
+      [rotate, 'GET'],
+      [`${read}/other`, 'GET'],
+    ])
+      expect(allowedApiPath(path!, method!)).toBe(false);
+    for (const path of [read, rotate])
+      expect(() =>
+        assertRankingReadQuery(
+          path,
+          path === read ? 'GET' : 'POST',
+          new URLSearchParams('user_id=other'),
+        ),
+      ).toThrow();
+    expect(() =>
+      assertRankingReadQuery('/rankings', 'POST', new URLSearchParams('owner_id=other')),
+    ).toThrow();
+  });
+  it.each([
+    [read, 'GET'],
+    [rotate, 'POST'],
+  ])('preserves only exact safe unavailable code for %s', async (path, method) => {
+    respond(503, { code: 'ranking.invitation_address_unavailable', secret: 'redacted' });
+    await expect(upstreamRequest(path!, { method: method! })).rejects.toMatchObject({
+      status: 503,
+      data: { code: 'ranking.invitation_address_unavailable' },
+    });
+  });
+});
+
+it('projects only valid private invitation address and rejects malformed rotation', async () => {
+  const path = '/user/ranking-invitation-address';
+  respond(200, { recipient_code: null, user_id: 'private' });
+  expect(await upstreamRequest(path, { method: 'GET' })).toEqual({
+    status: 200,
+    data: { recipient_code: null },
+  });
+  respond(200, { recipient_code: 'aX-_AbCdefGhijkLMNopqA', private_profile: 'private' });
+  expect(await upstreamRequest(`${path}/rotate`, { method: 'POST' })).toEqual({
+    status: 200,
+    data: { recipient_code: 'aX-_AbCdefGhijkLMNopqA' },
+  });
+  for (const code of [null, 'invalid', 10]) {
+    respond(200, { recipient_code: code });
+    await expect(upstreamRequest(`${path}/rotate`, { method: 'POST' })).rejects.toMatchObject({
+      status: 502,
+    });
+  }
+});
