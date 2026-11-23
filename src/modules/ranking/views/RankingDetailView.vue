@@ -3,6 +3,7 @@ import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useUserStore } from '~/core/stores/UserStore';
 import BaseContainerMain from '~/core/components/BaseContainerMain.vue';
+import RankingEntryCard from '../components/RankingEntryCard.vue';
 import RankingInvitationIssuer from '../components/RankingInvitationIssuer.vue';
 import RankingOwnRating from '../components/RankingOwnRating.vue';
 import catalog, {
@@ -256,14 +257,11 @@ async function refreshAggregate() {
       <section :aria-label="t('rankingDetail.catalog')" :aria-busy="loading">
         <ul class="mm-detail-catalog">
           <li v-for="entry in entries" :key="entry.entry_id">
-            <button
-              class="mm-detail-entry"
-              :aria-pressed="selected?.entry_id === entry.entry_id"
-              @click="open(entry)"
-            >
-              <span>{{ entryTitle(entry, locale, t('rankingDetail.untitled')) }}</span
-              ><small v-if="entry.release_date">{{ entry.release_date }}</small>
-            </button>
+            <RankingEntryCard
+              :entry="entry"
+              :selected="selected?.entry_id === entry.entry_id"
+              @select="open(entry)"
+            />
           </li>
         </ul>
         <button v-if="cursor" class="mm-button" :disabled="loading" @click="load(true)">
@@ -359,31 +357,6 @@ async function refreshAggregate() {
   display: grid;
   gap: 12px;
 }
-.mm-detail-entry {
-  width: 100%;
-  display: grid;
-  text-align: left;
-  gap: 8px;
-  padding: 20px;
-  border: 1px solid var(--mm-border);
-  background: var(--mm-surface);
-  color: var(--mm-text);
-  border-radius: 16px;
-  cursor: pointer;
-  overflow-wrap: anywhere;
-}
-.mm-detail-entry[aria-pressed='true'] {
-  border-color: #00f6ff;
-}
-.mm-detail-entry:focus-visible {
-  outline: 2px solid #00f6ff;
-  outline-offset: 3px;
-}
-.mm-detail-entry span {
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-.mm-detail-entry small,
 .mm-detail-exact {
   color: var(--mm-muted);
 }

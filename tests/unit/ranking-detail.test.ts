@@ -6,6 +6,7 @@ import en from '../../i18n/locales/en/ranking-detail.json';
 import pt from '../../i18n/locales/pt-BR/ranking-detail.json';
 import enLocale from '../../i18n/locales/en';
 import ptLocale from '../../i18n/locales/pt-BR';
+import Card from '../../src/modules/ranking/components/RankingEntryCard.vue';
 import Issuer from '../../src/modules/ranking/components/RankingInvitationIssuer.vue';
 const messages = { en, 'pt-BR': pt };
 const mocks = vi.hoisted(() => ({
@@ -45,9 +46,10 @@ const round = {
   revealed: false,
 };
 let w: VueWrapper;
-async function render(locale = 'en') {
+async function render(locale = 'en', attachTo?: HTMLElement) {
   w = mount(View, {
     props: { rankingId: id },
+    attachTo,
     global: {
       plugins: [
         createI18n({
@@ -66,7 +68,7 @@ async function render(locale = 'en') {
   return w;
 }
 async function open() {
-  await w.get('.mm-detail-entry').trigger('click');
+  await w.get('.mm-ranking-entry-card').trigger('click');
   await flushPromises();
 }
 function deferred() {
@@ -153,7 +155,7 @@ test('late round response for older selection cannot replace selected entry', as
   mocks.rounds.mockReturnValueOnce(pending.promise);
   await render();
   await open();
-  await w.findAll('.mm-detail-entry')[1]!.trigger('click');
+  await w.findAll('.mm-ranking-entry-card')[1]!.trigger('click');
   await flushPromises();
   pending.resolve({ items: [{ ...round, description: 'STALE' }], next_cursor: null });
   await flushPromises();
@@ -170,7 +172,7 @@ test.each([401, 404])(
     await w.get('.mm-detail-rounds button').trigger('click');
     await flushPromises();
     expect(w.find('.mm-detail-panel').exists()).toBe(false);
-    expect(w.find('.mm-detail-entry').exists()).toBe(false);
+    expect(w.find('.mm-ranking-entry-card').exists()).toBe(false);
     expect(w.text()).toContain(
       status === 401 ? messages.en.sessionExpired : messages.en.unavailable,
     );
@@ -191,7 +193,7 @@ test('ambiguous own 404 rechecks access before retaining authorized catalog and 
   await w.get('.mm-detail-rounds button').trigger('click');
   await flushPromises();
   expect(mocks.summary).toHaveBeenCalledTimes(2);
-  expect(w.find('.mm-detail-entry').exists()).toBe(true);
+  expect(w.find('.mm-ranking-entry-card').exists()).toBe(true);
   expect(w.text()).toContain(messages.en.ownUnavailable);
   expect(w.text()).toContain(enLocale.rankingOwnRating.add);
   w.findComponent({ name: 'RankingOwnRating' }).vm.$emit('confirmed');
@@ -256,4 +258,23 @@ test('issuer scope failure clears stale data before auth refresh and never resto
   await flushPromises();
   expect(w.text()).toContain('Revalidated scope');
   expect(w.findComponent(Issuer).exists()).toBe(false);
+});
+
+test('catalog cards retain focus while selecting contextual entry and update selected state', async () => {
+  const second = { ...entry, entry_id: other, english_title: 'Second title', runtime: 96 };
+  mocks.entries.mockResolvedValueOnce({ items: [entry, second], next_cursor: null });
+  await render('en', document.body);
+  const cards = w.findAllComponents(Card);
+  expect(cards).toHaveLength(2);
+  expect(cards[0]!.get('button').attributes('aria-pressed')).toBe('false');
+  const button = cards[1]!.get('button');
+  expect(button.text()).toContain('96 min');
+  (button.element as HTMLElement).focus();
+  await button.trigger('click');
+  await flushPromises();
+  expect(document.activeElement).toBe(button.element);
+  expect(button.attributes('aria-pressed')).toBe('true');
+  expect(cards[0]!.get('button').attributes('aria-pressed')).toBe('false');
+  expect(mocks.rounds).toHaveBeenLastCalledWith(id, other, undefined, expect.any(AbortSignal));
+  expect(w.get('.mm-detail-panel h2').text()).toBe('Second title');
 });
