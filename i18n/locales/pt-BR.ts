@@ -12,7 +12,9 @@ import rankingInvitationInbox from './pt-BR/ranking-invitation-inbox.json';
 import rankingInvitationIssuer from './pt-BR/ranking-invitation-issuer.json';
 import rankingRoundPanel from './pt-BR/ranking-round-panel.json';
 import rankingTmdbPicker from './pt-BR/ranking-tmdb-picker.json';
+import rankingJoin from './pt-BR/ranking-join.json';
 export default {
+  rankingJoin,
   rankingTmdbPicker,
   rankingRoundPanel,
   rankingInvitationIssuer,

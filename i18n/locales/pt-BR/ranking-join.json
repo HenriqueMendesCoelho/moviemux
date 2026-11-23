@@ -1,0 +1,18 @@
+{
+  "title": "Entrar em uma coleção",
+  "back": "Voltar às coleções",
+  "intro": "Entre na coleção deste link. Você só verá os detalhes quando o acesso for confirmado.",
+  "join": "Entrar na coleção",
+  "working": "Verificando sua solicitação…",
+  "confirmed": "Agora você pode abrir {name}.",
+  "open": "Abrir coleção",
+  "unavailable": "Não é possível entrar nesta coleção pelo link.",
+  "sessionExpired": "Entre na sua conta novamente para continuar.",
+  "invalid": "A solicitação de entrada foi recusada.",
+  "uncertain": "Não foi possível confirmar a entrada. Consulte seu acesso à coleção antes de tentar novamente.",
+  "check": "Consultar meu acesso",
+  "cannotConfirm": "Não foi possível confirmar seu acesso. A solicitação anterior pode já ter sido concluída.",
+  "retry": "Tentar entrar novamente",
+  "accessUnavailable": "Você só pode abrir esta coleção depois que o acesso for confirmado.",
+  "checkError": "Não foi possível consultar seu acesso à coleção. Tente consultar novamente."
+}

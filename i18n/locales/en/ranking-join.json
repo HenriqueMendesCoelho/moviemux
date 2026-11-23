@@ -1,0 +1,18 @@
+{
+  "title": "Join a collection",
+  "back": "Back to collections",
+  "intro": "Join the collection from this link. You’ll only see its details once access is confirmed.",
+  "join": "Join collection",
+  "working": "Checking your request…",
+  "confirmed": "You can now open {name}.",
+  "open": "Open collection",
+  "unavailable": "This collection cannot be joined from this link.",
+  "sessionExpired": "Sign in again to continue.",
+  "invalid": "The join request was rejected.",
+  "uncertain": "Joining could not be confirmed. Check your collection access before trying again.",
+  "check": "Check my access",
+  "cannotConfirm": "Your access could not be confirmed. The earlier request may already have taken effect.",
+  "retry": "Try joining again",
+  "accessUnavailable": "You can’t open this collection until access is confirmed.",
+  "checkError": "Could not check your collection access. Try checking again."
+}
