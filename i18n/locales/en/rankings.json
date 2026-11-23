@@ -26,7 +26,9 @@
     "APPROVAL": "Approval required",
     "OPEN": "Open joining"
   },
+  "approvalRequestsUnavailable": "Requests aren’t available yet.",
   "errors": {
+    "admissionUnavailable": "Choose invitation or open admission to create this collection.",
     "invalidName": "Use a name with 1 to 120 characters.",
     "limitReached": "You have reached this instance’s collection limit. Archived collections count too.",
     "unavailable": "Collection creation is unavailable until the instance administrator configures its limit.",

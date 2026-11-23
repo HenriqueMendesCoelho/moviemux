@@ -21,6 +21,7 @@ vi.mock('../../src/modules/ranking/services/RankingService', async (original) =>
   ...(await original<any>()),
   default: mocks,
 }));
+import BaseSelect from '../../src/core/components/BaseSelect.vue';
 import Inbox from '../../src/modules/ranking/components/RankingInvitationInbox.vue';
 import View from '../../src/modules/ranking/views/RankingListView.vue';
 const id = '11111111-1111-4111-8111-111111111111';
@@ -172,3 +173,41 @@ test('verified inbox join resets the ranking cursor, supersedes stale pagination
   expect(w.findComponent(Inbox).exists()).toBe(false);
   expect(w.text()).not.toContain('Fresh ranking');
 });
+
+test.each(['en', 'pt-BR'])(
+  'new approval admission is unavailable, while authorized existing collections are still linked (%s)',
+  async (locale) => {
+    const labels = locale === 'en' ? en : pt;
+    mocks.list.mockResolvedValue({
+      items: [{ ...item, admission: 'APPROVAL' }],
+      next_cursor: null,
+    });
+    const w = await render(locale);
+    expect(w.get(`a[href="/movies/collections/${id}"]`).text()).toBe('Cinema');
+    expect(w.text()).toContain(labels.admission.APPROVAL);
+    const selector = w
+      .findAllComponents(BaseSelect)
+      .find((s) => s.props('label') === labels.admissionLabel);
+    expect(selector?.props('options')).toEqual([
+      { value: 'INVITATION', label: labels.admission.INVITATION },
+      { value: 'OPEN', label: labels.admission.OPEN },
+    ]);
+    if (!selector) throw new Error('Missing admission control');
+    await w.get('input').setValue('Keep this draft');
+    selector.vm.$emit('update:modelValue', 'APPROVAL');
+    await w.get('form').trigger('submit');
+    await flushPromises();
+    expect(mocks.create).not.toHaveBeenCalled();
+    expect(w.text()).toContain(labels.errors.admissionUnavailable);
+    expect((w.get('input').element as HTMLInputElement).value).toBe('Keep this draft');
+    selector.vm.$emit('update:modelValue', 'OPEN');
+    mocks.create.mockResolvedValue({ ...item, admission: 'OPEN' });
+    await w.get('form').trigger('submit');
+    await flushPromises();
+    expect(mocks.create).toHaveBeenCalledExactlyOnceWith({
+      name: 'Keep this draft',
+      visibility: 'PRIVATE',
+      admission: 'OPEN',
+    });
+  },
+);

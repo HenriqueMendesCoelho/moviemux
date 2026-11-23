@@ -663,3 +663,26 @@ test('narrowed grants clear a same-collection directory and ignore the old pendi
   await click(enLocale.rankingEntryRecovery.open);
   expect(w.text()).toContain(enLocale.rankingEntryRecovery.empty);
 });
+
+test.each(['en', 'pt-BR'])(
+  'authorized approval detail remains readable with no request action (%s)',
+  async (locale) => {
+    const labels = (locale === 'en' ? enLocale : ptLocale).rankings;
+    mocks.summary.mockResolvedValue({
+      ranking_id: id,
+      name: 'Existing collection',
+      visibility: 'PRIVATE',
+      admission: 'APPROVAL',
+      capabilities: ['READ'],
+    });
+    const page = await render(locale);
+    expect(page.get('h1').text()).toBe('Existing collection');
+    expect(page.text()).toContain(labels.admission.APPROVAL);
+    expect(page.text()).toContain(labels.approvalRequestsUnavailable);
+    expect(page.findComponent(Issuer).exists()).toBe(false);
+    expect(page.find('.mm-ranking-entry-card').exists()).toBe(true);
+    mocks.user.user.isLoged = false;
+    await flushPromises();
+    expect(page.text()).not.toContain(labels.approvalRequestsUnavailable);
+  },
+);

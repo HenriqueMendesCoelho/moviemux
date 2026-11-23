@@ -42,6 +42,7 @@ const detailLoading = ref(false);
 const detailError = ref('');
 const aggregate = ref<RatingAggregate | null>(null);
 const canRate = ref(false);
+const approvalAdmission = ref(false);
 const recoveryGrant = ref('');
 const recoveryState = ref<'idle' | 'draft' | 'pending'>('idle');
 const canInvite = ref(false);
@@ -328,6 +329,7 @@ async function load(more = false, replace = false) {
     );
     if (started !== epoch || request.signal.aborted) return;
     rankingName.value = access.name;
+    approvalAdmission.value = access.admission === 'APPROVAL';
     canRate.value = access.capabilities.includes('RATE_OWN');
     canAdd.value =
       access.capabilities.includes('READ') && access.capabilities.includes('ADD_ENTRY');
@@ -355,6 +357,7 @@ async function load(more = false, replace = false) {
         canRate.value = false;
         recoveryGrant.value = '';
         rankingName.value = undefined;
+        approvalAdmission.value = false;
         entries.value = [];
         cursor.value = null;
         clearDetail();
@@ -379,6 +382,7 @@ function reset() {
   pickerNotice.value = '';
   invitationUnavailable.value = false;
   rankingName.value = undefined;
+  approvalAdmission.value = false;
   uncertain.value.clear();
   entries.value = [];
   cursor.value = null;
@@ -480,6 +484,7 @@ function invalidateScope() {
   resetOpenLink();
   canAdd.value = false;
   rankingName.value = undefined;
+  approvalAdmission.value = false;
   entries.value = [];
   cursor.value = null;
   loading.value = false;
@@ -611,6 +616,10 @@ async function refreshAggregate() {
         }}
       </h1>
       <p>{{ t('rankingOwnRating.intro') }}</p>
+      <p v-if="approvalAdmission">
+        <strong>{{ t('rankings.admission.APPROVAL') }}</strong
+        >: {{ t('rankings.approvalRequestsUnavailable') }}
+      </p>
       <div v-if="canShareOpenLink && user.user.isLoged && !loading">
         <button type="button" class="mm-button" :disabled="copyingOpenLink" @click="copyOpenLink">
           {{ t('rankingDetail.copyOpenLink') }}

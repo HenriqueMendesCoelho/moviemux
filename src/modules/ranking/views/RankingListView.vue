@@ -53,8 +53,13 @@ let controller: AbortController | undefined;
 const visibilityOptions = computed(() =>
   ['PRIVATE', 'PUBLIC'].map((value) => ({ value, label: t(`rankings.visibility.${value}`) })),
 );
+// Requests for admission are gated until their lifecycle is ready. Keep reading old APPROVAL records.
+const creatableAdmissions = ['INVITATION', 'OPEN'] as const;
+function isCreatableAdmission(value: string): value is (typeof creatableAdmissions)[number] {
+  return creatableAdmissions.some((admission) => admission === value);
+}
 const admissionOptions = computed(() =>
-  ['INVITATION', 'APPROVAL', 'OPEN'].map((value) => ({
+  creatableAdmissions.map((value) => ({
     value,
     label: t(`rankings.admission.${value}`),
   })),
@@ -120,13 +125,18 @@ async function create() {
     createError.value = 'invalidName';
     return;
   }
+  const selectedAdmission = admission.value;
+  if (!isCreatableAdmission(selectedAdmission)) {
+    createError.value = 'admissionUnavailable';
+    return;
+  }
   const started = epoch;
   creating.value = true;
   try {
     const ranking = await RankingService.create({
       name: name.value,
       visibility: visibility.value as RankingSummary['visibility'],
-      admission: admission.value as RankingSummary['admission'],
+      admission: selectedAdmission,
     });
     if (started !== epoch) return;
     const refreshInFlight = loading.value;

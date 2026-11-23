@@ -26,7 +26,9 @@
     "APPROVAL": "Requer aprovação",
     "OPEN": "Entrada livre"
   },
+  "approvalRequestsUnavailable": "Solicitações ainda indisponíveis.",
   "errors": {
+    "admissionUnavailable": "Escolha entrada por convite ou entrada livre para criar esta coleção.",
     "invalidName": "Use um nome de 1 a 120 caracteres.",
     "limitReached": "Você atingiu o limite de coleções desta instância. Coleções arquivadas também contam.",
     "unavailable": "A criação está indisponível até o administrador configurar o limite da instância.",
