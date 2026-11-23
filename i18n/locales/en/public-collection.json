@@ -11,7 +11,7 @@
   "unnamed": "Unnamed collection",
   "untitled": "Untitled movie",
   "mean": "Mean from revealed rounds",
-  "exactRatio": "Exact ratio: {total} divided by {votes} votes from revealed rounds.",
+  "exactRatio": "Exact division for revealed rounds: {total} divided by {votes}.",
   "noVotes": "No numeric votes from revealed rounds.",
   "more": "Load more movies"
 }

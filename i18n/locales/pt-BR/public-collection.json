@@ -11,7 +11,7 @@
   "unnamed": "Coleção sem nome",
   "untitled": "Filme sem título",
   "mean": "Média das rodadas reveladas",
-  "exactRatio": "Proporção exata: {total} dividido por {votes} votos das rodadas reveladas.",
+  "exactRatio": "Divisão exata nas rodadas reveladas: {total} por {votes}.",
   "noVotes": "Nenhuma nota numérica nas rodadas reveladas.",
   "more": "Carregar mais filmes"
 }
