@@ -8,7 +8,11 @@ export function rankingRequestBody(
   body: string | undefined,
   contentType: string | undefined,
 ): string | undefined {
-  if (path === '/user/ranking-invitation-address/rotate' && method === 'POST') {
+  if (
+    method === 'POST' &&
+    (path === '/user/ranking-invitation-address/rotate' ||
+      new RegExp(`^/rankings/${uuid}/invitations/${uuid}/accept$`).test(path))
+  ) {
     if (body !== undefined && body !== '')
       throw createError({ status: 400, message: 'Bodyless request required' });
     return undefined;

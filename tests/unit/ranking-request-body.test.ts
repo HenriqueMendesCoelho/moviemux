@@ -60,3 +60,9 @@ test('invitation address rotation is bodyless, never actor supplied', () => {
   for (const body of ['{}', 'null', '{"user_id":"other"}', ' '])
     expect(() => rankingRequestBody(path, 'POST', body, 'application/json')).toThrow();
 });
+test('invitation accept is bodyless and cannot supply membership grants', () => {
+  const path = `/rankings/${id}/invitations/${id}/accept`;
+  expect(rankingRequestBody(path, 'POST', undefined, undefined)).toBeUndefined();
+  for (const body of ['{}', '{"capabilities":["READ"]}', 'null'])
+    expect(() => rankingRequestBody(path, 'POST', body, 'application/json')).toThrow();
+});

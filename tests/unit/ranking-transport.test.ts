@@ -368,3 +368,55 @@ it('projects only valid private invitation address and rejects malformed rotatio
     });
   }
 });
+describe('private invitation inbox and acceptance', () => {
+  const id = '11111111-1111-4111-8111-111111111111';
+  const inbox = '/ranking-invitations/incoming',
+    accept = `/rankings/${id}/invitations/${id}/accept`;
+  it('only GET inbox and exact scoped POST accept, with bounded page params', () => {
+    expect(allowedApiPath(inbox, 'GET')).toBe(true);
+    expect(allowedApiPath(accept, 'POST')).toBe(true);
+    expect(allowedApiPath(inbox, 'POST')).toBe(false);
+    expect(allowedApiPath(accept, 'GET')).toBe(false);
+    expect(() =>
+      assertRankingReadQuery(inbox, 'GET', new URLSearchParams(`limit=20&after=${id}`)),
+    ).not.toThrow();
+    for (const query of ['limit=101', 'limit=20&limit=20', 'after=x', 'user_id=x'])
+      expect(() => assertRankingReadQuery(inbox, 'GET', new URLSearchParams(query))).toThrow();
+    expect(() =>
+      assertRankingReadQuery(accept, 'POST', new URLSearchParams('user_id=x')),
+    ).toThrow();
+  });
+  it('preserves exact safe semantic codes only', async () => {
+    respond(400, { code: 'ranking.invalid_page', message: 'private' });
+    await expect(upstreamRequest(inbox, { method: 'GET' })).rejects.toMatchObject({
+      status: 400,
+      data: { code: 'ranking.invalid_page' },
+    });
+    respond(404, { code: 'ranking.invitation_not_found', message: 'private' });
+    await expect(upstreamRequest(accept, { method: 'POST' })).rejects.toMatchObject({
+      status: 404,
+      data: { code: 'ranking.invitation_not_found' },
+    });
+  });
+});
+it('inbox projects only authorized title, identifiers and expiry, never issuer/profile fields', async () => {
+  const id = '11111111-1111-4111-8111-111111111111';
+  const row = {
+    invite_id: id,
+    ranking_id: id,
+    ranking_name: '<script>literal</script>',
+    expires_at: '2026-12-01T00:00:00Z',
+  };
+  respond(200, {
+    items: [{ ...row, issuer: { email: 'private' }, capabilities: ['ADMIN'] }],
+    next_cursor: null,
+    secret: 'private',
+  });
+  expect(
+    await upstreamRequest('/ranking-invitations/incoming?limit=20', { method: 'GET' }),
+  ).toEqual({ status: 200, data: { items: [row], next_cursor: null } });
+  respond(200, { items: [{ ...row, ranking_name: undefined }], next_cursor: null });
+  await expect(
+    upstreamRequest('/ranking-invitations/incoming', { method: 'GET' }),
+  ).rejects.toMatchObject({ status: 502 });
+});

@@ -11,12 +11,16 @@ const rankingEntriesPath = new RegExp(`^${rankingRoot}/entries$`);
 const rankingRoundsPath = new RegExp(`^${rankingEntry}/rounds$`);
 const ownRatingPath = new RegExp(`^${rankingRoot}/rounds/${rankingUuid}/rating/me$`);
 const aggregatePath = new RegExp(`^${rankingRoot}/entries/(${rankingUuid})/ratings/aggregate$`);
+const incomingInvitationsPath = '/ranking-invitations/incoming';
+const acceptInvitationPath = new RegExp(`^${rankingRoot}/invitations/${rankingUuid}/accept$`);
 const rules: Array<[RegExp, string[]]> = [
   [/^\/public\/user$/, ['POST']],
   [/^\/public\/user\/password\/reset$/, ['POST']],
   [/^\/public\/user\/password\/[a-zA-Z0-9]{200}\/reset$/, ['POST']],
   [/^\/public\/movie\/tmdb\/\d+\/info$/, ['GET']],
   [/^\/rankings$/, ['GET', 'POST']],
+  [/^\/ranking-invitations\/incoming$/, ['GET']],
+  [acceptInvitationPath, ['POST']],
   [/^\/rankings\/access$/, ['GET']],
   [rankingSummaryPath, ['GET']],
   [rankingAccessPath, ['GET']],
@@ -62,6 +66,7 @@ export function assertRankingReadQuery(
   query: URLSearchParams,
 ): void {
   if (
+    acceptInvitationPath.test(pathname) ||
     pathname === '/user/ranking-invitation-address' ||
     pathname === '/user/ranking-invitation-address/rotate' ||
     (method === 'POST' && pathname === '/rankings') ||
@@ -70,12 +75,17 @@ export function assertRankingReadQuery(
     if (query.size) throw createError({ status: 400, message: 'Invalid ranking query' });
     return;
   }
-  if (method !== 'GET' || !pathname.startsWith('/rankings')) return;
+  if (
+    method !== 'GET' ||
+    !(pathname.startsWith('/rankings') || pathname === incomingInvitationsPath)
+  )
+    return;
   const rounds = rankingRoundsPath.test(pathname);
   const paged =
     rounds ||
     pathname === '/rankings' ||
     pathname === '/rankings/access' ||
+    pathname === incomingInvitationsPath ||
     rankingEntriesPath.test(pathname);
   const seen = new Set<string>();
   for (const [name, value] of query) {
@@ -109,6 +119,7 @@ function rankingErrorCode(
   const paged =
     pathname === '/rankings' ||
     pathname === '/rankings/access' ||
+    pathname === incomingInvitationsPath ||
     rankingEntriesPath.test(pathname) ||
     rankingRoundsPath.test(pathname);
   const ownRating = ownRatingPath.test(pathname);
@@ -143,6 +154,8 @@ function rankingErrorCode(
       (method === 'POST' && pathname === '/user/ranking-invitation-address/rotate'))
   )
     expected = 'ranking.invitation_address_unavailable';
+  if (method === 'POST' && acceptInvitationPath.test(pathname) && status === 404)
+    expected = 'ranking.invitation_not_found';
   if (!expected) return undefined;
   try {
     const body: unknown = JSON.parse(text);
@@ -250,6 +263,37 @@ export async function upstreamRequest(
     data = text ? JSON.parse(text) : null;
   } catch {
     throw createError({ status: 502, message: 'Invalid API response' });
+  }
+  if (options.method === 'GET' && path.split('?')[0] === incomingInvitationsPath) {
+    const page = data as { items?: unknown; next_cursor?: unknown } | null;
+    const validId = (id: unknown) =>
+      typeof id === 'string' && new RegExp(`^${rankingUuid}$`).test(id);
+    if (
+      response.status !== 200 ||
+      !page ||
+      !Array.isArray(page.items) ||
+      !(page.next_cursor === null || validId(page.next_cursor))
+    )
+      throw createError({ status: 502, message: 'Invalid API response' });
+    const items = page.items.map((value: unknown) => {
+      const v = value as Record<string, unknown> | null;
+      if (
+        !v ||
+        !validId(v.invite_id) ||
+        !validId(v.ranking_id) ||
+        !(v.ranking_name === null || typeof v.ranking_name === 'string') ||
+        typeof v.expires_at !== 'string' ||
+        !Number.isFinite(Date.parse(v.expires_at))
+      )
+        throw createError({ status: 502, message: 'Invalid API response' });
+      return {
+        invite_id: v.invite_id,
+        ranking_id: v.ranking_id,
+        ranking_name: v.ranking_name,
+        expires_at: v.expires_at,
+      };
+    });
+    return { status: 200, data: { items, next_cursor: page.next_cursor } };
   }
   const addressResponse =
     (options.method === 'GET' && path === '/user/ranking-invitation-address') ||
