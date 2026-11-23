@@ -1,6 +1,7 @@
 import { createError } from 'nuxt/server';
 import { rankingTmdbBody, rankingTmdbOperation } from './ranking-tmdb-contract';
 const uuid = '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}';
+const openJoin = new RegExp(`^/rankings/${uuid}/join$`);
 const ownRating = new RegExp(`^/rankings/${uuid}/rounds/${uuid}/rating/me$`);
 /** A browser can request context, never supply an actor, owner or additional grants. */
 export function rankingRequestBody(
@@ -9,6 +10,15 @@ export function rankingRequestBody(
   body: string | undefined,
   contentType: string | undefined,
 ): string | undefined {
+  if (method === 'POST' && openJoin.test(path)) {
+    if (body !== undefined && body !== '')
+      throw createError({
+        status: 400,
+        message: 'Bodyless request required',
+        data: { code: 'ranking.invalid_join' },
+      });
+    return undefined;
+  }
   const tmdb = rankingTmdbOperation(path, method);
   if (tmdb) return rankingTmdbBody(tmdb, body, contentType);
   if (

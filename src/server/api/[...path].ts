@@ -7,6 +7,7 @@ import {
   allowedApiPath,
   assertRankingReadQuery,
   assertRankingReadIntent,
+  isRankingJoin,
   upstreamRequest,
 } from '../utils/upstream';
 import { readActiveSession } from '../utils/session';
@@ -17,9 +18,11 @@ export default defineEventHandler(async (event) => {
     throw createError({ status: 404, message: 'API route not available' });
   const isPublic = path.startsWith('/public/');
   const session = isPublic ? undefined : await readActiveSession(event);
-  assertRankingReadQuery(path, method, event.url.searchParams);
+  assertRankingReadQuery(path, method, event.url.searchParams, event.url.href.includes('?'));
   assertRankingReadIntent(path, method, event.req.headers);
-  const contentType = event.req.headers.get('content-type')?.split(';')[0];
+  const contentType = isRankingJoin(path, method)
+    ? undefined
+    : event.req.headers.get('content-type')?.split(';')[0];
   if (
     !['GET', 'HEAD'].includes(method) &&
     contentType &&

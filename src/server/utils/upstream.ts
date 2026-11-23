@@ -24,6 +24,10 @@ const issueInvitationPath = new RegExp(`^${rankingRoot}/invitations$`);
 const revokeInvitationPath = new RegExp(`^${rankingRoot}/invitations/${rankingUuid}$`);
 const incomingInvitationsPath = '/ranking-invitations/incoming';
 const acceptInvitationPath = new RegExp(`^${rankingRoot}/invitations/${rankingUuid}/accept$`);
+const joinRankingPath = new RegExp(`^${rankingRoot}/join$`);
+export function isRankingJoin(path: string, method: string): boolean {
+  return method === 'POST' && joinRankingPath.test(path);
+}
 const rules: Array<[RegExp, string[]]> = [
   [/^\/public\/user$/, ['POST']],
   [/^\/public\/user\/password\/reset$/, ['POST']],
@@ -32,6 +36,7 @@ const rules: Array<[RegExp, string[]]> = [
   [/^\/rankings$/, ['GET', 'POST']],
   [/^\/ranking-invitations\/incoming$/, ['GET']],
   [acceptInvitationPath, ['POST']],
+  [joinRankingPath, ['POST']],
   [issueInvitationPath, ['POST']],
   [revokeInvitationPath, ['DELETE']],
   [/^\/rankings\/access$/, ['GET']],
@@ -92,7 +97,17 @@ export function assertRankingReadQuery(
   pathname: string,
   method: string,
   query: URLSearchParams,
+  hasQueryDelimiter = false,
 ): void {
+  if (isRankingJoin(pathname, method)) {
+    if (query.size || hasQueryDelimiter)
+      throw createError({
+        status: 400,
+        message: 'Invalid ranking query',
+        data: { code: 'ranking.invalid_join' },
+      });
+    return;
+  }
   if (
     rankingTmdbOperation(pathname, method) ||
     issueInvitationPath.test(pathname) ||
@@ -187,6 +202,10 @@ function rankingErrorCode(
       (method === 'POST' && pathname === '/user/ranking-invitation-address/rotate'))
   )
     expected = 'ranking.invitation_address_unavailable';
+  if (isRankingJoin(pathname, method)) {
+    if (status === 400) expected = 'ranking.invalid_join';
+    if (status === 404) expected = 'ranking.not_found';
+  }
   if (method === 'POST' && acceptInvitationPath.test(pathname) && status === 404)
     expected = 'ranking.invitation_not_found';
   if (method === 'POST' && issueInvitationPath.test(pathname)) {
@@ -315,6 +334,11 @@ export async function upstreamRequest(
             ? 'Access denied'
             : 'API request failed',
     });
+  }
+  if (isRankingJoin(path, options.method)) {
+    if (response.status !== 204 || text !== '')
+      throw createError({ status: 502, message: 'Unconfirmed ranking join response' });
+    return { status: 204, data: null };
   }
   const aggregateEntryId =
     options.method === 'GET' ? aggregatePath.exec(path.split('?')[0] || '')?.[1] : undefined;
