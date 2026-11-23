@@ -15,6 +15,7 @@ import Issuer from '../../src/modules/ranking/components/RankingInvitationIssuer
 const messages = { en, 'pt-BR': pt };
 const mocks = vi.hoisted(() => ({
   summary: vi.fn(),
+  recoveries: vi.fn(),
   visibilitySettings: vi.fn(),
   visibilitySave: vi.fn(),
   repeatSettings: vi.fn(),
@@ -57,6 +58,10 @@ vi.mock('vue-router', async (original) => ({
   onBeforeRouteUpdate: (handler: NonNullable<typeof mocks.update>) => {
     mocks.update = handler;
   },
+}));
+vi.mock('../../src/modules/ranking/services/RankingEntryRecoveryService', async (original) => ({
+  ...(await original<object>()),
+  default: { list: mocks.recoveries },
 }));
 vi.mock('../../src/modules/ranking/services/RankingRoundService', () => ({
   default: { enter: mocks.roundEnter, aggregate: mocks.roundAggregate },
@@ -621,4 +626,40 @@ test('visibility changes block navigation while saving but do not grant other ow
   control.vm.$emit('interaction', 'idle');
   await flushPromises();
   expect(mocks.leave?.()).toBe(true);
+});
+
+test('narrowed grants clear a same-collection directory and ignore the old pending list', async () => {
+  const initial = {
+    ranking_id: id,
+    name: 'Authorized collection',
+    visibility: 'PRIVATE',
+    admission: 'INVITATION',
+    capabilities: ['READ', 'REMOVE_ENTRY'],
+  };
+  mocks.summary.mockResolvedValue(initial);
+  mocks.entries.mockResolvedValue({ items: [entry], next_cursor: other });
+  const pending = deferred();
+  mocks.recoveries
+    .mockReturnValueOnce(pending.promise)
+    .mockResolvedValue({ items: [], next_cursor: null });
+  await render();
+  async function click(label: string) {
+    const button = w.findAll('button').find((candidate) => candidate.text() === label);
+    if (!button) throw new Error(`Missing button ${label}`);
+    await button.trigger('click');
+    await flushPromises();
+  }
+  await click(enLocale.rankingEntryRecovery.open);
+  const request = mocks.recoveries.mock.calls[0]?.[2] as AbortSignal;
+  mocks.summary.mockResolvedValue({ ...initial, capabilities: ['READ', 'REMOVE_OWN_ENTRY'] });
+  await click(en.more);
+  expect(request.aborted).toBe(true);
+  pending.resolve({
+    items: [{ entry_id: other, title: 'Previous broader private result' }],
+    next_cursor: null,
+  });
+  await flushPromises();
+  expect(w.text()).not.toContain('Previous broader private result');
+  await click(enLocale.rankingEntryRecovery.open);
+  expect(w.text()).toContain(enLocale.rankingEntryRecovery.empty);
 });

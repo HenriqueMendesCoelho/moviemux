@@ -5,6 +5,7 @@ import { useRuntimeConfig } from '#imports';
 import { useI18n } from 'vue-i18n';
 import { useUserStore } from '~/core/stores/UserStore';
 import BaseContainerMain from '~/core/components/BaseContainerMain.vue';
+import RankingEntryRecovery from '../components/RankingEntryRecovery.vue';
 import RankingEntryCard from '../components/RankingEntryCard.vue';
 import { rankingIdPattern } from '../services/RankingService';
 import RankingInvitationIssuer from '../components/RankingInvitationIssuer.vue';
@@ -41,6 +42,8 @@ const detailLoading = ref(false);
 const detailError = ref('');
 const aggregate = ref<RatingAggregate | null>(null);
 const canRate = ref(false);
+const recoveryGrant = ref('');
+const recoveryState = ref<'idle' | 'draft' | 'pending'>('idle');
 const canInvite = ref(false);
 const canShareOpenLink = ref(false);
 const copyingOpenLink = ref(false);
@@ -128,7 +131,7 @@ function repeatPolicyStale() {
   repeatPolicyRevision.value++;
 }
 const interactions = ref(new Map<string, 'draft' | 'pending' | 'uncertain'>());
-const guardBusy = ref<'rating' | 'picker' | 'repeat' | 'visibility' | null>(null);
+const guardBusy = ref<'rating' | 'picker' | 'repeat' | 'visibility' | 'recovery' | null>(null);
 const dialogKey = ref(0);
 const discardDialog = ref<InstanceType<typeof BaseConfirmDialog>>();
 let decision: ((allow: boolean) => void) | undefined;
@@ -138,6 +141,7 @@ function hasRatingRequest() {
 function settle(allow: boolean) {
   decision?.(
     allow &&
+      recoveryState.value === 'idle' &&
       !hasRatingRequest() &&
       !hasRepeatRequest() &&
       visibilityState.value !== 'pending' &&
@@ -179,7 +183,18 @@ watch(
   },
   { flush: 'sync' },
 );
+watch(
+  recoveryState,
+  (state) => {
+    if (state !== 'pending' && guardBusy.value === 'recovery') guardBusy.value = null;
+  },
+  { flush: 'sync' },
+);
 function allowInterruption(entryOnly = false): boolean | Promise<boolean> {
+  if (user.user.isLoged && recoveryState.value !== 'idle') {
+    if (recoveryState.value === 'pending') guardBusy.value = 'recovery';
+    return false;
+  }
   const pickerState = pickerInteraction.value;
   const states = [
     repeatSettingsState.value,
@@ -302,6 +317,10 @@ async function load(more = false, replace = false) {
   try {
     const access = await catalog.summary(rankingId, request.signal);
     if (started !== epoch || request.signal.aborted) return;
+    recoveryGrant.value = access.capabilities
+      .filter((capability) => ['READ', 'REMOVE_ENTRY', 'REMOVE_OWN_ENTRY'].includes(capability))
+      .sort()
+      .join(':');
     const page = await catalog.entries(
       rankingId,
       more ? cursor.value || undefined : undefined,
@@ -334,6 +353,7 @@ async function load(more = false, replace = false) {
         clearRepeatOwner();
         canAdd.value = false;
         canRate.value = false;
+        recoveryGrant.value = '';
         rankingName.value = undefined;
         entries.value = [];
         cursor.value = null;
@@ -351,6 +371,8 @@ function reset() {
   controller?.abort();
   clearDetail();
   canRate.value = false;
+  recoveryGrant.value = '';
+  recoveryState.value = 'idle';
   canInvite.value = false;
   resetOpenLink();
   canAdd.value = false;
@@ -452,6 +474,8 @@ function invalidateScope() {
   clearRepeatOwner();
   controller?.abort();
   canRate.value = false;
+  recoveryGrant.value = '';
+  recoveryState.value = 'idle';
   canInvite.value = false;
   resetOpenLink();
   canAdd.value = false;
@@ -505,6 +529,22 @@ function lostRoundScope(status: number) {
   invalidateScope();
   error.value = status === 401 ? 'sessionExpired' : 'unavailable';
 }
+function reconcileRecovery() {
+  // A catalog page is not proof of success after an ambiguous write. Clear selection and
+  // reload authorization and entries; let the recovery panel separately reload its directory.
+  clearDetail();
+  void load(false, true);
+}
+function entryLifecycleChanged(kind: 'remove' | 'restore', entryId: string) {
+  if (kind === 'remove')
+    entries.value = entries.value.filter((entry) => entry.entry_id !== entryId);
+  if (selected.value?.entry_id === entryId) clearDetail();
+  void load(false, true);
+}
+function lostRecoverySession() {
+  invalidateScope();
+  error.value = 'sessionExpired';
+}
 function roundTransition(scope: RoundScope) {
   if (scope.rankingId !== props.rankingId || scope.entryId !== selected.value?.entry_id) return;
   const matching = rounds.value.find((round) => round.round_id === scope.roundId);
@@ -547,13 +587,15 @@ async function refreshAggregate() {
     <p v-if="guardBusy" role="status">
       {{
         t(
-          guardBusy === 'visibility'
-            ? 'rankingVisibility.busy'
-            : guardBusy === 'repeat'
-              ? 'rankingRepeatedRounds.busy'
-              : guardBusy === 'picker'
-                ? 'rankingTmdbPicker.busyLeave'
-                : 'rankingRoundPanel.busy',
+          guardBusy === 'recovery'
+            ? 'rankingEntryRecovery.busy'
+            : guardBusy === 'visibility'
+              ? 'rankingVisibility.busy'
+              : guardBusy === 'repeat'
+                ? 'rankingRepeatedRounds.busy'
+                : guardBusy === 'picker'
+                  ? 'rankingTmdbPicker.busyLeave'
+                  : 'rankingRoundPanel.busy',
         )
       }}
     </p>
@@ -595,7 +637,12 @@ async function refreshAggregate() {
     <RankingVisibilitySettings
       v-if="rankingName !== undefined && user.user.isLoged"
       :ranking-id="rankingId"
-      :block-write="hasRepeatRequest() || hasRatingRequest() || pickerInteraction === 'pending'"
+      :block-write="
+        recoveryState !== 'idle' ||
+        hasRepeatRequest() ||
+        hasRatingRequest() ||
+        pickerInteraction === 'pending'
+      "
       @scope-lost="lostRepeatOwner"
       @interaction="visibilityState = $event"
     />
@@ -604,6 +651,7 @@ async function refreshAggregate() {
       :ranking-id="rankingId"
       :revision="repeatPolicyRevision"
       :block-write="
+        recoveryState !== 'idle' ||
         newRoundState !== 'idle' ||
         visibilityState !== 'idle' ||
         hasRatingRequest() ||
@@ -639,6 +687,32 @@ async function refreshAggregate() {
         <button v-if="cursor" class="mm-button" :disabled="loading" @click="load(true)">
           {{ t('rankingDetail.more') }}
         </button>
+        <RankingEntryRecovery
+          v-if="recoveryGrant.includes('REMOVE_') && user.user.isLoged"
+          :key="recoveryGrant"
+          :ranking-id="rankingId"
+          :entry="
+            selected && !detailError
+              ? {
+                  id: selected.entry_id,
+                  title: entryTitle(selected, locale, t('rankingDetail.untitled')),
+                }
+              : null
+          "
+          :block-write="
+            loading ||
+            detailLoading ||
+            interactions.size > 0 ||
+            pickerInteraction !== 'idle' ||
+            repeatSettingsState !== 'idle' ||
+            visibilityState !== 'idle' ||
+            newRoundState !== 'idle'
+          "
+          @changed="entryLifecycleChanged"
+          @reconcile="reconcileRecovery"
+          @session-lost="lostRecoverySession"
+          @interaction="recoveryState = $event"
+        />
       </section>
       <section
         v-if="selected"
@@ -680,6 +754,7 @@ async function refreshAggregate() {
           :owner-authorized="repeatSettings !== null"
           :repeat-enabled="repeatSettings === true"
           :block-write="
+            recoveryState !== 'idle' ||
             repeatSettingsState !== 'idle' ||
             visibilityState !== 'idle' ||
             hasRatingRequest() ||

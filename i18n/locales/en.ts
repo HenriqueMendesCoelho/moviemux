@@ -15,10 +15,12 @@ import rankingTmdbPicker from './en/ranking-tmdb-picker.json';
 import rankingJoin from './en/ranking-join.json';
 import publicCollection from './en/public-collection.json';
 import rankingRepeatedRounds from './en/ranking-repeated-rounds.json';
+import rankingEntryRecovery from './en/ranking-entry-recovery.json';
 import rankingVisibility from './en/ranking-visibility.json';
 import rankingRatingCopy from './en/ranking-rating-copy.json';
 export default {
   rankingRatingCopy,
+  rankingEntryRecovery,
   rankingVisibility,
   rankingRepeatedRounds,
   publicCollection,
