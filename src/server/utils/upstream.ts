@@ -29,6 +29,12 @@ import {
   memberRosterQuery,
   memberRosterResponse,
 } from './ranking-member-roster';
+import {
+  catalogPickerOperation,
+  invalidCatalogPicker,
+  rankingCatalogPickerError,
+  rankingCatalogPickerResponse,
+} from './ranking-catalog-picker';
 import { fixedUpstream } from './security';
 import { collectionContractPath } from './collection-contract-path';
 import {
@@ -124,6 +130,7 @@ export function allowedApiPath(path: string, method: string): boolean {
     Boolean(rankingRatingCopyOperation(path, method)) ||
     Boolean(rankingVisibilityOperation(path, method)) ||
     Boolean(repeatedRoundOperation(path, method)) ||
+    Boolean(catalogPickerOperation(path, method)) ||
     Boolean(rankingTmdbOperation(path, method)) ||
     rules.some(([pattern, methods]) => pattern.test(path) && methods.includes(method))
   );
@@ -164,6 +171,11 @@ export function assertRankingReadQuery(
   }
   if (entryRemovalOperation(pathname, method)) {
     if (query.size || hasQueryDelimiter) invalidEntryRemoval();
+    return;
+  }
+  const catalogPicker = catalogPickerOperation(pathname, method);
+  if (catalogPicker) {
+    if (query.size || hasQueryDelimiter) invalidCatalogPicker(catalogPicker);
     return;
   }
   if (rankingRatingCopyOperation(pathname, method)) {
@@ -405,6 +417,7 @@ export async function upstreamRequest(
   const repeated = repeatedRoundOperation(path, options.method);
   const visibility = rankingVisibilityOperation(path, options.method);
   const copy = rankingRatingCopyOperation(path, options.method);
+  const catalogPicker = catalogPickerOperation(path, options.method);
   const queryAt = path.indexOf('?');
   const pathname = queryAt < 0 ? path : path.slice(0, queryAt);
   const roster = memberRosterOperation(pathname, options.method);
@@ -413,21 +426,23 @@ export async function upstreamRequest(
   if (!response.ok) {
     // Only a verified code may cross the boundary, never upstream messages or other fields.
     const operation = rankingTmdbOperation(path, options.method);
-    const code = roster
-      ? memberRosterError(roster, response.status, text)
-      : recovery
-        ? recoveryDirectoryError(recovery, response.status, text)
-        : removal
-          ? entryRemovalError(removal, response.status, text)
-          : copy
-            ? rankingRatingCopyError(copy, response.status, text)
-            : visibility
-              ? rankingVisibilityError(response.status, text)
-              : repeated
-                ? repeatedRoundError(repeated, response.status, text)
-                : operation
-                  ? rankingTmdbError(operation, response.status, text)
-                  : rankingErrorCode(path, options.method, response.status, text);
+    const code = catalogPicker
+      ? rankingCatalogPickerError(catalogPicker, response.status, text)
+      : roster
+        ? memberRosterError(roster, response.status, text)
+        : recovery
+          ? recoveryDirectoryError(recovery, response.status, text)
+          : removal
+            ? entryRemovalError(removal, response.status, text)
+            : copy
+              ? rankingRatingCopyError(copy, response.status, text)
+              : visibility
+                ? rankingVisibilityError(response.status, text)
+                : repeated
+                  ? repeatedRoundError(repeated, response.status, text)
+                  : operation
+                    ? rankingTmdbError(operation, response.status, text)
+                    : rankingErrorCode(path, options.method, response.status, text);
     throw createError({
       status:
         code || [400, 401, 403, 404, 409, 422, 429].includes(response.status)
@@ -458,6 +473,8 @@ export async function upstreamRequest(
       options.body,
     );
   if (removal) return entryRemovalResponse(removal, response.status, text, options.body);
+  if (catalogPicker)
+    return rankingCatalogPickerResponse(catalogPicker, response.status, text, options.body);
   if (copy) return rankingRatingCopyResponse(copy, response.status, text);
   if (visibility) return rankingVisibilityResponse(visibility, response.status, text, options.body);
   if (repeated) return repeatedRoundResponse(repeated, response.status, text, options.body);

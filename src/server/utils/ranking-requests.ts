@@ -1,5 +1,6 @@
 import { createError } from 'nuxt/server';
 import { collectionContractPath } from './collection-contract-path';
+import { catalogPickerOperation, rankingCatalogPickerBody } from './ranking-catalog-picker';
 import { rankingTmdbBody, rankingTmdbOperation } from './ranking-tmdb-contract';
 import { memberRosterBody, memberRosterOperation } from './ranking-member-roster';
 import { entryRemovalBody, entryRemovalOperation } from './ranking-entry-recovery';
@@ -39,6 +40,8 @@ export function rankingRequestBody(
       });
     return undefined;
   }
+  const catalogPicker = catalogPickerOperation(path, method);
+  if (catalogPicker) return rankingCatalogPickerBody(catalogPicker, body, contentType);
   const tmdb = rankingTmdbOperation(path, method);
   if (tmdb) return rankingTmdbBody(tmdb, body, contentType);
   if (

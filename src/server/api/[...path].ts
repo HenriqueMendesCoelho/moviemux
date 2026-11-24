@@ -34,6 +34,12 @@ import {
   memberRosterOperation,
   MEMBER_ROSTER_BODY_LIMIT,
 } from '../utils/ranking-member-roster';
+import {
+  CATALOG_PICKER_BODY_LIMIT,
+  catalogPickerOperation,
+  invalidCatalogPicker,
+  malformedCatalogPickerOperation,
+} from '../utils/ranking-catalog-picker';
 import { rankingRequestBody } from '../utils/ranking-requests';
 import {
   allowedApiPath,
@@ -46,10 +52,22 @@ import { readActiveSession } from '../utils/session';
 export default defineEventHandler(async (event) => {
   const path = event.url.pathname.slice(4);
   const method = event.req.method;
-  if (!allowedApiPath(path, method))
-    throw createError({ status: 404, message: 'API route not available' });
-  const isPublic = path.startsWith('/public/');
   const logical = collectionContractPath(path);
+  const catalogPicker = catalogPickerOperation(logical, method);
+  // Nitro's portable event also proxies its underlying H3 node context.
+  const native = (event as typeof event & Partial<Pick<H3Event, 'node'>>).node;
+  const rawUrl = native?.req.originalUrl ?? native?.req.url;
+  if (!allowedApiPath(path, method)) {
+    // Exact recognized command shape only; malformed IDs are rejected locally
+    // after authentication and never widen the upstream allowlist.
+    const malformed = malformedCatalogPickerOperation(logical, method);
+    if (malformed && (rawUrl === undefined || rawUrl.split('?', 1)[0] === `/api${path}`)) {
+      await readActiveSession(event);
+      invalidCatalogPicker(malformed);
+    }
+    throw createError({ status: 404, message: 'API route not available' });
+  }
+  const isPublic = path.startsWith('/public/');
   const repeated = repeatedRoundOperation(logical, method);
   const visibility = rankingVisibilityOperation(logical, method);
   const copy = rankingRatingCopyOperation(logical, method);
@@ -57,18 +75,15 @@ export default defineEventHandler(async (event) => {
   const recovery = recoveryDirectoryOperation(logical, method);
   const roster = memberRosterOperation(logical, method);
   const recoveryRead = removal?.kind === 'preview' || recovery?.kind === 'list';
-  // Nitro's portable event also proxies its underlying H3 node context.
-  const native = (event as typeof event & Partial<Pick<H3Event, 'node'>>).node;
-  const rawUrl = native?.req.originalUrl ?? native?.req.url;
   if (
-    (visibility || copy || removal || recovery || roster) &&
+    (visibility || copy || removal || recovery || roster || catalogPicker) &&
     rawUrl !== undefined &&
     rawUrl.split('?', 1)[0] !== `/api${path}`
   )
     throw createError({ status: 404, message: 'API route not available' });
   const session = isPublic ? undefined : await readActiveSession(event);
   const querySource =
-    visibility || copy || removal || recovery || roster
+    visibility || copy || removal || recovery || roster || catalogPicker
       ? (rawUrl ?? event.url.href)
       : event.url.href;
   const queryAt = querySource.indexOf('?');
@@ -119,13 +134,20 @@ export default defineEventHandler(async (event) => {
     !removal &&
     !recovery &&
     !roster &&
+    !catalogPicker &&
     !['GET', 'HEAD'].includes(method) &&
     contentType &&
     !['application/json', 'application/x-www-form-urlencoded'].includes(contentType)
   )
     throw createError({ status: 415, message: 'Unsupported request type' });
   let body: string | undefined;
-  if (roster === 'replace') {
+  if (catalogPicker) {
+    try {
+      body = await boundedBody(event, CATALOG_PICKER_BODY_LIMIT, true);
+    } catch {
+      invalidCatalogPicker(catalogPicker);
+    }
+  } else if (roster === 'replace') {
     try {
       body = await boundedBody(event, MEMBER_ROSTER_BODY_LIMIT, true);
     } catch {
