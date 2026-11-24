@@ -46,7 +46,10 @@ function makeI18n(locale: string) {
     },
   });
 }
-function view(props: { enabled?: boolean; canAdd?: boolean } = { enabled: true }, locale = 'en') {
+function view(
+  props: { enabled?: boolean; canAdd?: boolean; fixedQuery?: string } = { enabled: true },
+  locale = 'en',
+) {
   i18n = makeI18n(locale);
   w = mount(Picker, {
     props: { rankingId: rank, canAdd: true, ...props },
@@ -231,6 +234,42 @@ test('pending mutation blocks close; uncertainty survives close and retry requir
   expect(w!.emitted('interaction')?.at(-1)).toEqual(['uncertain']);
   await click(msgs.en.open);
   expect(w!.text()).toContain(msgs.en.uncertain);
+  expect(w!.text()).not.toContain(msgs.en.retryImport);
+  expect(kit.add).toHaveBeenCalledTimes(1);
+});
+
+test('catalog-first fallback opens a read-only surveyed query and still needs explicit TMDB search', async () => {
+  view({ enabled: true, fixedQuery: 'Reviewed title' });
+  await flushPromises();
+  const field = w!.get('input');
+  expect(field.attributes('readonly')).toBeDefined();
+  expect((field.element as HTMLInputElement).value).toBe('Reviewed title');
+  expect(kit.search).not.toHaveBeenCalled();
+  // Even a synthetic input update may not bypass the catalog-first query.
+  await field.setValue('Untested title');
+  await w!.get('form').trigger('submit');
+  await flushPromises();
+  expect(kit.search).toHaveBeenCalledExactlyOnceWith(
+    rank,
+    'Reviewed title',
+    1,
+    'en-US',
+    true,
+    expect.any(AbortSignal),
+  );
+  expect(kit.add).not.toHaveBeenCalled();
+});
+
+test('a failed new reconciliation invalidates a stale provider retry affordance', async () => {
+  kit.add.mockRejectedValueOnce(new Error('timeout'));
+  view();
+  await search();
+  await click(msgs.en.add);
+  await click(msgs.en.check);
+  expect(w!.text()).toContain(msgs.en.retryImport);
+  kit.summary.mockRejectedValueOnce(new Error('fresh request failed'));
+  await click(msgs.en.check);
+  expect(w!.text()).toContain(msgs.en.recheckError);
   expect(w!.text()).not.toContain(msgs.en.retryImport);
   expect(kit.add).toHaveBeenCalledTimes(1);
 });

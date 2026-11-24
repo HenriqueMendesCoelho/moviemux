@@ -6,7 +6,7 @@ import en from '../../i18n/locales/en/ranking-detail.json';
 import pt from '../../i18n/locales/pt-BR/ranking-detail.json';
 import enLocale from '../../i18n/locales/en';
 import ptLocale from '../../i18n/locales/pt-BR';
-import Picker from '../../src/modules/ranking/components/RankingTmdbPicker.vue';
+import Picker from '../../src/modules/ranking/components/RankingCatalogPicker.vue';
 import Round from '../../src/modules/ranking/components/RankingRoundPanel.vue';
 import Confirm from '../../src/core/components/BaseConfirmDialog.vue';
 import Card from '../../src/modules/ranking/components/RankingEntryCard.vue';
@@ -443,10 +443,11 @@ function usablePicker() {
     capabilities: ['READ', 'ADD_ENTRY'],
   });
 }
-test('picker remains disabled by default even with scoped capability', async () => {
+test('internal catalog stays available with ADD and READ when the TMDB fallback is off', async () => {
   usablePicker();
   await render();
-  expect(w.findComponent(Picker).exists()).toBe(false);
+  expect(w.getComponent(Picker).props('providerEnabled')).toBe(false);
+  expect(w.text()).toContain(enLocale.rankingCatalogPicker.open);
   expect(w.text()).not.toContain(enLocale.rankingTmdbPicker.open);
 });
 test('confirmed import refreshes only current ranked catalog, never selects or reveals an entry', async () => {
@@ -454,7 +455,7 @@ test('confirmed import refreshes only current ranked catalog, never selects or r
   mocks.pickerEnabled = true;
   await render();
   const picker = w.getComponent(Picker);
-  expect(picker.props('enabled')).toBe(true);
+  expect(picker.props('providerEnabled')).toBe(true);
   const count = mocks.entries.mock.calls.length;
   picker.vm.$emit('imported', { rankingId: other, entryId: other, disposition: 'new' });
   expect(mocks.entries).toHaveBeenCalledTimes(count);
@@ -690,3 +691,11 @@ test.each(['en', 'pt-BR'])(
     expect(page.text()).not.toContain(labels.approvalRequestsUnavailable);
   },
 );
+
+test('ADD without READ does not open a collection picker or leak its title', async () => {
+  mocks.summary.mockRejectedValueOnce({ response: { status: 404 } });
+  const page = await render();
+  expect(page.findComponent(Picker).exists()).toBe(false);
+  expect(mocks.entries).not.toHaveBeenCalled();
+  expect(page.text()).not.toContain('Authorized ranking');
+});

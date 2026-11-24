@@ -10,7 +10,7 @@ import RankingEntryRecovery from '../components/RankingEntryRecovery.vue';
 import RankingEntryCard from '../components/RankingEntryCard.vue';
 import { rankingIdPattern } from '../services/RankingService';
 import RankingInvitationIssuer from '../components/RankingInvitationIssuer.vue';
-import RankingTmdbPicker from '../components/RankingTmdbPicker.vue';
+import RankingCatalogPicker from '../components/RankingCatalogPicker.vue';
 import type { ImportReceipt } from '../services/RankingTmdbPickerService';
 import RankingVisibilitySettings from '../components/RankingVisibilitySettings.vue';
 import RankingRepeatedRoundsSettings from '../components/RankingRepeatedRoundsSettings.vue';
@@ -345,6 +345,8 @@ async function load(more = false, replace = false) {
   try {
     const access = await catalog.summary(rankingId, request.signal);
     if (started !== epoch || request.signal.aborted) return;
+    canAdd.value =
+      access.capabilities.includes('READ') && access.capabilities.includes('ADD_ENTRY');
     recoveryGrant.value = access.capabilities
       .filter((capability) => ['READ', 'REMOVE_ENTRY', 'REMOVE_OWN_ENTRY'].includes(capability))
       .sort()
@@ -358,8 +360,6 @@ async function load(more = false, replace = false) {
     rankingName.value = access.name;
     approvalAdmission.value = access.admission === 'APPROVAL';
     canRate.value = access.capabilities.includes('RATE_OWN');
-    canAdd.value =
-      access.capabilities.includes('READ') && access.capabilities.includes('ADD_ENTRY');
     const share = access.can_share_open_link === true && access.admission === 'OPEN';
     if (!share) resetOpenLink();
     canShareOpenLink.value = share;
@@ -526,13 +526,7 @@ async function lostPickerAccess(status: number) {
   else await load();
 }
 function refreshAfterImport(result: ImportReceipt & { rankingId: string }) {
-  if (
-    result.rankingId !== props.rankingId ||
-    !canAdd.value ||
-    !user.user.isLoged ||
-    !pickerEnabled.value
-  )
-    return;
+  if (result.rankingId !== props.rankingId || !canAdd.value || !user.user.isLoged) return;
   pickerNotice.value = '';
   cursor.value = null;
   void load(false, true);
@@ -718,13 +712,13 @@ async function refreshAggregate() {
       @interaction="repeatSettingsState = $event"
     />
     <p v-if="pickerNotice" role="alert">{{ t(`rankingTmdbPicker.${pickerNotice}`) }}</p>
-    <RankingTmdbPicker
-      v-if="pickerEnabled && canAdd && user.user.isLoged"
+    <RankingCatalogPicker
+      v-if="canAdd && user.user.isLoged"
       :key="pickerEpoch"
       class="mm-detail-picker"
       :ranking-id="rankingId"
       :can-add="canAdd"
-      :enabled="pickerEnabled"
+      :provider-enabled="pickerEnabled"
       @imported="refreshAfterImport"
       @scope-lost="lostPickerAccess"
       @interaction="markPickerInteraction"

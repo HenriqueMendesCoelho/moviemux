@@ -15,12 +15,14 @@ import rankingTmdbPicker from './pt-BR/ranking-tmdb-picker.json';
 import rankingJoin from './pt-BR/ranking-join.json';
 import publicCollection from './pt-BR/public-collection.json';
 import rankingRepeatedRounds from './pt-BR/ranking-repeated-rounds.json';
+import rankingCatalogPicker from './pt-BR/ranking-catalog-picker.json';
 import rankingMemberRoster from './pt-BR/ranking-member-roster.json';
 import rankingEntryRecovery from './pt-BR/ranking-entry-recovery.json';
 import rankingVisibility from './pt-BR/ranking-visibility.json';
 import rankingRatingCopy from './pt-BR/ranking-rating-copy.json';
 export default {
   rankingRatingCopy,
+  rankingCatalogPicker,
   rankingMemberRoster,
   rankingEntryRecovery,
   rankingVisibility,

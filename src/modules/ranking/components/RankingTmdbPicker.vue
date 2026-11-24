@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRuntimeConfig } from '#imports';
 import { useUserStore } from '~/core/stores/UserStore';
@@ -15,7 +15,7 @@ import picker, {
 } from '../services/RankingTmdbPickerService';
 
 const props = withDefaults(
-  defineProps<{ rankingId: string; canAdd: boolean; enabled?: boolean }>(),
+  defineProps<{ rankingId: string; canAdd: boolean; enabled?: boolean; fixedQuery?: string }>(),
   { enabled: false },
 );
 const emit = defineEmits<{
@@ -94,11 +94,17 @@ watch(
 );
 watch(query, clearSearch, { flush: 'sync' });
 watch(language, clearSearch, { flush: 'sync' });
+onMounted(() => {
+  if (!props.fixedQuery || !allowed.value) return;
+  query.value = props.fixedQuery;
+  void show();
+});
 onBeforeUnmount(reset);
 
 async function show() {
   if (!allowed.value || writing.value) return;
   panel.value = true;
+  if (props.fixedQuery) query.value = props.fixedQuery;
   feedback.value = unresolved.value ? 'uncertain' : '';
   await nextTick();
   field.value?.focus();
@@ -160,7 +166,7 @@ async function search(page = 1) {
     searching.value
   )
     return;
-  const text = pickerQuery(query.value);
+  const text = pickerQuery(props.fixedQuery ?? query.value);
   if (text === null) {
     issue.value = 'invalid';
     field.value?.focus();
@@ -231,6 +237,7 @@ async function importMovie(tmdbId: number, retry = false) {
 async function reconcile() {
   const target = unresolved.value;
   if (!target || !allowed.value || !panel.value || writing.value || checking.value) return;
+  unresolved.value = { ...target, ready: false };
   const session = scopeEpoch,
     rankingId = props.rankingId;
   const request = new AbortController();
@@ -310,6 +317,7 @@ function poster(path: string | null) {
           autocomplete="off"
           spellcheck="false"
           :disabled="writing"
+          :readonly="Boolean(fixedQuery)"
           :aria-invalid="issue === 'invalid'"
           :aria-describedby="issue === 'invalid' ? errorId : undefined"
         />
