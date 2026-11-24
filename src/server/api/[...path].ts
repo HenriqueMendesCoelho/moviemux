@@ -40,6 +40,12 @@ import {
   invalidCatalogPicker,
   malformedCatalogPickerOperation,
 } from '../utils/ranking-catalog-picker';
+import {
+  invalidManualCatalog,
+  manualCatalogCreateBody,
+  manualCatalogOperation,
+} from '../utils/manual-catalog';
+import { MANUAL_CATALOG_BODY_LIMIT } from '../../modules/movie/utils/manualCatalogContract';
 import { rankingRequestBody } from '../utils/ranking-requests';
 import {
   allowedApiPath,
@@ -54,6 +60,7 @@ export default defineEventHandler(async (event) => {
   const method = event.req.method;
   const logical = collectionContractPath(path);
   const catalogPicker = catalogPickerOperation(logical, method);
+  const manualCatalog = manualCatalogOperation(path, method);
   // Nitro's portable event also proxies its underlying H3 node context.
   const native = (event as typeof event & Partial<Pick<H3Event, 'node'>>).node;
   const rawUrl = native?.req.originalUrl ?? native?.req.url;
@@ -76,20 +83,29 @@ export default defineEventHandler(async (event) => {
   const roster = memberRosterOperation(logical, method);
   const recoveryRead = removal?.kind === 'preview' || recovery?.kind === 'list';
   if (
-    (visibility || copy || removal || recovery || roster || catalogPicker) &&
+    (visibility || copy || removal || recovery || roster || catalogPicker || manualCatalog) &&
     rawUrl !== undefined &&
     rawUrl.split('?', 1)[0] !== `/api${path}`
   )
     throw createError({ status: 404, message: 'API route not available' });
   const session = isPublic ? undefined : await readActiveSession(event);
   const querySource =
-    visibility || copy || removal || recovery || roster || catalogPicker
+    visibility || copy || removal || recovery || roster || catalogPicker || manualCatalog
       ? (rawUrl ?? event.url.href)
       : event.url.href;
   const queryAt = querySource.indexOf('?');
   const rawQuery = queryAt >= 0 ? querySource.slice(queryAt + 1) : undefined;
+  if (manualCatalog && (queryAt >= 0 || event.url.searchParams.size)) invalidManualCatalog();
   assertRankingReadQuery(path, method, event.url.searchParams, queryAt >= 0, rawQuery);
   assertRankingReadIntent(path, method, event.req.headers);
+  if (
+    manualCatalog === 'proof' &&
+    (event.req.headers.has('transfer-encoding') ||
+      (event.req.headers.has('content-length') &&
+        event.req.headers.get('content-length') !== '0') ||
+      event.req.body != null)
+  )
+    invalidManualCatalog();
   if (
     roster === 'list' &&
     (event.req.headers.has('transfer-encoding') ||
@@ -125,6 +141,7 @@ export default defineEventHandler(async (event) => {
     visibility === 'read' ||
     recoveryRead ||
     roster === 'list' ||
+    manualCatalog === 'proof' ||
     isRankingJoin(path, method)
       ? undefined
       : event.req.headers.get('content-type')?.split(';')[0];
@@ -135,13 +152,21 @@ export default defineEventHandler(async (event) => {
     !recovery &&
     !roster &&
     !catalogPicker &&
+    !manualCatalog &&
     !['GET', 'HEAD'].includes(method) &&
     contentType &&
     !['application/json', 'application/x-www-form-urlencoded'].includes(contentType)
   )
     throw createError({ status: 415, message: 'Unsupported request type' });
   let body: string | undefined;
-  if (catalogPicker) {
+  if (manualCatalog === 'create') {
+    try {
+      body = await boundedBody(event, MANUAL_CATALOG_BODY_LIMIT, true);
+    } catch {
+      invalidManualCatalog();
+    }
+    body = manualCatalogCreateBody(body, contentType);
+  } else if (catalogPicker) {
     try {
       body = await boundedBody(event, CATALOG_PICKER_BODY_LIMIT, true);
     } catch {

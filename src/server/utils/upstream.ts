@@ -35,6 +35,11 @@ import {
   rankingCatalogPickerError,
   rankingCatalogPickerResponse,
 } from './ranking-catalog-picker';
+import {
+  manualCatalogOperation,
+  manualCatalogUpstreamError,
+  manualCatalogUpstreamResponse,
+} from './manual-catalog';
 import { fixedUpstream } from './security';
 import { collectionContractPath } from './collection-contract-path';
 import {
@@ -124,6 +129,7 @@ export function allowedApiPath(path: string, method: string): boolean {
   path = collectionContractPath(path);
   if (path.includes('..') || path.includes('\\') || /%(?:2f|5c|2e|25)/i.test(path)) return false;
   return (
+    Boolean(manualCatalogOperation(path, method)) ||
     Boolean(memberRosterOperation(path, method)) ||
     Boolean(entryRemovalOperation(path, method)) ||
     Boolean(recoveryDirectoryOperation(path, method)) ||
@@ -376,6 +382,7 @@ export async function upstreamRequest(
   path: string,
   options: { method: string; body?: string; contentType?: string; token?: string },
 ): Promise<{ status: number; data: unknown; rawJson?: string }> {
+  const manualCatalog = manualCatalogOperation(path, options.method);
   const base = fixedUpstream(String(useRuntimeConfig().apiUpstream || ''));
   const target = new URL(`${base.pathname.replace(/\/$/, '')}${path}`, base.origin);
   path = collectionContractPath(path);
@@ -426,23 +433,25 @@ export async function upstreamRequest(
   if (!response.ok) {
     // Only a verified code may cross the boundary, never upstream messages or other fields.
     const operation = rankingTmdbOperation(path, options.method);
-    const code = catalogPicker
-      ? rankingCatalogPickerError(catalogPicker, response.status, text)
-      : roster
-        ? memberRosterError(roster, response.status, text)
-        : recovery
-          ? recoveryDirectoryError(recovery, response.status, text)
-          : removal
-            ? entryRemovalError(removal, response.status, text)
-            : copy
-              ? rankingRatingCopyError(copy, response.status, text)
-              : visibility
-                ? rankingVisibilityError(response.status, text)
-                : repeated
-                  ? repeatedRoundError(repeated, response.status, text)
-                  : operation
-                    ? rankingTmdbError(operation, response.status, text)
-                    : rankingErrorCode(path, options.method, response.status, text);
+    const code = manualCatalog
+      ? manualCatalogUpstreamError(manualCatalog, response.status, text)
+      : catalogPicker
+        ? rankingCatalogPickerError(catalogPicker, response.status, text)
+        : roster
+          ? memberRosterError(roster, response.status, text)
+          : recovery
+            ? recoveryDirectoryError(recovery, response.status, text)
+            : removal
+              ? entryRemovalError(removal, response.status, text)
+              : copy
+                ? rankingRatingCopyError(copy, response.status, text)
+                : visibility
+                  ? rankingVisibilityError(response.status, text)
+                  : repeated
+                    ? repeatedRoundError(repeated, response.status, text)
+                    : operation
+                      ? rankingTmdbError(operation, response.status, text)
+                      : rankingErrorCode(path, options.method, response.status, text);
     throw createError({
       status:
         code || [400, 401, 403, 404, 409, 422, 429].includes(response.status)
@@ -457,6 +466,7 @@ export async function upstreamRequest(
             : 'API request failed',
     });
   }
+  if (manualCatalog) return manualCatalogUpstreamResponse(manualCatalog, response.status, text);
   if (roster)
     return memberRosterResponse(
       roster,
