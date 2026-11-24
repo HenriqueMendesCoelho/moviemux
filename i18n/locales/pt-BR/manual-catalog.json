@@ -1,0 +1,33 @@
+{
+  "tab": "Cadastrar filme manualmente",
+  "title": "Cadastrar filme manualmente",
+  "intro": "Use este formulário quando o filme não estiver no TMDB. O cadastro é feito no catálogo MovieMux, não em uma coleção.",
+  "titleHint": "Preencha pelo menos um título. Os demais campos são opcionais.",
+  "authorizing": "Conferindo permissão no catálogo…",
+  "fields": {
+    "portuguese_title": "Título em português",
+    "english_title": "Título em inglês",
+    "original_title": "Título original",
+    "director": "Direção",
+    "description": "Sinopse",
+    "release_date": "Data de lançamento",
+    "runtime": "Duração (minutos)",
+    "genres": "Gêneros"
+  },
+  "noGenres": "Nenhum gênero selecionado",
+  "genresUnavailable": "Não foi possível carregar os gêneros. Eles são opcionais.",
+  "submit": "Cadastrar filme no catálogo",
+  "saving": "Cadastrando filme…",
+  "saved": "Filme cadastrado no catálogo MovieMux. Para incluí-lo numa coleção, abra a coleção e busque pelo filme.",
+  "invalid": "Confira os campos: informe pelo menos um título; títulos e direção aceitam até 150 caracteres, sinopse até 4.000, duração de 1 a 999 e até 32 gêneros.",
+  "uncertain": "Não foi possível confirmar o cadastro. Você pode repetir a mesma solicitação sem criar um segundo filme.",
+  "retry": "Tentar novamente o mesmo cadastro",
+  "conflict": "Esta solicitação entra em conflito com um cadastro anterior. Confira o catálogo antes de cadastrar outro filme.",
+  "leaveTitle": "Sair sem confirmar o cadastro?",
+  "leaveHint": "Ele pode já ter sido salvo. Se sair, você perde esta opção de tentar novamente. Confira o catálogo antes de cadastrar o filme de novo.",
+  "leave": "Sair mesmo assim",
+  "stay": "Ficar aqui",
+  "proofError": "Não foi possível verificar o acesso ao catálogo.",
+  "retryProof": "Verificar acesso novamente",
+  "environment": "O cadastro manual precisa de uma conexão segura. Abra o MovieMux por HTTPS."
+}

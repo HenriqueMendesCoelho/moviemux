@@ -12,6 +12,7 @@
         class="mm-btn"
         :class="{ 'mm-btn-primary': tab === item.id }"
         :aria-pressed="tab === item.id"
+        :disabled="manualLocked && item.id !== 'manualCatalog'"
         @click="tab = item.id"
       >
         {{ item.label }}
@@ -20,7 +21,14 @@
     <section ref="panel" tabindex="-1" class="mm-card mm-admin-panel">
       <AdministratorUserTab v-if="tab === 'users'" /><AdministratorListUserTab
         v-else-if="tab === 'listUsers'"
-      /><AdministratorInviteUserTab v-else />
+      /><AdministratorInviteUserTab v-else-if="tab === 'invite'" />
+      <AdministratorManualMovieTab
+        v-if="user.user.isLoged && user.isAdmin"
+        :active="tab === 'manualCatalog'"
+        @available="setManualAvailability"
+        @select="selectManualTab"
+        @locked="manualLocked = $event"
+      />
     </section>
   </BaseContainerMain>
 </template>
@@ -31,12 +39,28 @@ import { computed, ref, watch, nextTick } from 'vue';
 import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import AdministratorUserTab from '../components/AdministratorUserTab.vue';
 import AdministratorListUserTab from '../components/AdministratorListUserTab.vue';
+import { useUserStore } from '~/core/stores/UserStore';
+import AdministratorManualMovieTab from '../components/AdministratorManualMovieTab.vue';
 import AdministratorInviteUserTab from '../components/AdministratorInviteUserTab.vue';
+const user = useUserStore();
 const tab = ref('users');
+const manualAvailable = ref(false);
+const manualLocked = ref(false);
+function setManualAvailability(value: boolean) {
+  manualAvailable.value = value;
+  if (!value) manualLocked.value = false;
+  if (!value && tab.value === 'manualCatalog') tab.value = 'users';
+}
+function selectManualTab() {
+  if (manualAvailable.value) tab.value = 'manualCatalog';
+}
 const tabs = computed(() => [
   { id: 'users', label: t('account.manageUser') },
   { id: 'listUsers', label: t('account.allUsers') },
   { id: 'invite', label: t('account.invitations') },
+  ...(manualAvailable.value && user.user.isLoged && user.isAdmin
+    ? [{ id: 'manualCatalog', label: t('manualCatalog.tab') }]
+    : []),
 ]);
 const panel = ref<HTMLElement>();
 watch(tab, async () => {

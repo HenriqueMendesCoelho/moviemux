@@ -1,0 +1,33 @@
+{
+  "tab": "Create movie manually",
+  "title": "Create movie manually",
+  "intro": "Use this form when the movie is not on TMDB. It registers a title in the MovieMux catalog, not in a collection.",
+  "titleHint": "Enter at least one title. All other fields are optional.",
+  "authorizing": "Checking catalog permissions…",
+  "fields": {
+    "portuguese_title": "Portuguese title",
+    "english_title": "English title",
+    "original_title": "Original title",
+    "director": "Director",
+    "description": "Synopsis",
+    "release_date": "Release date",
+    "runtime": "Runtime (minutes)",
+    "genres": "Genres"
+  },
+  "noGenres": "No genres selected",
+  "genresUnavailable": "Genres could not be loaded. They are optional.",
+  "submit": "Register movie in catalog",
+  "saving": "Registering movie…",
+  "saved": "Movie registered in the MovieMux catalog. To add it to a collection, open that collection and search for it.",
+  "invalid": "Check the fields: at least one title is required; titles and director allow 150 characters, synopsis 4,000, runtime 1–999 and up to 32 genres.",
+  "uncertain": "Could not confirm registration. You can retry the exact same request without creating a second movie.",
+  "retry": "Retry the same registration",
+  "conflict": "This request conflicts with an earlier registration. Check the catalog before creating another movie.",
+  "leaveTitle": "Leave a registration unconfirmed?",
+  "leaveHint": "It may already have been saved. Leaving discards this retry option. Check the catalog before registering the movie again.",
+  "leave": "Leave anyway",
+  "stay": "Stay here",
+  "proofError": "Catalog access could not be verified.",
+  "retryProof": "Check access again",
+  "environment": "Manual registration needs a secure connection. Reopen MovieMux over HTTPS."
+}

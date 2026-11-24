@@ -123,7 +123,7 @@
           <span aria-live="polite">{{
             model.length
               ? t('components.selectedCount', { count: model.length }, model.length)
-              : t('components.allGenres')
+              : props.emptySelectionText || t('components.allGenres')
           }}</span>
           <button type="button" :disabled="!model.length" @click="clear">
             {{ t('components.clear') }}
@@ -153,6 +153,7 @@ const props = withDefaults(
     options: { value: number; label: string }[];
     label: string;
     placeholder?: string;
+    emptySelectionText?: string;
     loading?: boolean;
     error?: string;
     disabled?: boolean;
