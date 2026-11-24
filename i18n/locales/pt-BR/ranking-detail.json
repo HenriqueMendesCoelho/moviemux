@@ -30,5 +30,7 @@
   "unratedPartial": "Ainda não há notas numéricas nas rodadas reveladas.",
   "copyOpenLink": "Copiar link de entrada na coleção",
   "openLinkCopied": "Link de entrada copiado.",
-  "openLinkCopyError": "Não foi possível copiar o link de entrada. Tente novamente."
+  "openLinkCopyError": "Não foi possível copiar o link de entrada. Tente novamente.",
+  "legacyLinkUnavailable": "Este link está indisponível.",
+  "legacyHistoryMoved": "Seu histórico anterior agora está nas Coleções."
 }

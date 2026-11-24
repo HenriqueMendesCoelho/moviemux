@@ -30,5 +30,7 @@
   "unratedPartial": "No numeric votes in revealed rounds yet.",
   "copyOpenLink": "Copy collection join link",
   "openLinkCopied": "Join link copied.",
-  "openLinkCopyError": "Could not copy the join link. Try again."
+  "openLinkCopyError": "Could not copy the join link. Try again.",
+  "legacyLinkUnavailable": "This link is unavailable.",
+  "legacyHistoryMoved": "Your previous history is now in Collections."
 }

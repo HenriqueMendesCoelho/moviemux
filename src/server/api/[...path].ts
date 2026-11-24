@@ -1,4 +1,7 @@
-import { defineEventHandler, createError, setResponseStatus } from 'nuxt/server';
+import { defineEventHandler, createError, setResponseStatus, useRuntimeConfig } from 'nuxt/server';
+import { legacyFilmHandoffMode } from '../../core/legacy-film-handoff';
+import { invalidLegacyFilmLink, legacyFilmResolverPath } from '../utils/legacy-film-resolver';
+import { isActiveSession } from '../utils/session';
 import type { H3Event } from 'h3';
 import { protectedBody, turnstileAction } from '../utils/turnstile';
 import { revokeSession } from '../utils/session-registry';
@@ -73,6 +76,32 @@ export default defineEventHandler(async (event) => {
       invalidCatalogPicker(malformed);
     }
     throw createError({ status: 404, message: 'API route not available' });
+  }
+  if (legacyFilmResolverPath(path, method)) {
+    event.res.headers.set('referrer-policy', 'no-referrer');
+    if (
+      legacyFilmHandoffMode(useRuntimeConfig().public.legacyFilmHandoffEnabled) !== 'on' ||
+      rawUrl !== `/api${path}` ||
+      event.url.search ||
+      event.req.headers.has('purpose') ||
+      event.req.headers.has('sec-purpose') ||
+      event.req.headers.has('transfer-encoding') ||
+      (event.req.headers.has('content-length') &&
+        event.req.headers.get('content-length') !== '0') ||
+      event.req.body != null
+    )
+      invalidLegacyFilmLink();
+    try {
+      const session = await readActiveSession(event);
+      const result = await upstreamRequest(path, {
+        method: 'GET',
+        token: session.secure.accessToken,
+      });
+      if (!isActiveSession(session)) invalidLegacyFilmLink();
+      return result.data;
+    } catch {
+      return invalidLegacyFilmLink();
+    }
   }
   const isPublic = path.startsWith('/public/');
   const repeated = repeatedRoundOperation(logical, method);

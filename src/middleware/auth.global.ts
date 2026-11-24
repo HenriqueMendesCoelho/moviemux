@@ -4,8 +4,18 @@ import {
   legacyCollectionDestination,
 } from '~/core/collection-browser-paths';
 import { isNeutralCollectionRoute } from '~/core/neutral-collection-route';
+import { legacyFilmHandoffMode, legacyFilmId } from '~/core/legacy-film-handoff';
 import { useUserStore } from '~/core/stores/UserStore';
 export default defineNuxtRouteMiddleware(async (to) => {
+  if (
+    to.name === 'movie' &&
+    legacyFilmHandoffMode(useRuntimeConfig().public.legacyFilmHandoffEnabled) !== 'off'
+  ) {
+    const id = legacyFilmId(to.path);
+    if (!id || import.meta.server)
+      return abortNavigation(createError({ statusCode: 404, statusMessage: 'Link unavailable' }));
+    return navigateTo(`/movie/${id}`, { external: true, replace: true });
+  }
   const canonical = import.meta.client ? legacyCollectionDestination(to.path) : undefined;
   if (canonical) return navigateTo(canonical, { replace: true, redirectCode: 307 });
   if (isNeutralCollectionRoute(to)) return;

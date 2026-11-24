@@ -1,5 +1,10 @@
 import { createError, useRuntimeConfig } from 'nuxt/server';
 import {
+  invalidLegacyFilmLink,
+  legacyFilmResolverPath,
+  legacyFilmResolverResponse,
+} from './legacy-film-resolver';
+import {
   invalidVisibilitySettings,
   rankingVisibilityError,
   rankingVisibilityOperation,
@@ -130,6 +135,7 @@ export function allowedApiPath(path: string, method: string): boolean {
   if (path.includes('..') || path.includes('\\') || /%(?:2f|5c|2e|25)/i.test(path)) return false;
   return (
     Boolean(manualCatalogOperation(path, method)) ||
+    legacyFilmResolverPath(path, method) ||
     Boolean(memberRosterOperation(path, method)) ||
     Boolean(entryRemovalOperation(path, method)) ||
     Boolean(recoveryDirectoryOperation(path, method)) ||
@@ -159,6 +165,10 @@ export function assertRankingReadQuery(
   rawQuery?: string,
 ): void {
   pathname = collectionContractPath(pathname);
+  if (legacyFilmResolverPath(pathname, method)) {
+    if (hasQueryDelimiter || query.size) invalidLegacyFilmLink();
+    return;
+  }
   const roster = memberRosterOperation(pathname, method);
   if (roster) {
     memberRosterQuery(
@@ -383,6 +393,7 @@ export async function upstreamRequest(
   options: { method: string; body?: string; contentType?: string; token?: string },
 ): Promise<{ status: number; data: unknown; rawJson?: string }> {
   const manualCatalog = manualCatalogOperation(path, options.method);
+  const legacyLink = legacyFilmResolverPath(path, options.method);
   const base = fixedUpstream(String(useRuntimeConfig().apiUpstream || ''));
   const target = new URL(`${base.pathname.replace(/\/$/, '')}${path}`, base.origin);
   path = collectionContractPath(path);
@@ -394,6 +405,7 @@ export async function upstreamRequest(
   let response: Response;
   try {
     response = await fetch(target, {
+      ...(legacyLink ? { cache: 'no-store' as const, signal: AbortSignal.timeout(5000) } : {}),
       method: options.method,
       headers,
       body: options.body,
@@ -413,7 +425,7 @@ export async function upstreamRequest(
       const { value, done } = await reader.read();
       if (done) break;
       size += value.length;
-      if (size > 4 * 1024 * 1024) {
+      if (size > (legacyLink ? 256 : 4 * 1024 * 1024)) {
         await reader.cancel();
         throw createError({ status: 502, message: 'API response too large' });
       }
@@ -421,6 +433,7 @@ export async function upstreamRequest(
     }
   }
   const text = Buffer.concat(chunks).toString('utf8');
+  if (legacyLink) return legacyFilmResolverResponse(response.status, text);
   const repeated = repeatedRoundOperation(path, options.method);
   const visibility = rankingVisibilityOperation(path, options.method);
   const copy = rankingRatingCopyOperation(path, options.method);
