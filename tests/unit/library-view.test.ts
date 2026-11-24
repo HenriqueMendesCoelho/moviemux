@@ -159,3 +159,26 @@ test('initial list skeleton replaces unknown title/count and disappears for reso
     'List a',
   );
 });
+
+test.each([false, true])(
+  'disabling the legacy board (%s) only affects rated cleanup',
+  async (active) => {
+    const { useRuntimeConfig } = await import('./nuxt-stubs');
+    vi.stubGlobal('useRuntimeConfig', () => ({ public: { legacyFilmHandoffEnabled: active } }));
+    try {
+      const wrapper = await create();
+      expect(wrapper.findComponent({ name: 'MovieWatchlistCleanupBtn' }).exists()).toBe(!active);
+      expect(wrapper.getComponent({ name: 'MovieWatchlistPageTitle' }).props('disabled')).toBe(
+        false,
+      );
+      expect(
+        wrapper.getComponent({ name: 'MovieWatchlistImageCard' }).props('showRemoveItem'),
+      ).toBe(true);
+      await button(wrapper, 'Reordenar').trigger('click');
+      expect(wrapper.find('.mm-reorder-toolbar').exists()).toBe(true);
+      expect(mocks.updateWatchlist).not.toHaveBeenCalled();
+    } finally {
+      vi.stubGlobal('useRuntimeConfig', useRuntimeConfig);
+    }
+  },
+);

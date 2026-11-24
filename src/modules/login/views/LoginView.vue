@@ -44,6 +44,7 @@ import { useAsyncData, useHead, useRoute, useRouter, useRuntimeConfig } from '#i
 import { useUserStore } from 'src/core/stores/UserStore';
 import KitService from 'src/core/services/KitService';
 import { safeReturnPath } from '../utils/AccountUtils';
+import { useLegacyBoardAvailable } from '~/core/useLegacyBoardAvailable';
 import LoginForm from '../components/LoginForm.vue';
 import LoginAmbientBackground from '../components/LoginAmbientBackground.vue';
 import NecessaryCookieNotice from '../components/NecessaryCookieNotice.vue';
@@ -54,6 +55,7 @@ const tab = ref('login');
 const route = useRoute();
 const router = useRouter();
 const store = useUserStore();
+const legacyBoardAvailable = useLegacyBoardAvailable();
 const config = useRuntimeConfig();
 const sharedMovieId = computed(() => {
   const from = typeof route.query.from === 'string' ? route.query.from : '';
@@ -93,7 +95,8 @@ useHead(() => {
   };
 });
 onMounted(async () => {
-  if (store.user.isLoged) await router.replace(safeReturnPath(route.query.from));
+  if (store.user.isLoged)
+    await router.replace(safeReturnPath(route.query.from, legacyBoardAvailable));
 });
 </script>
 <style scoped>

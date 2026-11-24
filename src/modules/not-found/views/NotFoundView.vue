@@ -17,12 +17,15 @@ const { t } = useI18n();
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from 'src/core/stores/UserStore';
+import { signedInMovieLanding } from '~/core/legacy-board-retirement';
+import { useLegacyBoardAvailable } from '~/core/useLegacyBoardAvailable';
 const router = useRouter();
 const store = useUserStore();
 const counter = ref(10);
 const paused = ref(false);
 let interval: ReturnType<typeof setInterval> | undefined;
-const target = computed(() => (store.user.isLoged ? '/home' : '/'));
+const landing = signedInMovieLanding(useLegacyBoardAvailable());
+const target = computed(() => (store.user.isLoged ? landing : '/'));
 function pause() {
   paused.value = true;
   if (interval) clearInterval(interval);

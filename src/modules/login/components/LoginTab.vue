@@ -36,12 +36,14 @@ import { verificationFailureMessage } from 'src/core/turnstile/errors';
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { safeReturnPath } from '../utils/AccountUtils';
+import { useLegacyBoardAvailable } from '~/core/useLegacyBoardAvailable';
 import { useUserStore } from 'src/core/stores/UserStore';
 withDefaults(defineProps<{ createAccount?: boolean }>(), { createAccount: true });
 const emit = defineEmits<{ changeTab: [value: string]; loading: [value: boolean] }>();
 const route = useRoute();
 const router = useRouter();
 const store = useUserStore();
+const legacyBoardAvailable = useLegacyBoardAvailable();
 const email = ref('');
 const password = ref('');
 const busy = ref(false);
@@ -60,7 +62,7 @@ async function login() {
       'cf-turnstile-response': token.value,
     });
     if (route.name === 'login' || route.path === '/') {
-      await router.push(safeReturnPath(route.query.from));
+      await router.push(safeReturnPath(route.query.from, legacyBoardAvailable));
     } else {
       // Rebuild request-scoped data, socket authentication and route permissions.
       // This preserves the original session-reauthentication behavior.

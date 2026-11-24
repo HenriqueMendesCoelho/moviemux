@@ -2,8 +2,11 @@
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 import { useUserStore } from '~/core/stores/UserStore';
+import { isLegacyBoardPage } from '~/core/legacy-board-retirement';
+import { useLegacyBoardAvailable } from '~/core/useLegacyBoardAvailable';
 defineProps<{ showTextsSideBar?: boolean }>();
 const user = useUserStore();
+const legacyBoardAvailable = useLegacyBoardAvailable();
 const links = [
   {
     name: 'rankings',
@@ -33,7 +36,7 @@ const links = [
     path: 'M12 3l9 4v6c0 5-9 9-9 9S3 18 3 13V7z M9 12l2 2 4-4',
     admin: true,
   },
-];
+].filter((link) => legacyBoardAvailable || !isLegacyBoardPage(link.name));
 </script>
 <template>
   <nav :aria-label="t('shell.navigation')">

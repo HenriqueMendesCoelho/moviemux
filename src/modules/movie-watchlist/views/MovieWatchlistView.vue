@@ -50,7 +50,7 @@
         </div>
       </div>
       <MovieWatchlistCleanupBtn
-        v-if="isOwner && !allowDrag"
+        v-if="legacyBoardAvailable && isOwner && !allowDrag"
         :key="viewKey"
         :wishlist="watchlist"
         :disabled="mutationBlocked"
@@ -175,7 +175,9 @@
 </template>
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
+import { useLegacyBoardAvailable } from '~/core/useLegacyBoardAvailable';
 const { t, te, locale } = useI18n();
+const legacyBoardAvailable = useLegacyBoardAvailable();
 import { computed, onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue';
 import type { Swapy } from 'swapy';
 import BaseIcon from 'src/core/components/BaseIcon.vue';

@@ -4,6 +4,7 @@ export { useRoute, useRouter } from 'vue-router';
 export const useRuntimeConfig = () => ({
   public: {
     turnstileEnabled: false,
+    legacyFilmHandoffEnabled: false,
     turnstileSiteKey: 'test-sitekey',
     apiUrl: 'http://api.test',
     socketUrl: '',

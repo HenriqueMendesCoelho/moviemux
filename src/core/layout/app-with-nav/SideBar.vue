@@ -7,6 +7,8 @@ import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { useUserStore } from '~/core/stores/UserStore';
 import { useStyleStore } from '~/core/stores/StyleStore';
 import SidebarRouteButtons from './SidebarRouteButtons.vue';
+import { signedInMovieLanding } from '~/core/legacy-board-retirement';
+import { useLegacyBoardAvailable } from '~/core/useLegacyBoardAvailable';
 import logo from '~/assets/logo.webp';
 import { showError } from '~/core/utils/NotificationUtils';
 const props = withDefaults(defineProps<{ mobile?: boolean }>(), { mobile: false });
@@ -17,6 +19,7 @@ async function install() {
   if (pwa?.state.feedback) showError(pwa.state.feedback);
 }
 const user = useUserStore();
+const landing = signedInMovieLanding(useLegacyBoardAvailable());
 const style = useStyleStore();
 const mobileOpen = computed(() => props.mobile && style.layoutSettings.isSideBarExpanded);
 let opener: HTMLElement | null = null;
@@ -131,7 +134,7 @@ async function logout() {
     >
       <BaseIcon name="close" /> {{ t('shell.close') }}
     </button>
-    <NuxtLink to="/home" class="mm-brand"
+    <NuxtLink :to="landing" class="mm-brand"
       ><img :src="logo" alt="" class="mm-original-logo" /><span
         >Movie<span class="mm-accent">Mux</span><small>{{ t('shell.brandTagline') }}</small></span
       ></NuxtLink

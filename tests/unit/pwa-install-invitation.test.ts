@@ -2,6 +2,7 @@ import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readFileSync, existsSync } from 'node:fs';
 import SideBar from '../../src/core/layout/app-with-nav/SideBar.vue';
+import { useRuntimeConfig } from './nuxt-stubs';
 import {
   createPwaInstallController,
   type NativeInstallChoice,
@@ -45,6 +46,7 @@ beforeEach(() => {
   }) as unknown as Window;
   controller = createPwaInstallController(host);
   vi.stubGlobal('useNuxtApp', () => ({ $pwaInstall: controller }));
+  vi.stubGlobal('useRuntimeConfig', useRuntimeConfig);
 });
 afterEach(() => {
   controller.dispose();
