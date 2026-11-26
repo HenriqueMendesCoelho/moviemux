@@ -448,6 +448,10 @@ test('admin roster preserves all authorized statuses but never reveals an invite
     respond(200, JSON.stringify(data));
     await expect(request(adminWaitlist, 'GET')).resolves.toEqual(data);
   }
+  const localized = { ...fixtureRow, email: '𐐀'.repeat(50) + '@example.invalid' };
+  const unicodePage = { items: [localized], next_cursor: null };
+  respond(200, JSON.stringify(unicodePage));
+  await expect(request(adminWaitlist, 'GET')).resolves.toEqual(unicodePage);
   for (const row of [
     { ...fixtureRow, invite_code: 'KB-12345678' },
     { ...fixtureRow, email: 'bad\nexample.test' },

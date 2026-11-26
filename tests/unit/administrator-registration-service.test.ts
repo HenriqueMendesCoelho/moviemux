@@ -35,6 +35,9 @@ test('bounded cursor page and exact allowlisted projection; malformed rows fail 
     params: { limit: 20 },
     signal: undefined,
   });
+  const localized = { ...row, email: '𐐀'.repeat(50) + '@example.invalid' };
+  http.get.mockResolvedValue({ status: 200, data: { items: [localized], next_cursor: null } });
+  expect(await registration.adminWaitlist()).toEqual({ items: [localized], next_cursor: null });
   for (const items of [
     [row, row],
     [{ ...row, status: 'unexpected' }],

@@ -74,7 +74,7 @@ function row(data: unknown): WaitlistRequest {
     !id(item.request_id) ||
     typeof item.email !== 'string' ||
     !item.email ||
-    item.email.length > 100 ||
+    Array.from(item.email).length > 100 ||
     Array.from(item.email).some((character) => {
       const code = character.codePointAt(0)!;
       return code < 32 || (code >= 127 && code <= 159);

@@ -126,7 +126,7 @@ function cleanEmail(value: unknown): value is string {
   return (
     typeof value === 'string' &&
     value.length > 0 &&
-    value.length <= 100 &&
+    Array.from(value).length <= 100 &&
     value.includes('@') &&
     Array.from(value).every((ch) => {
       const cp = ch.codePointAt(0)!;

@@ -107,7 +107,7 @@ export function registrationRequestBody(
   while (start < end && value.email.charCodeAt(start) <= 32) start++;
   while (end > start && value.email.charCodeAt(end - 1) <= 32) end--;
   const normalized = value.email.slice(start, end).toLowerCase();
-  if (!normalized || normalized.length > 100) return invalidRegistration();
+  if (!normalized || Array.from(normalized).length > 100) return invalidRegistration();
   const proof = value['cf-turnstile-response'];
   if (proof !== undefined && proof !== null && (typeof proof !== 'string' || proof.length > 2048))
     return invalidRegistration();
