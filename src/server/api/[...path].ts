@@ -157,15 +157,20 @@ export default defineEventHandler(async (event) => {
           ? event.url.searchParams.toString()
           : undefined,
     );
-  if (
-    registration &&
-    registrationBodyless(registration) &&
-    (event.req.headers.has('transfer-encoding') ||
-      (event.req.headers.has('content-length') &&
-        event.req.headers.get('content-length') !== '0') ||
-      event.req.body != null)
-  )
-    invalidRegistration();
+  if (registration && registrationBodyless(registration)) {
+    if (
+      event.req.headers.has('transfer-encoding') ||
+      (event.req.headers.has('content-length') && event.req.headers.get('content-length') !== '0')
+    )
+      invalidRegistration();
+    // Nitro supplies a stream even for a legitimate empty POST. Inspect actual
+    // bytes, not stream presence; any byte is outside the bodyless contract.
+    try {
+      await boundedBody(event, 0, true);
+    } catch {
+      invalidRegistration();
+    }
+  }
   assertRankingReadQuery(path, method, event.url.searchParams, queryAt >= 0, rawQuery);
   assertRankingReadIntent(path, method, event.req.headers);
   if (

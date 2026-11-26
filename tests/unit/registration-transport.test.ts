@@ -545,3 +545,19 @@ test('a revoked session cannot receive a late sensitive admin receipt or roster'
   respond(200, JSON.stringify({ items: [fixtureRow], next_cursor: null }));
   await expect(request(adminWaitlist, 'GET')).rejects.toMatchObject({ status: 401 });
 });
+
+test('a bodyless invite using Nitro empty POST stream reaches the current admin authority', async () => {
+  const upstream = respond(200, JSON.stringify(receipt));
+  for (const headers of [{}, { 'content-length': '0' }]) {
+    await expect(request(inviteRoute, 'POST', new Uint8Array(0), headers)).resolves.toEqual(
+      receipt,
+    );
+  }
+  expect(upstream).toHaveBeenCalledTimes(2);
+  expect(upstream.mock.calls.every((call) => call[1]?.body === undefined)).toBe(true);
+  const refused = respond(403, '{"code":"registration.forbidden"}');
+  await expect(
+    request(inviteRoute, 'POST', new Uint8Array(0), { 'content-length': '0' }),
+  ).rejects.toMatchObject({ status: 403 });
+  expect(refused).toHaveBeenCalledTimes(1);
+});
