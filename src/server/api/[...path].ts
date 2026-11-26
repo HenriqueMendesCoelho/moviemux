@@ -49,6 +49,14 @@ import {
   manualCatalogOperation,
 } from '../utils/manual-catalog';
 import { MANUAL_CATALOG_BODY_LIMIT } from '../../modules/movie/utils/manualCatalogContract';
+import {
+  invalidRegistration,
+  REGISTRATION_BODY_LIMIT,
+  registrationOperation,
+  registrationBodyless,
+  registrationQuery,
+  registrationRequestBody,
+} from '../utils/registration-contract';
 import { rankingRequestBody } from '../utils/ranking-requests';
 import {
   allowedApiPath,
@@ -64,6 +72,7 @@ export default defineEventHandler(async (event) => {
   const logical = collectionContractPath(path);
   const catalogPicker = catalogPickerOperation(logical, method);
   const manualCatalog = manualCatalogOperation(path, method);
+  const registration = registrationOperation(path, method);
   // Nitro's portable event also proxies its underlying H3 node context.
   const native = (event as typeof event & Partial<Pick<H3Event, 'node'>>).node;
   const rawUrl = native?.req.originalUrl ?? native?.req.url;
@@ -112,19 +121,51 @@ export default defineEventHandler(async (event) => {
   const roster = memberRosterOperation(logical, method);
   const recoveryRead = removal?.kind === 'preview' || recovery?.kind === 'list';
   if (
-    (visibility || copy || removal || recovery || roster || catalogPicker || manualCatalog) &&
+    (visibility ||
+      copy ||
+      removal ||
+      recovery ||
+      roster ||
+      catalogPicker ||
+      manualCatalog ||
+      registration) &&
     rawUrl !== undefined &&
     rawUrl.split('?', 1)[0] !== `/api${path}`
   )
     throw createError({ status: 404, message: 'API route not available' });
   const session = isPublic ? undefined : await readActiveSession(event);
   const querySource =
-    visibility || copy || removal || recovery || roster || catalogPicker || manualCatalog
+    visibility ||
+    copy ||
+    removal ||
+    recovery ||
+    roster ||
+    catalogPicker ||
+    manualCatalog ||
+    registration
       ? (rawUrl ?? event.url.href)
       : event.url.href;
   const queryAt = querySource.indexOf('?');
   const rawQuery = queryAt >= 0 ? querySource.slice(queryAt + 1) : undefined;
   if (manualCatalog && (queryAt >= 0 || event.url.searchParams.size)) invalidManualCatalog();
+  if (registration)
+    registrationQuery(
+      registration,
+      queryAt >= 0
+        ? rawQuery
+        : event.url.searchParams.size
+          ? event.url.searchParams.toString()
+          : undefined,
+    );
+  if (
+    registration &&
+    registrationBodyless(registration) &&
+    (event.req.headers.has('transfer-encoding') ||
+      (event.req.headers.has('content-length') &&
+        event.req.headers.get('content-length') !== '0') ||
+      event.req.body != null)
+  )
+    invalidRegistration();
   assertRankingReadQuery(path, method, event.url.searchParams, queryAt >= 0, rawQuery);
   assertRankingReadIntent(path, method, event.req.headers);
   if (
@@ -171,6 +212,7 @@ export default defineEventHandler(async (event) => {
     recoveryRead ||
     roster === 'list' ||
     manualCatalog === 'proof' ||
+    (registration && registrationBodyless(registration)) ||
     isRankingJoin(path, method)
       ? undefined
       : event.req.headers.get('content-type')?.split(';')[0];
@@ -188,7 +230,16 @@ export default defineEventHandler(async (event) => {
   )
     throw createError({ status: 415, message: 'Unsupported request type' });
   let body: string | undefined;
-  if (manualCatalog === 'create') {
+  if (registration && registrationBodyless(registration)) {
+    body = undefined;
+  } else if (registration && registration !== 'signup') {
+    try {
+      body = await boundedBody(event, REGISTRATION_BODY_LIMIT, true);
+    } catch {
+      invalidRegistration();
+    }
+    body = registrationRequestBody(registration, body, contentType);
+  } else if (manualCatalog === 'create') {
     try {
       body = await boundedBody(event, MANUAL_CATALOG_BODY_LIMIT, true);
     } catch {
@@ -246,11 +297,14 @@ export default defineEventHandler(async (event) => {
       contentType,
       token: session?.secure.accessToken,
     });
+    if (registration?.startsWith('admin-') && !isActiveSession(session))
+      throw createError({ status: 401, message: 'Session expired' });
     setResponseStatus(event, result.status);
     if (result.rawJson !== undefined) {
       event.res.headers.set('content-type', 'application/json; charset=utf-8');
       return result.rawJson;
     }
+    if (registration === 'waitlist' && result.status === 202) return '';
     return result.status === 204 ? null : result.data;
   } catch (error) {
     // A late401 must not delete a newer login's cookie. Revoke only this request's generation.

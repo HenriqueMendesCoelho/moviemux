@@ -1,4 +1,5 @@
-export type TurnstileAction = 'login' | 'signup' | 'password_recovery' | 'password_reset';
+export type TurnstileAction =
+  'login' | 'signup' | 'registration_waitlist' | 'password_recovery' | 'password_reset';
 export interface TurnstileOptions {
   sitekey: string;
   action: TurnstileAction;

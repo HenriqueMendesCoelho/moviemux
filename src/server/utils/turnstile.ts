@@ -1,7 +1,8 @@
 import { createError, useRuntimeConfig } from 'nuxt/server';
 import { trustedOrigins } from './security';
 
-export type TurnstileAction = 'login' | 'signup' | 'password_recovery' | 'password_reset';
+export type TurnstileAction =
+  'login' | 'signup' | 'registration_waitlist' | 'password_recovery' | 'password_reset';
 export const TURNSTILE_FIELD = 'cf-turnstile-response';
 const loopback = new Set(['localhost', '127.0.0.1', '[::1]']);
 
@@ -9,6 +10,7 @@ export function turnstileAction(path: string, method: string): TurnstileAction |
   if (method !== 'POST') return undefined;
   if (path === '/login') return 'login';
   if (path === '/public/user') return 'signup';
+  if (path === '/public/registration-waitlist') return 'registration_waitlist';
   if (path === '/public/user/password/reset') return 'password_recovery';
   if (/^\/public\/user\/password\/[a-zA-Z0-9]{200}\/reset$/.test(path)) return 'password_reset';
 }

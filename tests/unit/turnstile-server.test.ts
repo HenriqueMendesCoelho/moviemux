@@ -82,9 +82,11 @@ describe('Turnstile server boundary', () => {
     expect(fetch).toHaveBeenCalledTimes(2);
   });
 
-  it('maps exactly the four public authentication actions', () => {
+  it('maps exactly the five public authentication actions', () => {
     expect(turnstileAction('/login', 'POST')).toBe('login');
     expect(turnstileAction('/public/user', 'POST')).toBe('signup');
+    expect(turnstileAction('/public/registration-waitlist', 'POST')).toBe('registration_waitlist');
+    expect(turnstileAction('/public/registration-waitlist', 'GET')).toBeUndefined();
     expect(turnstileAction('/public/user/password/reset', 'POST')).toBe('password_recovery');
     expect(turnstileAction(`/public/user/password/${'A1'.repeat(100)}/reset`, 'POST')).toBe(
       'password_reset',

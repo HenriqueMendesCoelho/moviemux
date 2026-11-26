@@ -45,6 +45,11 @@ import {
   manualCatalogUpstreamError,
   manualCatalogUpstreamResponse,
 } from './manual-catalog';
+import {
+  registrationError,
+  registrationOperation,
+  registrationResponse,
+} from './registration-contract';
 import { fixedUpstream } from './security';
 import { collectionContractPath } from './collection-contract-path';
 import {
@@ -134,6 +139,7 @@ export function allowedApiPath(path: string, method: string): boolean {
   path = collectionContractPath(path);
   if (path.includes('..') || path.includes('\\') || /%(?:2f|5c|2e|25)/i.test(path)) return false;
   return (
+    Boolean(registrationOperation(path, method)) ||
     Boolean(manualCatalogOperation(path, method)) ||
     legacyFilmResolverPath(path, method) ||
     Boolean(memberRosterOperation(path, method)) ||
@@ -393,6 +399,7 @@ export async function upstreamRequest(
   options: { method: string; body?: string; contentType?: string; token?: string },
 ): Promise<{ status: number; data: unknown; rawJson?: string }> {
   const manualCatalog = manualCatalogOperation(path, options.method);
+  const registration = registrationOperation(path.split('?', 1)[0]!, options.method);
   const legacyLink = legacyFilmResolverPath(path, options.method);
   const base = fixedUpstream(String(useRuntimeConfig().apiUpstream || ''));
   const target = new URL(`${base.pathname.replace(/\/$/, '')}${path}`, base.origin);
@@ -425,14 +432,32 @@ export async function upstreamRequest(
       const { value, done } = await reader.read();
       if (done) break;
       size += value.length;
-      if (size > (legacyLink ? 256 : 4 * 1024 * 1024)) {
+      if (
+        size >
+        (legacyLink
+          ? 256
+          : registration === 'admin-list'
+            ? 65536
+            : registration && registration !== 'signup'
+              ? 1024
+              : 4 * 1024 * 1024)
+      ) {
         await reader.cancel();
         throw createError({ status: 502, message: 'API response too large' });
       }
       chunks.push(value);
     }
   }
-  const text = Buffer.concat(chunks).toString('utf8');
+  let text: string;
+  try {
+    const bytes = Buffer.concat(chunks);
+    text =
+      registration && registration !== 'signup'
+        ? new TextDecoder('utf-8', { fatal: true }).decode(bytes)
+        : bytes.toString('utf8');
+  } catch {
+    throw createError({ status: 502, message: 'Invalid API response' });
+  }
   if (legacyLink) return legacyFilmResolverResponse(response.status, text);
   const repeated = repeatedRoundOperation(path, options.method);
   const visibility = rankingVisibilityOperation(path, options.method);
@@ -446,25 +471,27 @@ export async function upstreamRequest(
   if (!response.ok) {
     // Only a verified code may cross the boundary, never upstream messages or other fields.
     const operation = rankingTmdbOperation(path, options.method);
-    const code = manualCatalog
-      ? manualCatalogUpstreamError(manualCatalog, response.status, text)
-      : catalogPicker
-        ? rankingCatalogPickerError(catalogPicker, response.status, text)
-        : roster
-          ? memberRosterError(roster, response.status, text)
-          : recovery
-            ? recoveryDirectoryError(recovery, response.status, text)
-            : removal
-              ? entryRemovalError(removal, response.status, text)
-              : copy
-                ? rankingRatingCopyError(copy, response.status, text)
-                : visibility
-                  ? rankingVisibilityError(response.status, text)
-                  : repeated
-                    ? repeatedRoundError(repeated, response.status, text)
-                    : operation
-                      ? rankingTmdbError(operation, response.status, text)
-                      : rankingErrorCode(path, options.method, response.status, text);
+    const code = registration
+      ? registrationError(registration, response.status, text)
+      : manualCatalog
+        ? manualCatalogUpstreamError(manualCatalog, response.status, text)
+        : catalogPicker
+          ? rankingCatalogPickerError(catalogPicker, response.status, text)
+          : roster
+            ? memberRosterError(roster, response.status, text)
+            : recovery
+              ? recoveryDirectoryError(recovery, response.status, text)
+              : removal
+                ? entryRemovalError(removal, response.status, text)
+                : copy
+                  ? rankingRatingCopyError(copy, response.status, text)
+                  : visibility
+                    ? rankingVisibilityError(response.status, text)
+                    : repeated
+                      ? repeatedRoundError(repeated, response.status, text)
+                      : operation
+                        ? rankingTmdbError(operation, response.status, text)
+                        : rankingErrorCode(path, options.method, response.status, text);
     throw createError({
       status:
         code || [400, 401, 403, 404, 409, 422, 429].includes(response.status)
@@ -479,6 +506,8 @@ export async function upstreamRequest(
             : 'API request failed',
     });
   }
+  if (registration && registration !== 'signup')
+    return registrationResponse(registration, response.status, text, options.body, path);
   if (manualCatalog) return manualCatalogUpstreamResponse(manualCatalog, response.status, text);
   if (roster)
     return memberRosterResponse(
