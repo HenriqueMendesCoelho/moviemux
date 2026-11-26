@@ -3,30 +3,93 @@
     <LoginTab
       v-if="tab === 'login'"
       :create-account="createAccount"
-      @change-tab="tab = $event"
+      :registration-mode="registrationMode"
+      @change-tab="changeTab"
       @loading="loading = $event"
     />
     <LoginCreateAccountTab
       v-else-if="tab === 'create' && createAccount"
-      @change-tab="tab = $event"
+      :registration-mode="registrationMode"
+      @change-tab="changeTab"
       @loading="loading = $event"
+      @refresh-mode="refreshMode"
+    />
+    <LoginWaitlistTab
+      v-else-if="tab === 'waitlist' && createAccount"
+      :enabled="registrationMode === 'WAITLIST'"
+      :checking="checkingMode"
+      @change-tab="changeTab"
+      @loading="loading = $event"
+      @refresh-mode="refreshMode"
     />
     <LoginForgotPasswordTab
       v-else
       :create-account="createAccount"
-      @change-tab="tab = $event"
+      @change-tab="changeTab"
       @loading="loading = $event"
     />
+    <div v-if="createAccount && modeUnavailable" class="mm-muted">
+      <p role="status">{{ t('account.registrationModeUnavailable') }}</p>
+      <button
+        type="button"
+        class="mm-link"
+        :disabled="loading || checkingMode"
+        @click="refreshMode"
+      >
+        {{ t('account.checkRegistrationMode') }}
+      </button>
+    </div>
   </section>
 </template>
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue';
+import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue';
+import { useI18n } from 'vue-i18n';
+import type { RegistrationMode } from '~/core/registration-mode';
+import registration from '../services/RegistrationService';
+import LoginWaitlistTab from './LoginWaitlistTab.vue';
 import LoginTab from './LoginTab.vue';
 import LoginCreateAccountTab from './LoginCreateAccountTab.vue';
 import LoginForgotPasswordTab from './LoginForgotPasswordTab.vue';
-withDefaults(defineProps<{ createAccount?: boolean }>(), { createAccount: true });
+const props = withDefaults(defineProps<{ createAccount?: boolean }>(), { createAccount: true });
+const { t } = useI18n();
+const registrationMode = ref<RegistrationMode | null>(null);
+const checkingMode = ref(false);
+const modeUnavailable = ref(false);
+let current: AbortController | undefined;
+let mounted = false;
 const tab = defineModel<string>({ default: 'login' });
 const loading = ref(false);
+async function refreshMode() {
+  if (!mounted || !props.createAccount) return;
+  current?.abort();
+  const request = new AbortController();
+  current = request;
+  checkingMode.value = true;
+  modeUnavailable.value = false;
+  // A failed or stale read cannot leave direct enrollment enabled.
+  registrationMode.value = null;
+  try {
+    const mode = await registration.mode(request.signal);
+    if (current === request && !request.signal.aborted) registrationMode.value = mode;
+  } catch {
+    if (current === request && !request.signal.aborted) modeUnavailable.value = true;
+  } finally {
+    if (current === request) checkingMode.value = false;
+  }
+}
+function changeTab(value: string) {
+  if (!props.createAccount && (value === 'create' || value === 'waitlist')) return;
+  tab.value = value;
+  if (value === 'create' || value === 'waitlist' || value === 'login') void refreshMode();
+}
+onMounted(() => {
+  mounted = true;
+  void refreshMode();
+});
+onBeforeUnmount(() => {
+  mounted = false;
+  current?.abort();
+});
 const emit = defineEmits<{ loading: [value: boolean] }>();
 watch(loading, (value) => emit('loading', value));
 const panel = ref<HTMLElement>();

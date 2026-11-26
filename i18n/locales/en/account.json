@@ -150,5 +150,19 @@
   "promoteUserConfirm": "Promote user {name} ({email})?",
   "demoteUserConfirm": "Demote user {name} ({email})?",
   "blockUserConfirm": "Block user {name} ({email})?",
-  "sharedMovieTitle": "Movie Mux - Discover - {title}"
+  "sharedMovieTitle": "Movie Mux - Discover - {title}",
+  "joinRegistrationWaitlist": "Join the waitlist",
+  "noAccountYet": "No account yet?",
+  "openSignupIntro": "Create your account to join MovieMux.",
+  "inviteCodeOptional": "Invitation code (optional)",
+  "inviteRequired": "Enter a valid invitation code.",
+  "registrationModeChanged": "Registration availability changed. Check the available options before trying again.",
+  "registrationModeUnavailable": "Could not check registration availability. You can still try an existing invitation.",
+  "checkRegistrationMode": "Check availability again",
+  "registrationWaitlist": "Join the waitlist",
+  "registrationWaitlistIntro": "Leave your email to request an invitation. This is not an account registration.",
+  "registrationWaitlistAccepted": "Your request has been received. If an invitation can be issued, you may receive an email.",
+  "registrationWaitlistInvalid": "Enter a valid email address of up to 100 characters.",
+  "registrationWaitlistFailed": "Could not confirm your request. You can try again later.",
+  "checkingRegistrationMode": "Checking registration availability…"
 }

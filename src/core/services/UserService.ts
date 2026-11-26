@@ -15,7 +15,7 @@ export default {
     name: string;
     email: string;
     password: string;
-    invite_code: string;
+    invite_code?: string;
     'cf-turnstile-response'?: string;
   }) {
     const res = await axios.post(`${API_USER_PUBLIC}`, payload);

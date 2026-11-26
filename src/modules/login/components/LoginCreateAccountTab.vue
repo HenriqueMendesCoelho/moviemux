@@ -3,7 +3,9 @@
     <header>
       <p class="mm-eyebrow">{{ t('account.join') }}</p>
       <h2>{{ t('account.signupTitle') }}</h2>
-      <p class="mm-muted">{{ t('account.signupIntro') }}</p>
+      <p class="mm-muted">
+        {{ t(openSignup ? 'account.openSignupIntro' : 'account.signupIntro') }}
+      </p>
     </header>
     <label class="mm-field"
       >{{ t('account.email')
@@ -32,7 +34,8 @@
       autocomplete="new-password"
     />
     <label class="mm-field"
-      >{{ t('account.inviteCode') }}<input v-model.trim="invite" autocomplete="off" required
+      >{{ t(openSignup ? 'account.inviteCodeOptional' : 'account.inviteCode')
+      }}<input v-model.trim="invite" autocomplete="off" :required="!openSignup"
     /></label>
     <TurnstileChallenge ref="widget" v-model="token" action="signup" />
     <p v-if="error" role="alert" class="mm-error">{{ error }}</p>
@@ -55,7 +58,14 @@ import BasePasswordInput from 'src/core/components/BasePasswordInput.vue';
 import axios from 'axios';
 import UserService from 'src/core/services/UserService';
 import { showSuccess } from 'src/core/utils/NotificationUtils';
-const emit = defineEmits<{ changeTab: [value: string]; loading: [value: boolean] }>();
+import type { RegistrationMode } from '~/core/registration-mode';
+const props = defineProps<{ registrationMode?: RegistrationMode | null }>();
+const openSignup = computed(() => props.registrationMode === 'OPEN');
+const emit = defineEmits<{
+  changeTab: [value: string];
+  loading: [value: boolean];
+  refreshMode: [];
+}>();
 const email = ref('');
 const password = ref('');
 const repeatPassword = ref('');
@@ -78,6 +88,10 @@ async function create() {
     errorMessage.value = () => t('account.passwordMismatch');
     return;
   }
+  if (!openSignup.value && !invite.value.trim()) {
+    errorMessage.value = () => t('account.inviteRequired');
+    return;
+  }
   busy.value = true;
   emit('loading', true);
   try {
@@ -85,12 +99,21 @@ async function create() {
       name: nickname.value,
       email: email.value,
       password: password.value,
-      invite_code: invite.value,
+      ...(invite.value.trim() ? { invite_code: invite.value.trim() } : {}),
       'cf-turnstile-response': token.value,
     });
     showSuccess(() => t('account.accountCreated'));
     emit('changeTab', 'login');
   } catch (err) {
+    if (
+      axios.isAxiosError(err) &&
+      err.response?.status === 400 &&
+      err.response?.data?.data?.code === 'registration.invite_required'
+    ) {
+      errorMessage.value = () => t('account.registrationModeChanged');
+      emit('refreshMode');
+      return;
+    }
     errorMessage.value = () =>
       verificationFailureMessage(err, t) ??
       (axios.isAxiosError(err) && err.response?.data?.message === 'invite is not valid'

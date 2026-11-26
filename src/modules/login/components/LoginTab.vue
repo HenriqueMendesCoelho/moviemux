@@ -18,12 +18,23 @@
     <button class="mm-btn mm-btn-primary" :disabled="busy || !ready">
       {{ busy ? t('account.signingIn') : t('account.signIn') }}
     </button>
-    <p v-if="createAccount" class="mm-muted">
-      {{ t('account.receivedInvite') }}
-      <button type="button" class="mm-link" :disabled="busy" @click="emit('changeTab', 'create')">
-        {{ t('account.createMyAccount') }}
+    <template v-if="createAccount">
+      <button
+        v-if="registrationMode === 'WAITLIST'"
+        type="button"
+        class="mm-btn"
+        :disabled="busy"
+        @click="emit('changeTab', 'waitlist')"
+      >
+        {{ t('account.joinRegistrationWaitlist') }}
       </button>
-    </p>
+      <p class="mm-muted">
+        {{ t(registrationMode === 'OPEN' ? 'account.noAccountYet' : 'account.receivedInvite') }}
+        <button type="button" class="mm-link" :disabled="busy" @click="emit('changeTab', 'create')">
+          {{ t('account.createMyAccount') }}
+        </button>
+      </p>
+    </template>
   </form>
 </template>
 <script setup lang="ts">
@@ -38,7 +49,11 @@ import { useRoute, useRouter } from 'vue-router';
 import { safeReturnPath } from '../utils/AccountUtils';
 import { useLegacyBoardAvailable } from '~/core/useLegacyBoardAvailable';
 import { useUserStore } from 'src/core/stores/UserStore';
-withDefaults(defineProps<{ createAccount?: boolean }>(), { createAccount: true });
+import type { RegistrationMode } from '~/core/registration-mode';
+withDefaults(
+  defineProps<{ createAccount?: boolean; registrationMode?: RegistrationMode | null }>(),
+  { createAccount: true },
+);
 const emit = defineEmits<{ changeTab: [value: string]; loading: [value: boolean] }>();
 const route = useRoute();
 const router = useRouter();

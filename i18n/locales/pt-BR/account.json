@@ -150,5 +150,19 @@
   "promoteUserConfirm": "Promover o usuário {name} ({email})?",
   "demoteUserConfirm": "Rebaixar o usuário {name} ({email})?",
   "blockUserConfirm": "Bloquear o usuário {name} ({email})?",
-  "sharedMovieTitle": "Movie Mux - Descobrir - {title}"
+  "sharedMovieTitle": "Movie Mux - Descobrir - {title}",
+  "joinRegistrationWaitlist": "Entrar na lista de espera",
+  "noAccountYet": "Ainda não tem conta?",
+  "openSignupIntro": "Crie sua conta para fazer parte do MovieMux.",
+  "inviteCodeOptional": "Código do convite (opcional)",
+  "inviteRequired": "Informe um código de convite válido.",
+  "registrationModeChanged": "A disponibilidade do cadastro mudou. Confira as opções antes de tentar novamente.",
+  "registrationModeUnavailable": "Não foi possível verificar a disponibilidade do cadastro. Você ainda pode tentar usar um convite existente.",
+  "checkRegistrationMode": "Verificar disponibilidade novamente",
+  "registrationWaitlist": "Entre na lista de espera",
+  "registrationWaitlistIntro": "Informe seu e-mail para solicitar um convite. Isso não cria uma conta.",
+  "registrationWaitlistAccepted": "Sua solicitação foi recebida. Se for possível emitir um convite, você poderá receber um e-mail.",
+  "registrationWaitlistInvalid": "Informe um e-mail válido de até 100 caracteres.",
+  "registrationWaitlistFailed": "Não foi possível confirmar sua solicitação. Você pode tentar novamente mais tarde.",
+  "checkingRegistrationMode": "Verificando disponibilidade do cadastro…"
 }
