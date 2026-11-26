@@ -88,7 +88,8 @@ async function create() {
     errorMessage.value = () => t('account.passwordMismatch');
     return;
   }
-  if (!openSignup.value && !invite.value.trim()) {
+  const suppliedInvite = invite.value.trim();
+  if (!openSignup.value && !suppliedInvite) {
     errorMessage.value = () => t('account.inviteRequired');
     return;
   }
@@ -99,7 +100,7 @@ async function create() {
       name: nickname.value,
       email: email.value,
       password: password.value,
-      ...(invite.value.trim() ? { invite_code: invite.value.trim() } : {}),
+      ...(suppliedInvite ? { invite_code: suppliedInvite } : {}),
       'cf-turnstile-response': token.value,
     });
     showSuccess(() => t('account.accountCreated'));
@@ -110,7 +111,8 @@ async function create() {
       err.response?.status === 400 &&
       err.response?.data?.data?.code === 'registration.invite_required'
     ) {
-      errorMessage.value = () => t('account.registrationModeChanged');
+      errorMessage.value = () =>
+        t(suppliedInvite ? 'account.invalidInvite' : 'account.registrationModeChanged');
       emit('refreshMode');
       return;
     }

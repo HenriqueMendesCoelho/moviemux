@@ -169,3 +169,21 @@ it('refreshes stale waitlist denial without an automatic retry or signup', async
   expect(api.waitlist).toHaveBeenCalledTimes(1);
   expect(api.create).not.toHaveBeenCalled();
 });
+
+it('reports an explicitly provided invalid invite as invalid, even when refreshing policy', async () => {
+  api.mode.mockResolvedValue('INVITE_ONLY');
+  const view = render('en');
+  await flushPromises();
+  await open(en.account.createMyAccount);
+  await fillSignup();
+  await view.get('input[autocomplete="off"]').setValue('invalid-fixture-only');
+  api.create.mockRejectedValueOnce(error(400, 'registration.invite_required'));
+  await view.get('form').trigger('submit');
+  await flushPromises();
+  expect(view.get('[role="alert"]').text()).toBe(en.account.invalidInvite);
+  expect(api.create).toHaveBeenCalledTimes(1);
+  expect((view.get('input[autocomplete="off"]').element as HTMLInputElement).value).toBe(
+    'invalid-fixture-only',
+  );
+  expect(api.mode).toHaveBeenCalledTimes(3);
+});
