@@ -22,6 +22,9 @@
       <AdministratorUserTab v-if="tab === 'users'" /><AdministratorListUserTab
         v-else-if="tab === 'listUsers'"
       /><AdministratorInviteUserTab v-else-if="tab === 'invite'" />
+      <AdministratorRegistrationTab
+        v-else-if="tab === 'registration' && user.user.isLoged && user.isAdmin"
+      />
       <AdministratorManualMovieTab
         v-if="user.user.isLoged && user.isAdmin"
         :active="tab === 'manualCatalog'"
@@ -40,6 +43,7 @@ import BaseContainerMain from 'src/core/components/BaseContainerMain.vue';
 import AdministratorUserTab from '../components/AdministratorUserTab.vue';
 import AdministratorListUserTab from '../components/AdministratorListUserTab.vue';
 import { useUserStore } from '~/core/stores/UserStore';
+import AdministratorRegistrationTab from '../components/AdministratorRegistrationTab.vue';
 import AdministratorManualMovieTab from '../components/AdministratorManualMovieTab.vue';
 import AdministratorInviteUserTab from '../components/AdministratorInviteUserTab.vue';
 const user = useUserStore();
@@ -58,6 +62,9 @@ const tabs = computed(() => [
   { id: 'users', label: t('account.manageUser') },
   { id: 'listUsers', label: t('account.allUsers') },
   { id: 'invite', label: t('account.invitations') },
+  ...(user.user.isLoged && user.isAdmin
+    ? [{ id: 'registration', label: t('registrationAdmin.tab') }]
+    : []),
   ...(manualAvailable.value && user.user.isLoged && user.isAdmin
     ? [{ id: 'manualCatalog', label: t('manualCatalog.tab') }]
     : []),
